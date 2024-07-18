@@ -5,17 +5,18 @@
 #include <math.h>
 #include <assert.h>
 #include "model.h"
+#include <vector>
 
 #ifndef M_PI
   #define M_PI 3.14159265358979323846
 #endif
 using namespace netCDF;
 
+
+
+//From a given Vmec File, generate the model of the core region of stellarator
 void generateCoreSimModel(args* a)
 {
-  double avmajr, avminr,*R, *Z, *L, *xm, *xn;
-  int i, nsurf, nmode;
-
   // Step 1: Read all the variables in vmec file
   NcFile vmecFile(a->vmecFile, NcFile::read); 
 
@@ -35,37 +36,39 @@ void generateCoreSimModel(args* a)
 
 
   // Step 3: Assign netCDF variables to local variables and arrays
+  double avmajr, avminr;
+  int i, nsurf, nmode;
+
   vmecMinor.getVar(&avminr);
   vmecMajor.getVar(&avmajr);
   vmecSurf.getVar(&nsurf);
   vmecMode.getVar(&nmode);
 
-  R = new double[nsurf*nmode];
-  Z = new double[nsurf*nmode];
-  L = new double[nsurf*nmode];
-  xm = new double[nmode];
-  xn = new double[nmode];
- 
-  vmecR.getVar(R);
-  vmecZ.getVar(Z);
-  vmecL.getVar(L);
-  vmecXm.getVar(xm);
-  vmecXn.getVar(xn);
+  std::vector <double> R, Z, L, xm, xn;
+  R.resize(nsurf*nmode);
+  Z.resize(nsurf*nmode);
+  L.resize(nsurf*nmode);
+  xm.resize(nmode);
+  xn.resize(nmode);
 
+  vmecR.getVar(R.data());
+  vmecZ.getVar(Z.data());
+  vmecL.getVar(L.data());
+  vmecXm.getVar(xm.data());
+  vmecXn.getVar(xn.data());
 
-  pVmecFlux vf = VmecFlux_create(avmajr, avminr, nsurf, nmode, R,  Z, L, xm, xn);
-  delete[] R;
-  delete[] Z;
-  delete[] L;
-  delete[] xm; 
-  delete[] xn; 
+  // Step 4: Create an object to hold Vmec flux data
+  pVmecFlux vf = VmecFlux_create(avmajr, avminr, nsurf, nmode, R.data(), Z.data(), L.data(), xm.data(), xn.data());
 
+  // Step 5: Set number of fluxs (nrho) on each poloidal plane and number of poloidal 
+  // planes (nzeta) along with their indices (rhos) and toroidal angle (zetas). 
   const int nrho = 10, nzeta = 5;
   const int rhos[nrho] = {0, 12, 15, 25, 40, 51, 66, 76, 80, 98};
   const double zetas[nzeta] = {0, M_PI/12, M_PI/6, M_PI/4, M_PI/2};
   VmecFlux_setFluxIndices(vf, nrho, rhos);
   VmecFlux_setToroidalAngles(vf, nzeta, zetas);
 
+  // Step 6: Create model entities from the vmec physics data.
   pGModel model = GM_new(0);
   pGIPart gp = GM_createVmecPart(model, vf, 2); 
   int rho, rho0, rho1;
