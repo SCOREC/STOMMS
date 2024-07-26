@@ -1,6 +1,6 @@
 #include "input.h"
 #include "model.h"
-
+#include "modelTopology.h"
 
 int main(int argc, char* argv[])
 {
@@ -17,9 +17,11 @@ int main(int argc, char* argv[])
   args a(argc, argv);
 
   // Step 2: Generate the core region of the stellarator from the given VMEC file
-  generateCoreSimModel(&a);
+  pGModel simModel = 0;		// Initialize an empty simmetrix pGModel 
+  generateCoreSimModel(simModel, &a);
 
-
+  Model model(simModel);
+ 
   Progress_delete(prog);
 
   Sim_unregisterAllKeys();

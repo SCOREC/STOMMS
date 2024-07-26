@@ -1,6 +1,5 @@
 #include "input.h"
 
-
 args::args(int argc, char* argv[])
 {
   // First set the default values of parameters - write a fucntion for it
@@ -17,8 +16,8 @@ void args::set_values_from_input_file()
   std::ifstream input(inputFile);
   if (!input.is_open())
   {
-	std::cout << "Error opening the input file " <<  inputFile << "\n";
-	exit(1);	// If input file cannot be found, exit the program
+    std::cout << "Error opening the input file " <<  inputFile << "\n";
+    exit(1);	// If input file cannot be found, exit the program
   }
 
   std::string token;
@@ -31,6 +30,5 @@ void args::set_values_from_input_file()
     }
 
   }
-
   input.close();
 }

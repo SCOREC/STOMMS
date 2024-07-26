@@ -5,7 +5,6 @@
 #include <math.h>
 #include <assert.h>
 #include "model.h"
-#include <vector>
 
 #ifndef M_PI
   #define M_PI 3.14159265358979323846
@@ -15,7 +14,7 @@ using namespace netCDF;
 
 
 //From a given Vmec File, generate the model of the core region of stellarator
-void generateCoreSimModel(args* a)
+void generateCoreSimModel(pGModel &globalModel, args* a)
 {
   // Step 1: Read all the variables in vmec file
   NcFile vmecFile(a->vmecFile, NcFile::read); 
@@ -83,6 +82,7 @@ void generateCoreSimModel(args* a)
   VmecFlux_poloidalFaceInfo(vf, gf, &rho0, &rho1, &zeta);
   assert(rho0 == rhos[2] && rho1 == rhos[3] && zeta == zetas[2]);
   GM_write(model, "vmec.smd", 0, 0);
+  globalModel = model; 			// Get the model for global use
 }
 
 
