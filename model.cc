@@ -11,8 +11,6 @@
 #endif
 using namespace netCDF;
 
-
-
 //From a given Vmec File, generate the model of the core region of stellarator
 void generateCoreSimModel(pGModel &globalModel, args* a)
 {
@@ -69,7 +67,19 @@ void generateCoreSimModel(pGModel &globalModel, args* a)
 
   // Step 6: Create model entities from the vmec physics data.
   pGModel model = GM_new(0);
+  simModelFromVmec(model, vf, nrho, nzeta, rhos, zetas);
+  globalModel = model; 	// Get the model for global use
+}
+
+
+// From Vmec flux data (vf), flux indices (nrho and rhos), and, poloidal planes (nzeta and zetas)
+// generate a Simmetrix model (pGModel model)
+void simModelFromVmec(pGModel &model, pVmecFlux vf, const int nrho, const int nzeta, const int *rhos, const double *zetas)
+{
+  // Step 1: Create Model from vf data.
   pGIPart gp = GM_createVmecPart(model, vf, 2); 
+
+  // Step 2: Sanity check (Verifying some of the model entities using a-priori knowldge)
   int rho, rho0, rho1;
   double zeta;
   pGVertex gv = VmecFlux_opointVertex(vf, zetas[2]);
@@ -81,9 +91,7 @@ void generateCoreSimModel(pGModel &globalModel, args* a)
   pGFace gf = VmecFlux_poloidalFace(vf, rhos[2], zetas[2]);
   VmecFlux_poloidalFaceInfo(vf, gf, &rho0, &rho1, &zeta);
   assert(rho0 == rhos[2] && rho1 == rhos[3] && zeta == zetas[2]);
+
+  // Step 3: Write the model (.smd) on disk for visualization.
   GM_write(model, "vmec.smd", 0, 0);
-  globalModel = model; 			// Get the model for global use
-}
-
-
-
+} 
