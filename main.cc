@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 
   // Step 2: Generate the core region of the stellarator from the given VMEC file
   pGModel simModel = 0;		// Initialize an empty simmetrix pGModel 
-  generateCoreSimModel(simModel, &a);
+  simModel = generateCoreSimModel(&a);
 
   Model model(simModel);
  

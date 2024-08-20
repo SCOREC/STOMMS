@@ -1,0 +1,3 @@
+vmecFile wout_HSX.nc
+fluxFile flux.txt 
+planeFile plane.txt

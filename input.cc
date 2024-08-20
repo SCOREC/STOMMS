@@ -26,9 +26,18 @@ void args::set_values_from_input_file()
     if (token == "vmecFile")
     {
       input >> vmecFile;
-      std::cout << " The loaded VMEC file is " << vmecFile << "\n";
+      std::cout << "The loaded VMEC file is " << vmecFile << "\n";
     }
-
+    if (token == "fluxFile")
+    {
+      input >> fluxFile;
+      std::cout << "The loaded flux indices file for the core region is " << fluxFile << "\n";
+    }
+    if (token == "planeFile")
+    {
+      input >> planeFile;
+      std::cout << "The loaded planes position file for the placement of planes is " << planeFile << "\n"; 
+    }
   }
   input.close();
 }
