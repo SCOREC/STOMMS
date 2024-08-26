@@ -25,18 +25,22 @@ class Face{
 
 class Model{
   public:
+    Model(pGModel simModel);
+
+    // Member Functions
+    void setModel();
+    void setModelVertices();
+    void setModelEdges();
+    void setModelFaces();
+    
+  //private:
     int numVertices;
     int numEdges;
     int numFaces;
     std::vector <Vertex> vertices;
     std::vector <Edge> edges;
     std::vector <Face> faces;
-    Model(pGModel model);
-  private:
-    void setModel(pGModel model);
-    void setModelVertices(pGModel model);
-    void setModelEdges(pGModel model);
-    void setModelFaces(pGModel model);
+    pGModel model;    
 };
 
 #endif

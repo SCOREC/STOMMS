@@ -21,13 +21,12 @@ int main(int argc, char* argv[])
   simModel = generateCoreSimModel(&a);
 
   Model model(simModel);
- 
+  std::cout << "Number of vertices = " << model.numVertices << "\n";
+  
   Progress_delete(prog);
 
   Sim_unregisterAllKeys();
   MS_exit();
   return 0;
-
-
 }
 

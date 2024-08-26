@@ -1,21 +1,21 @@
 #include "modelTopology.h"
 
-Model::Model(pGModel model)
+Model::Model(pGModel simModel):model(simModel)
 {
-  setModel(model);
-  setModelVertices(model);
-  setModelEdges(model);
-  setModelFaces(model);
+  setModel();
+  setModelVertices();
+  setModelEdges();
+  setModelFaces();
 }
 
-void Model::setModel(pGModel model)
+void Model::setModel()
 {
   numVertices = GM_numVertices(model);
   numEdges = GM_numEdges(model);
   numFaces = GM_numFaces(model);
 }
 
-void Model::setModelVertices(pGModel model)
+void Model::setModelVertices()
 {
   GVIter vIter = GM_vertexIter(model);
   while (pGVertex gVertex = GVIter_next(vIter))
@@ -28,7 +28,7 @@ void Model::setModelVertices(pGModel model)
   assert(numVertices == vertices.size());
 }
 
-void Model::setModelEdges(pGModel model)
+void Model::setModelEdges()
 {
   GEIter eIter = GM_edgeIter(model);
   while (pGEdge gEdge = GEIter_next(eIter))
@@ -50,7 +50,7 @@ void Model::setModelEdges(pGModel model)
   assert(numEdges == edges.size());
 }
 
-void Model::setModelFaces(pGModel model)
+void Model::setModelFaces()
 {
   GFIter fIter = GM_faceIter(model);
   while (pGFace gFace = GFIter_next(fIter))
