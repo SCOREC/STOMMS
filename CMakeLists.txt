@@ -28,7 +28,6 @@ target_link_libraries(stell_meshgen PRIVATE MPI::MPI_CXX OpenMP::OpenMP_CXX)
 target_link_libraries(stell_meshgen PRIVATE ${SIMMODSUITE_LIBS})
 target_link_libraries(stell_meshgen PRIVATE PkgConfig::netcdf-cxx4)
 target_include_directories(stell_meshgen PRIVATE ${SIMMODSUITE_INCLUDE_DIR})
-target_include_directories(stell_meshgen PRIVATE ${STELLMESH_HEADERS})
 
 install(TARGETS stell_meshgen
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
