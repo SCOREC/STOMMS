@@ -3,13 +3,21 @@
 args::args(int argc, char* argv[])
 {
   // First set the default values of parameters - write a fucntion for it
-  // void function_default_values();
+  setDefaultValues();  
+
   // Read the parameters from the input file
-  set_values_from_input_file();
+  setValuesFromInputFile();
 
 }
 
-void args::set_values_from_input_file()
+// This function initializes the input parameters with default values.
+void args::setDefaultValues()
+{
+  meshSize = 0.1;
+}
+
+// This function reads the input parameter from the mesh input file.
+void args::setValuesFromInputFile()
 {
 
   inputFile = "mesh_input";
@@ -38,6 +46,8 @@ void args::set_values_from_input_file()
       input >> planeFile;
       std::cout << "The loaded planes position file for the placement of planes is " << planeFile << "\n"; 
     }
+    if (token == "meshSize")
+      input >> meshSize;
   }
   input.close();
 }

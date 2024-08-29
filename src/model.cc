@@ -198,4 +198,61 @@ std::vector<double> readPlaneFile(args* a)
   
   // Step 7: Return the vector containing the angles in radians.
   return planeAnglesRadian;
-} 
+}
+
+// Setting model entities from simModel to respective planes
+void getPlanes(pGModel model, std::vector <Plane>& planesContainer, args* a)
+{
+  // Step 1: Sort all the model faces according to plane number in a map
+  // In map, the key is the plane # and the model data is stored in a vector 
+  // containing the model faces.
+  std::map <int, std::vector<pGFace>> planesMap = sortFacesbyPlanes(model, a);
+
+  // Step 2: Iterate over the map and assign the data to each plane (using object Plane)
+  std::map <int, std::vector<pGFace>>::iterator itr;
+  for (itr = planesMap.begin(); itr != planesMap.end(); itr++)
+  {
+    Plane p;
+    p.planeNumber = (itr->first)+1;
+    p.modelFaces = itr->second;
+    planesContainer.push_back(p);
+  }
+}
+
+// From the simModel, sort the model entities by planes. This results defining
+// each plane using its model entities (model faces for now).
+std::map<int,std::vector<pGFace>> sortFacesbyPlanes(pGModel model, args* a) 
+{
+  // Step 1: Fetch the vmecFlux data (vf) from the model and also read the planes
+  // information from the input plane file.
+  pVmecFlux vf = GM_vmec(model);
+  std::vector <double> zetas = readPlaneFile(a);
+
+  // Step 2: Iterate over the model faces, read their toroidal angle and compare it
+  // to data in planes vector (zetas) to sort the model faces according to their plane number.
+  std::map <int, std::vector<pGFace>> planesMap;
+  GFIter fIter = GM_faceIter(model);
+  while (pGFace gFace = GFIter_next(fIter))
+  {
+    int rho0, rho1;
+    double zeta;
+    pGFace gf = gFace;
+
+    // Setp 2.1: Read the toroidal angle of the model face.
+    VmecFlux_poloidalFaceInfo(vf, gf, &rho0, &rho1, &zeta);
+    int index = -1;
+
+    // Step 2.2: Compare the angle with the angles provided in input file (read in vector zetas).
+    // If similar found, push the model face to respective plane number in planesMap.
+    for (int i = 0; i < zetas.size(); i++)
+    {
+      if (zetas[i] - zeta < 1e-16)
+        index = i;
+    }
+    planesMap[index].push_back(gf);
+  }
+  GFIter_delete(fIter); 
+
+  // Step 3: Returns the map between plane number and associated vector of model faces.
+  return planesMap;
+}

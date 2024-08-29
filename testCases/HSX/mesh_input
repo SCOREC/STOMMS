@@ -1,3 +1,11 @@
+! The name of the vmec file for the core region
 vmecFile wout_HSX.nc
+
+! The file containing the number and indices of flux curves
 fluxFile flux.txt 
+
+! The file containing the number and toroidal angles of the desired poloidal planes
 planeFile plane.txt
+
+! Set the mesh size (Uniform mesh size for now)
+meshSize 0.1
