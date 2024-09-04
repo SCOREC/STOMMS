@@ -53,6 +53,7 @@ void Loop::setLoop()
     Edge e(ge);
     edgesOnL.push_back(e);
   }  
+  GEUIter_delete(edgesOnLoop);
   numEdgesOnL = edgesOnL.size();
 }
 
@@ -91,6 +92,7 @@ void Face::setLoopsOnFace()
     Loop l(loopUse);
     loopsOnF.push_back(l);
   }
+  GLUIter_delete(loopIter);
   numLoopsOnF = loopsOnF.size();
 }
 
