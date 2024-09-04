@@ -18,7 +18,7 @@ pGModel generateCoreSimModel(args* a)
   NcFile vmecFile(a->vmecFile, NcFile::read); 
 
   // netCDF Variables. First four hold single values and the rest are arrays of data.
-  NcVar vmecMinor, vmecMajor, vmecSurf, vmecMode, vmecR, vmecZ, vmecL, vmecXm, vmecXn;    
+  NcVar vmecMinor, vmecMajor, vmecSurf, vmecMode, vmecR, vmecZ, vmecL, vmecXm, vmecXn, vmecPsi;    
 
   // Step 2: Read required variables from vmec file
   vmecMinor = vmecFile.getVar("Aminor_p");
@@ -30,6 +30,7 @@ pGModel generateCoreSimModel(args* a)
   vmecL = vmecFile.getVar("lmns");
   vmecXm = vmecFile.getVar("xm");
   vmecXn = vmecFile.getVar("xn");
+  vmecPsi = vmecFile.getVar("phi");
 
 
   // Step 3: Assign netCDF variables to local variables and arrays
@@ -41,24 +42,30 @@ pGModel generateCoreSimModel(args* a)
   vmecSurf.getVar(&nsurf);
   vmecMode.getVar(&nmode);
 
-  std::vector <double> R, Z, L, xm, xn;
+  std::vector <double> R, Z, L, xm, xn, psi;
   R.resize(nsurf*nmode);
   Z.resize(nsurf*nmode);
   L.resize(nsurf*nmode);
   xm.resize(nmode);
   xn.resize(nmode);
+  psi.resize(nsurf);
 
   vmecR.getVar(R.data());
   vmecZ.getVar(Z.data());
   vmecL.getVar(L.data());
   vmecXm.getVar(xm.data());
   vmecXn.getVar(xn.data());
+  vmecPsi.getVar(psi.data());
 
   // Step 4: Create an object to hold Vmec flux data
   pVmecFlux vf = VmecFlux_create(avmajr, avminr, nsurf, nmode, R.data(), Z.data(), L.data(), xm.data(), xn.data());
 
   // Step 5: Read number of fluxs (nrho) on each poloidal plane and number of poloidal planes (nzeta) 
-  // along with their indices (rhos) and toroidal angle (zetas) from the fluxFile and planeFile. 
+  // along with their indices (rhos) and toroidal angle (zetas) from the fluxFile and planeFile.
+  // Also, read psi values at O-point and last closed flux curve from VMEC file and use them to convert
+  // normalized psi to actual psi. 
+  double psiAxis = psi[0];
+  double psiLCF = psi[nsurf-1];
   std::vector <int> rhos = readFluxFile(nsurf, a);
   std::vector <double> zetas = readPlaneFile(a);
   const int nrho = rhos.size(), nzeta = zetas.size();
@@ -73,7 +80,6 @@ pGModel generateCoreSimModel(args* a)
 
   return model;
 }
-
 
 // From Vmec flux data (vf), flux indices (nrho and rhos), and, poloidal planes (nzeta and zetas)
 // generate a Simmetrix model (pGModel model)
@@ -143,6 +149,19 @@ std::vector<int> readFluxFile(int nsurf, args* a)
 
   // Step 6: Returns the flux indices vector.
   return fluxIndices;
+}
+
+// Convert the normalized psi values to actual psi values. 
+std::vector <double> convertNormToPsi(std::vector <double> normPsi, double psiAxis, double psiLCF)
+{
+  std::vector <double> psiValues;
+  for (int i = 0; i < normPsi.size(); i++)
+  {
+    double psiNorm = normPsi[i];  // Normalized psi value
+    double psi = psiNorm*(psiLCF - psiAxis) + psiAxis;
+    psiValues.push_back(psi);
+  }
+  return psiValues;
 }
 
 // Read the planes file and check its validity.

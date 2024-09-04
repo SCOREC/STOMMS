@@ -18,7 +18,7 @@ class Plane{
 
 /*
  * From a given Vmec File, generate the model of the core region of stellarator
- * args* a (in): Input parameters. 
+ * args* a (in): input parameters. 
  * returns pGModel;
 */
 pGModel generateCoreSimModel(args* a);
@@ -37,33 +37,43 @@ pGModel simModelFromVmec(pVmecFlux vf, int nrho, int nzeta, const int *rhos, con
 
 /*
  * Read the flux input file and check its validity.
- * int nsurf (in): The number of flux surfaces from the VMEC file.
- * args* a (in): Input parameters.
+ * int nsurf (in): the number of flux surfaces from the VMEC file.
+ * args* a (in): input parameters.
  * returns a vector containing the indices of desired flux curves.
 */
 std::vector<int> readFluxFile(int nsurf, args* a);
 
 /*
+ * Convert the normalized psi values to actual psi values. Takes normalized psi values
+ * in a vector and return a vector of actual psi values.
+ * std::vector <double> normPsi (in): vector of normalized psi values.
+ * double psiAxis (in): actual psi value at the axis (O-point).
+ * double psiLCF (in): actual psi value at the last closed curve.
+ * returns a vector of actual psi values.
+*/ 
+std::vector <double> convertNormToPsi(std::vector <double> normPsi, double psiAxis, double psiLCF);
+
+/*
  * Read the planes input files and check its validity.
  * converts the given angles in degrees to radians.
- * args* a (in): Input parameters.
+ * args* a (in): input parameters.
  * returns a vector containing the toroidal angles of the desired poloidal planes.
 */
 std::vector<double> readPlaneFile(args* a);
 
 /*
  * Setting model entities from simModel to respective planes.
- * pGModel model (in): The Simmetrix model created from modeling step.
- * std::vector <plane> planesContainer (out): The data for each plane  as object Plane is written to this container.
- * args* a (in): Input parameters.
+ * pGModel model (in): the Simmetrix model created from modeling step.
+ * std::vector <plane> planesContainer (out): the data for each plane  as object Plane is written to this container.
+ * args* a (in): input parameters.
 */
 void getPlanes(pGModel model, std::vector <Plane>& planesContainer, args* a);
 
 /*
  * From the simModel, sort the model entities by planes. This results defining
  * each plane using its model entities (model faces for now).
- * pGModel model (in): The Simmetrix model created from modeling step.
- * args* a (in): Input parameters.
+ * pGModel model (in): the Simmetrix model created from modeling step.
+ * args* a (in): input parameters.
  * returns a map between plane number and a vector containing all the model faces on that plane.
 */
 std::map<int,std::vector<pGFace>> sortFacesbyPlanes(pGModel model, args* a);
