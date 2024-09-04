@@ -150,7 +150,7 @@ std::vector<double> readFluxFile(args* a)
   for (int i = 0; i < psiNormVec.size(); i++)
   {
     double normPsi = psiNormVec[i];
-    if (normPsi < 0.0 || psiNorm > 1.0)
+    if (normPsi < 0.0 || normPsi > 1.0)
     {
 	psiNormVec.erase(psiNormVec.begin()+i);
         std::cout << " The normalized psi value =  " << normPsi << " is removed since it was either lesser than 0.0 (axis) or greater than the 1.0 (last closed flux curve)\n";
