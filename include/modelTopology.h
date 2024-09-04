@@ -25,7 +25,18 @@ class Edge{
     int numVerticesOnE; // Number of vertices on an edge
     std::vector <Vertex> verticesOnE;
   private:
+    void setEdge();
     pGEdge ge;  // geometric edge
+};
+
+class Loop{
+  public:
+    Loop(pGLoopUse simLoop);
+    int numEdgesOnL;
+    std::vector <Edge> edgesOnL;
+  private:
+    void setLoop();
+    pGLoopUse gl;  // geometric loop use
 };
 
 class Face{
@@ -33,7 +44,12 @@ class Face{
     Face(pGFace simFace);
     int numEdgesOnF;
     std::vector <Edge> edgesOnF;
+    int numLoopsOnF;
+    std::vector <Loop> loopsOnF;
   private:
+    void setFace();
+    void setEdgesOnFace();
+    void setLoopsOnFace();
     pGFace gf;  // geometric face
 };
 

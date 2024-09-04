@@ -1,5 +1,6 @@
 #include "modelTopology.h"
 
+// Model Vertex Definition
 Vertex::Vertex(pGVertex simVertex):gv(simVertex)
 {
   pt = setPointFromVertex();
@@ -17,10 +18,83 @@ Point Vertex::setPointFromVertex()
   return p;
 }
 
-Edge::Edge(pGEdge simEdge):ge(simEdge){}
+// Model Edge Definition
+Edge::Edge(pGEdge simEdge):ge(simEdge)
+{
+  setEdge();
+}
 
-Face::Face(pGFace simFace):gf(simFace){}
+void Edge::setEdge()
+{
+  pPList verticesOnEdge = GE_vertices(ge);
+  numVerticesOnE = PList_size(verticesOnEdge);
+  for (int i = 0; i < PList_size(verticesOnEdge); i++)
+  {
+    pGVertex gv = static_cast<pGVertex>(PList_item(verticesOnEdge,i));
+    Vertex v(gv);
+    verticesOnE.push_back(v);
+  } 
+  PList_delete(verticesOnEdge);
+}
 
+
+// Model Loop Defintion
+Loop::Loop(pGLoopUse simLoop):gl(simLoop)
+{
+  setLoop();
+}
+
+void Loop::setLoop()
+{
+  pGEUIter edgesOnLoop = GLU_edgeUseIter(gl);
+  while (pGEdgeUse edgeUse = GEUIter_next(edgesOnLoop))
+  {
+    pGEdge ge =  GEU_edge(edgeUse);
+    Edge e(ge);
+    edgesOnL.push_back(e);
+  }  
+  numEdgesOnL = edgesOnL.size();
+}
+
+// Model Face Definition
+Face::Face(pGFace simFace):gf(simFace)
+{
+  setFace();
+}
+
+void Face::setFace()
+{
+  setEdgesOnFace();
+  setLoopsOnFace();
+}
+
+void Face::setEdgesOnFace()
+{
+  pPList edgesOnFace = GF_edges(gf);
+  numEdgesOnF = PList_size(edgesOnFace);
+  for (int i = 0; i < PList_size(edgesOnFace); i++)
+  {
+    pGEdge ge = static_cast<pGEdge>(PList_item(edgesOnFace,i));
+    Edge e(ge);
+    edgesOnF.push_back(e);
+  }
+  PList_delete(edgesOnFace);
+}
+
+void Face::setLoopsOnFace()
+{
+  int side = 1;
+  pGFaceUse fu = GF_use(gf,side);
+  pGLUIter loopIter = GFU_loopIter(fu);
+  while (pGLoopUse loopUse = GLUIter_next(loopIter))
+  {
+    Loop l(loopUse);
+    loopsOnF.push_back(l);
+  }
+  numLoopsOnF = loopsOnF.size();
+}
+
+// Model Definition
 Model::Model(pGModel simModel):model(simModel)
 {
   setModel();
@@ -55,15 +129,6 @@ void Model::setModelEdges()
   {
     pGEdge ge = gEdge;
     Edge e(ge);
-    pPList verticesOnEdge = GE_vertices(gEdge);
-    e.numVerticesOnE = PList_size(verticesOnEdge);
-    for (int i = 0; i < PList_size(verticesOnEdge); i++)
-    {
-      pGVertex gv = static_cast<pGVertex>(PList_item(verticesOnEdge,i));
-      Vertex v(gv);
-      e.verticesOnE.push_back(v);
-    } 
-    PList_delete(verticesOnEdge);
     edges.push_back(e);
   }
   GEIter_delete(eIter);
@@ -77,15 +142,6 @@ void Model::setModelFaces()
   {
     pGFace gf = gFace;
     Face f(gf);
-    pPList edgesOnFace = GF_edges(gFace);
-    f.numEdgesOnF = PList_size(edgesOnFace);
-    for (int i = 0; i < PList_size(edgesOnFace); i++)
-    {
-      pGEdge ge = static_cast<pGEdge>(PList_item(edgesOnFace,i));
-      Edge e(ge);
-      f.edgesOnF.push_back(e);
-    }
-    PList_delete(edgesOnFace);
     faces.push_back(f);
   }
   GFIter_delete(fIter);
