@@ -1,6 +1,6 @@
-SIM_VER=simmetrix-simmodsuite-2024.1-240620dev-g4avy72vpgsyvhc4wkwbg4zh2kn4v74z
+SIM_VER=simmetrix-simmodsuite-2024.1-240902dev-7pk4foxpfdrqnwj66qcagcgptxmirib4
 SIM_ARCHOS=x64_rhel8_gcc83
-PREFIX=/lore/riazu/STOMMS_dev/STOMMS/install
+PREFIX=/lore/riazu2/STOMMS_dev/STOMMS/install
 CMAKETYPE=Debug
 cmake .. \
   -DCMAKE_C_COMPILER=mpicc \

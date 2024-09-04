@@ -28,9 +28,9 @@ pGModel generateCoreSimModel(args* a)
   vmecR = vmecFile.getVar("rmnc");
   vmecZ = vmecFile.getVar("zmns");
   vmecL = vmecFile.getVar("lmns");
+  vmecPsi = vmecFile.getVar("phi");
   vmecXm = vmecFile.getVar("xm");
   vmecXn = vmecFile.getVar("xn");
-  vmecPsi = vmecFile.getVar("phi");
 
 
   // Step 3: Assign netCDF variables to local variables and arrays
@@ -42,7 +42,7 @@ pGModel generateCoreSimModel(args* a)
   vmecSurf.getVar(&nsurf);
   vmecMode.getVar(&nmode);
 
-  std::vector <double> R, Z, L, xm, xn, psi;
+  std::vector <double> R, Z, L, psi, xm, xn;
   R.resize(nsurf*nmode);
   Z.resize(nsurf*nmode);
   L.resize(nsurf*nmode);
@@ -53,29 +53,36 @@ pGModel generateCoreSimModel(args* a)
   vmecR.getVar(R.data());
   vmecZ.getVar(Z.data());
   vmecL.getVar(L.data());
+  vmecPsi.getVar(psi.data());
   vmecXm.getVar(xm.data());
   vmecXn.getVar(xn.data());
-  vmecPsi.getVar(psi.data());
 
   // Step 4: Create an object to hold Vmec flux data
-  pVmecFlux vf = VmecFlux_create(avmajr, avminr, nsurf, nmode, R.data(), Z.data(), L.data(), xm.data(), xn.data());
+  pVmecFlux vf = VmecFlux_create(avmajr, avminr, nsurf, nmode, R.data(), Z.data(), L.data(), psi.data(), xm.data(), xn.data());
 
-  // Step 5: Read number of fluxs (nrho) on each poloidal plane and number of poloidal planes (nzeta) 
-  // along with their indices (rhos) and toroidal angle (zetas) from the fluxFile and planeFile.
+  // Step 5: Read number of flux curves (npsi) on each poloidal plane with the respective normalized psi values (psiNorm) from the
+  // fluxFile. Also, rad the number of toroidal planes (nzeta) with the toroidal angles (zetas) of each poloidal plane.
   // Also, read psi values at O-point and last closed flux curve from VMEC file and use them to convert
   // normalized psi to actual psi. 
+ 
+  std::vector <double> psiNorm = readFluxFile(a);
+  std::vector <double> zetas = readPlaneFile(a);
+  const int npsi = psiNorm.size(), nzeta = zetas.size(); 
+
+  // Step 6: Convert normalized psi values to actual psi values. We need read psi values at O-point and last closed 
+  // flux curve from VMEC file and use them to convert normalized psi to actual psi.
   double psiAxis = psi[0];
   double psiLCF = psi[nsurf-1];
-  std::vector <int> rhos = readFluxFile(nsurf, a);
-  std::vector <double> zetas = readPlaneFile(a);
-  const int nrho = rhos.size(), nzeta = zetas.size();
-  VmecFlux_setFluxIndices(vf, nrho, rhos.data());
+  std::vector <double> psiVec = convertNormToPsi(psiNorm, psiAxis, psiLCF);  
+
+  // Step 7: Set flux curves and planes in the vmec vf object.
+  VmecFlux_setFluxes(vf, npsi, 0, psiVec.data()); 
   VmecFlux_setToroidalAngles(vf, nzeta, zetas.data());
 
-  // Step 6: Create model entities from the vmec physics data.
-  pGModel model = simModelFromVmec(vf, nrho, nzeta, rhos.data(), zetas.data());
+  // Step 8: Create model entities from the vmec physics data.
+  pGModel model = simModelFromVmec(vf, npsi, nzeta, psiVec.data(), zetas.data());
 
-  // Step 7: Write the model (.smd) on disk for visualization.
+  // Step 9: Write the model (.smd) on disk for visualization.
   GM_write(model, "vmec.smd", 0, 0);
 
   return model;
@@ -83,34 +90,38 @@ pGModel generateCoreSimModel(args* a)
 
 // From Vmec flux data (vf), flux indices (nrho and rhos), and, poloidal planes (nzeta and zetas)
 // generate a Simmetrix model (pGModel model)
-pGModel simModelFromVmec(pVmecFlux vf, int nrho, int nzeta, const int *rhos, const double *zetas)
+pGModel simModelFromVmec(pVmecFlux vf, int npsi, int nzeta, const double *psis, const double *zetas)
 {
+  std::cout << " ============ Modeling Starts ============\n";
   // Step 1: Declare and create Model from vf data
+  pProgress prog = Progress_new();
+  Progress_setDefaultCallback(prog);
   pGModel model = GM_new(0);
-  pGIPart gp = GM_createVmecPart(model, vf, 2); 
+  pGIPart gp = GM_createVmecPart(model, vf, 2, prog); 
 
   // Step 2: Sanity check (Verifying some of the model entities)
-  int rho, rho0, rho1;
+  double psi, psi0, psi1;
   double zeta;
   pGVertex gv = VmecFlux_opointVertex(vf, zetas[2]);
   VmecFlux_opointVertexInfo(vf, gv, &zeta);
   assert(zeta == zetas[2]);
-  pGEdge ge = VmecFlux_poloidalEdge(vf, rhos[2], zetas[2]);
-  VmecFlux_poloidalEdgeInfo(vf, ge, &rho, &zeta);
-  assert(rho == rhos[2] && zeta == zetas[2]);
-  pGFace gf = VmecFlux_poloidalFace(vf, rhos[2], zetas[2]);
-  VmecFlux_poloidalFaceInfo(vf, gf, &rho0, &rho1, &zeta);
-  assert(rho0 == rhos[2] && rho1 == rhos[3] && zeta == zetas[2]);
+  pGEdge ge = VmecFlux_poloidalEdge(vf, psis[2], zetas[2]);
+  VmecFlux_poloidalEdgeInfo(vf, ge, &psi, &zeta);
+  assert(psi == psis[2] && zeta == zetas[2]);
+  pGFace gf = VmecFlux_poloidalFace(vf, psis[2], zetas[2]);
+  VmecFlux_poloidalFaceInfo(vf, gf, &psi0, &psi1, &zeta);
+  assert(psi0 == psis[2] && psi1 == psis[3] && zeta == zetas[2]);
 
+  Progress_delete(prog);
   return model;
 }
 
 // Read flux file and check its validity
-std::vector<int> readFluxFile(int nsurf, args* a)
+std::vector<double> readFluxFile(args* a)
 {
   int numFlux;  // Number of flux curves from the first line of the file.
-  int fluxIndex;  // To read the flux indices one by one from the file
-  std::vector <int> fluxIndices;  // A vector storing the flux indices from the file.
+  double psiNorm;  // To read the normalized psi values of flux curves one by one from the file
+  std::vector <double> psiNormVec;  // A vector storing the normalized psi values from the file.
   std::ifstream fluxInput(a->fluxFile);  // Load the file.
 
   // Step 1: If can't open the file, exit the program with an error message.
@@ -128,27 +139,27 @@ std::vector<int> readFluxFile(int nsurf, args* a)
     exit(1);
   }
   
-  // Step 3: Read the values from the file and store them in fluxIndices vector.
-  while(fluxInput >> fluxIndex)
-    fluxIndices.push_back(fluxIndex);
+  // Step 3: Read the values from the file and store them in psiNormVec vector.
+  while(fluxInput >> psiNorm)
+    psiNormVec.push_back(psiNorm);
 
   // Step 4: Make sure the given data is consistent.
-  assert (numFlux == fluxIndices.size());
+  assert (numFlux == psiNormVec.size());
 
-  // Step 5: Make sure there is no flux indices lesser than 0 or greater than the index of the last closed flux curve (nsurf-1).
-  for (int i = 0; i < fluxIndices.size(); i++)
+  // Step 5: Make sure there is no flux with normalzied psi lesser than 0 or greater than 1.
+  for (int i = 0; i < psiNormVec.size(); i++)
   {
-    int index = fluxIndices[i];
-    if (index < 0 || index >= nsurf)
+    double normPsi = psiNormVec[i];
+    if (normPsi < 0.0 || psiNorm > 1.0)
     {
-	fluxIndices.erase(fluxIndices.begin()+i);
-        std::cout << " The flux index " << index << " is removed since it was either lesser than 0 or greater than the index(" << nsurf-1 <<") of last closed flux curve from VMEC file\n";
+	psiNormVec.erase(psiNormVec.begin()+i);
+        std::cout << " The normalized psi value =  " << normPsi << " is removed since it was either lesser than 0.0 (axis) or greater than the 1.0 (last closed flux curve)\n";
         i--;  // Makes sure to iterate over the element next to the deleted element.
     }
   }
 
-  // Step 6: Returns the flux indices vector.
-  return fluxIndices;
+  // Step 6: Returns the normalized psi values vector.
+  return psiNormVec;
 }
 
 // Convert the normalized psi values to actual psi values. 
@@ -253,12 +264,12 @@ std::map<int,std::vector<pGFace>> sortFacesbyPlanes(pGModel model, args* a)
   GFIter fIter = GM_faceIter(model);
   while (pGFace gFace = GFIter_next(fIter))
   {
-    int rho0, rho1;
+    double psi0, psi1;
     double zeta;
     pGFace gf = gFace;
 
     // Setp 2.1: Read the toroidal angle of the model face.
-    VmecFlux_poloidalFaceInfo(vf, gf, &rho0, &rho1, &zeta);
+    VmecFlux_poloidalFaceInfo(vf, gf, &psi0, &psi1, &zeta);
     int index = -1;
 
     // Step 2.2: Compare the angle with the angles provided in input file (read in vector zetas).

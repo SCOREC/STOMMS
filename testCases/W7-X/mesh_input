@@ -1,7 +1,7 @@
 ! The name of the vmec file for the core region
 vmecFile wout.nc
 
-! The file containing the number and indices of flux curves
+! The file containing the number and normalized psi values of flux curves
 fluxFile flux.txt 
 
 ! The file containing the number and toroidal angles of the desired poloidal planes

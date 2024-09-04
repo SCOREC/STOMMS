@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 
   // Step 4: Save the model topology information
   Model model(simModel);
- 
+  
   // Step 5: Mesh the model by iterating over each plane
   pMesh simMesh = 0;
   simMesh = meshing(simModel,planesContainer, &a);  
