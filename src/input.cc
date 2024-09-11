@@ -65,11 +65,11 @@ void args::setValuesForLocalUse()
 {
   fluxInput = readFluxFile();  // Read the flux input file.
   planeInput = readPlaneFile();  // Read the plane input file.
-  fluxMeshSize = setMeshSizeOnFlux();  // Read the mesh size input file.
+  fluxMeshSize = readMeshSizeOnFlux();  // Read the mesh size input file.
 }
 
 // A function to set mesh sizes on each flux curves for later use (in meshing).
-std::map<double,int> args::setMeshSizeOnFlux()
+std::map<double,int> args::readMeshSizeOnFlux()
 {
   int numFlux;  // Number of flux curves from first line of the file.
   double psiNorm;  // To read the normalized psi values of flux curves one by one from file.

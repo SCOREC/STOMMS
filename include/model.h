@@ -12,16 +12,17 @@
 class Flux{
   public:
     int planeNumber;
+    double psiNormOnFlux;
     std::vector <pGEdge> edgesOnFlux;
     int numEdgesOnFlux;
-    int numVerticesOnFlux;
-    double psiNormOnFlux;
+    int meshVerticesOnFlux;  // Number of vertices desired on flux curves
 };
 
 class Plane{
   public:
     std::vector <pGFace> modelFaces;
     std::vector <Flux> fluxCurves;
+    pGVertex oPoint;
     int planeNumber;
 };
 
@@ -52,6 +53,8 @@ pGModel simModelFromVmec(pVmecFlux vf, int npsi, int nzeta, const double *psis, 
 */
 void getPlanes(pGModel model, std::vector <Plane>& planesContainer, args* a);
 
+std::map<int, pGVertex> sortOPointsByPlanes(pGModel model, args* a);
+
 /*
  * From the simModel, sort the model entities by planes. This results defining
  * each plane using its model entities (model faces for now).
@@ -59,6 +62,8 @@ void getPlanes(pGModel model, std::vector <Plane>& planesContainer, args* a);
  * args* a (in): input parameters.
  * returns a map between plane number and a vector containing all the model faces on that plane.
 */
-std::map<int,std::vector<pGFace>> sortFacesbyPlanes(pGModel model, args* a);
+std::map<int,std::vector<pGFace>> sortFacesByPlanes(pGModel model, args* a);
+
+std::vector<Flux> setFluxCurvesOnPlanes(pGModel model, int planeNum, args* a);
 
 #endif

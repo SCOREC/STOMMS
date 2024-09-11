@@ -74,7 +74,11 @@ pGModel generateCoreSimModel(args* a)
   // flux curve from VMEC file and use them to convert normalized psi to actual psi.
   double psiAxis = psi[0];
   double psiLCF = psi[nsurf-1];
-  std::vector <double> psiVec = convertNormToPsi(psiNorm, psiAxis, psiLCF);  
+
+  // Set these values of a for global use.
+  a->psiAxis = psiAxis;
+  a->psiLCF = psiLCF;
+  std::vector <double> psiVec = convertNormToPsiVector(psiNorm, psiAxis, psiLCF);  
 
   // Step 7: Set flux curves and planes in the vmec vf object.
   VmecFlux_setFluxes(vf, npsi, 0, psiVec.data()); 
@@ -120,34 +124,58 @@ pGModel simModelFromVmec(pVmecFlux vf, int npsi, int nzeta, const double *psis, 
 // Setting model entities from simModel to respective planes
 void getPlanes(pGModel model, std::vector <Plane>& planesContainer, args* a)
 {
-  // Step 1: Sort all the model faces according to plane number in a map
+  // Step 1: Sort all the model faces and edges according to plane number in a map.
   // In map, the key is the plane # and the model data is stored in a vector 
-  // containing the model faces.
-  std::map <int, std::vector<pGFace>> planesMap = sortFacesbyPlanes(model, a);
+  // containing the model faces and model edges respectively.
+  std::map <int, pGVertex> planesAxisMap = sortOPointsByPlanes(model, a);
+  std::map <int, std::vector<pGFace>> planesFacesMap = sortFacesByPlanes(model, a);
 
   // Step 2: Iterate over the map and assign the data to each plane (using object Plane)
   std::map <int, std::vector<pGFace>>::iterator itr;
-  for (itr = planesMap.begin(); itr != planesMap.end(); itr++)
+  for (itr = planesFacesMap.begin(); itr != planesFacesMap.end(); itr++)
   {
     Plane p;
-    p.planeNumber = (itr->first)+1;
-    p.modelFaces = itr->second;
+    p.planeNumber = (itr->first);
+    p.oPoint = planesAxisMap[itr->first];  // Set the Opoint on the plane.
+    std::vector <Flux> fluxCurves = setFluxCurvesOnPlanes(model, p.planeNumber, a);
+    p.fluxCurves = fluxCurves;  // Set flux curves on the plane.
+    p.modelFaces = itr->second;  // Set the model faces on the plane.
     planesContainer.push_back(p);
   }
 }
 
-// From the simModel, sort the model entities by planes. This results defining
-// each plane using its model entities (model faces for now).
-std::map<int,std::vector<pGFace>> sortFacesbyPlanes(pGModel model, args* a) 
+// From the simModel, sort the oPoints by planes.
+std::map<int, pGVertex> sortOPointsByPlanes(pGModel model, args* a)
 {
   // Step 1: Fetch the vmecFlux data (vf) from the model and also read the planes
   // information from the input plane file.
   pVmecFlux vf = GM_vmec(model);
   std::vector <double> zetas = a->planeInput;
 
-  // Step 2: Iterate over the model faces, read their toroidal angle and compare it
-  // to data in planes vector (zetas) to sort the model faces according to their plane number.
-  std::map <int, std::vector<pGFace>> planesMap;
+  // Step 2: Look at the Opoint at each plane (zeta value) and set it to the map.
+  std::map <int, pGVertex> planesAxisMap;
+  for (int i = 0; i < zetas.size(); i++)
+  {
+    pGVertex axis = VmecFlux_opointVertex(vf, zetas[i]);
+    planesAxisMap[i] = axis;
+  }
+  
+  // Return the map between plane number and Opoints.
+  return planesAxisMap;
+}
+
+// From the simModel, sort the model entities by planes. This results defining
+// each plane using its model entities (model faces for now).
+std::map<int,std::vector<pGFace>> sortFacesByPlanes(pGModel model, args* a) 
+{
+  // Step 1: Fetch the vmecFlux data (vf) from the model and also read the planes
+  // information from the input plane file.
+  pVmecFlux vf = GM_vmec(model);
+  std::vector <double> zetas = a->planeInput;
+
+  // Step 2: Iterate over the model faces, read their toroidal angle and compare it to data 
+  // in planes vector (zetas) to sort the model faces according to their plane number.
+  std::map <int, std::vector<pGFace>> planesFaceMap;
   GFIter fIter = GM_faceIter(model);
   while (pGFace gFace = GFIter_next(fIter))
   {
@@ -166,10 +194,41 @@ std::map<int,std::vector<pGFace>> sortFacesbyPlanes(pGModel model, args* a)
       if (zetas[i] - zeta < 1e-16)
         index = i;
     }
-    planesMap[index].push_back(gf);
+    planesFaceMap[index].push_back(gf);
   }
   GFIter_delete(fIter); 
 
   // Step 3: Returns the map between plane number and associated vector of model faces.
-  return planesMap;
+  return planesFaceMap;
 }
+
+// Set all the flux curves on a plane.
+std::vector <Flux> setFluxCurvesOnPlanes(pGModel model, int planeNum, args* a)
+{
+  // Step 1: Fetch the vmecFlux data (vf) from the model and also read the angle
+  // information from the input plane file.
+  pVmecFlux vf = GM_vmec(model);
+  double zeta = a->planeInput[planeNum];
+
+  std::vector <Flux> fluxCurvesOnPlane;
+  std::map <double, int>::iterator itr;
+  for (itr = a->fluxMeshSize.begin(); itr != a->fluxMeshSize.end(); itr++)
+  {
+    if (itr->first - 0.0 < 1e-16)
+      continue;	 // Ignore the psi value at Opoint
+
+    Flux f;
+    f.planeNumber = planeNum;
+    f.psiNormOnFlux = itr->first;
+    double psi = convertNormToPsi(itr->first, a->psiAxis, a->psiLCF); 
+    pGEdge ge = VmecFlux_poloidalEdge(vf, psi, zeta);
+    f.edgesOnFlux.push_back(ge);  // For now, its a single edge. In future, for open edges we will need to store multiple edges in a container.
+    f.numEdgesOnFlux = f.edgesOnFlux.size();
+    f.meshVerticesOnFlux = itr->second;
+
+    fluxCurvesOnPlane.push_back(f);
+  }
+  
+  return fluxCurvesOnPlane;
+}
+

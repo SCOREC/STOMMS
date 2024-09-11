@@ -22,6 +22,7 @@ class args{
     double meshSize;	        // Uniform mesh size defintion. For now (first iteration of code), will need to change it in future with better thing
 
     // Variables and containers for internal use
+    double psiAxis, psiLCF;	// psi values of Opoint and last closed flux curve.
     std::vector <double> fluxInput;	// A vector to hold the input normalized psi values of flux curves.
     std::vector <double> planeInput;	// A vector to hold the input plane angles (converted in radians). 
     std::map <double, int> fluxMeshSize;	// A map between the flux normalized value and number of points one each flux curve.
@@ -60,7 +61,7 @@ class args{
      * set them to a map between flux normalized psi value and desired number of mesh vertices on that flux.
      * returns a map between flux normalized psi value and desired number of mesh vertices on that flux.
     */
-    std::map <double, int> setMeshSizeOnFlux();    
+    std::map <double, int> readMeshSizeOnFlux();    
 };
 
 #endif
