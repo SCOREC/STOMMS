@@ -5,6 +5,7 @@
 #include <math.h>
 #include <assert.h>
 #include "model.h"
+#include <util.h>
 
 #ifndef M_PI
   #define M_PI 3.14159265358979323846
@@ -65,8 +66,8 @@ pGModel generateCoreSimModel(args* a)
   // Also, read psi values at O-point and last closed flux curve from VMEC file and use them to convert
   // normalized psi to actual psi. 
  
-  std::vector <double> psiNorm = readFluxFile(a);
-  std::vector <double> zetas = readPlaneFile(a);
+  std::vector <double> psiNorm = a->fluxInput;
+  std::vector <double> zetas = a->planeInput;
   const int npsi = psiNorm.size(), nzeta = zetas.size(); 
 
   // Step 6: Convert normalized psi values to actual psi values. We need read psi values at O-point and last closed 
@@ -116,120 +117,6 @@ pGModel simModelFromVmec(pVmecFlux vf, int npsi, int nzeta, const double *psis, 
   return model;
 }
 
-// Read flux file and check its validity
-std::vector<double> readFluxFile(args* a)
-{
-  int numFlux;  // Number of flux curves from the first line of the file.
-  double psiNorm;  // To read the normalized psi values of flux curves one by one from the file
-  std::vector <double> psiNormVec;  // A vector storing the normalized psi values from the file.
-  std::ifstream fluxInput(a->fluxFile);  // Load the file.
-
-  // Step 1: If can't open the file, exit the program with an error message.
-  if (!fluxInput.is_open())
-  {
-    std::cout << "Error opening the flux input file " << a->fluxFile << "\n";
-    exit(1);
-  }
-  
-  // Step 2: If the first line is empty, exit with an error message. Else, the value
-  // from the first line is stored to numFlux
-  if (!(fluxInput >> numFlux))
-  {
-    std::cout << "The given file for flux curves seems to be empty" << "\n";
-    exit(1);
-  }
-  
-  // Step 3: Read the values from the file and store them in psiNormVec vector.
-  while(fluxInput >> psiNorm)
-    psiNormVec.push_back(psiNorm);
-
-  // Step 4: Make sure the given data is consistent.
-  assert (numFlux == psiNormVec.size());
-
-  // Step 5: Make sure there is no flux with normalzied psi lesser than 0 or greater than 1.
-  for (int i = 0; i < psiNormVec.size(); i++)
-  {
-    double normPsi = psiNormVec[i];
-    if (normPsi < 0.0 || normPsi > 1.0)
-    {
-	psiNormVec.erase(psiNormVec.begin()+i);
-        std::cout << " The normalized psi value =  " << normPsi << " is removed since it was either lesser than 0.0 (axis) or greater than the 1.0 (last closed flux curve)\n";
-        i--;  // Makes sure to iterate over the element next to the deleted element.
-    }
-  }
-
-  // Step 6: Returns the normalized psi values vector.
-  return psiNormVec;
-}
-
-// Convert the normalized psi values to actual psi values. 
-std::vector <double> convertNormToPsi(std::vector <double> normPsi, double psiAxis, double psiLCF)
-{
-  std::vector <double> psiValues;
-  for (int i = 0; i < normPsi.size(); i++)
-  {
-    double psiNorm = normPsi[i];  // Normalized psi value
-    double psi = psiNorm*(psiLCF - psiAxis) + psiAxis;
-    psiValues.push_back(psi);
-  }
-  return psiValues;
-}
-
-// Read the planes file and check its validity.
-// Converts the given angles in degrees to radians.
-std::vector<double> readPlaneFile(args* a)
-{
-  int numPlanes;  // Number of poloidal planes from the first line of the file.
-  double angle;  // To read the poloidal plane angles one by one from the file.
-  std::vector <double> planeAngles;  // A vector storing the plane angles in degrees from the file.
-  std::ifstream planeInput(a->planeFile);  //Load the file.
-
-  // Step 1: If can't open the file, exit the program with an error message.
-  if (!planeInput.is_open())
-  {
-    std::cout << "Error opening the plane input file " << a->planeFile << "\n";
-    exit(1);
-  }
-  
-  // Step 2: If the first line is empty, exit with an error message. Else, the value
-  // from the first line is stored to numPlanes
-  if (!(planeInput >> numPlanes))
-  {
-    std::cout << "The given file for planes seems to be empty" << "\n";
-    exit(1);
-  }
-  
-  // Step 3: Read the values from the file and store them in planeAngles vector.
-  while(planeInput >> angle)
-    planeAngles.push_back(angle);
-
-  // Step 4: Make sure the given data is consistent.
-  assert (numPlanes == planeAngles.size());
-
-  
-  // Step 5: Make sure there is no plane angles lesser than 0 or greater than or equal to 360.
-  std::vector <double> planeAnglesRadian;
-  for (int i = 0; i < planeAngles.size(); i++)
-  {
-    double toroidalAngle = planeAngles[i];
-    if (toroidalAngle < 0.0 || toroidalAngle >= 360.0)
-    {   
-        planeAngles.erase(planeAngles.begin()+i);
-        std::cout << " The toroidal angles " << toroidalAngle << " is removed since it was either lesser than 0 or greater than or equal to 360\n";
-        i--;  // Makes sure to iterate over the element next to the deleted element.
-    }   
-    else 
-    {
-      // Step 6; Convert the angles from degress to radians.
-      double angleInRadian = toroidalAngle*(M_PI/180);
-      planeAnglesRadian.push_back(angleInRadian);
-    }
-  }
-  
-  // Step 7: Return the vector containing the angles in radians.
-  return planeAnglesRadian;
-}
-
 // Setting model entities from simModel to respective planes
 void getPlanes(pGModel model, std::vector <Plane>& planesContainer, args* a)
 {
@@ -256,7 +143,7 @@ std::map<int,std::vector<pGFace>> sortFacesbyPlanes(pGModel model, args* a)
   // Step 1: Fetch the vmecFlux data (vf) from the model and also read the planes
   // information from the input plane file.
   pVmecFlux vf = GM_vmec(model);
-  std::vector <double> zetas = readPlaneFile(a);
+  std::vector <double> zetas = a->planeInput;
 
   // Step 2: Iterate over the model faces, read their toroidal angle and compare it
   // to data in planes vector (zetas) to sort the model faces according to their plane number.

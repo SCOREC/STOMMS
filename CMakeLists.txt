@@ -19,6 +19,7 @@ set(STELLMESH_SRCS
   src/main.cc
   src/model.cc 
   src/input.cc
+  src/util.cc
   src/meshing.cc
   src/modelTopology.cc
 )

@@ -9,10 +9,19 @@
 #include "SimUtil.h"
 #include "input.h"
 
+class Flux{
+  public:
+    int planeNumber;
+    std::vector <pGEdge> edgesOnFlux;
+    int numEdgesOnFlux;
+    int numVerticesOnFlux;
+    double psiNormOnFlux;
+};
+
 class Plane{
   public:
     std::vector <pGFace> modelFaces;
-    std::vector <pGEdge> modelEdges;
+    std::vector <Flux> fluxCurves;
     int planeNumber;
 };
 
@@ -34,31 +43,6 @@ pGModel generateCoreSimModel(args* a);
  * returns pGModel.
 */
 pGModel simModelFromVmec(pVmecFlux vf, int npsi, int nzeta, const double *psis, const double *zetas);
-
-/*
- * Read the flux input file and check its validity.
- * args* a (in): input parameters.
- * returns a vector containing the normalized psi values of desired flux curves.
-*/
-std::vector<double> readFluxFile(args* a);
-
-/*
- * Convert the normalized psi values to actual psi values. Takes normalized psi values
- * in a vector and return a vector of actual psi values.
- * std::vector <double> normPsi (in): vector of normalized psi values.
- * double psiAxis (in): actual psi value at the axis (O-point).
- * double psiLCF (in): actual psi value at the last closed curve.
- * returns a vector of actual psi values.
-*/ 
-std::vector <double> convertNormToPsi(std::vector <double> normPsi, double psiAxis, double psiLCF);
-
-/*
- * Read the planes input files and check its validity.
- * converts the given angles in degrees to radians.
- * args* a (in): input parameters.
- * returns a vector containing the toroidal angles of the desired poloidal planes.
-*/
-std::vector<double> readPlaneFile(args* a);
 
 /*
  * Setting model entities from simModel to respective planes.
