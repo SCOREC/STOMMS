@@ -16,7 +16,7 @@ args::args(int argc, char* argv[])
 // This function initializes the input parameters with default values.
 void args::setDefaultValues()
 {
-  meshSize = 0.1;
+  // Nothing to set here yet.
 }
 
 // This function reads the input parameter from the mesh input file.
@@ -49,8 +49,6 @@ void args::setValuesFromInputFile()
       input >> planeFile;
       std::cout << "The loaded planes position file for the placement of planes is " << planeFile << "\n"; 
     }
-    if (token == "meshSize")
-      input >> meshSize;
     if (token == "meshSizeFile")
     {
       input >> meshSizeFile;
@@ -107,10 +105,7 @@ std::map<double,int> args::readMeshSizeOnFlux()
   // DEBUG - Delete it later
   std::map <double, int>::iterator itr;
   for (itr = meshSizeOnCurves.begin(); itr != meshSizeOnCurves.end(); itr++)
-  {
     double normPsi = itr->first;
-    std::cout << "Norm Psi = " << normPsi << " And num points = " << itr->second << "\n";
-  }
 
   // Step 4: Adjust the number of vertices on O-point if needed. O-point can only have one vertex.
   if (meshSizeOnCurves.begin()->second != 1)

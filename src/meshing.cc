@@ -17,33 +17,31 @@ pMesh meshing(pGModel model, std::vector <Plane> planes, args* a)
     // Step 2.1: Fetch the desired plane.
     Plane p = planes[i];
 
-    // Step 2.2: Iterate over the model faces from the respective plane.
-    for (int face = 0; face < p.modelFaces.size(); face++)
+    // Step 2.2: Iterate over the flux curves from the respective plane.
+    for (int i = 0; i < p.fluxCurves.size(); i++)
     {
-      pGFace gf = p.modelFaces[face];
+      Flux f = p.fluxCurves[i];
 
-      // Step 2.3:  Set mesh size on the model face.
-      MS_setMeshSize(meshCase, gf, 1, a->meshSize, 0);
+      // Step 2.2.1: Get the desired mesh size for each flux curve.
+      double meshSize = getMeshSizeOnFlux(f);
+
+      // Step 2.2.2: Set the mesh size of respective edges of flux curve.
+      for (int k = 0; k < f.numEdgesOnFlux; k++)
+      {
+        pGEdge ge = f.edgesOnFlux[k];
+        MS_setMeshSize(meshCase, ge, 1, meshSize, 0);
+      }
+    }
+
+    // Step 2.3: Iterate over the model faces from the respective plane.
+    for (int j = 0; j < p.modelFaces.size(); j++)
+    {
+      pGFace gf = p.modelFaces[j];
+
+      // Step 2.3: Ensure there are no mesh vertices on the model face.
       MS_ensureMeshSpansFace(meshCase, gf);  // ensures no vertex on the model face.
       int meshSizeSet = 0;
 
-      // Step 2.4: Iterate over the model edges on the model face.
-      pPList edges = GF_edges(gf);
-      for (int i = 0; i< PList_size(edges); ++i)
-      {
-        pGEdge ge = static_cast<pGEdge>(PList_item(edges, i));
-        GEN_nativeIntAttribute(ge,"meshSet", &meshSizeSet);
-
-        // Step 2.5: If mesh size is already set, look for next edge.
-        if (meshSizeSet == 1)
-          continue;
-
-        // Step 2.6: Set the mesh size on the edge and set the flag meshSet to 1 
-        // which shows that mesh size is set on this model entity.
-        MS_setMeshSize(meshCase, ge, 1, a->meshSize, 0);
-        GEN_setNativeIntAttribute(ge, 1, "meshSet");
-      }
-      PList_delete(edges);
     } 
   }  
 
@@ -61,4 +59,30 @@ pMesh meshing(pGModel model, std::vector <Plane> planes, args* a)
   Progress_delete(prog);
 
   return mesh;
+}
+
+// Given the flux curve of type Flux, get the mesh size on this flux curve.
+double getMeshSizeOnFlux(Flux f)
+{
+   double fluxLength = 0.0;
+
+   // Step 1: Iterate over the edges in this flux curve
+   // and get total length of all edges.
+   for (int i = 0; i < f.numEdgesOnFlux; i++)
+   {
+     // Step 1.1: Get the edge.
+     pGEdge ge = f.edgesOnFlux[i];
+
+     // Step 1.2: Add its length to total length.
+     fluxLength += GE_length(ge);
+   }
+   
+   // Step 2: Final mesh size on this flux curve is calcuated by dividing the total 
+   // length of flux curve by dersired number of mesh vertices on this flux curve.
+   double meshSizeOnFlux = fluxLength/f.meshVerticesOnFlux;
+ 
+   // For Debug, delete later when Simmodeler is available for visualization of results.
+   //std::cout << "Psi = " << f.psiNormOnFlux << " , Number of Edges = " << f.numEdgesOnFlux << " , Desired Vertices = " << f.meshVerticesOnFlux << " , Total Length = " << fluxLength << " ,Mesh Size = " << meshSizeOnFlux << "\n";
+       
+   return meshSizeOnFlux;
 }

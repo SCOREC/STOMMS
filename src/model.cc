@@ -124,9 +124,8 @@ pGModel simModelFromVmec(pVmecFlux vf, int npsi, int nzeta, const double *psis, 
 // Setting model entities from simModel to respective planes
 void getPlanes(pGModel model, std::vector <Plane>& planesContainer, args* a)
 {
-  // Step 1: Sort all the model faces and edges according to plane number in a map.
-  // In map, the key is the plane # and the model data is stored in a vector 
-  // containing the model faces and model edges respectively.
+  // Step 1: Sort all the model faces and O-point vertices  according to plane number in a map.
+  // In map, the key is the plane # and the element is relevant model data on the plane.
   std::map <int, pGVertex> planesAxisMap = sortOPointsByPlanes(model, a);
   std::map <int, std::vector<pGFace>> planesFacesMap = sortFacesByPlanes(model, a);
 
@@ -135,11 +134,21 @@ void getPlanes(pGModel model, std::vector <Plane>& planesContainer, args* a)
   for (itr = planesFacesMap.begin(); itr != planesFacesMap.end(); itr++)
   {
     Plane p;
+    
+    // Step 2.1: Get the plane number from the map.
     p.planeNumber = (itr->first);
+
+    // Step 2.2: Get the O-point for this planes from the axis map.
     p.oPoint = planesAxisMap[itr->first];  // Set the Opoint on the plane.
+
+    // Step 2.3: Set the flux curves on each plane.
     std::vector <Flux> fluxCurves = setFluxCurvesOnPlanes(model, p.planeNumber, a);
     p.fluxCurves = fluxCurves;  // Set flux curves on the plane.
+
+    // Step 2.4: Set the faces on each plane.
     p.modelFaces = itr->second;  // Set the model faces on the plane.
+
+    // Step 2.5: Save the plane in planes container.
     planesContainer.push_back(p);
   }
 }
@@ -210,22 +219,32 @@ std::vector <Flux> setFluxCurvesOnPlanes(pGModel model, int planeNum, args* a)
   pVmecFlux vf = GM_vmec(model);
   double zeta = a->planeInput[planeNum];
 
+  // Step 2: Set each flux curve one by one and then push the flux curve to flux 
+  // curves container.  Iterate over the fluxMeshSize Map to start with.
   std::vector <Flux> fluxCurvesOnPlane;
   std::map <double, int>::iterator itr;
   for (itr = a->fluxMeshSize.begin(); itr != a->fluxMeshSize.end(); itr++)
   {
+    // Step 2.1: Don't take any action for the O-point
     if (itr->first - 0.0 < 1e-16)
       continue;	 // Ignore the psi value at Opoint
 
+    // Step 2.2: Declare a Flux and assign data to its members.
     Flux f;
     f.planeNumber = planeNum;
     f.psiNormOnFlux = itr->first;
+
+    // Step 2.3: Get the actual psi value from normalized psi and then use the value
+    // to retrieve model edge associated to it.
     double psi = convertNormToPsi(itr->first, a->psiAxis, a->psiLCF); 
     pGEdge ge = VmecFlux_poloidalEdge(vf, psi, zeta);
+
+    // Step 2.4: Set the edges in a container and assign remaining member variables of Flux
     f.edgesOnFlux.push_back(ge);  // For now, its a single edge. In future, for open edges we will need to store multiple edges in a container.
     f.numEdgesOnFlux = f.edgesOnFlux.size();
     f.meshVerticesOnFlux = itr->second;
 
+    // Step 2.5: Push the flux curves to a container.
     fluxCurvesOnPlane.push_back(f);
   }
   

@@ -53,17 +53,29 @@ pGModel simModelFromVmec(pVmecFlux vf, int npsi, int nzeta, const double *psis, 
 */
 void getPlanes(pGModel model, std::vector <Plane>& planesContainer, args* a);
 
+/*
+ * From the simModel, sort the O-point model vertices by planes.
+ * pGModel model (in): the Simmetrix model created from modeling step.
+ * args* a (in): input parameters.
+ * returns a map between plane number and corresponding O-point model vertex.
+*/
 std::map<int, pGVertex> sortOPointsByPlanes(pGModel model, args* a);
 
 /*
- * From the simModel, sort the model entities by planes. This results defining
- * each plane using its model entities (model faces for now).
+ * From the simModel, sort the model faces by planes. 
  * pGModel model (in): the Simmetrix model created from modeling step.
  * args* a (in): input parameters.
  * returns a map between plane number and a vector containing all the model faces on that plane.
 */
 std::map<int,std::vector<pGFace>> sortFacesByPlanes(pGModel model, args* a);
 
+/*
+ * set all the flux curves on a plane.
+ * pGModel model (in): the Simmetrix model created from modeling step.
+ * int planeNum (in): the plane number on which flux curves will be set.
+ * args* a (in): input parameters.
+ * returns a vector of flux curves (type Flux).
+*/
 std::vector<Flux> setFluxCurvesOnPlanes(pGModel model, int planeNum, args* a);
 
 #endif

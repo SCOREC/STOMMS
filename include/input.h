@@ -19,7 +19,6 @@ class args{
     std::string fluxFile;	// Input file containing the number of flux curves and their flux indices 
     std::string planeFile;	// Input file containing the number and toroidal position (degrees) of the planes
     std::string meshSizeFile;	// Input file to define the mesh size on each flux curve in terms of number of desired points on flux curves
-    double meshSize;	        // Uniform mesh size defintion. For now (first iteration of code), will need to change it in future with better thing
 
     // Variables and containers for internal use
     double psiAxis, psiLCF;	// psi values of Opoint and last closed flux curve.

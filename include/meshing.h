@@ -13,4 +13,11 @@
 */
 pMesh meshing(pGModel model, std::vector <Plane> planes, args* a);
 
+/*
+ * Given the flux curve of type Flux, get the mesh size on this flux curve.
+ * Flux f (in): The flux curve on which mesh size is desired.
+ * returns mesh size (double).
+*/
+double getMeshSizeOnFlux(Flux f);
+
 #endif

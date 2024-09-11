@@ -7,5 +7,5 @@ fluxFile flux.txt
 ! The file containing the number and toroidal angles of the desired poloidal planes
 planeFile plane.txt
 
-! Set the mesh size (Uniform mesh size for now)
-meshSize 0.1
+! Set the mesh size from the input file
+meshSizeFile mesh_size.txt
