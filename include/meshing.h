@@ -20,4 +20,14 @@ pMesh meshing(pGModel model, std::vector <Plane> planes, args* a);
 */
 double getMeshSizeOnFlux(Flux f);
 
+/* To specify mesh vertices and edges on flux curves (model edges)
+ * Assumes periodic edges. Write a new function if edges are open 
+ * or have some other behaviour.
+ * pMesh Mesh (in)(out): Gets the pMesh mesh as input and update the specified entities on it.
+ * Flux f (in): The flux curve on which mesh entities are being specified.
+ * int& numSpecifiedVert (in)(out): To keep record of global number of specified vertices. Its 
+ * 				    updated in every call of this the function.
+*/
+void specifyMeshEnt(pMesh mesh, Flux f, int& numSpecifiedVert);
+
 #endif
