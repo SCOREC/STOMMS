@@ -1,4 +1,4 @@
-SIM_VER=simmetrix-simmodsuite-2024.1-240902dev-7pk4foxpfdrqnwj66qcagcgptxmirib4
+SIM_VER=simmetrix-simmodsuite-2024.1-240911dev-3oqjrd6p7ealertl3ecb2v4k7krjckdx
 SIM_ARCHOS=x64_rhel8_gcc83
 PREFIX=/lore/riazu2/STOMMS_dev/STOMMS/install
 CMAKETYPE=Debug

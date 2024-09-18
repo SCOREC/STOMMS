@@ -20,7 +20,6 @@ pMesh meshing(pGModel model, std::vector <Plane> planes, args* a)
   {
     // Step 2.1: Fetch the desired plane.
     Plane p = planes[i];
-    std::cout << "========= Plane # " << i << " =============\n";
     // Step 2.2: Iterate over the flux curves from the respective plane
     // and set the meshes.
     for (int i = 0; i < p.fluxCurves.size(); i++)
