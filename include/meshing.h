@@ -2,6 +2,7 @@
 #define MESHING_H
 
 #include "model.h"
+#include <assert.h>
 
 /*
  * Given the simmetrix model and planes data, this function generates
@@ -14,11 +15,14 @@
 pMesh meshing(pGModel model, std::vector <Plane> planes, args* a);
 
 /*
- * Given the flux curve of type Flux, get the mesh size on this flux curve.
- * Flux f (in): The flux curve on which mesh size is desired.
- * returns mesh size (double).
+ * To specify mesh vertex at O-point (origin/axis of the poloidal plane).
+ * pMesh Mesh (in)(out): Gets the pMesh mesh as input and update the specified entities on it.
+ * pGVertex axis (in): The model vertex at the O-point.
+ * int& numSpecifiedVert (in)(out): To keep record of global number of specified vertices. Its
+ *                                  updated in every call of this the function.
+ * returns the index of the mesh vertex specified at the O-point.
 */
-double getMeshSizeOnFlux(Flux f);
+int specifyMeshVertexOnAxis(pMesh mesh, pGVertex axis, int& numSpecifiedVert);
 
 /* To specify mesh vertices and edges on flux curves (model edges)
  * Assumes periodic edges. Write a new function if edges are open 
@@ -27,7 +31,18 @@ double getMeshSizeOnFlux(Flux f);
  * Flux f (in): The flux curve on which mesh entities are being specified.
  * int& numSpecifiedVert (in)(out): To keep record of global number of specified vertices. Its 
  * 				    updated in every call of this the function.
+ * returns a vector (int) that contains the indices of specified mesh vertices on flux curve f.
 */
-void specifyMeshEnt(pMesh mesh, Flux f, int& numSpecifiedVert);
+std::vector <int> specifyMeshEnt(pMesh mesh, Flux f, int& numSpecifiedVert);
+
+/*
+ * To specify mesh edges on the model face that is adjacent to the O-point.
+ * pMesh Mesh (in)(out): Gets the pMesh mesh as input and update the specified entities on it.
+ * pGVertex axis (in): The model vertex at the O-point.
+ * int indxAtAxis (in): The index of mesh vertex specified at the axis (O-point).
+ * std::vector <int> indicesOnInnermostFlux (in): List of indices of mesh vertices specified on the innermost 
+ *                                                flux curve (first flux curve after O-point)
+*/ 
+void specifyMeshEdgesOnFace(pMesh mesh, pGVertex axis, int indxAtAxis, std::vector <int> indicesOnInnermostFlux);
 
 #endif

@@ -20,25 +20,37 @@ pMesh meshing(pGModel model, std::vector <Plane> planes, args* a)
   {
     // Step 2.1: Fetch the desired plane.
     Plane p = planes[i];
-    // Step 2.2: Iterate over the flux curves from the respective plane
-    // and set the meshes.
-    for (int i = 0; i < p.fluxCurves.size(); i++)
-    {
-      Flux f = p.fluxCurves[i];
 
-      // Specify mesh entities (vertices and edges). 
-      specifyMeshEnt(mesh, f, numSpecifiedVert);
+    // Step 2.2: Specify mesh vertex at O-point of current plane and get the 
+    // index of mesh vertex specified at the O-point.
+    int axisIndex = specifyMeshVertexOnAxis(mesh, p.oPoint, numSpecifiedVert);
+
+    // Step 2.3: Iterate over the flux curves from the respective plane
+    // and set the meshes. For first flux curve (j == 0), save the 
+    // indices on flux curve f for specifying edges on model face.
+    std::vector <int> indxOnFirstFlux;
+    for (int j = 0; j < p.fluxCurves.size(); j++)
+    {
+      // Step 2.3.1: Specify mesh entities (vertices and edges) on flux curves. 
+      Flux f = p.fluxCurves[j];
+      std::vector <int> indxOnFlux = specifyMeshEnt(mesh, f, numSpecifiedVert);
+
+      // Step 2.3.2: Save the indices of specified vertices on the first flux curve.
+      if (j == 0)
+        indxOnFirstFlux = indxOnFlux;
     }
 
-    // Step 2.3: Iterate over the model faces from the respective plane.
+    // Step 2.4: Specify mesh edges on model face adjacent to O-point.
+    specifyMeshEdgesOnFace(mesh, p.oPoint, axisIndex, indxOnFirstFlux);
+
+    // Step 2.5: Iterate over the model faces from the respective plane.
     for (int j = 0; j < p.modelFaces.size(); j++)
     {
       pGFace gf = p.modelFaces[j];
 
-      // Step 2.3: Ensure there are no mesh vertices on the model face.
+      // Step 2.5.1: Ensure there are no mesh vertices on the model face.
       MS_ensureMeshSpansFace(meshCase, gf);  // ensures no vertex on the model face.
       int meshSizeSet = 0;
-
     } 
   }  
 
@@ -58,35 +70,30 @@ pMesh meshing(pGModel model, std::vector <Plane> planes, args* a)
   return mesh;
 }
 
-// Given the flux curve of type Flux, get the mesh size on this flux curve.
-// Delete it in future. We are setting meshes byt specifying them on model edges.
-double getMeshSizeOnFlux(Flux f)
+// To specify mesh vertex at O-point (origin/axis of the poloidal plane)
+int specifyMeshVertexOnAxis (pMesh mesh, pGVertex axis, int& numSpecifiedVert)
 {
-   double fluxLength = 0.0;
+  // Step 1: Get the index to spcify the mesh vertex.
+  int meshVertexIndex = numSpecifiedVert++;
 
-   // Step 1: Iterate over the edges in this flux curve
-   // and get total length of all edges.
-   for (int i = 0; i < f.numEdgesOnFlux; i++)
-   {
-     // Step 1.1: Get the edge.
-     pGEdge ge = f.edgesOnFlux[i];
+  // Step 2: Get the location of the O-point.
+  double xyz[3];  // location of O-point
+  GV_point(axis, xyz);
 
-     // Step 1.2: Add its length to total length.
-     fluxLength += GE_length(ge);
-   }
-   
-   // Step 2: Final mesh size on this flux curve is calcuated by dividing the total 
-   // length of flux curve by dersired number of mesh vertices on this flux curve.
-   double meshSizeOnFlux = fluxLength/f.meshVerticesOnFlux;
- 
-   return meshSizeOnFlux;
+  // Step 3: Specify the mesh vertex on the axis.
+  MS_specifyVertex(mesh, xyz, 0, axis, meshVertexIndex);
+
+  // Step 4: return the index.
+  return meshVertexIndex;
 }
 
 // To specify mesh vertices and edges on flux curves (model edges)
 // Assumes periodic edges. Write a new function if edges are open 
 // or have some other behaviour.
-void specifyMeshEnt(pMesh mesh, Flux f, int& numSpecifiedVert)
+std::vector <int> specifyMeshEnt(pMesh mesh, Flux f, int& numSpecifiedVert)
 {
+   std::vector <int> indxOnFlux;  // Indices of vertices spicified on the given flux curve (to return).
+   
   // Step 1: Get the model edge and its parametric bounds.
   pGEdge ge = f.edgesOnFlux[0];
   double parR[2];  //par[0] = start, par[1] = end.
@@ -106,12 +113,13 @@ void specifyMeshEnt(pMesh mesh, Flux f, int& numSpecifiedVert)
 
   // Step 4: Specify first mesh vertex on starting model vertex of the edge ge.
   // currentPar is starting point of edge. Indx is global value comming from
-  // numSpecifiedVert.
+  // numSpecifiedVert. Also, save the indx to the vector indxOnFlux.
   pGVertex gv = GE_vertex(ge,0);
   currentPar[0] = parR[0];
   indx[0] = numSpecifiedVert++;
   int indxStart = indx[0];	// Since edge is periodic, we need this index for specifying last edge.
   MS_specifyVertex(mesh, 0, currentPar, gv, indx[0]);
+  indxOnFlux.push_back(indx[0]);
 
   // Step 5: Start specifying vertices on the model edge, and also
   // specify mesh edges between them.
@@ -122,8 +130,9 @@ void specifyMeshEnt(pMesh mesh, Flux f, int& numSpecifiedVert)
     currentPar[0] += parInterval;
     indx[1] = numSpecifiedVert++;
 
-    // Step 5.2: Specify the new mesh vertex.
+    // Step 5.2: Specify the new mesh vertex and save it to indxOnFlux vector.
     MS_specifyVertex(mesh,0,currentPar,ge,indx[1]);
+    indxOnFlux.push_back(indx[1]);
 
     // Step 5.3: Specify mesh edge between vertices with indices
     // indx[0] and indx[1].
@@ -139,6 +148,30 @@ void specifyMeshEnt(pMesh mesh, Flux f, int& numSpecifiedVert)
   // edge is between last specified vertex and first specified vertex on the model edge ge. 
   indx[1] = indxStart;  // First specified vertex on the model edge.
   MS_specifyEdge(mesh,indx,ge,-1);
+
+  // Step 7: returns the vector that contains the indices of specified mesh vertices on flux curve f.
+  return indxOnFlux;
 }
 
+// To specify mesh edges on the model face that is adjacent to the O-point.
+void specifyMeshEdgesOnFace(pMesh mesh, pGVertex axis, int indxAtAxis, std::vector <int> indicesOnInnermostFlux)
+{
+  // Step 1: Get the model faces that are adjacent to model axis (O-point).Number of faces should 
+  // be 1. Once face is saved, delete the list.
+  pPList facesOnAxis = GV_faces(axis);
+  assert(PList_size(facesOnAxis) == 1);
+  pGFace gf = static_cast<pGFace>(PList_item(facesOnAxis,0));
+  PList_delete(facesOnAxis);
 
+  // Step 2: Setup the indices for the edge. The first index should always be mesh vertex
+  // on the axis. For the second index, we will traverse the innermost flux curve.
+  int indx[2] = {indxAtAxis, 0};
+
+  // Step 3: Iterate over the indices vector for indx[1], and specify the edge on the 
+  // model face gf.
+  for (int i = 0; i < indicesOnInnermostFlux.size(); i++)
+  {
+    indx[1] = indicesOnInnermostFlux[i];
+    MS_specifyEdge(mesh, indx, gf, -1); 
+  }
+}
