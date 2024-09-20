@@ -1,6 +1,3 @@
-#include <netcdf>
-#include "ncFile.h"
-#include "ncVar.h"
 #include <stdio.h>
 #include <math.h>
 #include <assert.h>
@@ -10,58 +7,26 @@
 #ifndef M_PI
   #define M_PI 3.14159265358979323846
 #endif
-using namespace netCDF;
 
 //From a given Vmec File, generate the model of the core region of stellarator
 pGModel generateCoreSimModel(args* a)
 {
-  // Step 1: Read all the variables in vmec file
-  NcFile vmecFile(a->vmecFile, NcFile::read); 
+  // Step 1: Read the data from the vmec object (vm)
+  double avmajr = a->vm.majorR;
+  double avminr = a->vm.minorR;
+  int nsurf = a->vm.nSurf;
+  int nmode = a->vm.nMode;
+  std::vector <double> R = a->vm.R;
+  std::vector <double> Z = a->vm.Z;
+  std::vector <double> L = a->vm.L;
+  std::vector <double> psi = a->vm.psi;
+  std::vector <double> xm = a->vm.xm;
+  std::vector <double> xn = a->vm.xn;
 
-  // netCDF Variables. First four hold single values and the rest are arrays of data.
-  NcVar vmecMinor, vmecMajor, vmecSurf, vmecMode, vmecR, vmecZ, vmecL, vmecXm, vmecXn, vmecPsi;    
-
-  // Step 2: Read required variables from vmec file
-  vmecMinor = vmecFile.getVar("Aminor_p");
-  vmecMajor = vmecFile.getVar("Rmajor_p");
-  vmecSurf = vmecFile.getVar("ns");
-  vmecMode = vmecFile.getVar("mnmax");
-  vmecR = vmecFile.getVar("rmnc");
-  vmecZ = vmecFile.getVar("zmns");
-  vmecL = vmecFile.getVar("lmns");
-  vmecPsi = vmecFile.getVar("phi");
-  vmecXm = vmecFile.getVar("xm");
-  vmecXn = vmecFile.getVar("xn");
-
-
-  // Step 3: Assign netCDF variables to local variables and arrays
-  double avmajr, avminr;
-  int i, nsurf, nmode;
-
-  vmecMinor.getVar(&avminr);
-  vmecMajor.getVar(&avmajr);
-  vmecSurf.getVar(&nsurf);
-  vmecMode.getVar(&nmode);
-
-  std::vector <double> R, Z, L, psi, xm, xn;
-  R.resize(nsurf*nmode);
-  Z.resize(nsurf*nmode);
-  L.resize(nsurf*nmode);
-  xm.resize(nmode);
-  xn.resize(nmode);
-  psi.resize(nsurf);
-
-  vmecR.getVar(R.data());
-  vmecZ.getVar(Z.data());
-  vmecL.getVar(L.data());
-  vmecPsi.getVar(psi.data());
-  vmecXm.getVar(xm.data());
-  vmecXn.getVar(xn.data());
-
-  // Step 4: Create an object to hold Vmec flux data
+  // Step 2: Create an object to hold Vmec flux data
   pVmecFlux vf = VmecFlux_create(avmajr, avminr, nsurf, nmode, R.data(), Z.data(), L.data(), psi.data(), xm.data(), xn.data());
 
-  // Step 5: Read number of flux curves (npsi) on each poloidal plane with the respective normalized psi values (psiNorm) from the
+  // Step 3: Read number of flux curves (npsi) on each poloidal plane with the respective normalized psi values (psiNorm) from the
   // fluxFile. Also, rad the number of toroidal planes (nzeta) with the toroidal angles (zetas) of each poloidal plane.
   // Also, read psi values at O-point and last closed flux curve from VMEC file and use them to convert
   // normalized psi to actual psi. 
@@ -70,7 +35,7 @@ pGModel generateCoreSimModel(args* a)
   std::vector <double> zetas = a->planeInput;
   const int npsi = psiNorm.size(), nzeta = zetas.size(); 
 
-  // Step 6: Convert normalized psi values to actual psi values. We need read psi values at O-point and last closed 
+  // Step 4: Convert normalized psi values to actual psi values. We need read psi values at O-point and last closed 
   // flux curve from VMEC file and use them to convert normalized psi to actual psi.
   double psiAxis = psi[0];
   double psiLCF = psi[nsurf-1];
@@ -80,14 +45,14 @@ pGModel generateCoreSimModel(args* a)
   a->psiLCF = psiLCF;
   std::vector <double> psiVec = convertNormToPsiVector(psiNorm, psiAxis, psiLCF);  
 
-  // Step 7: Set flux curves and planes in the vmec vf object.
+  // Step 5: Set flux curves and planes in the vmec vf object.
   VmecFlux_setFluxes(vf, npsi, 0, psiVec.data()); 
   VmecFlux_setToroidalAngles(vf, nzeta, zetas.data());
 
-  // Step 8: Create model entities from the vmec physics data.
+  // Step 6: Create model entities from the vmec physics data.
   pGModel model = simModelFromVmec(vf, npsi, nzeta, psiVec.data(), zetas.data());
 
-  // Step 9: Write the model (.smd) on disk for visualization.
+  // Step 7: Write the model (.smd) on disk for visualization.
   GM_write(model, "vmec.smd", 0, 0);
 
   return model;
