@@ -61,10 +61,10 @@ void args::setValuesFromInputFile()
 // A function to set values to local variables and containers for internal code use.
 void args::setValuesForLocalUse()
 {
-  vm = readVmecFile();	// Read the vmec file and store data in vmecData vm.
-  fluxInput = readFluxFile();  // Read the flux input file.
-  planeInput = readPlaneFile();  // Read the plane input file.
-  fluxMeshSize = readMeshSizeOnFlux();  // Read the mesh size input file.
+  in.vm = readVmecFile();	// Read the vmec file and store data in vmecData vm.
+  in.fd.fluxInput = readFluxFile();  // Read the flux input file.
+  in.pd.planeInput = readPlaneFile();  // Read the plane input file.
+  in.fd.fluxMeshSize = readMeshSizeOnFlux();  // Read the mesh size input file.
 }
 
 // A function to set mesh sizes on each flux curves for later use (in meshing).
@@ -221,9 +221,9 @@ std::vector<double> args::readPlaneFile()
 }
 
 // Read input VMEC file and store relevant data in struct vmecData.
-vmecData args::readVmecFile()
+VmecData args::readVmecFile()
 {
-  vmecData v;  
+  VmecData v;  
  
   // Step 1: Read all the variables in vmec file
   NcFile vFile(vmecFile, NcFile::read); 

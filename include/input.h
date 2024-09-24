@@ -14,7 +14,8 @@
 
 using namespace netCDF;
 
-struct vmecData{
+// Struct VmecData contains all the input VmecData.
+struct VmecData{
   double majorR;  // Major radius of the reactor.
   double minorR;  // Minor radius of the reactor.
   int nSurf;  // Number of poloidal flux surfaces.
@@ -25,6 +26,24 @@ struct vmecData{
   std::vector <double> psi;  // Vector of list of psi values of flux surfaces.
   std::vector <double> xm;   // xm and xn are probably related to safety factor-but need to confirm.
   std::vector <double> xn;
+};
+
+// A struct to hold the input flux curves data. 
+struct FluxData{
+  std::vector <double> fluxInput;  // A vector to hold the input normalized psi values of flux curves.
+  std::map <double, int> fluxMeshSize;	// A map between the flux normalized value and number of points one each flux curve.
+}; 
+
+// A struct to hold the input plane angles (converted to radians).
+struct PlaneData{
+  std::vector <double> planeInput;  // A vector to hold the input plane angles (converted in radians).
+};
+
+// A struct to contain all the input data from different set of files.
+struct InputData{
+  VmecData vm;  // Read the VMEC data for construction of model inside last closed flux curve.
+  FluxData fd;  // Read the flux data from input files (fluxFile, meshSizeFile).
+  PlaneData pd;  // Read the plane data from the input file (planeFile).
 };
 
 
@@ -40,11 +59,20 @@ class args{
     std::string meshSizeFile;	// Input file to define the mesh size on each flux curve in terms of number of desired points on flux curves
 
     // Variables and containers for internal use
-    vmecData vm;	// Read the VMEC data for construction of model inside last closed flux curve.
     double psiAxis, psiLCF;	// psi values of Opoint and last closed flux curve.
-    std::vector <double> fluxInput;	// A vector to hold the input normalized psi values of flux curves.
-    std::vector <double> planeInput;	// A vector to hold the input plane angles (converted in radians). 
-    std::map <double, int> fluxMeshSize;	// A map between the flux normalized value and number of points one each flux curve.
+
+    /*
+     * Hierarchy in Input data to understand how to call data from other parts of code.
+     * a (all input data including parameters under this umbrella)
+     * .. in (input data from different input files to setup physics)
+     * ..... vm  (vmec data)
+     * ........ vmec data attributes (see struct VmecData)
+     * ..... fd  (flux curves data)
+     * ........ flux data attributes (see struct FluxData)
+     * ..... pd  (plane data)
+     * ........ plane data attributes (see struct PlaneData)
+    */ 
+    InputData in;  // Read the input data from different input files in this one.
 
   private:
     /*
@@ -66,7 +94,7 @@ class args{
      * Read input VMEC file and store relevant data in struct vmecData.
      * returns the struct vmecData vm.
     */ 
-    vmecData readVmecFile();
+    VmecData readVmecFile();
     
     /*
      * Read the flux input file and check its validity.

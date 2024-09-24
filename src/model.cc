@@ -12,16 +12,16 @@
 pGModel generateCoreSimModel(args* a)
 {
   // Step 1: Read the data from the vmec object (vm)
-  double avmajr = a->vm.majorR;
-  double avminr = a->vm.minorR;
-  int nsurf = a->vm.nSurf;
-  int nmode = a->vm.nMode;
-  std::vector <double> R = a->vm.R;
-  std::vector <double> Z = a->vm.Z;
-  std::vector <double> L = a->vm.L;
-  std::vector <double> psi = a->vm.psi;
-  std::vector <double> xm = a->vm.xm;
-  std::vector <double> xn = a->vm.xn;
+  double avmajr = a->in.vm.majorR;
+  double avminr = a->in.vm.minorR;
+  int nsurf = a->in.vm.nSurf;
+  int nmode = a->in.vm.nMode;
+  std::vector <double> R = a->in.vm.R;
+  std::vector <double> Z = a->in.vm.Z;
+  std::vector <double> L = a->in.vm.L;
+  std::vector <double> psi = a->in.vm.psi;
+  std::vector <double> xm = a->in.vm.xm;
+  std::vector <double> xn = a->in.vm.xn;
 
   // Step 2: Create an object to hold Vmec flux data
   pVmecFlux vf = VmecFlux_create(avmajr, avminr, nsurf, nmode, R.data(), Z.data(), L.data(), psi.data(), xm.data(), xn.data());
@@ -31,8 +31,8 @@ pGModel generateCoreSimModel(args* a)
   // Also, read psi values at O-point and last closed flux curve from VMEC file and use them to convert
   // normalized psi to actual psi. 
  
-  std::vector <double> psiNorm = a->fluxInput;
-  std::vector <double> zetas = a->planeInput;
+  std::vector <double> psiNorm = a->in.fd.fluxInput;
+  std::vector <double> zetas = a->in.pd.planeInput;
   const int npsi = psiNorm.size(), nzeta = zetas.size(); 
 
   // Step 4: Convert normalized psi values to actual psi values. We need read psi values at O-point and last closed 
@@ -124,7 +124,7 @@ std::map<int, pGVertex> sortOPointsByPlanes(pGModel model, args* a)
   // Step 1: Fetch the vmecFlux data (vf) from the model and also read the planes
   // information from the input plane file.
   pVmecFlux vf = GM_vmec(model);
-  std::vector <double> zetas = a->planeInput;
+  std::vector <double> zetas = a->in.pd.planeInput;
 
   // Step 2: Look at the Opoint at each plane (zeta value) and set it to the map.
   std::map <int, pGVertex> planesAxisMap;
@@ -145,7 +145,7 @@ std::map<int,std::vector<pGFace>> sortFacesByPlanes(pGModel model, args* a)
   // Step 1: Fetch the vmecFlux data (vf) from the model and also read the planes
   // information from the input plane file.
   pVmecFlux vf = GM_vmec(model);
-  std::vector <double> zetas = a->planeInput;
+  std::vector <double> zetas = a->in.pd.planeInput;
 
   // Step 2: Iterate over the model faces, read their toroidal angle and compare it to data 
   // in planes vector (zetas) to sort the model faces according to their plane number.
@@ -182,13 +182,13 @@ std::vector <Flux> setFluxCurvesOnPlanes(pGModel model, int planeNum, args* a)
   // Step 1: Fetch the vmecFlux data (vf) from the model and also read the angle
   // information from the input plane file.
   pVmecFlux vf = GM_vmec(model);
-  double zeta = a->planeInput[planeNum];
+  double zeta = a->in.pd.planeInput[planeNum];
 
   // Step 2: Set each flux curve one by one and then push the flux curve to flux 
   // curves container.  Iterate over the fluxMeshSize Map to start with.
   std::vector <Flux> fluxCurvesOnPlane;
   std::map <double, int>::iterator itr;
-  for (itr = a->fluxMeshSize.begin(); itr != a->fluxMeshSize.end(); itr++)
+  for (itr = a->in.fd.fluxMeshSize.begin(); itr != a->in.fd.fluxMeshSize.end(); itr++)
   {
     // Step 2.1: Don't take any action for the O-point
     if (itr->first - 0.0 < 1e-16)
