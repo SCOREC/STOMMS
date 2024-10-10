@@ -209,10 +209,50 @@ std::vector <Flux> setFluxCurvesOnPlanes(pGModel model, int planeNum, args* a)
     f.numEdgesOnFlux = f.edgesOnFlux.size();
     f.meshVerticesOnFlux = itr->second;
 
-    // Step 2.5: Push the flux curves to a container.
+    // Step 2.5: If reading the field line data from the file, assign the data to flux curves and make 
+    // sure to reassign the number of points on flux (f.meshVerticesOnFlux) for consistency.    
+    if (a->fieldDataFileOn == 1)
+    {
+      // Step 2.5.1: Read the vector of points for each flux from stored data. (See input.h for details)
+      std::vector <Pt> fieldPtsOnFlux = a->in.fieldData[planeNum].fieldPointsOnFlux[itr->first];
+      f.pts = fieldPtsOnFlux;
+      f.meshVerticesOnFlux = f.pts.size();
+
+      //Step 2.5.2: Readjust the starting point of model edge according to starting point of field line.
+      //adjustModelVertexOnEdge(f);  // Function not working. Needs more work.
+    }
+
+    // Step 2.6: Push the flux curves to a container.
     fluxCurvesOnPlane.push_back(f);
   }
   
   return fluxCurvesOnPlane;
 }
 
+
+// Function not working atm. Write the comments  once its functional.
+void adjustModelVertexOnEdge(Flux &f)
+{
+  pGEdge ge = f.edgesOnFlux[0];
+  pGVertex gv = GE_vertex(ge,0);
+  double pt[3] = {f.pts[0].x, f.pts[0].y, f.pts[0].z};
+
+  double par, parRange[2];
+  GE_parRange(ge, &parRange[0], &parRange[1]);
+  GE_closestPoint(ge, pt, 0, &par);
+
+  if (fabs(par - parRange[0]) > 1e-4)
+  {
+    pGVertex newV = GE_split(ge, par);
+    pPList gves = GV_edges(newV);
+    pGEdge geNew0 = static_cast<pGEdge>(PList_item(gves, 0));
+    pGEdge geNew1 = static_cast<pGEdge>(PList_item(gves, 1));
+    pGEdge finalEdge;
+    if (GE_vertex(geNew0,1) == newV)
+      finalEdge = GM_combineEdges (geNew0, geNew1);
+    else
+      finalEdge = GM_combineEdges (geNew1, geNew0);
+    f.edgesOnFlux.clear();
+    f.edgesOnFlux.push_back(finalEdge);
+  }
+}

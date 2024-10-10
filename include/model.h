@@ -16,6 +16,7 @@ class Flux{
     std::vector <pGEdge> edgesOnFlux;
     int numEdgesOnFlux;
     int meshVerticesOnFlux;  // Number of vertices desired on flux curves
+    std::vector <Pt> pts;    // The field following points on each flux curve.
 };
 
 class Plane{
@@ -78,4 +79,8 @@ std::map<int,std::vector<pGFace>> sortFacesByPlanes(pGModel model, args* a);
 */
 std::vector<Flux> setFluxCurvesOnPlanes(pGModel model, int planeNum, args* a);
 
+/*
+ * Add documentation once its working.
+ */
+void adjustModelVertexOnEdge(Flux &f);
 #endif
