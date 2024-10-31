@@ -31,10 +31,9 @@ int specifyMeshVertexOnAxis(pMesh mesh, pGVertex axis, int& numSpecifiedVert);
  * Flux f (in): The flux curve on which mesh entities are being specified.
  * int& numSpecifiedVert (in)(out): To keep record of global number of specified vertices. Its 
  * 				    updated in every call of this the function.
- * args* a (in): Input parameters.
  * returns a vector (int) that contains the indices of specified mesh vertices on flux curve f.
 */
-std::vector <int> specifyMeshEnt(pMesh mesh, Flux f, int& numSpecifiedVert, args* a);
+std::vector <int> specifyMeshEnt(pMesh mesh, Flux f, int& numSpecifiedVert);
 
 /*
  * To specify mesh edges on the model face that is adjacent to the O-point.
@@ -46,11 +45,4 @@ std::vector <int> specifyMeshEnt(pMesh mesh, Flux f, int& numSpecifiedVert, args
 */ 
 void specifyMeshEdgesOnFace(pMesh mesh, pGVertex axis, int indxAtAxis, std::vector <int> indicesOnInnermostFlux);
 
-/*
- * For a given flux curve, and the index of the field following point, return the parametric value of point on the edge.
- * Flux f (in): The flux curve on which the parametric value is desired.
- * ind indx (in): The index of the point in the vector of the field following points.
- * returns the parametric value (double)  of the given point on the edge on flux curve f.
- */
-double parValueOnEdge(Flux f, int indx);
 #endif

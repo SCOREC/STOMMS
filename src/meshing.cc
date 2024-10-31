@@ -33,7 +33,7 @@ pMesh meshing(pGModel model, std::vector <Plane> planes, args* a)
     {
       // Step 2.3.1: Specify mesh entities (vertices and edges) on flux curves. 
       Flux f = p.fluxCurves[j];
-      std::vector <int> indxOnFlux = specifyMeshEnt(mesh, f, numSpecifiedVert, a);
+      std::vector <int> indxOnFlux = specifyMeshEnt(mesh, f, numSpecifiedVert);
 
       // Step 2.3.2: Save the indices of specified vertices on the first flux curve.
       if (j == 0)
@@ -90,7 +90,7 @@ int specifyMeshVertexOnAxis (pMesh mesh, pGVertex axis, int& numSpecifiedVert)
 // To specify mesh vertices and edges on flux curves (model edges)
 // Assumes periodic edges. Write a new function if edges are open 
 // or have some other behaviour.
-std::vector <int> specifyMeshEnt(pMesh mesh, Flux f, int& numSpecifiedVert, args* a)
+std::vector <int> specifyMeshEnt(pMesh mesh, Flux f, int& numSpecifiedVert)
 {
    std::vector <int> indxOnFlux;  // Indices of vertices spicified on the given flux curve (to return).
    
@@ -126,15 +126,8 @@ std::vector <int> specifyMeshEnt(pMesh mesh, Flux f, int& numSpecifiedVert, args
   int numIter = 1;  // Already placed one vertex
   while (numIter < numVert)
   {
-    // Step 5.1: Update currentPar and indx for new verter.If reading the field 
-    // following points file, use par directly from the function.
-    if (a->fieldDataFileOn == 1)
-    {
-      double parValue = parValueOnEdge(f, numIter);
-      currentPar[0] = parValue;
-    }
-    else
-      currentPar[0] += parInterval;
+    // Step 5.1: Update currentPar and indx for new verter.
+    currentPar[0] += parInterval;
     indx[1] = numSpecifiedVert++;
 
     // Step 5.2: Specify the new mesh vertex and save it to indxOnFlux vector.
@@ -181,28 +174,4 @@ void specifyMeshEdgesOnFace(pMesh mesh, pGVertex axis, int indxAtAxis, std::vect
     indx[1] = indicesOnInnermostFlux[i];
     MS_specifyEdge(mesh, indx, gf, -1); 
   }
-}
-
-
-// For a given flux curve, and the index of the field following point,
-// return the parametric value of point on the edge.
-double parValueOnEdge(Flux f, int indx)
-{
-  // Step 1: Get the model edge on the flux curve.
-  pGEdge ge = f.edgesOnFlux[0];
-
-  // Step 2: Find the coordinate of th field following point.
-  double pt[3];
-  pt[0] = f.pts[indx].x;
-  pt[1] = f.pts[indx].y;
-  pt[2] = f.pts[indx].z;
-
-  // Step 3: Get the closest point on the edge from the field following point
-  // This is to ensure that field following point is on the edge and if not
-  // get that closest point on the edge.
-  double closestPt[3],par;
-  GE_closestPoint(ge, pt, closestPt, &par);
-
-  // Step 4: Retunr the parametric value of that point.
-  return par;
 }

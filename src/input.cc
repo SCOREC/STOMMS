@@ -16,7 +16,7 @@ args::args(int argc, char* argv[])
 // This function initializes the input parameters with default values.
 void args::setDefaultValues()
 {
-  fieldDataFileOn = 0;
+  // Nothing to set here yet.
 }
 
 // This function reads the input parameter from the mesh input file.
@@ -54,14 +54,6 @@ void args::setValuesFromInputFile()
       input >> meshSizeFile;
       std::cout << "The loaded file for the mesh sizes on flux curves is " << meshSizeFile << "\n";
     }
-    if (token == "fieldDataFileOn")
-      input >> fieldDataFileOn;
-    if (token == "fieldDataFile")
-    {
-      input >> fieldDataFile;
-      if (fieldDataFileOn == 1)
-        std::cout << "The loaded file for the field line data is " << fieldDataFile << "\n";
-    }
   }
   input.close();
 }
@@ -73,8 +65,6 @@ void args::setValuesForLocalUse()
   in.fd.fluxInput = readFluxFile();  // Read the flux input file.
   in.pd.planeInput = readPlaneFile();  // Read the plane input file.
   in.fd.fluxMeshSize = readMeshSizeOnFlux();  // Read the mesh size input file.
-  if (fieldDataFileOn == 1)
-    in.fieldData = readFieldLinePoints();  // Read the field line data file for point placement.
 }
 
 // A function to set mesh sizes on each flux curves for later use (in meshing).
@@ -275,109 +265,4 @@ VmecData args::readVmecFile()
 
   // Step 4: Return vmec data.
   return v;
-}
-
-// Read the input data for field lines and sort it for according to each flux on each plane.
-std::vector <PlaneFieldLineData> args::readFieldLinePoints()
-{
-
-  // Step 1: Read the input planes and flux curves from already read data (fd and pd). 
-  int numFlux = in.fd.fluxInput.size();
-  int numPlanes = in.pd.planeInput.size();
-
-  // Step 2: Read normalized psi values (psiN) and number of points for each flux curve (numP)
-  // and put them in vectors psiNormal and numPoints respectively. Also, read xyz of each file 
-  // line to xVec, yVec, and zVec respectively from the input field data file.
-  double psiN;
-  int numP;
-  std::ifstream fieldInput(fieldDataFile);
-  std::vector <double> xVec, yVec, zVec, psiNormal; 
-  std::vector <int> numPoints; 
-
-  // Step 2.1: Iterate over each flux curve (numFlux -1 because we are not readin O-point data,
-  // its just a point and not defined by field line).
-  for (int i = 0; i < numFlux -1; i++)
-  {
-    // Step 2.2: Read the values corresponding to each flux curve and put them in corresponding vectors.
-    fieldInput >> psiN;
-    fieldInput >> numP;
-    psiNormal.push_back(psiN);
-    numPoints.push_back(numP);
-
-    // Step 2.3: For each flux curve, we will have total points = numplanes*numPoints on each flux curve.
-    // Read those points and store them in xVec, yVec,zVec vectors. 
-    double x,y,z;
-    for (int j = 0; j < numP*numPlanes; j++)
-    {
-      fieldInput >> x;
-      fieldInput >> y;
-      fieldInput >> z;
-      xVec.push_back(x);
-      yVec.push_back(y);
-      zVec.push_back(z);
-    }
-  }
-
-  // Step 3: The data stored above is according to field line on each flux curve.
-  // (like f0: p0,p1,..,pn, f1:p0,p1,..,pn, ...).
-  // We need to sort it for flux curves on individual planes (like p0: f0,f1,..,fn,
-  // p1: f0,f1,..,fn). Since we will eventaually loop over planes to access data and attributes.
-  // Store the sorted data in vector of maps between flux value (normalized) and vector of points.
-  // The vector size == # of plane. Each entity in vector holds the data for one plane.
-  std::vector <PlaneFieldLineData> fieldData;
-
-  // Step 3.1: Iterate over each plane and set data to it.
-  for (int i = 0; i < numPlanes; i++)
-  {
-    // Step 3.2: Initialize the object PlaneFieldData to hold flux data map
-    // on each plane. Read the data fieldMap for each plane and then set it
-    // to pF.
-    PlaneFieldLineData pF;
-    std::map<double, std::vector <Pt>> fieldMap;
-
-    // Step 3.3: Need to store # of points on the last used flux curve (numLast) to 
-    // rebase the loop for each flux curve reading. 
-    int numLast = 0;
-   
-    // Step 3.4: Iterate over the flux curves.
-    for (int j = 0; j < numFlux-1; j++)
-    {
-      // Step 3.4.1: Read number of points on each flux curves and store them in fieldPoints
-      // vector by iterating over the number of points.
-      int numPt = numPoints[j];  
-      std::vector <Pt> fieldPoints;
-      for (int k = 0; k < numPt-1; k++)  // numPt -1: since last and first points are same.
-      {
-        // Step 3.4.2: Read point one by one.
-        Pt point;
-        point.x = xVec[(k*numPlanes)+(numPlanes*numLast)+i];
-
-        // Note: There is an inconssitency with the sign of z-ccordinate except for plane 0.
-        // Need to figure it out. For now, switch the signs of z for planes higher than 0.
-        if (i == 0)
-        {
-          point.y = 0.0;
-          point.z = zVec[(k*numPlanes)+(numPlanes*numLast)+i];
-        }
-        point.y = yVec[(k*numPlanes)+(numPlanes*numLast)+i];
-        point.z = -zVec[(k*numPlanes)+(numPlanes*numLast)+i];
-
-        // Step 3.4.3: Store each point to the vector.
-        fieldPoints.push_back(point);
-      }
-      
-      // Step 3.3.4: Update the total number of points already read.
-      numLast += numPt;
-
-      // Step 3.5: Assign the data to maps, and then map to pF.
-      // Clear the vector fieldPoints for next iteration.  
-      fieldMap[psiNormal[j]] = fieldPoints;
-      pF.fieldPointsOnFlux = fieldMap;
-      fieldPoints.clear();
-    }
-    fieldData.push_back(pF);
-  }
-  
-  // Step 4: Return the field data.
-  return fieldData;
 }
