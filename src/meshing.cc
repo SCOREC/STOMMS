@@ -111,14 +111,28 @@ std::vector <int> specifyMeshEnt(pMesh mesh, Flux f, int& numSpecifiedVert)
   double currentPar[2] = {0.0,0.0};
   int indx[2];
 
-  // Step 4: Specify first mesh vertex on starting model vertex of the edge ge.
+  // Step 4: Specify first mesh vertex on starting model vertex of the edge ge. For Simmetrix 
+  // version >= 2025.0.241025, we will have no model vertex for periodic edges. Keep it under
+  // an if condition incase someone uses older versions.
   // currentPar is starting point of edge. Indx is global value comming from
   // numSpecifiedVert. Also, save the indx to the vector indxOnFlux.
-  pGVertex gv = GE_vertex(ge,0);
   currentPar[0] = parR[0];
   indx[0] = numSpecifiedVert++;
   int indxStart = indx[0];	// Since edge is periodic, we need this index for specifying last edge.
-  MS_specifyVertex(mesh, 0, currentPar, gv, indx[0]);
+
+  // Step 4.1: Find if there are model vertices on the periodic edge, if yes, specify mesh vertex on 
+  // model vertex of the edge, else specify mesh vertex on the model edge
+  // Might get rid of this block in future.
+  pPList verticesOnEdge = GE_vertices(ge);  // List of model vertices on the model edge.
+  if (PList_size(verticesOnEdge) == 1)      // For (Sim version < 2025.0.241025)
+  {
+    pGVertex gv = GE_vertex(ge,0);
+    MS_specifyVertex(mesh, 0, currentPar, gv, indx[0]);
+  }
+  else	// For (Sim version >= 2025.0.241025)
+    MS_specifyVertex(mesh,0,currentPar,ge,indx[0]);
+  PList_delete(verticesOnEdge);
+
   indxOnFlux.push_back(indx[0]);
 
   // Step 5: Start specifying vertices on the model edge, and also
