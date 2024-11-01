@@ -50,7 +50,18 @@ pMesh meshing(pGModel model, std::vector <Plane> planes, args* a)
 
       // Step 2.5.1: Ensure there are no mesh vertices on the model face.
       MS_ensureMeshSpansFace(meshCase, gf);  // ensures no vertex on the model face.
-      int meshSizeSet = 0;
+      
+      // Step 2.5.2: Ensure not all mesh vertices of an element are on single model edge.
+      pPList edgesOnFace = GF_edges(gf);  // get list of edges on the face.
+      for (int k = 0; k < PList_size(edgesOnFace); k++)
+      {
+        pPList edgesList = PList_new();  // A list to store edges to pass to function "MS_setGEdgesToDisallowAllFaceVertices"
+        pGEdge ge = static_cast<pGEdge>(PList_item(edgesOnFace, k)); 
+        PList_append(edgesList, ge);
+        MS_setGEdgesToDisallowAllFaceVertices(meshCase, gf, edgesList);
+	PList_delete(edgesList);
+      }
+      PList_delete(edgesOnFace);
     } 
   }  
 

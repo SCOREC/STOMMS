@@ -5,6 +5,13 @@
 #include <assert.h>
 
 /*
+ * Simmetrix function not yet available in any Simmetrix header. (2024-11-01).
+ * Once its available, remove it from here.
+ * See Simmetrix documentation for the usage of this function.
+ */
+void MS_setGEdgesToDisallowAllFaceVertices(pACase cs, pGFace gf, pPList ges);
+
+/*
  * Given the simmetrix model and planes data, this function generates
  * and return a simmetrix mesh.
  * pGModel model (in): The Simmetrix model created from modeling step.
