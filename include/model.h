@@ -1,13 +1,9 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include <vector>
 #include <map>
-#include "MeshSim.h"
-#include "SimAdvModel.h"
-#include "SimModel.h"
-#include "SimUtil.h"
 #include "input.h"
+#include "modelTopology.h"
 
 class Flux{
   public:

@@ -18,6 +18,11 @@ Point Vertex::setPointFromVertex()
   return p;
 }
 
+pGVertex Vertex::getSimVertex()
+{
+  return gv;
+}
+
 // Model Edge Definition
 Edge::Edge(pGEdge simEdge):ge(simEdge)
 {
@@ -37,6 +42,10 @@ void Edge::setEdge()
   PList_delete(verticesOnEdge);
 }
 
+pGEdge Edge::getSimEdge()
+{
+  return ge;
+}
 
 // Model Loop Defintion
 Loop::Loop(pGLoopUse simLoop):gl(simLoop)
@@ -96,6 +105,11 @@ void Face::setLoopsOnFace()
   numLoopsOnF = loopsOnF.size();
 }
 
+pGFace Face::getSimFace()
+{
+  return gf;
+}
+
 // Model Definition
 Model::Model(pGModel simModel):model(simModel)
 {
@@ -148,4 +162,9 @@ void Model::setModelFaces()
   }
   GFIter_delete(fIter);
   assert(numFaces == faces.size());
+}
+
+pGModel Model::getSimModel()
+{
+  return model;
 }

@@ -16,7 +16,11 @@ args::args(int argc, char* argv[])
 // This function initializes the input parameters with default values.
 void args::setDefaultValues()
 {
-  // Nothing to set here yet.
+  // Values to read from users.
+  // Nothing here yet.
+  
+  // Variables for internal use.
+  vmecFileFound = false;
 }
 
 // This function reads the input parameter from the mesh input file.
@@ -37,6 +41,7 @@ void args::setValuesFromInputFile()
     if (token == "vmecFile")
     {
       input >> vmecFile;
+      vmecFileFound = true;
       std::cout << "The loaded VMEC file is " << vmecFile << "\n";
     }
     if (token == "fluxFile")
@@ -61,7 +66,8 @@ void args::setValuesFromInputFile()
 // A function to set values to local variables and containers for internal code use.
 void args::setValuesForLocalUse()
 {
-  in.vm = readVmecFile();	// Read the vmec file and store data in vmecData vm.
+  if (vmecFileFound)
+  	in.vm = readVmecFile();	// Read the vmec file and store data in vmecData vm.
   in.fd.fluxInput = readFluxFile();  // Read the flux input file.
   in.pd.planeInput = readPlaneFile();  // Read the plane input file.
   in.fd.fluxMeshSize = readMeshSizeOnFlux();  // Read the mesh size input file.

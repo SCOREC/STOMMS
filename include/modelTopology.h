@@ -1,8 +1,12 @@
 #ifndef MODELTOPOLOGY_H
 #define MODELTOPOLOGY_H
 
-#include "model.h"
+#include "MeshSim.h"
+#include "SimAdvModel.h"
+#include "SimModel.h"
+#include "SimUtil.h"
 #include <cassert>
+#include <vector>
 
 struct Point{
   double x;
@@ -10,10 +14,16 @@ struct Point{
   double z;
 };
 
+struct PhysicsPoint{
+  Point pt;  // Point in physical space
+  double psi;  // associated psi value
+};
+
 class Vertex{
   public:
     Vertex(pGVertex simVertex);
     Point pt;
+    pGVertex getSimVertex();
   private:
     Point setPointFromVertex();
     pGVertex gv;  // geometrix vertex
@@ -24,6 +34,7 @@ class Edge{
     Edge(pGEdge simEdge);
     int numVerticesOnE; // Number of vertices on an edge
     std::vector <Vertex> verticesOnE;
+    pGEdge getSimEdge();
   private:
     void setEdge();
     pGEdge ge;  // geometric edge
@@ -46,6 +57,7 @@ class Face{
     std::vector <Edge> edgesOnF;
     int numLoopsOnF;
     std::vector <Loop> loopsOnF;
+    pGFace getSimFace();
   private:
     void setFace();
     void setEdgesOnFace();
@@ -63,6 +75,7 @@ class Model{
     std::vector <Vertex> vertices;
     std::vector <Edge> edges;
     std::vector <Face> faces;
+    pGModel getSimModel();
   private:
     pGModel model;    
 

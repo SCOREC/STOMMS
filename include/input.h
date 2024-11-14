@@ -19,13 +19,23 @@ struct VmecData{
   double majorR;  // Major radius of the reactor.
   double minorR;  // Minor radius of the reactor.
   int nSurf;  // Number of poloidal flux surfaces.
-  int nMode;  // Not really sure what nmode represents.
-  std::vector <double> R;  // Vector of R-coordinates of provided data.
-  std::vector <double> Z;  // Vector of Z-coordinates of provided data.
-  std::vector <double> L;  // Not sure what L really represents. Figure it out.
+  int nMode;  // Number of modes for Fourier series.
+  std::vector <double> R;  // Vector of cosines coeffiecents of R for Fourier series.
+  std::vector <double> Z;  // Vector of sines coeffiecents of Z for Fourier series.
+  std::vector <double> L;  // Vector of sines of lambdas coeffiecents for Fourier series.
   std::vector <double> psi;  // Vector of list of psi values of flux surfaces.
-  std::vector <double> xm;   // xm and xn are probably related to safety factor-but need to confirm.
-  std::vector <double> xn;
+  std::vector <double> xm;   // poloidal modes.
+  std::vector <double> xn;   // Toroidal modes.
+};
+
+// Struct bmwData contains the data from BMW file.
+struct BmwData{
+  // Populate it as we move forward.
+};
+
+// Struct eqdskData contains the magnetic field information from eqdsk file.
+struct EqdskData{
+  // Fill it in as we move forward.
 };
 
 // A struct to hold the input flux curves data. 
@@ -60,7 +70,7 @@ class args{
 
     // Variables and containers for internal use
     double psiAxis, psiLCF;	// psi values of Opoint and last closed flux curve.
-
+    bool vmecFileFound;
     /*
      * Hierarchy in Input data to understand how to call data from other parts of code.
      * a (all input data including parameters under this umbrella)
