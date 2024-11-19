@@ -41,7 +41,7 @@ struct EqdskData{
 // A struct to hold the input flux curves data. 
 struct FluxData{
   std::vector <double> fluxInput;  // A vector to hold the input normalized psi values of flux curves.
-  std::map <double, int> fluxMeshSize;	// A map between the flux normalized value and number of points one each flux curve.
+  std::map <double, int> fluxMeshSize;  // A map between the flux normalized value and number of points one each flux curve.
 }; 
 
 // A struct to hold the input plane angles (converted to radians).

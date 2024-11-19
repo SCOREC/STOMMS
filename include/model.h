@@ -27,7 +27,7 @@ class Plane{
  * args* a (in): input parameters. 
  * returns pGModel;
 */
-pGModel generateCoreSimModel(args* a);
+Model generateCoreSimModel(args* a);
 
 /* 
  * From Vmec flux data (vf), flux indices (nrho and rhos), and, poloidal planes (nzeta and zetas)
@@ -43,11 +43,11 @@ pGModel simModelFromVmec(pVmecFlux vf, int npsi, int nzeta, const double *psis, 
 
 /*
  * Setting model entities from simModel to respective planes.
- * pGModel model (in): the Simmetrix model created from modeling step.
+ * pGModel model (in): the model created from modeling step.
  * std::vector <plane> planesContainer (out): the data for each plane  as object Plane is written to this container.
  * args* a (in): input parameters.
 */
-void getPlanes(pGModel model, std::vector <Plane>& planesContainer, args* a);
+void getPlanes(Model model, std::vector <Plane>& planesContainer, args* a);
 
 /*
  * From the simModel, sort the O-point model vertices by planes.

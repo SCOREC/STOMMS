@@ -8,15 +8,15 @@
 class PlaneGeometry{
   public:
     PlaneGeometry(const FluxData& f, const MagneticGeometry& magGeom, double angle);
-    std::vector<double> getPlanefluxValues();
-    double getPlaneToroidalAngle();
-    std::map <double, int> getPlaneFluxSizes();
-    std::vector <PhysicsPoint> getPlaneOpoints();
-    std::vector <PhysicsPoint> getPlaneXpoints();
+    const std::vector<double>& getPlanefluxValues();
+    const double& getPlaneToroidalAngle();
+    const std::vector <int>& getPlaneFluxSizes();
+    const std::vector <PhysicsPoint>& getPlaneOpoints();
+    const std::vector <PhysicsPoint>& getPlaneXpoints();
   private:
     std::vector <double> fluxValues;
     double toroidalAngle;  // Toroidal Angle of the plane.
-    std::map <double, int> fluxMeshSize;  // Desired number of mesh points on each flux curve.   
+    std::vector <int> fluxMeshSize;  // Desired number of mesh points on each flux curve. fluxMeshSize.size() == fluxValues.size(). 
  
     // PhysicsPoint contains both the physical coordinates and psi value of the point.
     std::vector <PhysicsPoint> oPoints;
@@ -26,11 +26,14 @@ class PlaneGeometry{
 class STOMMS{
   public:
     STOMMS(const MagneticGeometry& magGeom);
+    ~STOMMS();
     void addPlane(PlaneGeometry pg);
-    std::vector <PlaneGeometry> getPlanesContainer();
+    const std::vector <PlaneGeometry>& getPlanesContainer();
+
   private:
     MagneticGeometry mg;
     std::vector <PlaneGeometry> planes;
+    pProgress prog;  // Simmetrix handler to show execution details.
     //Model model;
     //generateModel();
 };

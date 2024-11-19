@@ -14,12 +14,12 @@ void MS_setGEdgesToDisallowAllFaceVertices(pACase cs, pGFace gf, pPList ges);
 /*
  * Given the simmetrix model and planes data, this function generates
  * and return a simmetrix mesh.
- * pGModel model (in): The Simmetrix model created from modeling step.
+ * Model m (in): Model created from modeling step.
  * std::vector <Plane> planes (in): The data for each plane  as object Plane is written to this container.
  * args* a (in): Input parameters.
  * returns a simmetrix mesh (pMesh).
 */
-pMesh meshing(pGModel model, std::vector <Plane> planes, args* a);
+pMesh meshing(Model m, std::vector <Plane> planes, args* a);
 
 /*
  * To specify mesh vertex at O-point (origin/axis of the poloidal plane).

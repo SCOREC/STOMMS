@@ -9,7 +9,7 @@
 #endif
 
 //From a given Vmec File, generate the model of the core region of stellarator
-pGModel generateCoreSimModel(args* a)
+Model generateCoreSimModel(args* a)
 {
   // Step 1: Read the data from the vmec object (vm)
   double avmajr = a->in.vm.majorR;
@@ -50,10 +50,13 @@ pGModel generateCoreSimModel(args* a)
   VmecFlux_setToroidalAngles(vf, nzeta, zetas.data());
 
   // Step 6: Create model entities from the vmec physics data.
-  pGModel model = simModelFromVmec(vf, npsi, nzeta, psiVec.data(), zetas.data());
+  pGModel simModel = simModelFromVmec(vf, npsi, nzeta, psiVec.data(), zetas.data());
 
   // Step 7: Write the model (.smd) on disk for visualization.
-  GM_write(model, "vmec.smd", 0, 0);
+  GM_write(simModel, "vmec.smd", 0, 0);
+
+  // Step 8: Save it as type Model
+  Model model(simModel);
 
   return model;
 }
@@ -87,33 +90,37 @@ pGModel simModelFromVmec(pVmecFlux vf, int npsi, int nzeta, const double *psis, 
 }
 
 // Setting model entities from simModel to respective planes
-void getPlanes(pGModel model, std::vector <Plane>& planesContainer, args* a)
+void getPlanes(Model model, std::vector <Plane>& planesContainer, args* a)
 {
-  // Step 1: Sort all the model faces and O-point vertices  according to plane number in a map.
-  // In map, the key is the plane # and the element is relevant model data on the plane.
-  std::map <int, pGVertex> planesAxisMap = sortOPointsByPlanes(model, a);
-  std::map <int, std::vector<pGFace>> planesFacesMap = sortFacesByPlanes(model, a);
 
-  // Step 2: Iterate over the map and assign the data to each plane (using object Plane)
+  // Step 1: Get the Simmetrix model (pGModel) from Model.
+  pGModel simModel = model.getSimModel();
+
+  // Step 2: Sort all the model faces and O-point vertices  according to plane number in a map.
+  // In map, the key is the plane # and the element is relevant model data on the plane.
+  std::map <int, pGVertex> planesAxisMap = sortOPointsByPlanes(simModel, a);
+  std::map <int, std::vector<pGFace>> planesFacesMap = sortFacesByPlanes(simModel, a);
+
+  // Step 3: Iterate over the map and assign the data to each plane (using object Plane)
   std::map <int, std::vector<pGFace>>::iterator itr;
   for (itr = planesFacesMap.begin(); itr != planesFacesMap.end(); itr++)
   {
     Plane p;
     
-    // Step 2.1: Get the plane number from the map.
+    // Step 3.1: Get the plane number from the map.
     p.planeNumber = (itr->first);
 
-    // Step 2.2: Get the O-point for this planes from the axis map.
+    // Step 3.2: Get the O-point for this planes from the axis map.
     p.oPoint = planesAxisMap[itr->first];  // Set the Opoint on the plane.
 
-    // Step 2.3: Set the flux curves on each plane.
-    std::vector <Flux> fluxCurves = setFluxCurvesOnPlanes(model, p.planeNumber, a);
+    // Step 3.3: Set the flux curves on each plane.
+    std::vector <Flux> fluxCurves = setFluxCurvesOnPlanes(simModel, p.planeNumber, a);
     p.fluxCurves = fluxCurves;  // Set flux curves on the plane.
 
-    // Step 2.4: Set the faces on each plane.
+    // Step 3.4: Set the faces on each plane.
     p.modelFaces = itr->second;  // Set the model faces on the plane.
 
-    // Step 2.5: Save the plane in planes container.
+    // Step 3.5: Save the plane in planes container.
     planesContainer.push_back(p);
   }
 }

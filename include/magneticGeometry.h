@@ -7,7 +7,7 @@
 class MagneticGeometry{
   public:
     MagneticGeometry(const args& a);
-    VmecData getVmecData();
+    const VmecData& getVmecData();
   private:
     VmecData vmec;  // Given VMEC data.
     BmwData bmw;  // Future

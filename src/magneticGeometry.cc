@@ -8,7 +8,7 @@ MagneticGeometry::MagneticGeometry(const args& a)
     std::cout << "vmec data not found\n";
 }
 
-VmecData MagneticGeometry::getVmecData()
+const VmecData& MagneticGeometry::getVmecData()
 {
   return vmec;
 }

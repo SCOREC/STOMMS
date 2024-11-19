@@ -2,9 +2,12 @@
 
 // Given the simmetrix model and planes data, this function generates
 // and return a simmetrix mesh.
-pMesh meshing(pGModel model, std::vector <Plane> planes, args* a)
+pMesh meshing(Model m, std::vector <Plane> planes, args* a)
 {
-  // Step 1: Initialize the simmetrix meshing objects required for meshing
+  // Step 1: get the Simmetrix model (pGModel) from Model.
+  pGModel model = m.getSimModel();
+
+  // Step 2: Initialize the simmetrix meshing objects required for meshing
   pProgress prog = Progress_new();
   Progress_setDefaultCallback(prog);
   pMesh mesh = M_new(0, model); 
@@ -14,44 +17,44 @@ pMesh meshing(pGModel model, std::vector <Plane> planes, args* a)
   // of specified vertices when specifying mesh edges.
   int numSpecifiedVert = 0;	
 
-  // Step 2: Iterate over the planes container and set the mesh size
+  // Step 3: Iterate over the planes container and set the mesh size
   // on mesh entites (model edges and faces).
   for (int i = 0; i < planes.size(); i++)
   {
-    // Step 2.1: Fetch the desired plane.
+    // Step 3.1: Fetch the desired plane.
     Plane p = planes[i];
 
-    // Step 2.2: Specify mesh vertex at O-point of current plane and get the 
+    // Step 3.2: Specify mesh vertex at O-point of current plane and get the 
     // index of mesh vertex specified at the O-point.
     int axisIndex = specifyMeshVertexOnAxis(mesh, p.oPoint, numSpecifiedVert);
 
-    // Step 2.3: Iterate over the flux curves from the respective plane
+    // Step 3.3: Iterate over the flux curves from the respective plane
     // and set the meshes. For first flux curve (j == 0), save the 
     // indices on flux curve f for specifying edges on model face.
     std::vector <int> indxOnFirstFlux;
     for (int j = 0; j < p.fluxCurves.size(); j++)
     {
-      // Step 2.3.1: Specify mesh entities (vertices and edges) on flux curves. 
+      // Step 3.3.1: Specify mesh entities (vertices and edges) on flux curves. 
       Flux f = p.fluxCurves[j];
       std::vector <int> indxOnFlux = specifyMeshEnt(mesh, f, numSpecifiedVert);
 
-      // Step 2.3.2: Save the indices of specified vertices on the first flux curve.
+      // Step 3.3.2: Save the indices of specified vertices on the first flux curve.
       if (j == 0)
         indxOnFirstFlux = indxOnFlux;
     }
 
-    // Step 2.4: Specify mesh edges on model face adjacent to O-point.
+    // Step 3.4: Specify mesh edges on model face adjacent to O-point.
     specifyMeshEdgesOnFace(mesh, p.oPoint, axisIndex, indxOnFirstFlux);
 
-    // Step 2.5: Iterate over the model faces from the respective plane.
+    // Step 3.5: Iterate over the model faces from the respective plane.
     for (int j = 0; j < p.modelFaces.size(); j++)
     {
       pGFace gf = p.modelFaces[j];
 
-      // Step 2.5.1: Ensure there are no mesh vertices on the model face.
+      // Step 3.5.1: Ensure there are no mesh vertices on the model face.
       MS_ensureMeshSpansFace(meshCase, gf);  // ensures no vertex on the model face.
       
-      // Step 2.5.2: Ensure not all mesh vertices of an element are on single model edge.
+      // Step 3.5.2: Ensure not all mesh vertices of an element are on single model edge.
       pPList edgesOnFace = GF_edges(gf);  // get list of edges on the face.
       for (int k = 0; k < PList_size(edgesOnFace); k++)
       {
