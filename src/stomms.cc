@@ -1,35 +1,5 @@
 #include "stomms.h"
 #include "modelTopology.h"
-#include <iterator>
-
-PlaneGeometry::PlaneGeometry(const FluxData& f, const MagneticGeometry& magGeom, double angle):toroidalAngle(angle)
-{
-  // Step 1: Setup the flux values on the plane.
-  fluxValues = f.fluxInput;
-
-  // Step 2: Find any critical points on plane (Future Task).
-  //oPoints = searchOPoints(magGeom);
-  //xPoints = searchXPoints(magGeom);
-  
-  // Step 3:Setup the map for number of desired mesh vertices on each flux curve.
-  for( const auto &itr : f.fluxMeshSize)
-    fluxMeshSize.push_back(itr.second);
-}
-
-const double& PlaneGeometry::getPlaneToroidalAngle()
-{
-  return toroidalAngle;
-}
-
-const std::vector<double>& PlaneGeometry::getPlanefluxValues()
-{
-  return fluxValues;
-}
-
-const std::vector <int>& PlaneGeometry::getPlaneFluxSizes()
-{
-  return fluxMeshSize;
-}
 
 STOMMS::STOMMS(const MagneticGeometry& magGeom):mg(magGeom)
 {
@@ -53,12 +23,12 @@ STOMMS::~STOMMS()
   MS_exit();
 }
 
-void STOMMS::addPlane(PlaneGeometry pg)
+void STOMMS::addPlane(PlaneMetaData pg)
 {
   planes.push_back(pg);
 }
 
-const std::vector <PlaneGeometry>& STOMMS::getPlanesContainer()
+const std::vector <PlaneMetaData>& STOMMS::getPlanesContainer()
 {
   return planes;
 }

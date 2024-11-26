@@ -68,7 +68,6 @@ class Face{
 class Model{
   public:
     Model(pGModel simModel);
-    
     int numVertices;
     int numEdges;
     int numFaces;

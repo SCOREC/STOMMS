@@ -1,6 +1,8 @@
 #include "input.h"
-#include "model.h"
+#include "modeling.h"
 #include "meshing.h"
+#include "modelMetaData.h"
+#include "modelData.h"
 #include "modelTopology.h"
 #include "magneticGeometry.h"
 #include "stomms.h"
@@ -16,27 +18,23 @@ int main(int argc, char* argv[])
   // Step 3: Setup the data in STOMMS class
   STOMMS s(mg);
 
-  // Step 4: Setup the poloidal planes.
+  // Step 4: Setup the poloidal planes using the meta data provided.
   for (int i = 0; i < a.in.pd.planeInput.size(); i++)
   {
       double toroidalAngle = a.in.pd.planeInput[i];
-      PlaneGeometry pg(a.in.fd, mg, toroidalAngle);
+      PlaneMetaData pg(a.in.fd, mg, toroidalAngle);
       s.addPlane(pg);
   }
 
   // Step 5: Generate the core region of the stellarator from the given VMEC file
-  //pGModel simModel = 0;		// Initialize an empty simmetrix pGModel 
   Model model = generateCoreSimModel(&a);
 
   // Step 6: Using the information from pVmecFlux object associated with
   // model, define the planes.
   std::vector <Plane> planesContainer;
-  getPlanes(model, planesContainer, &a);
+  getPlanes(model, planesContainer, a);
 
-  // Step 7: Save the model topology information
-  //Model model(simModel);
-  
-  // Step 6: Mesh the model by iterating over each plane
+  // Step 7: Mesh the model by iterating over each plane
   pMesh simMesh = 0;
   simMesh = meshing(model,planesContainer, &a);  
 

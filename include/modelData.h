@@ -1,9 +1,10 @@
-#ifndef MODEL_H
-#define MODEL_H
+#ifndef MODELDATA_H
+#define MODELDATA_H
 
-#include <map>
-#include "input.h"
 #include "modelTopology.h"
+#include "input.h"
+#include <util.h>
+#include <map>
 
 class Flux{
   public:
@@ -23,31 +24,12 @@ class Plane{
 };
 
 /*
- * From a given Vmec File, generate the model of the core region of stellarator
- * args* a (in): input parameters. 
- * returns pGModel;
-*/
-Model generateCoreSimModel(args* a);
-
-/* 
- * From Vmec flux data (vf), flux indices (nrho and rhos), and, poloidal planes (nzeta and zetas)
- * generate a Simmetrix model (pGModel model).
- * pVmecFlux vf (in): flux data on all the planes.
- * int npsi (in): number of flux curves on each plane.
- * int nzeta (in): number of poloidal planes.
- * int *psis (in): an input array holding flux normalized psi values.
- * double *zetas:an input array holding toroidal angles of the poloidal planes.
- * returns pGModel.
-*/
-pGModel simModelFromVmec(pVmecFlux vf, int npsi, int nzeta, const double *psis, const double *zetas);
-
-/*
  * Setting model entities from simModel to respective planes.
  * pGModel model (in): the model created from modeling step.
  * std::vector <plane> planesContainer (out): the data for each plane  as object Plane is written to this container.
  * args* a (in): input parameters.
 */
-void getPlanes(Model model, std::vector <Plane>& planesContainer, args* a);
+void getPlanes(Model model, std::vector <Plane>& planesContainer, const args& a); 
 
 /*
  * From the simModel, sort the O-point model vertices by planes.
@@ -55,7 +37,7 @@ void getPlanes(Model model, std::vector <Plane>& planesContainer, args* a);
  * args* a (in): input parameters.
  * returns a map between plane number and corresponding O-point model vertex.
 */
-std::map<int, pGVertex> sortOPointsByPlanes(pGModel model, args* a);
+std::map<int, pGVertex> sortOPointsByPlanes(pGModel model, const args& a); 
 
 /*
  * From the simModel, sort the model faces by planes. 
@@ -63,7 +45,7 @@ std::map<int, pGVertex> sortOPointsByPlanes(pGModel model, args* a);
  * args* a (in): input parameters.
  * returns a map between plane number and a vector containing all the model faces on that plane.
 */
-std::map<int,std::vector<pGFace>> sortFacesByPlanes(pGModel model, args* a);
+std::map<int,std::vector<pGFace>> sortFacesByPlanes(pGModel model, const args& a); 
 
 /*
  * set all the flux curves on a plane.
@@ -72,6 +54,6 @@ std::map<int,std::vector<pGFace>> sortFacesByPlanes(pGModel model, args* a);
  * args* a (in): input parameters.
  * returns a vector of flux curves (type Flux).
 */
-std::vector<Flux> setFluxCurvesOnPlanes(pGModel model, int planeNum, args* a);
+std::vector<Flux> setFluxCurvesOnPlanes(pGModel model, int planeNum, const args& a);
 
 #endif

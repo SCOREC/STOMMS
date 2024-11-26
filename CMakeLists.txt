@@ -18,10 +18,12 @@ pkg_check_modules(netcdf-cxx4 REQUIRED IMPORTED_TARGET netcdf-cxx4)
 set(STELLMESH_SRCS
   src/main.cc
   src/stomms.cc
-  src/model.cc 
+  src/modeling.cc 
   src/input.cc
   src/util.cc
   src/meshing.cc
+  src/modelMetaData.cc
+  src/modelData.cc
   src/modelTopology.cc
   src/magneticGeometry.cc
 )
