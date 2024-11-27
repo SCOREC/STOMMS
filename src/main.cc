@@ -27,16 +27,16 @@ int main(int argc, char* argv[])
   }
 
   // Step 5: Generate the core region of the stellarator from the given VMEC file
-  Model model = generateCoreSimModel(&a);
+  Model model = generateCoreSimModel(a);
 
   // Step 6: Using the information from pVmecFlux object associated with
   // model, define the planes.
-  std::vector <Plane> planesContainer;
-  getPlanes(model, planesContainer, a);
-
+  s.setPlanes(model, a);
+  
   // Step 7: Mesh the model by iterating over each plane
   pMesh simMesh = 0;
-  simMesh = meshing(model,planesContainer, &a);  
+  std::vector <Plane> planes = s.getPlanes();
+  simMesh = meshing(model,planes, &a);  
 
   return 0;
 }

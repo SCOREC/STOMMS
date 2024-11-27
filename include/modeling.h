@@ -10,7 +10,7 @@
  * args* a (in): input parameters. 
  * returns pGModel;
 */
-Model generateCoreSimModel(args* a);
+Model generateCoreSimModel(const args& a);
 
 /* 
  * From Vmec flux data (vf), flux indices (nrho and rhos), and, poloidal planes (nzeta and zetas)

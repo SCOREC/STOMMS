@@ -84,6 +84,8 @@ class args{
     */ 
     InputData in;  // Read the input data from different input files in this one.
 
+    // Public member functions
+    void setPsiBounds();
   private:
     /*
      * A function to set the default values of the parameters.

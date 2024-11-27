@@ -9,19 +9,19 @@
 #endif
 
 //From a given Vmec File, generate the model of the core region of stellarator
-Model generateCoreSimModel(args* a)
+Model generateCoreSimModel(const args& a)
 {
   // Step 1: Read the data from the vmec object (vm)
-  double avmajr = a->in.vm.majorR;
-  double avminr = a->in.vm.minorR;
-  int nsurf = a->in.vm.nSurf;
-  int nmode = a->in.vm.nMode;
-  std::vector <double> R = a->in.vm.R;
-  std::vector <double> Z = a->in.vm.Z;
-  std::vector <double> L = a->in.vm.L;
-  std::vector <double> psi = a->in.vm.psi;
-  std::vector <double> xm = a->in.vm.xm;
-  std::vector <double> xn = a->in.vm.xn;
+  double avmajr = a.in.vm.majorR;
+  double avminr = a.in.vm.minorR;
+  int nsurf = a.in.vm.nSurf;
+  int nmode = a.in.vm.nMode;
+  std::vector <double> R = a.in.vm.R;
+  std::vector <double> Z = a.in.vm.Z;
+  std::vector <double> L = a.in.vm.L;
+  std::vector <double> psi = a.in.vm.psi;
+  std::vector <double> xm = a.in.vm.xm;
+  std::vector <double> xn = a.in.vm.xn;
 
   // Step 2: Create an object to hold Vmec flux data
   pVmecFlux vf = VmecFlux_create(avmajr, avminr, nsurf, nmode, R.data(), Z.data(), L.data(), psi.data(), xm.data(), xn.data());
@@ -31,8 +31,8 @@ Model generateCoreSimModel(args* a)
   // Also, read psi values at O-point and last closed flux curve from VMEC file and use them to convert
   // normalized psi to actual psi. 
  
-  std::vector <double> psiNorm = a->in.fd.fluxInput;
-  std::vector <double> zetas = a->in.pd.planeInput;
+  std::vector <double> psiNorm = a.in.fd.fluxInput;
+  std::vector <double> zetas = a.in.pd.planeInput;
   const int npsi = psiNorm.size(), nzeta = zetas.size(); 
 
   // Step 4: Convert normalized psi values to actual psi values. We need read psi values at O-point and last closed 
@@ -41,8 +41,6 @@ Model generateCoreSimModel(args* a)
   double psiLCF = psi[nsurf-1];
 
   // Set these values of a for global use.
-  a->psiAxis = psiAxis;
-  a->psiLCF = psiLCF;
   std::vector <double> psiVec = convertNormToPsiVector(psiNorm, psiAxis, psiLCF);  
 
   // Step 5: Set flux curves and planes in the vmec vf object.

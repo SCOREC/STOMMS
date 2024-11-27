@@ -71,6 +71,7 @@ void args::setValuesForLocalUse()
   in.fd.fluxInput = readFluxFile();  // Read the flux input file.
   in.pd.planeInput = readPlaneFile();  // Read the plane input file.
   in.fd.fluxMeshSize = readMeshSizeOnFlux();  // Read the mesh size input file.
+  setPsiBounds();  // Set the psi values of axis and last closed flux curve.
 }
 
 // A function to set mesh sizes on each flux curves for later use (in meshing).
@@ -271,4 +272,10 @@ VmecData args::readVmecFile()
 
   // Step 4: Return vmec data.
   return v;
+}
+
+void args::setPsiBounds()
+{
+  psiAxis = in.vm.psi[0];
+  psiLCF = in.vm.psi[in.vm.nSurf - 1];
 }

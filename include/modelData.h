@@ -24,14 +24,6 @@ class Plane{
 };
 
 /*
- * Setting model entities from simModel to respective planes.
- * pGModel model (in): the model created from modeling step.
- * std::vector <plane> planesContainer (out): the data for each plane  as object Plane is written to this container.
- * args* a (in): input parameters.
-*/
-void getPlanes(Model model, std::vector <Plane>& planesContainer, const args& a); 
-
-/*
  * From the simModel, sort the O-point model vertices by planes.
  * pGModel model (in): the Simmetrix model created from modeling step.
  * args* a (in): input parameters.
