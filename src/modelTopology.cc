@@ -1,8 +1,9 @@
 #include "modelTopology.h"
 
 // Model Vertex Definition
-Vertex::Vertex(pGVertex simVertex):gv(simVertex)
+void Vertex::setSimVertex(pGVertex simVertex)
 {
+  gv = simVertex;
   pt = setPointFromVertex();
 }
 
@@ -18,38 +19,50 @@ Point Vertex::setPointFromVertex()
   return p;
 }
 
-pGVertex Vertex::getSimVertex()
+const pGVertex& Vertex::getSimVertex()
 {
   return gv;
 }
 
-// Model Edge Definition
-Edge::Edge(pGEdge simEdge):ge(simEdge)
+const Point& Vertex::getPointAtVertex()
 {
+  return pt;
+}
+
+// Model Edge Definition
+void Edge::setSimEdge(pGEdge simEdge)
+{
+  ge = simEdge;
   setEdge();
 }
 
 void Edge::setEdge()
 {
   pPList verticesOnEdge = GE_vertices(ge);
-  numVerticesOnE = PList_size(verticesOnEdge);
   for (int i = 0; i < PList_size(verticesOnEdge); i++)
   {
     pGVertex gv = static_cast<pGVertex>(PList_item(verticesOnEdge,i));
-    Vertex v(gv);
+    Vertex v;
+    v.setSimVertex(gv);
     verticesOnE.push_back(v);
   } 
   PList_delete(verticesOnEdge);
 }
 
-pGEdge Edge::getSimEdge()
+const pGEdge& Edge::getSimEdge()
 {
   return ge;
 }
 
-// Model Loop Defintion
-Loop::Loop(pGLoopUse simLoop):gl(simLoop)
+const std::vector <Vertex>& Edge::getVerticesOnEdge()
 {
+  return verticesOnE;
+}
+
+// Model Loop Defintion
+void Loop::setSimLoop(pGLoopUse simLoop)
+{
+  gl = simLoop;
   setLoop();
 }
 
@@ -59,16 +72,22 @@ void Loop::setLoop()
   while (pGEdgeUse edgeUse = GEUIter_next(edgesOnLoop))
   {
     pGEdge ge =  GEU_edge(edgeUse);
-    Edge e(ge);
+    Edge e;
+    e.setSimEdge(ge);
     edgesOnL.push_back(e);
   }  
   GEUIter_delete(edgesOnLoop);
-  numEdgesOnL = edgesOnL.size();
+}
+
+const std::vector <Edge>& Loop::getEdgesOnLoop()
+{
+  return edgesOnL;
 }
 
 // Model Face Definition
-Face::Face(pGFace simFace):gf(simFace)
+void Face::setSimFace(pGFace simFace)
 {
+  gf = simFace;
   setFace();
 }
 
@@ -81,11 +100,11 @@ void Face::setFace()
 void Face::setEdgesOnFace()
 {
   pPList edgesOnFace = GF_edges(gf);
-  numEdgesOnF = PList_size(edgesOnFace);
   for (int i = 0; i < PList_size(edgesOnFace); i++)
   {
     pGEdge ge = static_cast<pGEdge>(PList_item(edgesOnFace,i));
-    Edge e(ge);
+    Edge e;
+    e.setSimEdge(ge);
     edgesOnF.push_back(e);
   }
   PList_delete(edgesOnFace);
@@ -98,44 +117,46 @@ void Face::setLoopsOnFace()
   pGLUIter loopIter = GFU_loopIter(fu);
   while (pGLoopUse loopUse = GLUIter_next(loopIter))
   {
-    Loop l(loopUse);
+    Loop l;
+    l.setSimLoop(loopUse);
     loopsOnF.push_back(l);
   }
   GLUIter_delete(loopIter);
-  numLoopsOnF = loopsOnF.size();
 }
 
-pGFace Face::getSimFace()
+const pGFace& Face::getSimFace()
 {
   return gf;
 }
 
-// Model Definition
-Model::Model(pGModel simModel):model(simModel)
+const std::vector <Edge>& Face::getEdgesOnFace()
 {
-  setModel();
+  return edgesOnF;
+}
+
+const std::vector <Loop>& Face::getLoopsOnFace()
+{
+  return loopsOnF;
+}
+
+// Model Definition
+void Model::setSimModel(pGModel simModel)
+{
+  model = simModel;
   setModelVertices();
   setModelEdges();
   setModelFaces();
 }
-
-void Model::setModel()
-{
-  numVertices = GM_numVertices(model);
-  numEdges = GM_numEdges(model);
-  numFaces = GM_numFaces(model);
-}
-
 void Model::setModelVertices()
 {
   GVIter vIter = GM_vertexIter(model);
   while (pGVertex gVertex = GVIter_next(vIter))
   {
-    Vertex v(gVertex); 
+    Vertex v;
+    v.setSimVertex(gVertex); 
     vertices.push_back(v);
   }
   GVIter_delete(vIter); 
-  assert(numVertices == vertices.size());
 }
 
 void Model::setModelEdges()
@@ -144,11 +165,11 @@ void Model::setModelEdges()
   while (pGEdge gEdge = GEIter_next(eIter))
   {
     pGEdge ge = gEdge;
-    Edge e(ge);
+    Edge e;
+    e.setSimEdge(ge);
     edges.push_back(e);
   }
   GEIter_delete(eIter);
-  assert(numEdges == edges.size());
 }
 
 void Model::setModelFaces()
@@ -157,14 +178,29 @@ void Model::setModelFaces()
   while (pGFace gFace = GFIter_next(fIter))
   {
     pGFace gf = gFace;
-    Face f(gf);
+    Face f;
+    f.setSimFace(gf);
     faces.push_back(f);
   }
   GFIter_delete(fIter);
-  assert(numFaces == faces.size());
 }
 
-pGModel Model::getSimModel()
+const pGModel& Model::getSimModel()
 {
   return model;
+}
+
+const std::vector <Vertex>& Model::getModelVertices()
+{
+  return vertices;
+}
+
+const std::vector <Edge>& Model::getModelEdges()
+{
+  return edges;
+}
+
+const std::vector <Face>& Model::getModelFaces()
+{
+  return faces;
 }

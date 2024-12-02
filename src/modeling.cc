@@ -54,7 +54,8 @@ Model generateCoreSimModel(const args& a)
   GM_write(simModel, "vmec.smd", 0, 0);
 
   // Step 8: Save it as type Model
-  Model model(simModel);
+  Model model;
+  model.setSimModel(simModel);
 
   return model;
 }

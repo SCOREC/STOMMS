@@ -21,65 +21,73 @@ struct PhysicsPoint{
 
 class Vertex{
   public:
-    Vertex(pGVertex simVertex);
-    Point pt;
-    pGVertex getSimVertex();
+    //Vertex(pGVertex simVertex);
+    void setSimVertex(pGVertex simVertex);
+    const Point& getPointAtVertex();
+    const pGVertex& getSimVertex();
   private:
     Point setPointFromVertex();
     pGVertex gv;  // geometrix vertex
+    Point pt;
 };
 
 class Edge{
   public:
-    Edge(pGEdge simEdge);
-    int numVerticesOnE; // Number of vertices on an edge
-    std::vector <Vertex> verticesOnE;
-    pGEdge getSimEdge();
+    //Edge(pGEdge simEdge);
+    void setSimEdge(pGEdge simEdge);
+    const pGEdge& getSimEdge();
+    const std::vector <Vertex>& getVerticesOnEdge();
   private:
     void setEdge();
     pGEdge ge;  // geometric edge
+    std::vector <Vertex> verticesOnE;
 };
 
 class Loop{
   public:
-    Loop(pGLoopUse simLoop);
-    int numEdgesOnL;
-    std::vector <Edge> edgesOnL;
+    //Loop(pGLoopUse simLoop);
+    void setSimLoop(pGLoopUse simLoop);
+    const std::vector <Edge>& getEdgesOnLoop();
   private:
     void setLoop();
     pGLoopUse gl;  // geometric loop use
+    std::vector <Edge> edgesOnL;
+
 };
 
 class Face{
   public:
-    Face(pGFace simFace);
-    int numEdgesOnF;
-    std::vector <Edge> edgesOnF;
-    int numLoopsOnF;
-    std::vector <Loop> loopsOnF;
-    pGFace getSimFace();
+    //Face();
+    void setSimFace(pGFace simFace);
+    const pGFace& getSimFace();
+    const std::vector <Edge>& getEdgesOnFace();
+    const std::vector <Loop>& getLoopsOnFace();
   private:
     void setFace();
     void setEdgesOnFace();
     void setLoopsOnFace();
     pGFace gf;  // geometric face
+    std::vector <Edge> edgesOnF;
+    std::vector <Loop> loopsOnF;
 };
 
 class Model{
   public:
-    Model(pGModel simModel);
-    int numVertices;
-    int numEdges;
-    int numFaces;
-    std::vector <Vertex> vertices;
-    std::vector <Edge> edges;
-    std::vector <Face> faces;
-    pGModel getSimModel();
+    //Model();
+    const pGModel& getSimModel();
+    void setSimModel(pGModel simModel);
+    const std::vector <Vertex>& getModelVertices();
+    const std::vector <Edge>& getModelEdges();
+    const std::vector <Face>& getModelFaces();
+
   private:
     pGModel model;    
 
+    std::vector <Vertex> vertices;
+    std::vector <Edge> edges;
+    std::vector <Face> faces;
+    
     // Member Functions
-    void setModel();
     void setModelVertices();
     void setModelEdges();
     void setModelFaces();
