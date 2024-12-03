@@ -9,33 +9,43 @@
 #endif
 
 //From a given Vmec File, generate the model of the core region of stellarator
-Model generateCoreSimModel(const args& a)
+Model generateCoreSimModel(std::vector <PlaneMetaData> md)
 {
-  // Step 1: Read the data from the vmec object (vm)
-  double avmajr = a.in.vm.majorR;
-  double avminr = a.in.vm.minorR;
-  int nsurf = a.in.vm.nSurf;
-  int nmode = a.in.vm.nMode;
-  std::vector <double> R = a.in.vm.R;
-  std::vector <double> Z = a.in.vm.Z;
-  std::vector <double> L = a.in.vm.L;
-  std::vector <double> psi = a.in.vm.psi;
-  std::vector <double> xm = a.in.vm.xm;
-  std::vector <double> xn = a.in.vm.xn;
+  // Step 1: Retrieve the data (magnetic geometric) from the MetaData
+  // and read vmecData from it.
+  MagneticGeometry mg = md[0].getMagneticGeometry();
+  VmecData vm = mg.getVmecData();  
 
-  // Step 2: Create an object to hold Vmec flux data
+  // Step 2: Read the data from the vmec object (vm)
+  double avmajr = vm.majorR;
+  double avminr = vm.minorR;
+  int nsurf = vm.nSurf;
+  int nmode = vm.nMode;
+  std::vector <double> R = vm.R;
+  std::vector <double> Z = vm.Z;
+  std::vector <double> L = vm.L;
+  std::vector <double> psi = vm.psi;
+  std::vector <double> xm = vm.xm;
+  std::vector <double> xn = vm.xn;
+
+  // Step 3: Create an object to hold Vmec flux data
   pVmecFlux vf = VmecFlux_create(avmajr, avminr, nsurf, nmode, R.data(), Z.data(), L.data(), psi.data(), xm.data(), xn.data());
 
-  // Step 3: Read number of flux curves (npsi) on each poloidal plane with the respective normalized psi values (psiNorm) from the
+  // Step 4: Read number of flux curves (npsi) on each poloidal plane with the respective normalized psi values (psiNorm) from the
   // fluxFile. Also, rad the number of toroidal planes (nzeta) with the toroidal angles (zetas) of each poloidal plane.
   // Also, read psi values at O-point and last closed flux curve from VMEC file and use them to convert
   // normalized psi to actual psi. 
  
-  std::vector <double> psiNorm = a.in.fd.fluxInput;
-  std::vector <double> zetas = a.in.pd.planeInput;
+  std::vector <double> psiNorm = md[0].getPlaneFluxValues();
+  std::vector <double> zetas;
+  for (int i = 0; i  < md.size(); i++)
+  {
+    double toroidalAngle = md[i].getPlaneToroidalAngle();
+    zetas.push_back(toroidalAngle);
+  }
   const int npsi = psiNorm.size(), nzeta = zetas.size(); 
 
-  // Step 4: Convert normalized psi values to actual psi values. We need read psi values at O-point and last closed 
+  // Step 5: Convert normalized psi values to actual psi values. We need read psi values at O-point and last closed 
   // flux curve from VMEC file and use them to convert normalized psi to actual psi.
   double psiAxis = psi[0];
   double psiLCF = psi[nsurf-1];
@@ -43,17 +53,17 @@ Model generateCoreSimModel(const args& a)
   // Set these values of a for global use.
   std::vector <double> psiVec = convertNormToPsiVector(psiNorm, psiAxis, psiLCF);  
 
-  // Step 5: Set flux curves and planes in the vmec vf object.
+  // Step 6: Set flux curves and planes in the vmec vf object.
   VmecFlux_setFluxes(vf, npsi, 0, psiVec.data()); 
   VmecFlux_setToroidalAngles(vf, nzeta, zetas.data());
 
-  // Step 6: Create model entities from the vmec physics data.
+  // Step 7: Create model entities from the vmec physics data.
   pGModel simModel = simModelFromVmec(vf, npsi, nzeta, psiVec.data(), zetas.data());
 
-  // Step 7: Write the model (.smd) on disk for visualization.
+  // Step 8: Write the model (.smd) on disk for visualization.
   GM_write(simModel, "vmec.smd", 0, 0);
 
-  // Step 8: Save it as type Model
+  // Step 9: Save it as type Model
   Model model;
   model.setSimModel(simModel);
 

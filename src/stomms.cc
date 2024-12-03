@@ -33,15 +33,21 @@ const std::vector <PlaneMetaData>& STOMMS::getPlanesContainer()
   return planesContainer;
 }
 
-void STOMMS::setPlanes(Model model, const args& a)
+void STOMMS::setPlanes()
 {
   // Step 1: Get the Simmetrix model (pGModel) from Model.
   pGModel simModel = model.getSimModel();
+  std::vector <double> planeAngles;
+  for (int i = 0; i < planesContainer.size(); i++)
+  {
+    double angle = planesContainer[i].getPlaneToroidalAngle();
+    planeAngles.push_back(angle);
+  }
 
   // Step 2: Sort all the model faces and O-point vertices  according to plane number in a map.
   // In map, the key is the plane # and the element is relevant model data on the plane.
-  std::map <int, pGVertex> planesAxisMap = sortOPointsByPlanes(simModel, a); 
-  std::map <int, std::vector<pGFace>> planesFacesMap = sortFacesByPlanes(simModel, a); 
+  std::map <int, pGVertex> planesAxisMap = sortOPointsByPlanes(model, planeAngles); 
+  std::map <int, std::vector<pGFace>> planesFacesMap = sortFacesByPlanes(model, planeAngles); 
 
   // Step 3: Iterate over the map and assign the data to each plane (using object Plane)
   std::map <int, std::vector<pGFace>>::iterator itr;
@@ -56,7 +62,7 @@ void STOMMS::setPlanes(Model model, const args& a)
     p.oPoint = planesAxisMap[itr->first];  // Set the Opoint on the plane.
 
     // Step 3.3: Set the flux curves on each plane.
-    std::vector <Flux> fluxCurves = setFluxCurvesOnPlanes(simModel, p.planeNumber, a); 
+    std::vector <Flux> fluxCurves = setFluxCurvesOnPlanes(model, p.planeNumber, planesContainer); 
     p.fluxCurves = fluxCurves;  // Set flux curves on the plane.
 
     // Step 3.4: Set the faces on each plane.
@@ -70,4 +76,15 @@ void STOMMS::setPlanes(Model model, const args& a)
 const std::vector <Plane>& STOMMS::getPlanes()
 {
   return planes;
+}
+
+void STOMMS::freezeModel()
+{
+  model = generateCoreSimModel(planesContainer);
+  setPlanes();
+}
+
+const Model& STOMMS::getModel()
+{
+  return model;
 }

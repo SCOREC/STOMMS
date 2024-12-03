@@ -13,7 +13,8 @@ int main(int argc, char* argv[])
   args a(argc, argv);
 
   // Step 2: Setup the magnetic field information. 
-  MagneticGeometry mg(a);
+  MagneticGeometry mg;
+  mg.setMagneticGeometry(a);
 
   // Step 3: Setup the data in STOMMS class
   STOMMS s(mg);
@@ -26,13 +27,12 @@ int main(int argc, char* argv[])
       s.addPlane(pg);
   }
 
-  // Step 5: Generate the core region of the stellarator from the given VMEC file
-  Model model = generateCoreSimModel(a);
+  // Step 5: Generate the geometric model from the given meta data and freeze it once done.
+  s.freezeModel();
 
-  // Step 6: Using the information from pVmecFlux object associated with
-  // model, define the planes.
-  s.setPlanes(model, a);
-  
+  // Step 6: Get the final model from the stomms class for meshing.
+  Model model = s.getModel();
+
   // Step 7: Mesh the model by iterating over each plane
   pMesh simMesh = 0;
   std::vector <Plane> planes = s.getPlanes();

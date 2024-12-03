@@ -4,6 +4,7 @@
 #include "input.h"
 #include "magneticGeometry.h"
 #include "modelMetaData.h"
+#include "modeling.h"
 #include "modelData.h"
 #include "modelTopology.h"
 
@@ -19,11 +20,13 @@ class STOMMS{
      * std::vector <plane> planesContainer (out): the data for each plane  as object Plane is written to this container.
      * args* a (in): input parameters.
      */
-    void setPlanes(Model model, const args& a);    
+    void freezeModel();
+    void setPlanes();    
     const std::vector <Plane>& getPlanes();
-
+    const Model& getModel();
   private:
     MagneticGeometry mg;
+    Model model;
     std::vector <PlaneMetaData> planesContainer;
     std::vector <Plane> planes;
     pProgress prog;  // Simmetrix handler to show execution details.

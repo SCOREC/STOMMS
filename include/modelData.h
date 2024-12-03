@@ -1,7 +1,9 @@
 #ifndef MODELDATA_H
 #define MODELDATA_H
 
+#include "magneticGeometry.h"
 #include "modelTopology.h"
+#include "modelMetaData.h"
 #include "input.h"
 #include <util.h>
 #include <map>
@@ -29,7 +31,7 @@ class Plane{
  * args* a (in): input parameters.
  * returns a map between plane number and corresponding O-point model vertex.
 */
-std::map<int, pGVertex> sortOPointsByPlanes(pGModel model, const args& a); 
+std::map<int, pGVertex> sortOPointsByPlanes(Model m, std::vector <double> planeAngles); 
 
 /*
  * From the simModel, sort the model faces by planes. 
@@ -37,7 +39,7 @@ std::map<int, pGVertex> sortOPointsByPlanes(pGModel model, const args& a);
  * args* a (in): input parameters.
  * returns a map between plane number and a vector containing all the model faces on that plane.
 */
-std::map<int,std::vector<pGFace>> sortFacesByPlanes(pGModel model, const args& a); 
+std::map<int,std::vector<pGFace>> sortFacesByPlanes(Model m, std::vector <double> planeAngles); 
 
 /*
  * set all the flux curves on a plane.
@@ -46,6 +48,6 @@ std::map<int,std::vector<pGFace>> sortFacesByPlanes(pGModel model, const args& a
  * args* a (in): input parameters.
  * returns a vector of flux curves (type Flux).
 */
-std::vector<Flux> setFluxCurvesOnPlanes(pGModel model, int planeNum, const args& a);
+std::vector<Flux> setFluxCurvesOnPlanes(Model m, int planeNum, std::vector <PlaneMetaData> md);
 
 #endif

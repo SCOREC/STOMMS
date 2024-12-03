@@ -4,13 +4,15 @@
 #include <map>
 #include "input.h"
 #include "modelTopology.h"
+#include "modelMetaData.h"
+#include "magneticGeometry.h"
 
 /*
  * From a given Vmec File, generate the model of the core region of stellarator
  * args* a (in): input parameters. 
  * returns pGModel;
 */
-Model generateCoreSimModel(const args& a);
+Model generateCoreSimModel(std::vector <PlaneMetaData> mD);
 
 /* 
  * From Vmec flux data (vf), flux indices (nrho and rhos), and, poloidal planes (nzeta and zetas)
