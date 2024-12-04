@@ -20,15 +20,9 @@ class STOMMS{
      * std::vector <plane> planesContainer (out): the data for each plane  as object Plane is written to this container.
      * args* a (in): input parameters.
      */
-    void freezeModel();
-    void setPlanes();    
-    const std::vector <Plane>& getPlanes();
-    const Model& getModel();
   private:
     MagneticGeometry mg;
-    Model model;
     std::vector <PlaneMetaData> planesContainer;
-    std::vector <Plane> planes;
     pProgress prog;  // Simmetrix handler to show execution details.
 };
 #endif

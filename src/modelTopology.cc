@@ -1,12 +1,14 @@
 #include "modelTopology.h"
 
-// Model Vertex Definition
+// Model Vertex Definitions
+// Function to get the Simmetrix vertex and to use it in the definition of Vertex.
 void Vertex::setSimVertex(pGVertex simVertex)
 {
   gv = simVertex;
   pt = setPointFromVertex();
 }
 
+// Function to set the physical coordinates of the Vertex.
 Point Vertex::setPointFromVertex()
 {
   Point p;
@@ -19,23 +21,28 @@ Point Vertex::setPointFromVertex()
   return p;
 }
 
+// Fucntion to return the underlying Simmetrix vertex for the Vertex.
 const pGVertex& Vertex::getSimVertex()
 {
   return gv;
 }
 
+// Function to return the physical coordinates of the Vertex in terms of Point.
 const Point& Vertex::getPointAtVertex()
 {
   return pt;
 }
 
-// Model Edge Definition
+// Model Edge Definitions
+// Function to get the Simmetrix edge and to use it in the definition of Edge
 void Edge::setSimEdge(pGEdge simEdge)
 {
   ge = simEdge;
   setEdge();
 }
 
+// Function to set the model edge to the the definition of Edge.
+// This includes setting up the model vertices on the edge.
 void Edge::setEdge()
 {
   pPList verticesOnEdge = GE_vertices(ge);
@@ -43,29 +50,35 @@ void Edge::setEdge()
   {
     pGVertex gv = static_cast<pGVertex>(PList_item(verticesOnEdge,i));
     Vertex v;
+
     v.setSimVertex(gv);
     verticesOnE.push_back(v);
   } 
   PList_delete(verticesOnEdge);
 }
 
+// Function to return the underlying Simmetrix model edge for the Edge.
 const pGEdge& Edge::getSimEdge()
 {
   return ge;
 }
 
+// Function to return model vertices on the Edge.
 const std::vector <Vertex>& Edge::getVerticesOnEdge()
 {
   return verticesOnE;
 }
 
-// Model Loop Defintion
+// Model Loop Defintions
+// A function to get the Simmetrix loop and to use it in the definition of Loop.
 void Loop::setSimLoop(pGLoopUse simLoop)
 {
   gl = simLoop;
   setLoop();
 }
 
+// Function to set the model loop to the the definition of Loop.
+// This includes setting up the model edges on the loop.
 void Loop::setLoop()
 {
   pGEUIter edgesOnLoop = GLU_edgeUseIter(gl);
@@ -79,24 +92,29 @@ void Loop::setLoop()
   GEUIter_delete(edgesOnLoop);
 }
 
+// Function to return vector of edges on a loop.
 const std::vector <Edge>& Loop::getEdgesOnLoop()
 {
   return edgesOnL;
 }
 
-// Model Face Definition
+// Model Face Definitions
+// A function to get the Simmetrix face and to use it in the definition of Face.
 void Face::setSimFace(pGFace simFace)
 {
   gf = simFace;
   setFace();
 }
 
+// Function to set the model face to the definition of Face.
+// This includes setting up both model edges and loops on the Face.
 void Face::setFace()
 {
   setEdgesOnFace();
   setLoopsOnFace();
 }
 
+// Function to set the model edges on the model face.
 void Face::setEdgesOnFace()
 {
   pPList edgesOnFace = GF_edges(gf);
@@ -110,6 +128,7 @@ void Face::setEdgesOnFace()
   PList_delete(edgesOnFace);
 }
 
+// Function to set the model loops on the model face.
 void Face::setLoopsOnFace()
 {
   int side = 1;
@@ -124,22 +143,26 @@ void Face::setLoopsOnFace()
   GLUIter_delete(loopIter);
 }
 
+// Fucntion to return Simmetrix model face assoctaed with Face.
 const pGFace& Face::getSimFace()
 {
   return gf;
 }
 
+// Function to return the model edges on the model face.
 const std::vector <Edge>& Face::getEdgesOnFace()
 {
   return edgesOnF;
 }
 
+// Function to return the model loops on the model face.
 const std::vector <Loop>& Face::getLoopsOnFace()
 {
   return loopsOnF;
 }
 
 // Model Definition
+// Function to get the pGModel to set it to the model in the class.
 void Model::setSimModel(pGModel simModel)
 {
   model = simModel;
@@ -147,6 +170,8 @@ void Model::setSimModel(pGModel simModel)
   setModelEdges();
   setModelFaces();
 }
+
+// Function to set model vertices from pGModel on the Model.
 void Model::setModelVertices()
 {
   GVIter vIter = GM_vertexIter(model);
@@ -159,6 +184,7 @@ void Model::setModelVertices()
   GVIter_delete(vIter); 
 }
 
+// Function to set model edges from pGModel on Model.
 void Model::setModelEdges()
 {
   GEIter eIter = GM_edgeIter(model);
@@ -172,6 +198,7 @@ void Model::setModelEdges()
   GEIter_delete(eIter);
 }
 
+// Function to set model edges from pGModel on Model.
 void Model::setModelFaces()
 {
   GFIter fIter = GM_faceIter(model);
@@ -185,21 +212,25 @@ void Model::setModelFaces()
   GFIter_delete(fIter);
 }
 
+// Function to return the underlying Simmetrix model (pGModel).
 const pGModel& Model::getSimModel()
 {
   return model;
 }
 
+// Function to return a vector of  model vertices on the model.
 const std::vector <Vertex>& Model::getModelVertices()
 {
   return vertices;
 }
 
+// Function to return a vector of  model edges on the model.
 const std::vector <Edge>& Model::getModelEdges()
 {
   return edges;
 }
 
+// Function to return a vector of  model faces on the model.
 const std::vector <Face>& Model::getModelFaces()
 {
   return faces;

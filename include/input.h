@@ -56,7 +56,9 @@ struct InputData{
   PlaneData pd;  // Read the plane data from the input file (planeFile).
 };
 
-
+// Class args handles all the input information. This includes:
+// magnetic field information, modeling and mesh parameters,
+// any kind of control parameters.
 class args{
   public:
     args(int argc, char* argv[]);

@@ -9,8 +9,8 @@
 
 /*
  * From a given Vmec File, generate the model of the core region of stellarator
- * args* a (in): input parameters. 
- * returns pGModel;
+ * std::vector <PlaneMetaData> mD (in): a vector of planes with their meta data. 
+ * returns Model;
 */
 Model generateCoreSimModel(std::vector <PlaneMetaData> mD);
 

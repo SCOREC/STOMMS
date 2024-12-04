@@ -8,7 +8,7 @@
   #define M_PI 3.14159265358979323846
 #endif
 
-//From a given Vmec File, generate the model of the core region of stellarator
+//From a given plane meta data (Vmec, flux and plane info), generate the model of the core region of stellarator
 Model generateCoreSimModel(std::vector <PlaneMetaData> md)
 {
   // Step 1: Retrieve the data (magnetic geometric) from the MetaData
@@ -32,14 +32,14 @@ Model generateCoreSimModel(std::vector <PlaneMetaData> md)
   pVmecFlux vf = VmecFlux_create(avmajr, avminr, nsurf, nmode, R.data(), Z.data(), L.data(), psi.data(), xm.data(), xn.data());
 
   // Step 4: Read number of flux curves (npsi) on each poloidal plane with the respective normalized psi values (psiNorm) from the
-  // fluxFile. Also, rad the number of toroidal planes (nzeta) with the toroidal angles (zetas) of each poloidal plane.
+  // plane meta data (md). Also, read the number of toroidal planes (nzeta) with the toroidal angles (zetas) of each poloidal plane.
   // Also, read psi values at O-point and last closed flux curve from VMEC file and use them to convert
   // normalized psi to actual psi. 
- 
   std::vector <double> psiNorm = md[0].getPlaneFluxValues();
   std::vector <double> zetas;
   for (int i = 0; i  < md.size(); i++)
   {
+    // Step 4.1: The toroidal angles from the plane meta data.
     double toroidalAngle = md[i].getPlaneToroidalAngle();
     zetas.push_back(toroidalAngle);
   }
@@ -49,8 +49,6 @@ Model generateCoreSimModel(std::vector <PlaneMetaData> md)
   // flux curve from VMEC file and use them to convert normalized psi to actual psi.
   double psiAxis = psi[0];
   double psiLCF = psi[nsurf-1];
-
-  // Set these values of a for global use.
   std::vector <double> psiVec = convertNormToPsiVector(psiNorm, psiAxis, psiLCF);  
 
   // Step 6: Set flux curves and planes in the vmec vf object.

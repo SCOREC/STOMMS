@@ -1,6 +1,6 @@
 #include <util.h>
 
-// Convert the normalized psi values to actual psi values for the full vector.
+// Convert the normalized psi values to actual psi values for a single given value.
 double convertNormToPsi(double normPsi, double psiAxis, double psiLCF)
 {
   double psi = normPsi*(psiLCF - psiAxis) + psiAxis;

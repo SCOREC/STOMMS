@@ -1,7 +1,6 @@
 #ifndef MESHING_H
 #define MESHING_H
 
-#include "modeling.h"
 #include "modelData.h"
 #include <assert.h>
 
