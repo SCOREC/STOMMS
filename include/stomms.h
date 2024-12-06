@@ -8,21 +8,12 @@
 #include "modelData.h"
 #include "modelTopology.h"
 
+// Class to initialize and delete Simmetrix handlers.
 class STOMMS{
   public:
-    STOMMS(const MagneticGeometry& magGeom);
+    STOMMS();
     ~STOMMS();
-    void addPlane(PlaneMetaData pg);
-    const std::vector <PlaneMetaData>& getPlanesContainer();
-    /*
-     * Setting model entities from simModel to respective planes.
-     * pGModel model (in): the model created from modeling step.
-     * std::vector <plane> planesContainer (out): the data for each plane  as object Plane is written to this container.
-     * args* a (in): input parameters.
-     */
   private:
-    MagneticGeometry mg;
-    std::vector <PlaneMetaData> planesContainer;
     pProgress prog;  // Simmetrix handler to show execution details.
 };
 #endif

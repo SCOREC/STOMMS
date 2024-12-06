@@ -1,66 +1,80 @@
 #include "modelData.h"
 
-StommsModel::StommsModel(const std::vector <PlaneMetaData> pD):planesContainer(pD)
+// Constructor gets the model meta data and uses it to setup StommsModel.
+StommsModel::StommsModel(const ModelMetaData& md):modelMetaData(md)
 {
+  // Step 1: Get the vector of planes with their meta data from ModelMetadata.
+  planesContainer = modelMetaData.getPlanesContainer(); 
+
+  // Step 2: Generate the model using planes meta data.
   model = generateCoreSimModel(planesContainer);
+
+  // Step 3: Steup the poloidal planes with their model enteties using 
+  // the model information.
   setPlanes();
 }
 
+// Setting model entities from Simmetrix Model (pGModel) to respective planes.
 void StommsModel::setPlanes()
 {
   // Step 1: Get the Simmetrix model (pGModel) from Model.
   pGModel simModel = model.getSimModel();
-  std::vector <double> planeAngles;
-  for (int i = 0; i < planesContainer.size(); i++)
-  {
-    double angle = planesContainer[i].getPlaneToroidalAngle();
-    planeAngles.push_back(angle);
-  }
 
-  // Step 2: Sort all the model faces and O-point vertices  according to plane number in a map.
+  // Step 2: Get the planes angel data from the modelMetaData.
+  std::vector <double> planeAngles = modelMetaData.getToroidalAnglesMetaData();
+
+  // Step 3: Sort all the model faces and O-point vertices  according to plane number in a map.
   // In map, the key is the plane # and the element is relevant model data on the plane.
   std::map <int, pGVertex> planesAxisMap = sortOPointsByPlanes(model, planeAngles); 
   std::map <int, std::vector<pGFace>> planesFacesMap = sortFacesByPlanes(model, planeAngles); 
 
-  // Step 3: Iterate over the map and assign the data to each plane (using object Plane)
+  // Step 4: Iterate over the map and assign the data to each plane (using object Plane)
   std::map <int, std::vector<pGFace>>::iterator itr;
   for (itr = planesFacesMap.begin(); itr != planesFacesMap.end(); itr++)
   {
     Plane p;
 
-    // Step 3.1: Get the plane number from the map.
+    // Step 4.1: Get the plane number from the map.
     p.planeNumber = (itr->first);
 
-    // Step 3.2: Get the O-point for this planes from the axis map.
+    // Step 4.2: Get the O-point for this planes from the axis map.
     p.oPoint = planesAxisMap[itr->first];  // Set the Opoint on the plane.
 
-    // Step 3.3: Set the flux curves on each plane.
+    // Step 4.3: Set the flux curves on each plane.
     std::vector <Flux> fluxCurves = setFluxCurvesOnPlanes(model, p.planeNumber, planesContainer); 
     p.fluxCurves = fluxCurves;  // Set flux curves on the plane.
 
-    // Step 3.4: Set the faces on each plane.
+    // Step 4.4: Set the faces on each plane.
     p.modelFaces = itr->second;  // Set the model faces on the plane.
 
-    // Step 3.5: Save the plane in planes container.
+    // Step 4.5: Save the plane in planes container.
     planes.push_back(p);
   }
 }
 
+// Function to return the underlying model in StommsModel.
 const Model& StommsModel::getModel()
 {
   return model;
 }
 
+// Function to return the vector containing all the planes with their geometric data.
 const std::vector <Plane>& StommsModel::getPlanes()
 {
   return planes;
 }
 
-// From the simModel, sort the oPoints by planes.
+// Function to return ModelMetaData stored in StommsModel.
+const ModelMetaData& StommsModel::getModelMetaData()
+{
+  return modelMetaData;
+}
+
+// From the Model, sort the oPoints by planes.
 std::map<int, pGVertex> sortOPointsByPlanes(Model m, std::vector <double> planeAngles)
 {
-  // Step 1: Fetch the vmecFlux data (vf) from the model and also read the planes
-  // information from the input plane file.
+  // Step 1: Fetch the Simmetrix model (pGModel) from Model m and the vmecFlux data (vf) from 
+  // the pGModel. Also read the plane information from plane meta data.
   pGModel model = m.getSimModel();
   pVmecFlux vf = GM_vmec(model);
   std::vector <double> zetas = planeAngles;
@@ -77,12 +91,12 @@ std::map<int, pGVertex> sortOPointsByPlanes(Model m, std::vector <double> planeA
   return planesAxisMap;
 }
 
-// From the simModel, sort the model entities by planes. This results defining
+// From the Model, sort the model entities by planes. This results defining
 // each plane using its model entities (model faces for now).
 std::map<int,std::vector<pGFace>> sortFacesByPlanes(Model m, std::vector <double> planeAngles) 
 {
-  // Step 1: Fetch the vmecFlux data (vf) from the model and also read the planes
-  // information from the input plane file.
+  // Step 1: Fetch the Simmetrix model (pGModel) from Model m and the vmecFlux data (vf) from 
+  // the pGModel. Also read the plane information from plane meta data.
   pGModel model = m.getSimModel();
   pVmecFlux vf = GM_vmec(model);
   std::vector <double> zetas = planeAngles;
@@ -119,41 +133,44 @@ std::map<int,std::vector<pGFace>> sortFacesByPlanes(Model m, std::vector <double
 // Set all the flux curves on a plane.
 std::vector <Flux> setFluxCurvesOnPlanes(Model m, int planeNum, std::vector <PlaneMetaData> md)
 {
-  // Step 1: Fetch the vmecFlux data (vf) from the model and also read the angle
-  // information from the input plane file.
+  // Step 1: Fetch the Simmetrix model (pGModel) from Model m and the vmecFlux data (vf) from 
+  // the pGModel. Also read the plane information from plane meta data.
   pGModel model = m.getSimModel();
   pVmecFlux vf = GM_vmec(model);
   double zeta = md[planeNum].getPlaneToroidalAngle();
+
+  // Step 2: Get the magnetic field information associated to the plane (although current one is
+  // global but it will change in future) and psi bounds.
   MagneticGeometry mg = md[planeNum].getMagneticGeometry();
   double psiAxis = mg.getPsiAxis();
   double psiLCF = mg.getPsiLCFS();
 
-  // Step 2: Set each flux curve one by one and then push the flux curve to flux 
+  // Step 3: Set each flux curve one by one and then push the flux curve to flux 
   // curves container.  Iterate over the fluxMeshSize Map to start with.
   std::vector <Flux> fluxCurvesOnPlane;
   std::vector <double> psiValues = md[planeNum].getPlaneFluxValues();
   std::vector <int> numVerticesOnFlux = md[planeNum].getPlaneFluxSizes();
   for( int i = 0; i < numVerticesOnFlux.size(); i++)
   {
-    // Step 2.1: Don't take any action for the O-point
+    // Step 3.1: Don't take any action for the O-point
     if (numVerticesOnFlux[i] == 1)
       continue;  // Ignore the psi value at Opoint
 
-    // Step 2.2: Declare a Flux and assign data to its members.
+    // Step 3.2: Declare a Flux and assign data to its members.
     Flux f;
     f.planeNumber = planeNum;
     f.psiNormOnFlux = psiValues[i];
 
-    // Step 2.3: Get the actual psi value from normalized psi and then use the value
+    // Step 3.3: Get the actual psi value from normalized psi and then use the value
     // to retrieve model edge associated to it.
     double psi = convertNormToPsi(psiValues[i], psiAxis, psiLCF); 
     pGEdge ge = VmecFlux_poloidalEdge(vf, psi, zeta);
 
-    // Step 2.4: Set the edges in a container and assign remaining member variables of Flux
+    // Step 3.4: Set the edges in a container and assign remaining member variables of Flux
     f.edgesOnFlux.push_back(ge);  // For now, its a single edge. In future, for open edges we will need to store multiple edges in a container.
     f.meshVerticesOnFlux = numVerticesOnFlux[i];   
 
-    // Step 2.5: Push the flux curves to a container.
+    // Step 3.5: Push the flux curves to a container.
     fluxCurvesOnPlane.push_back(f);
   }
   

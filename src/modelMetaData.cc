@@ -41,5 +41,32 @@ const MagneticGeometry& PlaneMetaData::getMagneticGeometry()
   return mg;
 }
 
+// Function to add individual plane meta data to the object of class ModelMetaData.
+void ModelMetaData::addPlane(PlaneMetaData pg)
+{
+  // Step 1: Get the individual plane meta data and save it to the vector of planes (planesContainer).
+  planesContainer.push_back(pg);
 
+  // Step 2: Retrieve the toroidal angle of each plane and save it to the vector holding 
+  // the plane angles data.
+  double toroidalAngle = pg.getPlaneToroidalAngle();
+  planesToroidalAngles.push_back(toroidalAngle);
+}
 
+// Function to return a vector containing all the planes with their meta data.
+const std::vector <PlaneMetaData>& ModelMetaData::getPlanesContainer()
+{
+  return planesContainer;
+}
+
+// Function to return the metadata on a individual plane by index.
+const PlaneMetaData& ModelMetaData::getPlaneMetaDataByIndex(int index)
+{
+  return planesContainer[index];
+}
+
+// Function to return a vector of toroidal angles of all the planes.
+const std::vector <double>& ModelMetaData::getToroidalAnglesMetaData()
+{
+  return planesToroidalAngles;
+}

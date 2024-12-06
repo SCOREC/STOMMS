@@ -1,7 +1,7 @@
 #include "stomms.h"
 #include "modelTopology.h"
 
-STOMMS::STOMMS(const MagneticGeometry& magGeom):mg(magGeom)
+STOMMS::STOMMS()
 {
   // Initialize Simmetrix handlers.
   MS_init();
@@ -21,14 +21,4 @@ STOMMS::~STOMMS()
   Progress_delete(prog);
   Sim_unregisterAllKeys();
   MS_exit();
-}
-
-void STOMMS::addPlane(PlaneMetaData pg)
-{
-  planesContainer.push_back(pg);
-}
-
-const std::vector <PlaneMetaData>& STOMMS::getPlanesContainer()
-{
-  return planesContainer;
 }

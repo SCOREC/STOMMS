@@ -60,4 +60,33 @@ class PlaneMetaData{
     std::vector <PhysicsPoint> xPoints;
 };
 
+// class ModelMetaData holds the metadata information for all the poloidal planes.
+class ModelMetaData{
+  public:
+    /*
+     * Function to add individual plane meta data to ModelMetaData.
+     * PlaneMetaData pg (in): Takes the PlaneMetaData as input.
+     */
+    void addPlane(PlaneMetaData pg);
+
+    /*
+     *  Function to return a vector containing all the planes with their meta data.
+     */ 
+    const std::vector <PlaneMetaData>& getPlanesContainer();
+  
+    /*
+     *  Function to return the metadata on a individual plane by index.
+     *  int index (in): Takes the index value of the plane (0 to nPlanes-1) as input.
+     */ 
+    const PlaneMetaData& getPlaneMetaDataByIndex(int index);
+
+    /*
+     *  Function to get toroidal angles of all the planes. Returns a vector of the angles in radians.
+     */  
+    const std::vector <double>& getToroidalAnglesMetaData();
+  private:
+    std::vector <PlaneMetaData> planesContainer;  // vector to hold all planes meta data.
+    std::vector <double> planesToroidalAngles;  // vector to hold toroidal angles of the planes.
+};
+
 #endif

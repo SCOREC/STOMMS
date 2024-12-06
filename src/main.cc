@@ -15,20 +15,20 @@ int main(int argc, char* argv[])
   MagneticGeometry mg;
   mg.setMagneticGeometry(a);
 
-  // Step 3: Setup the data in STOMMS class.
-  STOMMS s(mg);
+  // Step 3: Setup the STOMMS class to intialize Simmetrix objects.
+  STOMMS s;
 
-  // Step 4: Setup the poloidal planes using the meta data provided.
+  // Step 4: Setup the model metadata by setting up the meta data on poloidal planes.
+  ModelMetaData modelMetaData;
   for (int i = 0; i < a.in.pd.planeInput.size(); i++)
   {
       double toroidalAngle = a.in.pd.planeInput[i];
       PlaneMetaData pg(a.in.fd, mg, toroidalAngle);
-      s.addPlane(pg);
+      modelMetaData.addPlane(pg);
   }
 
-  // Step 5: Generate the stomms model(geometric model) from the given meta data (pd).
-  std::vector <PlaneMetaData> pd = s.getPlanesContainer(); 
-  StommsModel stommsModel(pd);
+  // Step 5: Generate the stomms model(geometric model) from the given meta data (modelMetaData).
+  StommsModel stommsModel(modelMetaData);
 
   // Step 6: Get the final model from the stommsModel class for meshing.
   Model model = stommsModel.getModel();
