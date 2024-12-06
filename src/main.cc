@@ -5,6 +5,7 @@
 #include "modelTopology.h"
 #include "magneticGeometry.h"
 #include "stomms.h"
+#include "meshMetaData.h"
 
 int main(int argc, char* argv[])
 {
@@ -33,7 +34,10 @@ int main(int argc, char* argv[])
   // Step 6: Get the final model from the stommsModel class for meshing.
   Model model = stommsModel.getModel();
 
-  // Step 7: Mesh the model by iterating over each plane
+  // Step 7: Setup Mesh Meta Data.
+  MeshMetaData meshMetaData(stommsModel);
+
+  // Step 8: Mesh the model by iterating over each plane
   pMesh simMesh = 0;
   std::vector <Plane> planes = stommsModel.getPlanes();
   simMesh = meshing(model,planes, &a);  
