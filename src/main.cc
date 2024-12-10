@@ -1,5 +1,5 @@
 #include "input.h"
-#include "meshing.h"
+#include "stommsMesh.h"
 #include "modelMetaData.h"
 #include "modelData.h"
 #include "modelTopology.h"
@@ -31,17 +31,12 @@ int main(int argc, char* argv[])
   // Step 5: Generate the stomms model(geometric model) from the given meta data (modelMetaData).
   StommsModel stommsModel(modelMetaData);
 
-  // Step 6: Get the final model from the stommsModel class for meshing.
-  Model model = stommsModel.getModel();
-
-  // Step 7: Setup Mesh Meta Data.
+  // Step 6: Setup Mesh Meta Data.
   MeshMetaData meshMetaData(stommsModel);
 
-  // Step 8: Mesh the model by iterating over each plane
-  pMesh simMesh = 0;
-  std::vector <Plane> planes = stommsModel.getPlanes();
-  simMesh = meshing(model,planes, &a);  
-
+  // Step 7: Mesh the model using mesh meta data.
+  StommsMesh stommsMesh(meshMetaData);
+  
   return 0;
 }
 

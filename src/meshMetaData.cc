@@ -3,18 +3,15 @@
 void PlaneMeshMetaData::setModelPlane(const Plane& p)
 {
   modelPlane = p;
-  modelFaces = p.modelFaces;
+  std::vector <pGFace> modelFaces = modelPlane.modelFaces;
   faceAttributes = setFaceAttributes(modelFaces);
-  fluxCurves = p.fluxCurves;
+  std::vector <Flux> fluxCurves = modelPlane.fluxCurves;
   for (int i = 0; i < fluxCurves.size(); i++)
   {
     Flux f = fluxCurves[i];
     std::vector <double> parValuesOnFlux = setMeshVerticesOnFlux(f); 
     meshVerticesLocation.push_back(parValuesOnFlux);      
   }
-  // setMeshVerticesOnFlux();
-  oPoint = p.oPoint;
-  planeNumber = p.planeNumber; 
 }
 
 std::vector <int> PlaneMeshMetaData::setFaceAttributes(const std::vector <pGFace> geomFaces)
@@ -64,16 +61,56 @@ std::vector <double> PlaneMeshMetaData::setMeshVerticesOnFlux(const Flux& f)
   return parValuesOnFlux;
 }
 
+const std::vector <pGFace>& PlaneMeshMetaData::getModelFacesOnPlane()
+{
+  return modelPlane.modelFaces;
+}
+
+const std::vector <int>& PlaneMeshMetaData::getFaceAttributesOnPlane()
+{
+  return faceAttributes;
+}
+
+const std::vector <Flux>& PlaneMeshMetaData::getFluxCurvesOnPlane()
+{
+  return modelPlane.fluxCurves;
+}
+
+const std::vector <std::vector<double>>& PlaneMeshMetaData::getMeshVerticesOnFlux()
+{
+  return meshVerticesLocation;
+}
+
+const pGVertex& PlaneMeshMetaData::getOPointOnPlane()
+{
+  return modelPlane.oPoint;
+}
+const int& PlaneMeshMetaData::getPlaneNumber()
+{
+  return modelPlane.planeNumber;
+}
+
+// MeshMetaData class functions.
 MeshMetaData::MeshMetaData(const StommsModel& m):stommsModel(m)
 {
-
   // Step 1: Get all the model planes from model.
   std::vector <Plane> modelPlanes = stommsModel.getPlanes();
 
-  PlaneMeshMetaData pMeshData;
   for (int i = 0; i < modelPlanes.size(); i++)
   {
+    PlaneMeshMetaData pMeshData;
     Plane p = modelPlanes[i];
     pMeshData.setModelPlane(p);
+    planeMeshData.push_back(pMeshData);
   }
+}
+
+const StommsModel& MeshMetaData::getStommsModel()
+{
+  return stommsModel;
+}
+
+const std::vector <PlaneMeshMetaData>& MeshMetaData::getMeshMetaDataPlanes()
+{
+  return planeMeshData;
 }

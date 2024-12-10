@@ -6,15 +6,17 @@
 class PlaneMeshMetaData{
   public:
     void setModelPlane(const Plane& p);
+    const std::vector <pGFace>& getModelFacesOnPlane();
+    const std::vector <int>& getFaceAttributesOnPlane();
+    const std::vector <Flux>& getFluxCurvesOnPlane();
+    const std::vector <std::vector<double>>& getMeshVerticesOnFlux();
+    const pGVertex& getOPointOnPlane();
+    const int& getPlaneNumber();
+     
   private:
     Plane modelPlane;
-    std::vector <pGFace> modelFaces;  // vector of model faces on the poloidal plane.
     std::vector <int> faceAttributes;  // 0: No attribute,  1: oneElementDeepMesh, extend accordingly.
-    std::vector <Flux> fluxCurves;  // vector of flux curves on the poloidal plane.
     std::vector <std::vector<double>> meshVerticesLocation;
-    pGVertex oPoint;  // model vertex on O-Point
-    int planeNumber;  // plane number starting from 0 to numPlanes-1
-
     std::vector <double> setMeshVerticesOnFlux(const Flux& f);
     std::vector <int> setFaceAttributes(const std::vector <pGFace> geomFaces);
 };
@@ -22,6 +24,8 @@ class PlaneMeshMetaData{
 class MeshMetaData{
   public:
     MeshMetaData(const StommsModel& m);
+    const StommsModel& getStommsModel();
+    const std::vector <PlaneMeshMetaData>& getMeshMetaDataPlanes();
   private:
     StommsModel stommsModel;
     std::vector <PlaneMeshMetaData> planeMeshData;

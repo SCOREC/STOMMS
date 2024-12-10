@@ -26,7 +26,7 @@ set(STELLMESH_SRCS
   src/modeling.cc 
   src/modelData.cc
   src/meshMetaData.cc
-  src/meshing.cc
+  src/stommsMesh.cc
 )
 
 add_executable(stell_meshgen ${STELLMESH_SRCS})
