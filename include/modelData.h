@@ -15,15 +15,18 @@ class Flux{
   public:
     int planeNumber;  // plane on which flux curve lies.
     double psiNormOnFlux;  // normalized psi value of flux curve
-    std::vector <pGEdge> edgesOnFlux;  // vector of model edges on the flux curve.
+    //std::vector <pGEdge> edgesOnFlux;  // vector of model edges on the flux curve.
+    std::vector <Edge> edgesOnFlux;
     int meshVerticesOnFlux;  // Number of vertices desired on flux curves
 };
 
 class Plane{
   public:
-    std::vector <pGFace> modelFaces;  // vector of model faces on the poloidal plane.
+    //std::vector <pGFace> modelFaces;  // vector of model faces on the poloidal plane.
+    std::vector <Face> modelFaces;
     std::vector <Flux> fluxCurves;  // vector of flux curves on the poloidal plane.
-    pGVertex oPoint;  // model vertex on O-Point
+    //pGVertex oPoint;  // model vertex on O-Point
+    Vertex oPoint;
     int planeNumber;  // plane number starting from 0 to numPlanes-1
 };
 
@@ -69,7 +72,7 @@ class StommsModel{
  * std::vector <double> planeAngles (in): vector containing the toroidal angles of all the planes.
  * returns a map between plane number and corresponding O-point model vertex.
 */
-std::map<int, pGVertex> sortOPointsByPlanes(Model m, std::vector <double> planeAngles); 
+std::map<int, Vertex> sortOPointsByPlanes(Model m, std::vector <double> planeAngles); 
 
 /*
  * From the Model, sort the model faces by planes. 
@@ -77,7 +80,7 @@ std::map<int, pGVertex> sortOPointsByPlanes(Model m, std::vector <double> planeA
  * std::vector <double> planeAngles (in): vector containing the toroidal angles of all the planes.
  * returns a map between plane number and a vector containing all the model faces on that plane.
 */
-std::map<int,std::vector<pGFace>> sortFacesByPlanes(Model m, std::vector <double> planeAngles); 
+std::map<int,std::vector<Face>> sortFacesByPlanes(Model m, std::vector <double> planeAngles); 
 
 /*
  * set all the flux curves on a plane.

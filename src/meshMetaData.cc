@@ -3,7 +3,7 @@
 void PlaneMeshMetaData::setModelPlane(const Plane& p)
 {
   modelPlane = p;
-  std::vector <pGFace> modelFaces = modelPlane.modelFaces;
+  std::vector <Face> modelFaces = modelPlane.modelFaces;
   faceAttributes = setFaceAttributes(modelFaces);
   std::vector <Flux> fluxCurves = modelPlane.fluxCurves;
   for (int i = 0; i < fluxCurves.size(); i++)
@@ -14,25 +14,24 @@ void PlaneMeshMetaData::setModelPlane(const Plane& p)
   }
 }
 
-std::vector <int> PlaneMeshMetaData::setFaceAttributes(const std::vector <pGFace> geomFaces)
+std::vector <int> PlaneMeshMetaData::setFaceAttributes(const std::vector <Face> geomFaces)
 {
   std::vector <int> faceAttributes;
   for (int i = 0; i < geomFaces.size(); i++)
   {
-    pGFace gf = geomFaces[i];
-    pPList edgesOnFace = GF_edges(gf);
+    Face gf = geomFaces[i];
+    std::vector <Edge> edgesOnFace = gf.getEdgesOnFace();
     int numPeriodicEdges = 0;
     int faceAttribute = 0;
-    for (int j = 0; j < PList_size(edgesOnFace); j++)
+    for (int j = 0; j < edgesOnFace.size(); j++)
     {
-      pGEdge ge = static_cast<pGEdge>(PList_item(edgesOnFace, 0));
-      if (GE_periodic(ge) > 0)
+      Edge ge = edgesOnFace[j];
+      if (ge.edgeIsPeriodic())
         numPeriodicEdges++;
     }
-    if (numPeriodicEdges == 2 || (PList_size(edgesOnFace) == 1 && numPeriodicEdges == 1))
+    if (numPeriodicEdges == 2 || edgesOnFace.size() == 1 && numPeriodicEdges == 1)
       faceAttribute = 1;
 
-    PList_delete(edgesOnFace);
     faceAttributes.push_back(faceAttribute);
   }
   return faceAttributes;
@@ -41,9 +40,8 @@ std::vector <int> PlaneMeshMetaData::setFaceAttributes(const std::vector <pGFace
 std::vector <double> PlaneMeshMetaData::setMeshVerticesOnFlux(const Flux& f)
 {
   std::vector <double> parValuesOnFlux;
-  pGEdge ge = f.edgesOnFlux[0];
-  double parR[2];
-  GE_parRange(ge, &parR[0], &parR[1]);
+  Edge ge = f.edgesOnFlux[0];
+  std::vector <double> parR = ge.getEdgeParRange();
 
   int numVert = f.meshVerticesOnFlux;
   double parInterval = (parR[1] - parR[0])/numVert;
@@ -61,7 +59,7 @@ std::vector <double> PlaneMeshMetaData::setMeshVerticesOnFlux(const Flux& f)
   return parValuesOnFlux;
 }
 
-const std::vector <pGFace>& PlaneMeshMetaData::getModelFacesOnPlane()
+const std::vector <Face>& PlaneMeshMetaData::getModelFacesOnPlane()
 {
   return modelPlane.modelFaces;
 }
@@ -81,7 +79,7 @@ const std::vector <std::vector<double>>& PlaneMeshMetaData::getMeshVerticesOnFlu
   return meshVerticesLocation;
 }
 
-const pGVertex& PlaneMeshMetaData::getOPointOnPlane()
+const Vertex& PlaneMeshMetaData::getOPointOnPlane()
 {
   return modelPlane.oPoint;
 }

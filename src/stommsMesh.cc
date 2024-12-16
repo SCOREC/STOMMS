@@ -22,7 +22,6 @@ StommsMesh::StommsMesh(const MeshMetaData& m):meshMetaData(m)
   // Step 3: Iterate over the planes container and set the mesh size
   // on mesh entites (model edges and faces).
   std::vector <PlaneMeshMetaData> planes = meshMetaData.getMeshMetaDataPlanes();
-  std::cout << "Num Planes = " << planes.size() << "\n";
   for (int i = 0; i < planes.size(); i++)
   {
     // Step 3.1: Fetch the desired plane.
@@ -30,7 +29,8 @@ StommsMesh::StommsMesh(const MeshMetaData& m):meshMetaData(m)
 
     // Step 3.2: Specify mesh vertex at O-point of current plane and get the 
     // index of mesh vertex specified at the O-point.
-    pGVertex oPoint = p.getOPointOnPlane();
+    Vertex axis = p.getOPointOnPlane();
+    pGVertex oPoint = axis.getSimVertex();
     int axisIndex = specifyMeshVertexOnAxis(mesh, oPoint);
 
     // Step 3.3: Iterate over the flux curves from the respective plane
@@ -47,10 +47,11 @@ StommsMesh::StommsMesh(const MeshMetaData& m):meshMetaData(m)
     } 
 
     // Step 3.5: Iterate over the model faces from the respective plane.
-    std::vector <pGFace> modelFaces = p.getModelFacesOnPlane();
+    std::vector <Face> modelFaces = p.getModelFacesOnPlane();
     for (int j = 0; j < modelFaces.size(); j++)
     {
-      pGFace gf = modelFaces[j];
+      Face f = modelFaces[j];
+      pGFace gf = f.getSimFace();
 
       // Step 3.5.1: Ensure there are no mesh vertices on the model face.
       MS_ensureMeshSpansFace(meshCase, gf);  // ensures no vertex on the model face.
@@ -110,7 +111,8 @@ std::vector <int> StommsMesh::specifyMeshEnt(pMesh mesh, Flux f, const std::vect
    std::vector <int> indxOnFlux;  // Indices of vertices spicified on the given flux curve (to return).
 
   // Step 1: Get the model edge and its parametric bounds.
-  pGEdge ge = f.edgesOnFlux[0];
+  Edge e = f.edgesOnFlux[0];
+  pGEdge ge = e.getSimEdge();
 
   int indx[2];
   indx[0] = numSpecifiedVert++;

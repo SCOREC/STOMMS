@@ -70,12 +70,21 @@ class Edge{
      * Function to return model vertices on the Edge.
      */
     const std::vector <Vertex>& getVerticesOnEdge();
+
+    const std::vector <double>& getEdgeParRange();
+    const bool& edgeIsPeriodic();
   private:
     /*
      * Function to set the model edge to the the definition of Edge.
      */ 
     void setEdge();
+    void setEdgeProperties();
+    void setEdgeParRange();
+    void setEdgePeriodic();
+
     pGEdge ge;  // geometric edge
+    std::vector <double> edgeParRange;
+    bool periodicEdge = false;
     std::vector <Vertex> verticesOnE;  // a vector to hold vertices on an edge.
 };
 

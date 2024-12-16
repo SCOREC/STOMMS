@@ -39,6 +39,7 @@ void Edge::setSimEdge(pGEdge simEdge)
 {
   ge = simEdge;
   setEdge();
+  setEdgeProperties();
 }
 
 // Function to set the model edge to the the definition of Edge.
@@ -57,6 +58,26 @@ void Edge::setEdge()
   PList_delete(verticesOnEdge);
 }
 
+void Edge::setEdgeProperties()
+{
+  setEdgeParRange();
+  setEdgePeriodic();
+}
+
+void Edge::setEdgeParRange()
+{
+  double parR[2];
+  GE_parRange(ge, &parR[0], &parR[1]); 
+  edgeParRange.push_back(parR[0]);
+  edgeParRange.push_back(parR[1]);
+}
+
+void Edge::setEdgePeriodic()
+{
+  if(GE_periodic(ge) > 0)
+    periodicEdge = true;
+}
+
 // Function to return the underlying Simmetrix model edge for the Edge.
 const pGEdge& Edge::getSimEdge()
 {
@@ -67,6 +88,16 @@ const pGEdge& Edge::getSimEdge()
 const std::vector <Vertex>& Edge::getVerticesOnEdge()
 {
   return verticesOnE;
+}
+
+const std::vector <double>& Edge::getEdgeParRange()
+{
+  return edgeParRange; 
+}
+
+const bool& Edge::edgeIsPeriodic()
+{
+  return periodicEdge;
 }
 
 // Model Loop Defintions
