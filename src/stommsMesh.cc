@@ -15,10 +15,6 @@ StommsMesh::StommsMesh(const MeshMetaData& m):meshMetaData(m)
   pMesh mesh = M_new(0, model); 
   pACase meshCase = MS_newMeshCase(model);
 
-  // To keep the count of total specified vertices. We need global indices
-  // of specified vertices when specifying mesh edges.
-  //int numSpecifiedVert = 0;
-
   // Step 3: Iterate over the planes container and set the mesh size
   // on mesh entites (model edges and faces).
   std::vector <PlaneMeshMetaData> planes = meshMetaData.getMeshMetaDataPlanes();
@@ -69,7 +65,6 @@ StommsMesh::StommsMesh(const MeshMetaData& m):meshMetaData(m)
       PList_delete(edgesOnFace);
     } 
   }  
-
   std::cout << " ============ Meshing Starts ============\n";
  
   // Step 3: Execute the Simmetrix mesher 
@@ -114,22 +109,34 @@ std::vector <int> StommsMesh::specifyMeshEnt(pMesh mesh, Flux f, const std::vect
   Edge e = f.edgesOnFlux[0];
   pGEdge ge = e.getSimEdge();
 
+  // Step 2: Start with first parametric value on the edge and  specify mesh vertex on it.
+  // Keep updating numSpecifiedVert after every point.
   int indx[2];
   indx[0] = numSpecifiedVert++;
   double par[2] = {0.0, 0.0};
   par[0] = parValuesOnFlux[0];
   MS_specifyVertex(mesh,0,par,ge,indx[0]);
-  indxOnFlux.push_back(indx[0]);
+  indxOnFlux.push_back(indx[0]);  // save indices of specified mesh vertices for return vector.
+
+  // Step 3: Loop over the remaining parametric values after the first one and also specify edges between 
+  // every two specified mesh points.
   for (int i = 1; i < parValuesOnFlux.size(); i++)
   {
     indx[1] = numSpecifiedVert++;
     par[0] = parValuesOnFlux[i];
+
+    // Step 3.1: Specify mesh vertex at each point.
     MS_specifyVertex(mesh,0,par,ge,indx[1]);
     indxOnFlux.push_back(indx[1]);
 
-     MS_specifyEdge(mesh,indx,ge,-1);
-     indx[0] = indx[1];
+    // Step 3.2: Specify mesh edges between two consecutive specified points 
+    // and update indx[0] for next iteration in loop. 
+    MS_specifyEdge(mesh,indx,ge,-1);
+    indx[0] = indx[1];
   }
+  
+  // Step 4: For the periodic model edges, the last mesh edge is between
+  // last specified point (indx[0]) and starting point of the flux curve (indxOnFlux[0]).
   indx[1] = indxOnFlux[0];
   MS_specifyEdge(mesh,indx,ge,-1);  
 

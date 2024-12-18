@@ -58,12 +58,14 @@ void Edge::setEdge()
   PList_delete(verticesOnEdge);
 }
 
+// Function to set properties on the model edge.
 void Edge::setEdgeProperties()
 {
   setEdgeParRange();
   setEdgePeriodic();
 }
 
+// Function to set the parametric bounds on edge.
 void Edge::setEdgeParRange()
 {
   double parR[2];
@@ -72,6 +74,7 @@ void Edge::setEdgeParRange()
   edgeParRange.push_back(parR[1]);
 }
 
+// Function to set the periodic state of the edge.
 void Edge::setEdgePeriodic()
 {
   if(GE_periodic(ge) > 0)
@@ -90,11 +93,13 @@ const std::vector <Vertex>& Edge::getVerticesOnEdge()
   return verticesOnE;
 }
 
+// Function to region the vector of parametric bounds of edge.
 const std::vector <double>& Edge::getEdgeParRange()
 {
   return edgeParRange; 
 }
 
+// Function to return the periodic state of edge.
 const bool& Edge::edgeIsPeriodic()
 {
   return periodicEdge;

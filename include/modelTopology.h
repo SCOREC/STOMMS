@@ -71,20 +71,41 @@ class Edge{
      */
     const std::vector <Vertex>& getVerticesOnEdge();
 
+    /*
+     * Function to get the parametric range of the edge.
+     * returns a vector of size 2, with starting and ending parametric bounds.
+     */ 
     const std::vector <double>& getEdgeParRange();
+
+    /*
+     * Function to check if the edge is periodic or not.
+     * returns true if edge is periodic, otherwise false.
+     */ 
     const bool& edgeIsPeriodic();
   private:
     /*
      * Function to set the model edge to the the definition of Edge.
      */ 
     void setEdge();
+
+    /*
+     * Function to set the properties on the model edge.
+     */  
     void setEdgeProperties();
+
+    /*
+     *  Function to set the edge parametric bounds.
+     */ 
     void setEdgeParRange();
+    
+    /*
+     * Function to check if edge is periodic or not and set it to edge properties.
+     */ 
     void setEdgePeriodic();
 
     pGEdge ge;  // geometric edge
-    std::vector <double> edgeParRange;
-    bool periodicEdge = false;
+    std::vector <double> edgeParRange;  // vector of size 2 for the edge parametric bounds.
+    bool periodicEdge = false;  // a variable to store the periodic state of edge.
     std::vector <Vertex> verticesOnE;  // a vector to hold vertices on an edge.
 };
 
