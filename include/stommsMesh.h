@@ -5,7 +5,6 @@
 #include "meshMetaData.h"
 #include <assert.h>
 
-
 /*
  * Simmetrix function not yet available in any Simmetrix header. (2024-11-01).
  * Once its available, remove it from here.
@@ -13,33 +12,30 @@
  */
  void MS_setGEdgesToDisallowAllFaceVertices(pACase cs, pGFace gf, pPList ges);
 
+// class StommsMesh handles the meshing.
 class StommsMesh{
   public:
+    /*
+     * Constructor takes the mesh meta data and mesh the StommsModel.
+     * const MeshMetaData& m (in): Mesh meta data as input.
+     */ 
     StommsMesh(const MeshMetaData& m);
+
+    /*
+     * Function to get underlying Simmetrix Mesh (pMesh).
+     */ 
     const pMesh& getSimMesh();
   private:
-    MeshMetaData meshMetaData;
-    std::vector <PlaneMeshMetaData> planes;
-    pMesh simMesh;
-    int numSpecifiedVert = 0; 
-
-    // private member functions
-    /*
-     * Given the simmetrix model and planes data, this function generates
-     * and return a simmetrix mesh.
-     * Model m (in): Model created from modeling step.
-     * std::vector <Plane> planes (in): The data for each plane  as object Plane is written to this container.
-     * args* a (in): Input parameters.
-     * returns a simmetrix mesh (pMesh).
-     */
-     //pMesh meshing(Model m, std::vector <Plane> planes, args* a);
+    MeshMetaData meshMetaData;  // an object of class MeshMetaData
+    std::vector <PlaneMeshMetaData> planes;  // a vector of planes holding mesh meta data
+    pMesh simMesh;  // Simmetrix mesh
+    int numSpecifiedVert = 0; // initializing the numSpecifiedVert here. It will be used
+			      // in specifying mesh vertices on model entities.
 
     /*
      * To specify mesh vertex at O-point (origin/axis of the poloidal plane).
      * pMesh Mesh (in)(out): Gets the pMesh mesh as input and update the specified entities on it.
      * pGVertex axis (in): The model vertex at the O-point.
-     * int& numSpecifiedVert (in)(out): To keep record of global number of specified vertices. Its
-     *                                  updated in every call of this the function.
      * returns the index of the mesh vertex specified at the O-point.
      */
      int specifyMeshVertexOnAxis(pMesh mesh, pGVertex axis);
@@ -49,12 +45,10 @@ class StommsMesh{
      * or have some other behaviour.
      * pMesh Mesh (in)(out): Gets the pMesh mesh as input and update the specified entities on it.
      * Flux f (in): The flux curve on which mesh entities are being specified.
-     * int& numSpecifiedVert (in)(out): To keep record of global number of specified vertices. Its 
-     * 				    updated in every call of this the function.
+     * const std::vector<double>& parValuesOnFlux (in): a vector holding parametric values of desired points on the flux curve.
      * returns a vector (int) that contains the indices of specified mesh vertices on flux curve f.
      */
      std::vector <int> specifyMeshEnt(pMesh mesh, Flux f, const std::vector<double>& parValuesOnFlux);
-
 };
 
 #endif
