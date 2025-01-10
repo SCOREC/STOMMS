@@ -21,12 +21,12 @@ void args::setDefaultValues()
   
   // Variables for internal use.
   vmecFileFound = false;
+  eqdskFileFound = false;
 }
 
 // This function reads the input parameter from the mesh input file.
 void args::setValuesFromInputFile()
 {
-
   inputFile = "mesh_input";
   std::ifstream input(inputFile);
   if (!input.is_open())
@@ -42,23 +42,18 @@ void args::setValuesFromInputFile()
     {
       input >> vmecFile;
       vmecFileFound = true;
-      std::cout << "The loaded VMEC file is " << vmecFile << "\n";
     }
-    if (token == "fluxFile")
+    else if (token == "eqdskFile")
     {
+      input >> eqdskFile;
+      eqdskFileFound = true;
+    }
+    else if (token == "fluxFile")
       input >> fluxFile;
-      std::cout << "The loaded flux indices file for the core region is " << fluxFile << "\n";
-    }
-    if (token == "planeFile")
-    {
+    else if (token == "planeFile")
       input >> planeFile;
-      std::cout << "The loaded planes position file for the placement of planes is " << planeFile << "\n"; 
-    }
-    if (token == "meshSizeFile")
-    {
+    else if (token == "meshSizeFile")
       input >> meshSizeFile;
-      std::cout << "The loaded file for the mesh sizes on flux curves is " << meshSizeFile << "\n";
-    }
   }
   input.close();
 }
@@ -68,6 +63,8 @@ void args::setValuesForLocalUse()
 {
   if (vmecFileFound)
   	in.vm = readVmecFile();	// Read the vmec file and store data in vmecData vm.
+  if (eqdskFileFound)
+	in.eq = readEqdskFile();
   in.fd.fluxInput = readFluxFile();  // Read the flux input file.
   in.pd.planeInput = readPlaneFile();  // Read the plane input file.
   in.fd.fluxMeshSize = readMeshSizeOnFlux();  // Read the mesh size input file.
@@ -89,7 +86,7 @@ std::map<double,int> args::readMeshSizeOnFlux()
     std::cout << "Error opening the mesh size input file " << meshSizeFile << "\n";
     exit(1);
   }
-
+  
   // Step 2: If the first line is empty, exit with an error message. Else, the value
   // from the first line is stored to numFlux.
   if (!(meshInput >> numFlux))
@@ -272,6 +269,47 @@ VmecData args::readVmecFile()
 
   // Step 4: Return vmec data.
   return v;
+}
+
+EqdskData args::readEqdskFile()
+{
+  EqdskData gFileData;  // EqdskData struct to return
+
+  // Step 1: Initialize few of the variables that are taken as
+  // input in TOMMS (should be add to parametes list??)
+  double eqd_psi_factor = 1.0;
+  int reverse_psi = 0;
+
+  // Step 2: Read the length of file string and set psi factor.
+  // Not sure how factor works (but without it, it pspline throws an error.
+  // Figure it out.
+  int strLength = eqdskFile.length();
+  set_eqd_psi_factor_(&eqd_psi_factor);
+
+  // Step 3: Check if the file is eqd (no wall) or gFile,
+  // and set the tag. Then laod the file.
+  int eqd_tag = 0;
+
+  // Step 3.1: If last 4 character of file name are ".eqd", its an eqd file.
+  if(eqdskFile.compare(eqdskFile.size()-4,4,".eqd")==0)
+  {  // eqd format
+    eqd_tag=1;
+    readeqdfile_(eqdskFile.c_str(), &strLength);
+  }
+  else // else, its a gFile
+  { // efit data file
+    eqd_tag=0;
+    readgfile_(eqdskFile.c_str(), &strLength);
+  }
+
+  // Step 4: If reverse psi, flip the signs of field.
+  int rev = 0;
+  if(reverse_psi) rev = 1;
+
+  // Step 5: Spline fitting of the discrete 2D data on background grid.
+  init_ez_spline_(&rev, &eqd_tag); 
+ 
+  return gFileData;
 }
 
 void args::setPsiBounds()

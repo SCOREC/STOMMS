@@ -4,6 +4,7 @@
 #include <netcdf>
 #include "ncFile.h"
 #include "ncVar.h"
+#include "gfileUtil.h"
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -35,7 +36,9 @@ struct BmwData{
 
 // Struct eqdskData contains the magnetic field information from eqdsk file.
 struct EqdskData{
-  // Fill it in as we move forward.
+  // add data here as we move forward.
+  double psiAxis;
+  double psiSep;
 };
 
 // A struct to hold the input flux curves data. 
@@ -52,6 +55,7 @@ struct PlaneData{
 // A struct to contain all the input data from different set of files.
 struct InputData{
   VmecData vm;  // Read the VMEC data for construction of model inside last closed flux curve.
+  EqdskData eq; // Read the EQDSK data for construction of tokamak models.
   FluxData fd;  // Read the flux data from input files (fluxFile, meshSizeFile).
   PlaneData pd;  // Read the plane data from the input file (planeFile).
 };
@@ -65,20 +69,24 @@ class args{
 
     // Input parameters
     std::string inputFile;
-    std::string vmecFile;	// VMEC file to load magnetic field for stellarator core region 
+    std::string vmecFile;	// VMEC file to load magnetic field for stellarator core region
+    std::string eqdskFile;      // EQDSK file to load magnetic field for tokamaks. 
     std::string fluxFile;	// Input file containing the number of flux curves and their flux indices 
     std::string planeFile;	// Input file containing the number and toroidal position (degrees) of the planes
     std::string meshSizeFile;	// Input file to define the mesh size on each flux curve in terms of number of desired points on flux curves
 
     // Variables and containers for internal use
-    double psiAxis, psiLCF;	// psi values of Opoint and last closed flux curve.
-    bool vmecFileFound;
+    double psiAxis, psiLCF;  // psi values of Opoint and last closed flux curve.
+    bool vmecFileFound;  // Check if vmec file is provided or not.         
+    bool eqdskFileFound;  // Check if eqdsk file is provided or not.
     /*
      * Hierarchy in Input data to understand how to call data from other parts of code.
      * a (all input data including parameters under this umbrella)
      * .. in (input data from different input files to setup physics)
      * ..... vm  (vmec data)
      * ........ vmec data attributes (see struct VmecData)
+     * ..... eq (eqdsk data)
+     * ........ eqdsk data attributes (see struct EqdskData)
      * ..... fd  (flux curves data)
      * ........ flux data attributes (see struct FluxData)
      * ..... pd  (plane data)
@@ -91,43 +99,49 @@ class args{
   private:
     /*
      * A function to set the default values of the parameters.
-    */  
+     */  
     void setDefaultValues();
 
     /*
      * Read the values from the inpput file and set it to parameters.
-    */ 
+     */ 
     void setValuesFromInputFile(); 
 
     /*
      * Read different input files (flux, planes, mesh sizes) and set them to containers for further use.
-    */  
+     */  
     void setValuesForLocalUse();
 
     /*
      * Read input VMEC file and store relevant data in struct vmecData.
      * returns the struct vmecData vm.
-    */ 
+     */ 
     VmecData readVmecFile();
-    
+  
+    /*
+     * Read input tokamak equilibrium file (.eqd or geqdsk) in struct EqdskData.
+     * returns the struct EqdskData eq.
+     */  
+    EqdskData readEqdskFile(); 
+
     /*
      * Read the flux input file and check its validity.
      * returns a vector containing the normalized psi values of desired flux curves.
-    */
+     */
     std::vector<double> readFluxFile();
 
     /*
      * Read the planes input files and check its validity.
      * converts the given angles in degrees to radians.
      * returns a vector containing the toroidal angles of the desired poloidal planes.
-    */  
+     */  
     std::vector<double> readPlaneFile();
 
     /*
      * Read the input for desired number of mesh vertices on each flux curve.
      * set them to a map between flux normalized psi value and desired number of mesh vertices on that flux.
      * returns a map between flux normalized psi value and desired number of mesh vertices on that flux.
-    */
+     */
     std::map <double, int> readMeshSizeOnFlux();    
 };
 

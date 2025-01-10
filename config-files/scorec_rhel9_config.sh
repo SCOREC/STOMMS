@@ -1,5 +1,6 @@
 SIM_VER=simmetrix-simmodsuite-2025.0-241025dev-rirnzju7fg32vdmhhlz37fjgcjgqrssa
 SIM_ARCHOS=x64_rhel8_gcc83
+PSPLINE_DIR=/lore/riazu2/TOMMS_dev/TOMMS_install/PSPLINE_gcc12.3.0
 PREFIX=/lore/riazu2/STOMMS_dev/STOMMS/install
 CMAKETYPE=Debug
 cmake .. \
@@ -12,5 +13,7 @@ cmake .. \
   -DSIM_MPI=mpich4.1.1 \
   -DSIMMETRIX_INCLUDE_DIR=/opt/scorec/spack/rhel9/v0201_4/install/linux-rhel9-x86_64/gcc-12.3.0/$SIM_VER/include \
   -DSIMMETRIX_LIB_DIR=/opt/scorec/spack/rhel9/v0201_4/install/linux-rhel9-x86_64/gcc-12.3.0/$SIM_VER/lib/$SIM_ARCHOS \
+  -DPSPLINE_INCLUDE_DIR=$PSPLINE_DIR/mod \
+  -DPSPLINE_LIB_DIR="$PSPLINE_DIR/lib"\
   -DCMAKE_INSTALL_PREFIX="$PREFIX" \
   -DCMAKE_BUILD_TYPE=$CMAKETYPE
