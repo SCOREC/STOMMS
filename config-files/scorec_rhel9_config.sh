@@ -1,4 +1,4 @@
-SIM_VER=simmetrix-simmodsuite-2025.0-241025dev-rirnzju7fg32vdmhhlz37fjgcjgqrssa
+SIM_VER=simmetrix-simmodsuite-2025.0-250108dev-llxq6skz2cuht5glyftojzw5tkgodnub
 SIM_ARCHOS=x64_rhel8_gcc83
 PSPLINE_DIR=/lore/riazu2/TOMMS_dev/TOMMS_install/PSPLINE_gcc12.3.0
 PREFIX=/lore/riazu2/STOMMS_dev/STOMMS/install

@@ -24,12 +24,13 @@ Model generateCoreSimModel(std::vector <PlaneMetaData> md)
   std::vector <double> R = vm.R;
   std::vector <double> Z = vm.Z;
   std::vector <double> L = vm.L;
+  std::vector <double> iota = vm.iota;
   std::vector <double> psi = vm.psi;
   std::vector <double> xm = vm.xm;
   std::vector <double> xn = vm.xn;
 
   // Step 3: Create an object to hold Vmec flux data
-  pVmecFlux vf = VmecFlux_create(avmajr, avminr, nsurf, nmode, R.data(), Z.data(), L.data(), psi.data(), xm.data(), xn.data());
+  pVmecFlux vf = VmecFlux_create(avmajr, avminr, nsurf, nmode, R.data(), Z.data(), L.data(), iota.data(), psi.data(), xm.data(), xn.data());
 
   // Step 4: Read number of flux curves (npsi) on each poloidal plane with the respective normalized psi values (psiNorm) from the
   // plane meta data (md). Also, read the number of toroidal planes (nzeta) with the toroidal angles (zetas) of each poloidal plane.

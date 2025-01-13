@@ -233,7 +233,7 @@ VmecData args::readVmecFile()
   NcFile vFile(vmecFile, NcFile::read); 
 
   // netCDF Variables. First four hold single values and the rest are arrays of data.
-  NcVar vmecMinor, vmecMajor, vmecSurf, vmecMode, vmecR, vmecZ, vmecL, vmecXm, vmecXn, vmecPsi;    
+  NcVar vmecMinor, vmecMajor, vmecSurf, vmecMode, vmecR, vmecZ, vmecL, vmecXm, vmecXn, vmecPsi, vmecIota;    
 
   // Step 2: Read required variables from vmec file
   vmecMinor = vFile.getVar("Aminor_p");
@@ -246,6 +246,7 @@ VmecData args::readVmecFile()
   vmecXm = vFile.getVar("xm");
   vmecXn = vFile.getVar("xn");
   vmecPsi = vFile.getVar("phi");
+  vmecIota = vFile.getVar("iotaf");
 
   // Step 3: Assign netCDF variables to local variables and arrays
   vmecMinor.getVar(&v.minorR);
@@ -259,6 +260,7 @@ VmecData args::readVmecFile()
   v.xm.resize(v.nMode);
   v.xn.resize(v.nMode);
   v.psi.resize(v.nSurf);
+  v.iota.resize(v.nSurf);
 
   vmecR.getVar(v.R.data());
   vmecZ.getVar(v.Z.data());
@@ -266,6 +268,7 @@ VmecData args::readVmecFile()
   vmecXm.getVar(v.xm.data());
   vmecXn.getVar(v.xn.data());
   vmecPsi.getVar(v.psi.data());
+  vmecIota.getVar(v.iota.data());
 
   // Step 4: Return vmec data.
   return v;
