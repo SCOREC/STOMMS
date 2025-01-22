@@ -3,6 +3,7 @@
 
 #include "modelData.h"
 #include "meshMetaData.h"
+#include <adios2.h>
 #include <assert.h>
 
 /*

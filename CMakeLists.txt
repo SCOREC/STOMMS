@@ -12,7 +12,9 @@ find_package(MPI COMPONENTS CXX REQUIRED)
 find_package(OpenMP COMPONENTS CXX REQUIRED)
 
 find_package(SimModSuite) #modify to take argForDebug and internal flags
-find_package(PSPLINE QUIET REQUIRED)
+find_package(PSPLINE REQUIRED)
+find_package(Omega_h REQUIRED)
+find_package(ADIOS2 REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(netcdf-cxx4 REQUIRED IMPORTED_TARGET netcdf-cxx4) 
 
@@ -33,13 +35,18 @@ set(STELLMESH_SRCS
 
 add_executable(stell_meshgen ${STELLMESH_SRCS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)        # Header files for the code
+
 target_link_libraries(stell_meshgen PRIVATE MPI::MPI_CXX OpenMP::OpenMP_CXX)
 target_link_libraries(stell_meshgen PRIVATE ${SIMMODSUITE_LIBS})
 target_link_libraries(stell_meshgen PRIVATE PkgConfig::netcdf-cxx4)
 target_link_libraries(stell_meshgen PRIVATE ${PSPLINE_LIBRARIES})
+target_link_libraries(stell_meshgen PRIVATE Omega_h::omega_h)
+#target_link_libraries(stell_meshgen PRIVATE ADIOS2::adios2)
+target_link_libraries(stell_meshgen PRIVATE ${ADIOS2_LIB_DIR}/libadios2_cxx11.so)
+
 target_include_directories(stell_meshgen PRIVATE ${SIMMODSUITE_INCLUDE_DIR})
 target_include_directories(stell_meshgen PRIVATE ${PSPLINE_INCLUDE_DIR})
+target_include_directories(stell_meshgen PRIVATE ${ADIOS2_INCLUDE_DIR})
 
 install(TARGETS stell_meshgen
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-

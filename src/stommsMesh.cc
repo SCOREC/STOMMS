@@ -1,4 +1,5 @@
 #include "stommsMesh.h"
+#include "Omega_h_build.hpp"
 
 // Given the simmetrix model and planes data, this function generates
 // and return a simmetrix mesh.
@@ -75,6 +76,22 @@ StommsMesh::StommsMesh(const MeshMetaData& m):meshMetaData(m)
 
   // Step 4: Write the mesh to disk for visualization
   M_write(mesh, "simMesh.sms", 0, prog);
+
+  // Try adios2 and OmegaH installations 
+  // ========= Start testing =========== 
+  auto lib = Omega_h::Library(NULL, NULL);
+
+  // Try ADIOS2
+  adios2::ADIOS adiosTestObject;
+  const std::string versionNumber = "=== STOMMS version 1.0 ===";
+  adios2::IO io = adiosTestObject.DeclareIO("STOMMS Mesh Writer");
+  adios2::Engine writer = io.Open("stomms.bp", adios2::Mode::Write);
+  adios2::Variable<std::string> versionVariable = io.DefineVariable<std::string>("Version");
+  writer.BeginStep();
+  writer.Put(versionVariable, versionNumber);
+  writer.EndStep();
+  writer.Close();
+  // ========= End of testing =========== 
 
   Progress_delete(prog);
 
