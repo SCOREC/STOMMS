@@ -1,5 +1,4 @@
 #include "stommsMesh.h"
-#include "Omega_h_build.hpp"
 
 // Given the simmetrix model and planes data, this function generates
 // and return a simmetrix mesh.
@@ -18,7 +17,7 @@ StommsMesh::StommsMesh(const MeshMetaData& m):meshMetaData(m)
 
   // Step 3: Iterate over the planes container and set the mesh size
   // on mesh entites (model edges and faces).
-  std::vector <PlaneMeshMetaData> planes = meshMetaData.getMeshMetaDataPlanes();
+  planes = meshMetaData.getMeshMetaDataPlanes();
   for (int i = 0; i < planes.size(); i++)
   {
     // Step 3.1: Fetch the desired plane.
@@ -74,28 +73,16 @@ StommsMesh::StommsMesh(const MeshMetaData& m):meshMetaData(m)
   SurfaceMesher_delete(surfMesh);
   MS_deleteMeshCase(meshCase);  
 
-  // Step 4: Write the mesh to disk for visualization
+  // Step 4: Write the mesh to disk for visualization.
   M_write(mesh, "simMesh.sms", 0, prog);
-
-  // Try adios2 and OmegaH installations 
-  // ========= Start testing =========== 
-  auto lib = Omega_h::Library(NULL, NULL);
-
-  // Try ADIOS2
-  adios2::ADIOS adiosTestObject;
-  const std::string versionNumber = "=== STOMMS version 1.0 ===";
-  adios2::IO io = adiosTestObject.DeclareIO("STOMMS Mesh Writer");
-  adios2::Engine writer = io.Open("stomms.bp", adios2::Mode::Write);
-  adios2::Variable<std::string> versionVariable = io.DefineVariable<std::string>("Version");
-  writer.BeginStep();
-  writer.Put(versionVariable, versionNumber);
-  writer.EndStep();
-  writer.Close();
-  // ========= End of testing =========== 
-
+  printMeshData(mesh);
   Progress_delete(prog);
 
+  // Step 5: Save the mesh in StommsMesh class.
   simMesh = mesh;
+
+  // Step 6: Setup the mesh data on planes for using it in output writing.
+  setMeshDataOnPlanes();
 }
 
 // To specify mesh vertex at O-point (origin/axis of the poloidal plane)
@@ -161,3 +148,186 @@ std::vector <int> StommsMesh::specifyMeshEnt(pMesh mesh, Flux f, const std::vect
   return indxOnFlux;
 }
 
+const pMesh& StommsMesh::getSimMesh()
+{
+  return simMesh;
+}
+
+const MeshMetaData& StommsMesh::getMeshMetaData()
+{
+  return meshMetaData;
+}
+
+void StommsMesh::setMeshDataOnPlanes()
+{
+  for (int i = 0; i < planes.size(); i++)
+  {
+    PlaneMeshMetaData plane = planes[i];
+    PlaneMeshData p;
+    p.getMeshInfoOnPlane(plane, simMesh);
+    p.setMeshDataOnPlane();
+    planesMeshData.push_back(p);    
+  }
+}
+
+const std::vector <PlaneMeshData>& StommsMesh::getMeshDataOnPlane()
+{
+  return planesMeshData;
+}
+
+
+void PlaneMeshData::getMeshInfoOnPlane(const PlaneMeshMetaData& plane, const pMesh& mesh)
+{
+  meshMetaDataOnP = plane;
+  simMesh = mesh;
+}
+
+void PlaneMeshData::setMeshDataOnPlane()
+{
+  setMeshEntitiesOnPlane();
+}
+
+
+void PlaneMeshData::setMeshEntitiesOnPlane()
+{
+  std::vector<Face> modelFaces = meshMetaDataOnP.getModelFacesOnPlane();
+  for (int i = 0; i < modelFaces.size(); i++)
+  {
+    Face f = modelFaces[i];
+    pGFace gf = f.getSimFace();
+    
+    // Find vertices on model vertices:
+    pPList gvOnFace = GF_vertices(gf);
+    for (int j = 0; j < PList_size(gvOnFace); j++)
+    {
+      pGVertex gv = static_cast<pGVertex>(PList_item(gvOnFace,j));
+      int gvDone = -1;
+      GEN_nativeIntAttribute(gv, "vertexDone", &gvDone);
+      if (gvDone == 1)
+        continue;
+      
+      pVertex v = M_classifiedVertex(simMesh, gv);
+      meshVonP.push_back(v);
+      GEN_setNativeIntAttribute(gv, 1, "vertexDone");
+    }
+    PList_delete(gvOnFace);
+   
+
+    // Find mesh vertices and mesh edges classified on model edges
+    pPList geOnFace = GF_edges(gf);
+    for (int j = 0; j < PList_size(geOnFace); j++)
+    {
+      pGEdge ge = static_cast<pGEdge>(PList_item(geOnFace,j));
+      int geDone = -1;
+      GEN_nativeIntAttribute(ge, "edgeDone", &geDone);
+      if (geDone == 1)
+        continue;
+
+      // Get the mesh vertices classified on the model edge
+      std::vector <pVertex> verticesOnEdge = getMeshVerticesOnModelEdge(simMesh, ge);
+      meshVonP.insert(meshVonP.end(), verticesOnEdge.begin(), verticesOnEdge.end());
+
+      // Get the mesh edges classified on the model edge
+      std::vector <pEdge> edgesOnEdge = getMeshEdgesOnModelEdge(simMesh, ge);
+      meshEonP.insert(meshEonP.end(), edgesOnEdge.begin(), edgesOnEdge.end());
+
+      GEN_setNativeIntAttribute(ge, 1, "edgeDone");
+    }
+    PList_delete(geOnFace);
+
+    // Get the mesh vertices classified on model face
+    std::vector <pVertex> verticesOnFace = getMeshVerticesOnModelFace(simMesh, gf);
+    meshVonP.insert(meshVonP.end(), verticesOnFace.begin(), verticesOnFace.end());
+
+    // Get the mesh edges classified on model face
+    std::vector <pEdge> edgesOnFace = getMeshEdgesOnModelFace(simMesh, gf);
+    meshEonP.insert(meshEonP.end(), edgesOnFace.begin(), edgesOnFace.end());
+
+    // Get the mesh faces classified on model face
+    std::vector <pFace> facesOnFace = getMeshFacesOnModelFace(simMesh, gf);
+    meshFonP.insert(meshFonP.end(), facesOnFace.begin(), facesOnFace.end());
+  }
+}
+
+const std::vector <pVertex>& PlaneMeshData::getMeshVerticesOnPlane()
+{
+  return meshVonP;
+}
+
+const std::vector <pEdge>& PlaneMeshData::getMeshEdgesOnPlane()
+{
+  return meshEonP;
+}
+
+const std::vector <pFace>& PlaneMeshData::getMeshFacesOnPlane()
+{
+  return meshFonP;
+}
+
+const std::vector <pRegion>& PlaneMeshData::getMeshRegionsOnPlane()
+{
+  return meshRonP;
+}
+
+std::vector <pVertex> getMeshVerticesOnModelEdge(pMesh m, pGEdge ge)
+{
+  std::vector <pVertex> vertices;
+  VIter vertexIter = M_classifiedVertexIter(m, ge, 0);
+  while (pVertex v  = VIter_next(vertexIter))
+    vertices.push_back(v);
+
+  VIter_delete(vertexIter);
+  return vertices;
+}
+
+std::vector <pVertex> getMeshVerticesOnModelFace(pMesh m, pGFace gf)
+{
+  std::vector <pVertex> vertices;
+  VIter vertexIter = M_classifiedVertexIter(m, gf, 0);
+  while (pVertex v  = VIter_next(vertexIter))
+    vertices.push_back(v);
+
+  VIter_delete(vertexIter);
+  return vertices;
+}
+
+std::vector <pEdge> getMeshEdgesOnModelEdge(pMesh m, pGEdge ge)
+{
+  std::vector <pEdge> edges;
+  EIter edgeIter = M_classifiedEdgeIter(m ,ge, 0);
+  while (pEdge e = EIter_next(edgeIter))
+    edges.push_back(e);
+
+  EIter_delete(edgeIter);
+  return edges;
+}
+
+std::vector <pEdge> getMeshEdgesOnModelFace(pMesh m, pGFace gf)
+{
+  std::vector <pEdge> edges;
+  EIter edgeIter = M_classifiedEdgeIter(m ,gf, 0);
+  while (pEdge e = EIter_next(edgeIter))
+    edges.push_back(e);
+
+  EIter_delete(edgeIter);
+  return edges;
+}
+
+std::vector <pFace> getMeshFacesOnModelFace(pMesh m, pGFace gf)
+{
+  std::vector <pFace> faces;
+  FIter faceIter = M_classifiedFaceIter(m ,gf, 0);
+  while (pFace f = FIter_next(faceIter))
+    faces.push_back(f);
+
+  FIter_delete(faceIter);
+  return faces;
+}
+
+void printMeshData(const pMesh& mesh)
+{
+  std::cout << "Number of Vertices on the Mesh = " << M_numVertices(mesh) << "\n";
+  std::cout << "Number of Edges on the Mesh = " << M_numEdges(mesh) << "\n";
+  std::cout << "Number of Faces on the Mesh = " << M_numFaces(mesh) << "\n";
+  std::cout << "Number of Regions on the Mesh = " << M_numRegions(mesh) << "\n";
+}

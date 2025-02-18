@@ -3,7 +3,6 @@
 
 #include "modelData.h"
 #include "meshMetaData.h"
-#include <adios2.h>
 #include <assert.h>
 
 /*
@@ -12,6 +11,27 @@
  * See Simmetrix documentation for the usage of this function.
  */
  void MS_setGEdgesToDisallowAllFaceVertices(pACase cs, pGFace gf, pPList ges);
+
+// Once Simmetrix mesh is generated, this class will hold the planer mesh data.
+class PlaneMeshData{
+  public:
+    void getMeshInfoOnPlane(const PlaneMeshMetaData& plane, const pMesh& mesh);
+    void setMeshDataOnPlane();
+    const std::vector <pVertex>& getMeshVerticesOnPlane();
+    const std::vector <pEdge>& getMeshEdgesOnPlane();
+    const std::vector <pFace>& getMeshFacesOnPlane();
+    const std::vector <pRegion>& getMeshRegionsOnPlane();
+  private:
+    std::vector <pVertex> meshVonP;
+    std::vector <pEdge> meshEonP;
+    std::vector <pFace> meshFonP;
+    std::vector <pRegion> meshRonP = {};
+
+    pMesh simMesh;
+    PlaneMeshMetaData meshMetaDataOnP;
+
+    void setMeshEntitiesOnPlane();
+};
 
 // class StommsMesh handles the meshing.
 class StommsMesh{
@@ -25,10 +45,21 @@ class StommsMesh{
     /*
      * Function to get underlying Simmetrix Mesh (pMesh).
      */ 
-    const pMesh& getSimMesh();
+   const pMesh& getSimMesh();
+
+    /*
+     * Function to return mesh meta data associated with stomms mesh.
+     */
+    const MeshMetaData& getMeshMetaData();    
+
+    /*
+     * Function to get vector of  mesh data on each plane.
+     */   
+    const std::vector <PlaneMeshData>& getMeshDataOnPlane();
   private:
     MeshMetaData meshMetaData;  // an object of class MeshMetaData
     std::vector <PlaneMeshMetaData> planes;  // a vector of planes holding mesh meta data
+    std::vector <PlaneMeshData> planesMeshData;  // a vector of planes holding simmetrix mesh data
     pMesh simMesh;  // Simmetrix mesh
     int numSpecifiedVert = 0; // initializing the numSpecifiedVert here. It will be used
 			      // in specifying mesh vertices on model entities.
@@ -50,6 +81,16 @@ class StommsMesh{
      * returns a vector (int) that contains the indices of specified mesh vertices on flux curve f.
      */
      std::vector <int> specifyMeshEnt(pMesh mesh, Flux f, const std::vector<double>& parValuesOnFlux);
+
+     void setMeshDataOnPlanes();
 };
+
+
+std::vector <pVertex> getMeshVerticesOnModelEdge(pMesh m, pGEdge ge);
+std::vector <pVertex> getMeshVerticesOnModelFace(pMesh m, pGFace gf);
+std::vector <pEdge> getMeshEdgesOnModelEdge(pMesh m, pGEdge ge);
+std::vector <pEdge> getMeshEdgesOnModelFace(pMesh m, pGFace gf);
+std::vector <pFace> getMeshFacesOnModelFace(pMesh m, pGFace gf);
+void printMeshData(const pMesh& mesh);
 
 #endif

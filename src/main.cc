@@ -6,6 +6,7 @@
 #include "magneticGeometry.h"
 #include "stomms.h"
 #include "meshMetaData.h"
+#include "output.h"
 
 int main(int argc, char* argv[])
 {
@@ -36,6 +37,9 @@ int main(int argc, char* argv[])
 
   // Step 7: Mesh the model using mesh meta data.
   StommsMesh stommsMesh(meshMetaData);
+
+  // Step 8: Write output files from STOMMS mesh.
+  //StommsOutput stommsOutput(stommsMesh);
   
   return 0;
 }

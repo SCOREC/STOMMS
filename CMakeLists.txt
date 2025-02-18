@@ -30,6 +30,7 @@ set(STELLMESH_SRCS
   src/modelData.cc
   src/meshMetaData.cc
   src/stommsMesh.cc
+  src/output.cc
   src/ezfit.F90
 )
 
@@ -41,7 +42,6 @@ target_link_libraries(stell_meshgen PRIVATE ${SIMMODSUITE_LIBS})
 target_link_libraries(stell_meshgen PRIVATE PkgConfig::netcdf-cxx4)
 target_link_libraries(stell_meshgen PRIVATE ${PSPLINE_LIBRARIES})
 target_link_libraries(stell_meshgen PRIVATE Omega_h::omega_h)
-#target_link_libraries(stell_meshgen PRIVATE ADIOS2::adios2)
 target_link_libraries(stell_meshgen PRIVATE ${ADIOS2_LIB_DIR}/libadios2_cxx11.so)
 
 target_include_directories(stell_meshgen PRIVATE ${SIMMODSUITE_INCLUDE_DIR})
