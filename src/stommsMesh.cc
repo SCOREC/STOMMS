@@ -81,7 +81,7 @@ StommsMesh::StommsMesh(const MeshMetaData& m):meshMetaData(m)
   // Step 5: Save the mesh in StommsMesh class.
   simMesh = mesh;
 
-  // Step 6: Setup the mesh data on planes for using it in output writing.
+  // Step 6: Setup the mesh data on planes to use it in output writing.
   setMeshDataOnPlanes();
 }
 
@@ -148,43 +148,62 @@ std::vector <int> StommsMesh::specifyMeshEnt(pMesh mesh, Flux f, const std::vect
   return indxOnFlux;
 }
 
+// Function to get underlying Simmetrix Mesh (pMesh) in StommsMesh.
 const pMesh& StommsMesh::getSimMesh()
 {
   return simMesh;
 }
 
+// Function to return mesh meta data associated with stomms mesh.
 const MeshMetaData& StommsMesh::getMeshMetaData()
 {
   return meshMetaData;
 }
 
+// To set up the mesh data on all the poloidal planes in the domain.
 void StommsMesh::setMeshDataOnPlanes()
 {
+  // Iterate over all the planes and then set mesh data in each plane one by one.
   for (int i = 0; i < planes.size(); i++)
   {
+    // Step 1: Get the mesh meta data on each plane.
     PlaneMeshMetaData plane = planes[i];
+
+    // Step 2: Create an object of planer mesh data (PlaneMeshData).
     PlaneMeshData p;
+
+    // Step 3: Feed input info to PlaneMeshData p.
     p.getMeshInfoOnPlane(plane, simMesh);
+
+    // Step 4: Set up the plane and push it back to planes container.
     p.setMeshDataOnPlane();
     planesMeshData.push_back(p);    
   }
 }
 
-const std::vector <PlaneMeshData>& StommsMesh::getMeshDataOnPlane()
+const std::vector <PlaneMeshData>& StommsMesh::getMeshDataOnPlanes()
 {
   return planesMeshData;
 }
 
-
+// Function to get mesh info needed to setup a mesh on plane.
 void PlaneMeshData::getMeshInfoOnPlane(const PlaneMeshMetaData& plane, const pMesh& mesh)
 {
+  // Set up planer mesh meta data on the mesh plane. Its required to setup
+  // mesh data on the plane.
   meshMetaDataOnP = plane;
+
+  // Get the Simmetrix mesh needed to setup planer mesh data.
   simMesh = mesh;
 }
 
+// Function to set mesh data on a plane.
 void PlaneMeshData::setMeshDataOnPlane()
 {
+  // Set up mesh entities on a plane.
   setMeshEntitiesOnPlane();
+
+  // Add more mesh data on a plane if needed.
 }
 
 
@@ -249,29 +268,36 @@ void PlaneMeshData::setMeshEntitiesOnPlane()
   }
 }
 
+// Return mesh vertices on a poloidal plane.
 const std::vector <pVertex>& PlaneMeshData::getMeshVerticesOnPlane()
 {
   return meshVonP;
 }
 
+// Return mesh edges on a poloidal plane.
 const std::vector <pEdge>& PlaneMeshData::getMeshEdgesOnPlane()
 {
   return meshEonP;
 }
 
+// Return mesh faces on a poloidal plane.
 const std::vector <pFace>& PlaneMeshData::getMeshFacesOnPlane()
 {
   return meshFonP;
 }
 
+// Return mesh regions on a poloidal plane.
 const std::vector <pRegion>& PlaneMeshData::getMeshRegionsOnPlane()
 {
   return meshRonP;
 }
 
+// Function to return a vector of mesh vertices classified on geometric edge (ge).
 std::vector <pVertex> getMeshVerticesOnModelEdge(pMesh m, pGEdge ge)
 {
   std::vector <pVertex> vertices;
+
+  // Simmetrix mesh vertex iterator on model edge ge.
   VIter vertexIter = M_classifiedVertexIter(m, ge, 0);
   while (pVertex v  = VIter_next(vertexIter))
     vertices.push_back(v);
@@ -280,9 +306,12 @@ std::vector <pVertex> getMeshVerticesOnModelEdge(pMesh m, pGEdge ge)
   return vertices;
 }
 
+// Function to return a vector of mesh vertices classified on geometric face (gf).
 std::vector <pVertex> getMeshVerticesOnModelFace(pMesh m, pGFace gf)
 {
   std::vector <pVertex> vertices;
+
+  // Simmetrix mesh vertex iterator on model face gf.
   VIter vertexIter = M_classifiedVertexIter(m, gf, 0);
   while (pVertex v  = VIter_next(vertexIter))
     vertices.push_back(v);
@@ -291,9 +320,12 @@ std::vector <pVertex> getMeshVerticesOnModelFace(pMesh m, pGFace gf)
   return vertices;
 }
 
+// Function to return a vector of mesh edges classified on geometric edge (ge).
 std::vector <pEdge> getMeshEdgesOnModelEdge(pMesh m, pGEdge ge)
 {
   std::vector <pEdge> edges;
+
+  // Simmetrix mesh edge iterator on model edge ge.
   EIter edgeIter = M_classifiedEdgeIter(m ,ge, 0);
   while (pEdge e = EIter_next(edgeIter))
     edges.push_back(e);
@@ -302,9 +334,12 @@ std::vector <pEdge> getMeshEdgesOnModelEdge(pMesh m, pGEdge ge)
   return edges;
 }
 
+// Function to return a vector of mesh edges classified on geometric face (gf).
 std::vector <pEdge> getMeshEdgesOnModelFace(pMesh m, pGFace gf)
 {
   std::vector <pEdge> edges;
+
+  // Simmetrix mesh edge iterator on model face gf.
   EIter edgeIter = M_classifiedEdgeIter(m ,gf, 0);
   while (pEdge e = EIter_next(edgeIter))
     edges.push_back(e);
@@ -313,9 +348,12 @@ std::vector <pEdge> getMeshEdgesOnModelFace(pMesh m, pGFace gf)
   return edges;
 }
 
+// Function to return a vector of mesh faces classified on geometric face (gf).
 std::vector <pFace> getMeshFacesOnModelFace(pMesh m, pGFace gf)
 {
   std::vector <pFace> faces;
+
+  // Simmetrix mesh face iterator on model face gf.
   FIter faceIter = M_classifiedFaceIter(m ,gf, 0);
   while (pFace f = FIter_next(faceIter))
     faces.push_back(f);
@@ -324,6 +362,8 @@ std::vector <pFace> getMeshFacesOnModelFace(pMesh m, pGFace gf)
   return faces;
 }
 
+// Function to print mesh data. Right now just prints out 
+// the number of mesh entities.
 void printMeshData(const pMesh& mesh)
 {
   std::cout << "Number of Vertices on the Mesh = " << M_numVertices(mesh) << "\n";

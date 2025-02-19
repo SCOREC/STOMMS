@@ -15,10 +15,10 @@ class StommsOutput{
     StommsMesh mesh;
     pMesh simMesh;
     pGModel simModel;
-    std::vector <PlaneMeshMetaData> planes;
+    std::vector <PlaneMeshData> planes;
     void writeOmegahMeshes();
     void writeAdiosFile();
-    Omega_h::Mesh simMesh2Omegah(const PlaneMeshMetaData& p);
+    Omega_h::Mesh simMesh2Omegah(const PlaneMeshData& plane);
 };
 
 #endif

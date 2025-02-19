@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
   StommsMesh stommsMesh(meshMetaData);
 
   // Step 8: Write output files from STOMMS mesh.
-  //StommsOutput stommsOutput(stommsMesh);
+  StommsOutput stommsOutput(stommsMesh);
   
   return 0;
 }

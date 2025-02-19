@@ -12,24 +12,57 @@
  */
  void MS_setGEdgesToDisallowAllFaceVertices(pACase cs, pGFace gf, pPList ges);
 
-// Once Simmetrix mesh is generated, this class will hold the planer mesh data.
+/* 
+ * Once Simmetrix mesh is generated, this class will hold the planer mesh data.
+ */
 class PlaneMeshData{
   public:
+    /*
+     * Function to get mesh info needed to setup a mesh on plane.
+     * const PlaneMeshMetaData& plane (in): Mesh meta data on a plane. Needed to 
+     * 					    extract mesh data on planes.
+     *  const pMesh& mesh (in): Simmetrix mesh.
+     */ 
     void getMeshInfoOnPlane(const PlaneMeshMetaData& plane, const pMesh& mesh);
+
+    /*
+     * Function to set mesh data on plane. Keeping it separate from setMeshEntitiesOnPlane()
+     * in case we want to add more mesh data on plane and not just entities.
+     */ 
     void setMeshDataOnPlane();
+
+    /*
+     * Function to return mesh vertices on a poloidal plane.
+     */ 
     const std::vector <pVertex>& getMeshVerticesOnPlane();
+
+    /*
+     * Function to return mesh edges on a poloidal plane. 
+     */ 
     const std::vector <pEdge>& getMeshEdgesOnPlane();
+
+    /*
+     * Function to return mesh faces on a poloidal plane.
+     */ 
     const std::vector <pFace>& getMeshFacesOnPlane();
+
+    /*
+     * Function to return mesh regions on a poloidal plane.
+     * The vector size of returned vector should be zero.
+     */ 
     const std::vector <pRegion>& getMeshRegionsOnPlane();
   private:
-    std::vector <pVertex> meshVonP;
-    std::vector <pEdge> meshEonP;
-    std::vector <pFace> meshFonP;
-    std::vector <pRegion> meshRonP = {};
+    std::vector <pVertex> meshVonP;  // a vector to hold mesh vertices on a plane
+    std::vector <pEdge> meshEonP;  // a vector to hold mesh edges on a plane
+    std::vector <pFace> meshFonP;  // a vector to hold mesh faces on a plane
+    std::vector <pRegion> meshRonP = {};  // a vector to hold mesh regions on a plane (no regions on a plane)
 
-    pMesh simMesh;
-    PlaneMeshMetaData meshMetaDataOnP;
+    pMesh simMesh;  // Simmetrix mesh
+    PlaneMeshMetaData meshMetaDataOnP;  // Mesh meta data on a plane. Needed to extract mesh data on planes.
 
+    /*
+     * Function to set mesh entities on a plane.
+     */ 
     void setMeshEntitiesOnPlane();
 };
 
@@ -53,9 +86,9 @@ class StommsMesh{
     const MeshMetaData& getMeshMetaData();    
 
     /*
-     * Function to get vector of  mesh data on each plane.
+     * Function to return vector of poloidal planes holding mesh data.
      */   
-    const std::vector <PlaneMeshData>& getMeshDataOnPlane();
+    const std::vector <PlaneMeshData>& getMeshDataOnPlanes();
   private:
     MeshMetaData meshMetaData;  // an object of class MeshMetaData
     std::vector <PlaneMeshMetaData> planes;  // a vector of planes holding mesh meta data
@@ -82,15 +115,56 @@ class StommsMesh{
      */
      std::vector <int> specifyMeshEnt(pMesh mesh, Flux f, const std::vector<double>& parValuesOnFlux);
 
+     /*
+      * To set up the mesh data on all the poloidal planes in the domain.
+      */ 
      void setMeshDataOnPlanes();
 };
 
-
+/*
+ * Function to get a vector of mesh vertices classified on geometric edge (ge).
+ * pMesh m (in): Simmetrix mesh.
+ * pGEdge ge (in): Geometric edge on the model. 
+ * returns a vector of mesh vertices classified on ge in mesh m.
+ */
 std::vector <pVertex> getMeshVerticesOnModelEdge(pMesh m, pGEdge ge);
+
+/*
+ * Function to get a vector of mesh vertices classified on geometric face (gf).
+ * pMesh m (in): Simmetrix mesh.
+ * pGFace gf (in): Geometric face on the model. 
+ * returns a vector of mesh vertices classified on gf in mesh m.
+ */
 std::vector <pVertex> getMeshVerticesOnModelFace(pMesh m, pGFace gf);
+
+/*
+ * Function to get a vector of mesh edges classified on geometric edge (ge).
+ * pMesh m (in): Simmetrix mesh.
+ * pGEdge ge (in): Geometric edge on the model. 
+ * returns a vector of mesh edges classified on ge in mesh m.
+ */
 std::vector <pEdge> getMeshEdgesOnModelEdge(pMesh m, pGEdge ge);
+
+/*
+ * Function to get a vector of mesh edges classified on geometric face (gf).
+ * pMesh m (in): Simmetrix mesh.
+ * pGFace gf (in): Geometric face on the model. 
+ * returns a vector of mesh edges classified on gf in mesh m.
+ */
 std::vector <pEdge> getMeshEdgesOnModelFace(pMesh m, pGFace gf);
+
+/*
+ * Function to get a vector of mesh faces classified on geometric face (gf).
+ * pMesh m (in): Simmetrix mesh.
+ * pGFace gf (in): Geometric face on the model. 
+ * returns a vector of mesh faces classified on gf in mesh m.
+ */
 std::vector <pFace> getMeshFacesOnModelFace(pMesh m, pGFace gf);
+
+/*
+ * Function to print mesh data. Right now just prints out the number of mesh entities.
+ * pMesh m (in): Simmetrix mesh.
+ */
 void printMeshData(const pMesh& mesh);
 
 #endif
