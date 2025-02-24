@@ -55,7 +55,7 @@ Omega_h::Mesh StommsOutput::simMesh2Omegah(const PlaneMeshData& plane)
 
   auto info = Omega_h::meshsim::getSimMeshInfo(m);
   const bool hasNumbering = false;
-  pMeshNex numbering = {NULL};  
+  pMeshNex numbering = {};  
 
   Omega_h::meshsim::SimMeshEntInfo simEnts(m, hasNumbering);
   Omega_h::meshsim::setEntToMesh(&mesh, simEnts, numbering, info);

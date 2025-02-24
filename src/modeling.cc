@@ -81,17 +81,22 @@ pGModel simModelFromVmec(pVmecFlux vf, int npsi, int nzeta, const double *psis, 
   pGIPart gp = GM_createVmecPart(model, vf, 2, prog); 
 
   // Step 2: Sanity check (Verifying some of the model entities)
-  double psi, psi0, psi1;
-  double zeta;
-  pGVertex gv = VmecFlux_opointVertex(vf, zetas[2]);
-  VmecFlux_opointVertexInfo(vf, gv, &zeta);
-  assert(zeta == zetas[2]);
-  pGEdge ge = VmecFlux_poloidalEdge(vf, psis[2], zetas[2]);
-  VmecFlux_poloidalEdgeInfo(vf, ge, &psi, &zeta);
-  assert(psi == psis[2] && zeta == zetas[2]);
-  pGFace gf = VmecFlux_poloidalFace(vf, psis[2], zetas[2]);
-  VmecFlux_poloidalFaceInfo(vf, gf, &psi0, &psi1, &zeta);
-  assert(psi0 == psis[2] && psi1 == psis[3] && zeta == zetas[2]);
+  // This check assumes minimum 3 poloidal planes. Only check it
+  // if nzeta > 2.
+  if (nzeta > 2)
+  {
+    double psi, psi0, psi1;
+    double zeta;
+    pGVertex gv = VmecFlux_opointVertex(vf, zetas[2]);
+    VmecFlux_opointVertexInfo(vf, gv, &zeta);
+    assert(zeta == zetas[2]);
+    pGEdge ge = VmecFlux_poloidalEdge(vf, psis[2], zetas[2]);
+    VmecFlux_poloidalEdgeInfo(vf, ge, &psi, &zeta);
+    assert(psi == psis[2] && zeta == zetas[2]);
+    pGFace gf = VmecFlux_poloidalFace(vf, psis[2], zetas[2]);
+    VmecFlux_poloidalFaceInfo(vf, gf, &psi0, &psi1, &zeta);
+    assert(psi0 == psis[2] && psi1 == psis[3] && zeta == zetas[2]);
+  }
 
   Progress_delete(prog);
   return model;
