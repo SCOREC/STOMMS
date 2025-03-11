@@ -16,9 +16,15 @@ class StommsOutput{
     pMesh simMesh;
     pGModel simModel;
     std::vector <PlaneMeshData> planes;
+    std::vector <Omega_h::Mesh> omegahMeshes;
+    void setMeshIndices(std::vector <pVertex> v);
     void writeOmegahMeshes();
     void writeAdiosFile();
     Omega_h::Mesh simMesh2Omegah(const PlaneMeshData& plane);
 };
+
+// Debug Functions
+void debugMesh(std::vector <pVertex> v, std::vector <pEdge> e,  
+          std::vector <pFace> f, std::vector <pRegion> r);
 
 #endif

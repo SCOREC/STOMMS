@@ -249,7 +249,6 @@ void PlaneMeshData::setMeshEntitiesOnPlane()
       // Get the mesh edges classified on the model edge
       std::vector <pEdge> edgesOnEdge = getMeshEdgesOnModelEdge(simMesh, ge);
       meshEonP.insert(meshEonP.end(), edgesOnEdge.begin(), edgesOnEdge.end());
-
       GEN_setNativeIntAttribute(ge, 1, "edgeDone");
     }
     PList_delete(geOnFace);
