@@ -4,25 +4,30 @@ StommsOutput::StommsOutput(const StommsMesh& m):mesh(m)
 {
   std::cout << "============ Output Writing Starts ============\n";
 
-  // Get underlying Simmetrix Model stored in mesh meta data.
+  // Step 1: Get underlying Simmetrix Model stored in mesh meta data.
   MeshMetaData meshMetaData = mesh.getMeshMetaData();
   StommsModel stommsModel = meshMetaData.getStommsModel();
   Model mdl = stommsModel.getModel();
   simModel = mdl.getSimModel();
 
-  // Get Simmetrix mesh.
+  // Step 2: Get Simmetrix mesh.
   simMesh = mesh.getSimMesh();
 
-  // Get the planes data.
+  // Step 3: Get the planes data.
   planes = mesh.getMeshDataOnPlanes();
 
-  // Write Simmetrix meshes to OmegaH meshes.
+  // Step 4: Write Simmetrix meshes to OmegaH meshes.
   writeOmegahMeshes(); 
+
+  // Step 5: Write vtk meshes for visualization
+  writeVtkPlanes(omegahMeshes);
  
-  // Write data into adios2 file.
+  // Step 6: Write data into adios2 file.
   writeAdiosFile();
 }
 
+// Function to iterate over all the planes and creates omegah meshes
+// for each individual plane. And store them in container (omegahMeshes).
 void StommsOutput::writeOmegahMeshes()
 {
   for (int i = 0; i < planes.size(); i++)
@@ -51,7 +56,7 @@ void StommsOutput::setMeshIndices(std::vector <pVertex> v)
 // Give Plane as input to this fucntion
 Omega_h::Mesh StommsOutput::simMesh2Omegah(const PlaneMeshData& plane)
 {
-  // Get the Simmetrix mesh enteties on each plane and construct SimMesh m
+  // Step 1: Get the Simmetrix mesh enteties on each plane and construct SimMesh m
   // to feed into Omegah APIs.
   PlaneMeshData p = plane;
   std::vector <pVertex> meshV = p.getMeshVerticesOnPlane();
@@ -59,19 +64,21 @@ Omega_h::Mesh StommsOutput::simMesh2Omegah(const PlaneMeshData& plane)
   std::vector <pFace> meshF = p.getMeshFacesOnPlane();
   std::vector <pRegion> meshR = p.getMeshRegionsOnPlane();
 
-  // Mkae sure vertex indices are consistent and starts from 0 on each plane
+  // Step 2: Make sure vertex indices are consistent and starts from 0 on each plane
   setMeshIndices(meshV);
 
-  // Create an object of Omegah mesh.  
+  // Step 3: Create an object of Omegah mesh.  
   auto lib = Omega_h::Library(NULL, NULL);
   auto comm = lib.world();
 
   auto mesh = Omega_h::Mesh(comm->library());
   mesh.set_comm(comm);
+  mesh.set_parting(OMEGA_H_ELEM_BASED);
 
-  // Construct SimMesh to use it in Omegah functions.
+  // Step 4: Construct SimMesh to use it in Omegah functions.
   Omega_h::meshsim::SimMesh m(meshV, meshE, meshF, meshR);
 
+  // Step 5: Get entity info from gives mesh data and convert it to omegah mesh.
   auto info = Omega_h::meshsim::getSimMeshInfo(m);
   const bool hasNumbering = false;
   pMeshNex numbering = {};  
@@ -97,6 +104,22 @@ void StommsOutput::writeAdiosFile()
   std::cout << "Adios2 file written\n";
 }
 
+// Free functions to write output files.
+void writeOmegah2Vtk(Omega_h::Mesh mesh, int planeNum)
+{
+  int dim = 2;
+  std::string meshName = "meshPlane_" + std::to_string(planeNum) + ".vtk";
+  Omega_h::vtk::write_parallel(meshName, &mesh, dim);
+}
+
+void writeVtkPlanes(const std::vector <Omega_h::Mesh>& omegahMeshPlanes)
+{
+  for (int i = 0; i < omegahMeshPlanes.size(); i++)
+  {
+    Omega_h::Mesh m = omegahMeshPlanes[i];
+    writeOmegah2Vtk(m,i);
+  }
+}
 
 // To debug the routines for output writing - Once development is done, we 
 // can get rid of these debug functions.
@@ -142,5 +165,3 @@ void debugMesh(std::vector <pVertex> v, std::vector <pEdge> e,
   
   fclose(fp);
 }
-
-

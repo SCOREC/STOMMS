@@ -12,16 +12,53 @@ class StommsOutput{
   public:
     StommsOutput(const StommsMesh& m);
   private:
-    StommsMesh mesh;
-    pMesh simMesh;
-    pGModel simModel;
-    std::vector <PlaneMeshData> planes;
-    std::vector <Omega_h::Mesh> omegahMeshes;
-    void setMeshIndices(std::vector <pVertex> v);
+    StommsMesh mesh;  // StommsMesh with underlying Simmetrix mesh and other meta data.
+    pMesh simMesh;  // Simmetrix mesh
+    pGModel simModel;  // Simmetrix model
+    std::vector <PlaneMeshData> planes;  // Mesh data set on individual planes
+    std::vector <Omega_h::Mesh> omegahMeshes;  // vector of omegah 2D planer meshes
+
+    /*
+     * Function to adjust mesh verter indices to make sure vertex indices 
+     * start from 0 to nVertices-1.
+     * std::vector <pVertex> v (in): Vector of mesh vertices on the poloidal plane.
+     */  
+    void setMeshIndices(std::vector <pVertex> v);  
+
+    /*
+     * Function to write Omegah planer meshes from Simmetrix mesh.
+     */ 
     void writeOmegahMeshes();
-    void writeAdiosFile();
+
+    /*
+     * Function to create 2D omegah mesh from mesh entity data on each plane.
+     * const PlaneMeshData& plane (in): SImemtrix mesh data on plane.
+     * returns Omegah mesh (Omega_h::Mesh).
+     */ 
     Omega_h::Mesh simMesh2Omegah(const PlaneMeshData& plane);
+
+    /*
+     * Function to write ADIOS2 file from omegah meshes and other input information.
+     * ************ Under Development *****************
+     */ 
+    void writeAdiosFile();
 };
+
+// Free functions for writing output files
+
+/*
+ * Function to write vtk mesh from omegah mesh for individual plane.
+ * Omega_h::Mesh mesh (in): input Omegah mesh for the plane.
+ * int planeNum (in): Plane number of the poloidal plane. Needed only for naming
+ * 		      output vtk files.
+ */
+void writeOmegah2Vtk(Omega_h::Mesh mesh, int planeNum);
+
+/*
+ *  Function to write vtk files from a vector omegah meshes.
+ *  const std::vector <Omega_h::Mesh>& omegahMeshPlanes (in): a vector of omegah meshes.
+ */
+void writeVtkPlanes(const std::vector <Omega_h::Mesh>& omegahMeshPlanes);
 
 // Debug Functions
 void debugMesh(std::vector <pVertex> v, std::vector <pEdge> e,  
