@@ -64,24 +64,43 @@ StommsMesh::StommsMesh(const MeshMetaData& m):meshMetaData(m)
       }
       PList_delete(edgesOnFace);
     } 
-  }  
+  }
+
+  GRIter regions = GM_regionIter(model);
+  if (GRIter_size(regions) > 0 ) 
+    modelDim = 3;
+  while (pGRegion rgn = GRIter_next(regions))
+  {
+    int meshType = 1; // 1 = tet, 2 = hex, 3 = mix
+    MS_setVolumeMeshType(meshCase, rgn, meshType);
+  } 
+  GRIter_delete(regions);  
   std::cout << " ============ Meshing Starts ============\n";
  
-  // Step 3: Execute the Simmetrix mesher 
+  // Step 4: Execute the Simmetrix mesher 
+  // Surface Mesher
   pSurfaceMesher surfMesh = SurfaceMesher_new(meshCase,mesh);
   SurfaceMesher_execute(surfMesh,prog);
   SurfaceMesher_delete(surfMesh);
+
+  // Volume Mesher
+  if (modelDim == 3)
+  {
+    pVolumeMesher volMesh = VolumeMesher_new(meshCase, mesh);
+    VolumeMesher_execute(volMesh,prog);
+    VolumeMesher_delete(volMesh);
+  }
   MS_deleteMeshCase(meshCase);  
 
-  // Step 4: Write the mesh to disk for visualization.
+  // Step 5: Write the mesh to disk for visualization.
   M_write(mesh, "simMesh.sms", 0, prog);
   printMeshData(mesh);
   Progress_delete(prog);
 
-  // Step 5: Save the mesh in StommsMesh class.
+  // Step 6: Save the mesh in StommsMesh class.
   simMesh = mesh;
 
-  // Step 6: Setup the mesh data on planes to use it in output writing.
+  // Step 7: Setup the mesh data on planes to use it in output writing.
   setMeshDataOnPlanes();
 }
 

@@ -91,6 +91,7 @@ class StommsMesh{
     const std::vector <PlaneMeshData>& getMeshDataOnPlanes();
   private:
     MeshMetaData meshMetaData;  // an object of class MeshMetaData
+    int modelDim = 2;
     std::vector <PlaneMeshMetaData> planes;  // a vector of planes holding mesh meta data
     std::vector <PlaneMeshData> planesMeshData;  // a vector of planes holding simmetrix mesh data
     pMesh simMesh;  // Simmetrix mesh
