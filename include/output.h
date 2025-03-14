@@ -17,6 +17,12 @@ class StommsOutput{
     pGModel simModel;  // Simmetrix model
     std::vector <PlaneMeshData> planes;  // Mesh data set on individual planes
     std::vector <Omega_h::Mesh> omegahMeshes;  // vector of omegah 2D planer meshes
+    
+    int meshDim = 2;
+
+    // In future, read this from user's input
+    int outputVtk = 0;
+    int outputGmsh = 0;
 
     /*
      * Function to adjust mesh verter indices to make sure vertex indices 
@@ -35,7 +41,13 @@ class StommsOutput{
      * const PlaneMeshData& plane (in): SImemtrix mesh data on plane.
      * returns Omegah mesh (Omega_h::Mesh).
      */ 
-    Omega_h::Mesh simMesh2Omegah(const PlaneMeshData& plane);
+    Omega_h::Mesh simMesh2Omegah2D(const PlaneMeshData& plane);
+
+    /*
+     * Function to create 3D omegah mesh from 3D Simmetrix mesh.
+     * returns Omegah mesh (Omega_h::Mesh).
+     */ 
+    Omega_h::Mesh simMesh2Omegah3D();
 
     /*
      * Function to write ADIOS2 file from omegah meshes and other input information.
@@ -58,7 +70,13 @@ void writeOmegah2Vtk(Omega_h::Mesh mesh, int planeNum);
  *  Function to write vtk files from a vector omegah meshes.
  *  const std::vector <Omega_h::Mesh>& omegahMeshPlanes (in): a vector of omegah meshes.
  */
-void writeVtkPlanes(const std::vector <Omega_h::Mesh>& omegahMeshPlanes);
+void writeVtkFromOmegah(const std::vector <Omega_h::Mesh>& omegahMeshPlanes);
+
+/*
+ *  Function to write gmsh files from a vector omegah meshes.
+ *  const std::vector <Omega_h::Mesh>& omegahMeshPlanes (in): a vector of omegah meshes.
+ */
+void writeGmshFromOmegah(const std::vector <Omega_h::Mesh>& omegahMeshPlanes);
 
 // Debug Functions
 void debugMesh(std::vector <pVertex> v, std::vector <pEdge> e,  

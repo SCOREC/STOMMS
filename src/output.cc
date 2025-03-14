@@ -10,8 +10,9 @@ StommsOutput::StommsOutput(const StommsMesh& m):mesh(m)
   Model mdl = stommsModel.getModel();
   simModel = mdl.getSimModel();
 
-  // Step 2: Get Simmetrix mesh.
+  // Step 2: Get Simmetrix mesh and its dimension.
   simMesh = mesh.getSimMesh();
+  meshDim = mesh.getMeshDim();
 
   // Step 3: Get the planes data.
   planes = mesh.getMeshDataOnPlanes();
@@ -19,9 +20,13 @@ StommsOutput::StommsOutput(const StommsMesh& m):mesh(m)
   // Step 4: Write Simmetrix meshes to OmegaH meshes.
   writeOmegahMeshes(); 
 
-  // Step 5: Write vtk meshes for visualization
-  writeVtkPlanes(omegahMeshes);
+  // Step 5: Write output files
+  if (outputVtk)
+    writeVtkFromOmegah(omegahMeshes);
  
+  if (outputGmsh)
+    writeGmshFromOmegah(omegahMeshes);    
+
   // Step 6: Write data into adios2 file.
   writeAdiosFile();
 }
@@ -30,16 +35,26 @@ StommsOutput::StommsOutput(const StommsMesh& m):mesh(m)
 // for each individual plane. And store them in container (omegahMeshes).
 void StommsOutput::writeOmegahMeshes()
 {
-  for (int i = 0; i < planes.size(); i++)
+  std::cout << "Mesh Dimension = " << meshDim << "\n";
+  if (meshDim == 2)
   {
-    PlaneMeshData p = planes[i];
-    std::cout << "          Plane # " << i << "          \n";
-    auto mesh = simMesh2Omegah(p);
-    omegahMeshes.push_back(mesh);
-    std::cout << "Omegah mesh for plane # " << i << " is written\n";
-    std::cout << "===============================================\n";
+    for (int i = 0; i < planes.size(); i++)
+    {
+      PlaneMeshData p = planes[i];
+      std::cout << "          Plane # " << i << "          \n";
+      auto mesh = simMesh2Omegah2D(p);
+      omegahMeshes.push_back(mesh);
+      std::cout << "Omegah mesh for plane # " << i << " is written\n";
+      std::cout << "===============================================\n";
+    }
   }
-  std::cout << "OmegaH mesh files Done\n";
+  else if (meshDim == 3)
+  {
+    auto mesh = simMesh2Omegah3D();
+    omegahMeshes.push_back(mesh);
+    std::cout << "3D Omegah mesh has been written\n";
+  }
+  std::cout << "OmegaH mesh files writing: Done\n";
 }
 
 // To make sure, vertex indices start from 0 to nVertices-1. 
@@ -54,7 +69,7 @@ void StommsOutput::setMeshIndices(std::vector <pVertex> v)
 }
 
 // Give Plane as input to this fucntion
-Omega_h::Mesh StommsOutput::simMesh2Omegah(const PlaneMeshData& plane)
+Omega_h::Mesh StommsOutput::simMesh2Omegah2D(const PlaneMeshData& plane)
 {
   // Step 1: Get the Simmetrix mesh enteties on each plane and construct SimMesh m
   // to feed into Omegah APIs.
@@ -73,7 +88,6 @@ Omega_h::Mesh StommsOutput::simMesh2Omegah(const PlaneMeshData& plane)
 
   auto mesh = Omega_h::Mesh(comm->library());
   mesh.set_comm(comm);
-  mesh.set_parting(OMEGA_H_ELEM_BASED);
 
   // Step 4: Construct SimMesh to use it in Omegah functions.
   Omega_h::meshsim::SimMesh m(meshV, meshE, meshF, meshR);
@@ -87,6 +101,28 @@ Omega_h::Mesh StommsOutput::simMesh2Omegah(const PlaneMeshData& plane)
   Omega_h::meshsim::setEntToMesh(&mesh, simEnts, numbering, info);
 
   return mesh; 
+}
+
+// Given 3D Simmetrix mesh, convert it to Omegah mesh
+Omega_h::Mesh StommsOutput::simMesh2Omegah3D()
+{
+  // Step 1: Create an object of Omegah mesh.  
+  auto lib = Omega_h::Library(NULL, NULL);
+  auto comm = lib.world();
+
+  auto mesh = Omega_h::Mesh(comm->library());
+  mesh.set_comm(comm);
+
+  // Step 2: Construct SimMesh to use it in Omegah functions.
+  Omega_h::meshsim::SimMesh m(simMesh);
+  
+  // Step 3: Get entity info from gives mesh data and convert it to omegah mesh.
+  auto info = Omega_h::meshsim::getSimMeshInfo(m);
+  const bool hasNumbering = false;
+  pMeshNex numbering = {};  
+
+  Omega_h::meshsim::read_internal(simMesh, &mesh, numbering, info);
+  return mesh;
 }
 
 void StommsOutput::writeAdiosFile()
@@ -105,19 +141,56 @@ void StommsOutput::writeAdiosFile()
 }
 
 // Free functions to write output files.
-void writeOmegah2Vtk(Omega_h::Mesh mesh, int planeNum)
+// Write vtk file from Omegah (2D or 3D)
+void writeOmegah2Vtk(Omega_h::Mesh mesh, std::string meshName)
 {
-  int dim = 2;
-  std::string meshName = "meshPlane_" + std::to_string(planeNum) + ".vtk";
-  Omega_h::vtk::write_parallel(meshName, &mesh, dim);
+  int dim = mesh.dim();
+  Omega_h::vtk::write_vtu(meshName, &mesh, dim);
 }
 
-void writeVtkPlanes(const std::vector <Omega_h::Mesh>& omegahMeshPlanes)
+// Given a vector of 2D meshes, or single 3D mesh, write vtk files
+void writeVtkFromOmegah(const std::vector <Omega_h::Mesh>& omegahMeshPlanes)
 {
-  for (int i = 0; i < omegahMeshPlanes.size(); i++)
+  // 3D Mesh
+  if (omegahMeshPlanes.size() == 1 && omegahMeshPlanes[0].dim() == 3)
   {
-    Omega_h::Mesh m = omegahMeshPlanes[i];
-    writeOmegah2Vtk(m,i);
+    std::string meshName = "mesh_3d.vtk";
+    Omega_h::Mesh m = omegahMeshPlanes[0];
+    writeOmegah2Vtk(m,meshName);
+  }
+
+  //2D Planer Meshes
+  else
+  {
+    for (int i = 0; i < omegahMeshPlanes.size(); i++)
+    {
+      Omega_h::Mesh m = omegahMeshPlanes[i];
+      std::string meshName = "meshPlane_" + std::to_string(i) + ".vtk";
+      writeOmegah2Vtk(m,meshName);
+    }
+  }
+}
+
+// Given a vector of 2D meshes, or single 3D mesh, write gmsh files
+void writeGmshFromOmegah(const std::vector <Omega_h::Mesh>& omegahMeshPlanes)
+{
+  // 3D Mesh
+  if (omegahMeshPlanes.size() == 1 && omegahMeshPlanes[0].dim() == 3)
+  {
+    std::string meshName = "mesh_3d.gmsh";
+    Omega_h::Mesh m = omegahMeshPlanes[0];
+    Omega_h::gmsh::write(meshName, &m);
+  }
+
+  // 2D Planer Meshes
+  else
+  {
+    for (int i = 0; i < omegahMeshPlanes.size(); i++)
+    {
+      Omega_h::Mesh m = omegahMeshPlanes[i];
+      std::string meshName = "meshPlane_" + std::to_string(i) + ".gmsh";
+      Omega_h::gmsh::write(meshName, &m);
+    }
   }
 }
 

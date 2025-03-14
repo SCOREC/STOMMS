@@ -66,6 +66,7 @@ StommsMesh::StommsMesh(const MeshMetaData& m):meshMetaData(m)
     } 
   }
 
+  // Iterate over the model regions
   GRIter regions = GM_regionIter(model);
   if (GRIter_size(regions) > 0 ) 
     modelDim = 3;
@@ -203,6 +204,11 @@ void StommsMesh::setMeshDataOnPlanes()
 const std::vector <PlaneMeshData>& StommsMesh::getMeshDataOnPlanes()
 {
   return planesMeshData;
+}
+
+int StommsMesh::getMeshDim()
+{
+  return modelDim;
 }
 
 // Function to get mesh info needed to setup a mesh on plane.

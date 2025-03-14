@@ -89,6 +89,11 @@ class StommsMesh{
      * Function to return vector of poloidal planes holding mesh data.
      */   
     const std::vector <PlaneMeshData>& getMeshDataOnPlanes();
+
+  /*
+   * Function to return mesh dimension.
+   */ 
+    int getMeshDim(); 
   private:
     MeshMetaData meshMetaData;  // an object of class MeshMetaData
     int modelDim = 2;
