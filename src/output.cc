@@ -177,7 +177,7 @@ void writeGmshFromOmegah(const std::vector <Omega_h::Mesh>& omegahMeshPlanes)
   // 3D Mesh
   if (omegahMeshPlanes.size() == 1 && omegahMeshPlanes[0].dim() == 3)
   {
-    std::string meshName = "mesh_3d.gmsh";
+    std::string meshName = "mesh_3d.msh";
     Omega_h::Mesh m = omegahMeshPlanes[0];
     Omega_h::gmsh::write(meshName, &m);
   }
@@ -188,7 +188,7 @@ void writeGmshFromOmegah(const std::vector <Omega_h::Mesh>& omegahMeshPlanes)
     for (int i = 0; i < omegahMeshPlanes.size(); i++)
     {
       Omega_h::Mesh m = omegahMeshPlanes[i];
-      std::string meshName = "meshPlane_" + std::to_string(i) + ".gmsh";
+      std::string meshName = "meshPlane_" + std::to_string(i) + ".msh";
       Omega_h::gmsh::write(meshName, &m);
     }
   }
