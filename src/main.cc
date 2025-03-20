@@ -10,6 +10,8 @@
 
 int main(int argc, char* argv[])
 {
+  MPI_Init(&argc, &argv);
+  
   // Step 1: Read the input file (mesh_input) for the input parameters
   args a(argc, argv);
 
@@ -41,6 +43,7 @@ int main(int argc, char* argv[])
   // Step 8: Write output files from STOMMS mesh.
   StommsOutput stommsOutput(stommsMesh);
   
+  MPI_Finalize();
   return 0;
 }
 

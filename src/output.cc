@@ -26,7 +26,7 @@ StommsOutput::StommsOutput(const StommsMesh& m):mesh(m)
  
   if (outputGmsh)
     writeGmshFromOmegah(omegahMeshes);    
-
+  
   // Step 6: Write data into adios2 file.
   writeAdiosFile();
 }
@@ -35,7 +35,6 @@ StommsOutput::StommsOutput(const StommsMesh& m):mesh(m)
 // for each individual plane. And store them in container (omegahMeshes).
 void StommsOutput::writeOmegahMeshes()
 {
-  std::cout << "Mesh Dimension = " << meshDim << "\n";
   if (meshDim == 2)
   {
     for (int i = 0; i < planes.size(); i++)
@@ -82,7 +81,7 @@ Omega_h::Mesh StommsOutput::simMesh2Omegah2D(const PlaneMeshData& plane)
   // Step 2: Make sure vertex indices are consistent and starts from 0 on each plane
   setMeshIndices(meshV);
 
-  // Step 3: Create an object of Omegah mesh.  
+  // Step 3: Create an object of Omegah mesh. 
   auto lib = Omega_h::Library(NULL, NULL);
   auto comm = lib.world();
 
@@ -127,7 +126,16 @@ Omega_h::Mesh StommsOutput::simMesh2Omegah3D()
 
 void StommsOutput::writeAdiosFile()
 {
-  // Pracitce code block for adios2.
+  Omega_h::filesystem::path outpath = "stommsMesh.bp";
+  for (int i = 0; i < omegahMeshes.size(); i++)
+  {
+    //std::map<Omega_h::Mesh*, std::string> mmap;
+    //mmap[&omegahMeshes[i]] = "m";
+    std::string meshName = "meshPlane_" + std::to_string(i);
+    Omega_h::adios::write(outpath, &omegahMeshes[i],meshName);
+    
+  } 
+  // Practice code block for adios2.
   adios2::ADIOS adiosTestObject;
   const std::string versionNumber = "=== STOMMS version 1.0 ===";
   adios2::IO io = adiosTestObject.DeclareIO("STOMMS Mesh Writer");

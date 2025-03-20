@@ -390,6 +390,7 @@ std::vector <pFace> getMeshFacesOnModelFace(pMesh m, pGFace gf)
 // the number of mesh entities.
 void printMeshData(const pMesh& mesh)
 {
+  std::cout << "================ Mesh Stats ================\n";
   std::cout << "Number of Vertices on the Mesh = " << M_numVertices(mesh) << "\n";
   std::cout << "Number of Edges on the Mesh = " << M_numEdges(mesh) << "\n";
   std::cout << "Number of Faces on the Mesh = " << M_numFaces(mesh) << "\n";

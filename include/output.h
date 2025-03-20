@@ -7,6 +7,7 @@
 #include "Omega_h_mesh.hpp"
 #include "Omega_h_meshsim.hpp"
 #include "Omega_h_file.hpp"
+#include "Omega_h_adios2.hpp"
 
 class StommsOutput{
   public:
