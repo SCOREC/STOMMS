@@ -18,8 +18,9 @@ class StommsOutput{
     pGModel simModel;  // Simmetrix model
     std::vector <PlaneMeshData> planes;  // Mesh data set on individual planes
     std::vector <Omega_h::Mesh> omegahMeshes;  // vector of omegah 2D planer meshes
-    
-    int meshDim = 2;
+    int meshDim = 2;  // Default = 2, but read the dimension of mesh in constructor
+
+    Omega_h::filesystem::path adiosOutFileName = "stommsMesh.bp";
 
     // In future, read this from user's input
     int outputVtk = 0;
@@ -55,6 +56,7 @@ class StommsOutput{
      * ************ Under Development *****************
      */ 
     void writeAdiosFile();
+    void readAdiosFile();
 };
 
 // Free functions for writing output files

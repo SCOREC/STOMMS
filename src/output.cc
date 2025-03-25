@@ -29,6 +29,9 @@ StommsOutput::StommsOutput(const StommsMesh& m):mesh(m)
   
   // Step 6: Write data into adios2 file.
   writeAdiosFile();
+
+  // Step 7: Read adios2 file for verification of data
+  readAdiosFile();
 }
 
 // Function to iterate over all the planes and creates omegah meshes
@@ -87,6 +90,7 @@ Omega_h::Mesh StommsOutput::simMesh2Omegah2D(const PlaneMeshData& plane)
 
   auto mesh = Omega_h::Mesh(comm->library());
   mesh.set_comm(comm);
+  mesh.set_parting(OMEGA_H_ELEM_BASED);
 
   // Step 4: Construct SimMesh to use it in Omegah functions.
   Omega_h::meshsim::SimMesh m(meshV, meshE, meshF, meshR);
@@ -126,26 +130,60 @@ Omega_h::Mesh StommsOutput::simMesh2Omegah3D()
 
 void StommsOutput::writeAdiosFile()
 {
-  Omega_h::filesystem::path outpath = "stommsMesh.bp";
+  std::map<Omega_h::Mesh*, std::string> meshMap;
   for (int i = 0; i < omegahMeshes.size(); i++)
   {
-    //std::map<Omega_h::Mesh*, std::string> mmap;
-    //mmap[&omegahMeshes[i]] = "m";
     std::string meshName = "meshPlane_" + std::to_string(i);
-    Omega_h::adios::write(outpath, &omegahMeshes[i],meshName);
-    
-  } 
+    meshMap[&omegahMeshes[i]] = meshName;
+  }
+  Omega_h::adios::write(adiosOutFileName, meshMap);
+
   // Practice code block for adios2.
-  adios2::ADIOS adiosTestObject;
+/*adios2::ADIOS adiosTestObject;
   const std::string versionNumber = "=== STOMMS version 1.0 ===";
   adios2::IO io = adiosTestObject.DeclareIO("STOMMS Mesh Writer");
-  adios2::Engine writer = io.Open("stomms.bp", adios2::Mode::Write);
+  adios2::Engine writer = io.Open("stommsMesh.bp", adios2::Mode::Write);
   adios2::Variable<std::string> versionVariable = io.DefineVariable<std::string>("Version");
   writer.BeginStep();
   writer.Put(versionVariable, versionNumber);
   writer.EndStep();
-  writer.Close();
+  writer.Close();  */
   std::cout << "Adios2 file written\n";
+}
+
+// Need this function for verification of mesh data written to adios2 file.
+void StommsOutput::readAdiosFile()
+{
+  std::string filename = "stommsMesh.bp";
+  adios2::ADIOS adios;
+  adios2::IO io = adios.DeclareIO("reader");
+  adios2::Engine reader = io.Open(filename, adios2::Mode::Read);
+
+  auto available_vars = io.AvailableVariables();
+  std::cout << "========== Reading output file: " << filename << " ==========\n";
+  
+  std::cout << "Number of variables in file = " << available_vars.size() << "\n";
+  for (const auto& var_pair : available_vars) {
+    std::cout << "Variable name: " << var_pair.first << "\n";
+  }
+
+
+  auto lib = Omega_h::Library(NULL, NULL);
+  auto world = lib.world();
+
+  std::vector <Omega_h::Mesh> meshFromAdiosFile;
+  for (int i = 0; i < omegahMeshes.size(); i++)
+  {
+    std::string meshName = "meshPlane_" + std::to_string(i);
+    Omega_h::Mesh meshFromFile = Omega_h::adios::read(adiosOutFileName, &lib, meshName);
+    meshFromAdiosFile.push_back(meshFromFile);
+    std::cout << "========== Reading Mesh: " << meshName << " ========== \n";
+    std::cout << "# of vertices = " << meshFromFile.nverts() << "\n";
+    std::cout << "# of edges = " << meshFromFile.nedges() << "\n";
+    std::cout << "# of elements = " << meshFromFile.nelems() << "\n";
+  }
+
+  reader.Close();
 }
 
 // Free functions to write output files.
