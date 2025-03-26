@@ -54,7 +54,7 @@ class StommsOutput{
     /*
      * Function to write ADIOS2 file from omegah meshes and other input information.
      * ************ Under Development *****************
-     */ 
+     */
     void writeAdiosFile();
     void readAdiosFile();
 };
