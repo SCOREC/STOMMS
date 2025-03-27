@@ -130,15 +130,16 @@ Omega_h::Mesh StommsOutput::simMesh2Omegah3D()
 
 void StommsOutput::writeAdiosFile()
 {
-  Omega_h::Mesh* mesh = &omegahMeshes[0];
   Omega_h::filesystem::create_directory(adiosOutFileName);
-  adios2::ADIOS adios(mesh->comm()->get_impl());
+  adios2::ADIOS adios;
   adios2::IO io = adios.DeclareIO("stommsWriter");
   std::string filename=adiosOutFileName.c_str();
 
   adios2::Engine writer = io.Open(filename, adios2::Mode::Write);
   writer.BeginStep();
 
+  // Replace this with git info.
+  // This block is just for testing
   const std::string versionNumber = "=== STOMMS version 1.0 ===";
   adios2::Variable<std::string> versionVariable = io.DefineVariable<std::string>("Version");
   writer.Put(versionVariable, versionNumber);

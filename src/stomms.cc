@@ -23,4 +23,9 @@ STOMMS::~STOMMS()
   Sim_unregisterAllKeys();
   MS_exit();
   Sim_logOff();
+
+  std::cout <<"\n";
+  std::cout <<"====================================================\n";
+  std::cout << "Successful: End of Mesh Generation & Output Writing\n";
+  std::cout <<"====================================================\n";
 }
