@@ -199,6 +199,7 @@ void StommsMesh::setMeshDataOnPlanes()
     p.setMeshDataOnPlane();
     planesMeshData.push_back(p);    
   }
+  std::cout << "DONE\n";
 }
 
 const std::vector <PlaneMeshData>& StommsMesh::getMeshDataOnPlanes()
@@ -219,7 +220,7 @@ void PlaneMeshData::getMeshInfoOnPlane(const PlaneMeshMetaData& plane, const pMe
   meshMetaDataOnP = plane;
 
   // Get the Simmetrix mesh needed to setup planer mesh data.
-  simMesh = mesh;
+  simMeshGlobal = mesh;
 }
 
 // Function to set mesh data on a plane.
@@ -228,9 +229,43 @@ void PlaneMeshData::setMeshDataOnPlane()
   // Set up mesh entities on a plane.
   setMeshEntitiesOnPlane();
 
-  // Add more mesh data on a plane if needed.
+  // Add model domain for the 2D plane
+  set2DPlanerDomain();  
+
+  // Add planer 2D mesh from the domain
+  set2DPlanerMesh();
 }
 
+void PlaneMeshData::set2DPlanerDomain()
+{
+  pPList gfOnDomain =  PList_new();
+  std::vector<Face> modelFaces = meshMetaDataOnP.getModelFacesOnPlane();
+  for (int i = 0; i < modelFaces.size(); i++)
+  {
+    Face f = modelFaces[i];
+    pGFace gf = f.getSimFace();
+    PList_append(gfOnDomain, gf);
+  } 
+
+  pGDomain planeDomain = GDomain_new();
+  GDomain_addModelEntities(planeDomain, gfOnDomain,1);
+  modelDomain = planeDomain;  // set it in planeMeshData
+
+  PList_delete(gfOnDomain);
+  //GDomain_delete(planeDomain);
+}
+
+void PlaneMeshData::set2DPlanerMesh()
+{
+  pGDomain gd = GDomain_new();
+  gd = modelDomain;
+
+  // Get the simMesh (data member) on plane and 
+  // save it in PlaneMeshData.
+  simMesh =  M_copyDomain(simMeshGlobal, gd);
+ 
+  GDomain_delete(gd);
+}
 
 void PlaneMeshData::setMeshEntitiesOnPlane()
 {
@@ -250,7 +285,7 @@ void PlaneMeshData::setMeshEntitiesOnPlane()
       if (gvDone == 1)
         continue;
       
-      pVertex v = M_classifiedVertex(simMesh, gv);
+      pVertex v = M_classifiedVertex(simMeshGlobal, gv);
       meshVonP.push_back(v);
       GEN_setNativeIntAttribute(gv, 1, "vertexDone");
     }
@@ -268,26 +303,26 @@ void PlaneMeshData::setMeshEntitiesOnPlane()
         continue;
 
       // Get the mesh vertices classified on the model edge
-      std::vector <pVertex> verticesOnEdge = getMeshVerticesOnModelEdge(simMesh, ge);
+      std::vector <pVertex> verticesOnEdge = getMeshVerticesOnModelEdge(simMeshGlobal, ge);
       meshVonP.insert(meshVonP.end(), verticesOnEdge.begin(), verticesOnEdge.end());
 
       // Get the mesh edges classified on the model edge
-      std::vector <pEdge> edgesOnEdge = getMeshEdgesOnModelEdge(simMesh, ge);
+      std::vector <pEdge> edgesOnEdge = getMeshEdgesOnModelEdge(simMeshGlobal, ge);
       meshEonP.insert(meshEonP.end(), edgesOnEdge.begin(), edgesOnEdge.end());
       GEN_setNativeIntAttribute(ge, 1, "edgeDone");
     }
     PList_delete(geOnFace);
 
     // Get the mesh vertices classified on model face
-    std::vector <pVertex> verticesOnFace = getMeshVerticesOnModelFace(simMesh, gf);
+    std::vector <pVertex> verticesOnFace = getMeshVerticesOnModelFace(simMeshGlobal, gf);
     meshVonP.insert(meshVonP.end(), verticesOnFace.begin(), verticesOnFace.end());
 
     // Get the mesh edges classified on model face
-    std::vector <pEdge> edgesOnFace = getMeshEdgesOnModelFace(simMesh, gf);
+    std::vector <pEdge> edgesOnFace = getMeshEdgesOnModelFace(simMeshGlobal, gf);
     meshEonP.insert(meshEonP.end(), edgesOnFace.begin(), edgesOnFace.end());
 
     // Get the mesh faces classified on model face
-    std::vector <pFace> facesOnFace = getMeshFacesOnModelFace(simMesh, gf);
+    std::vector <pFace> facesOnFace = getMeshFacesOnModelFace(simMeshGlobal, gf);
     meshFonP.insert(meshFonP.end(), facesOnFace.begin(), facesOnFace.end());
   }
 }
@@ -314,6 +349,16 @@ const std::vector <pFace>& PlaneMeshData::getMeshFacesOnPlane()
 const std::vector <pRegion>& PlaneMeshData::getMeshRegionsOnPlane()
 {
   return meshRonP;
+}
+
+const pGDomain PlaneMeshData::getDomain()
+{
+  return modelDomain;
+}
+
+const pMesh PlaneMeshData::getMesh()
+{
+  return simMesh;
 }
 
 // Function to return a vector of mesh vertices classified on geometric edge (ge).

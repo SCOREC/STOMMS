@@ -57,13 +57,19 @@ class PlaneMeshData{
     std::vector <pFace> meshFonP;  // a vector to hold mesh faces on a plane
     std::vector <pRegion> meshRonP = {};  // a vector to hold mesh regions on a plane (no regions on a plane)
 
-    pMesh simMesh;  // Simmetrix mesh
+    pMesh simMeshGlobal;  // Simmetrix full domain mesh
     PlaneMeshMetaData meshMetaDataOnP;  // Mesh meta data on a plane. Needed to extract mesh data on planes.
+    pGDomain modelDomain;
+    pMesh simMesh;
 
     /*
      * Function to set mesh entities on a plane.
      */ 
     void setMeshEntitiesOnPlane();
+    void set2DPlanerDomain();
+    const pGDomain getDomain();
+    void set2DPlanerMesh();
+    const pMesh getMesh(); 
 };
 
 // class StommsMesh handles the meshing.
