@@ -20,6 +20,7 @@ class StommsOutput{
     std::vector <Omega_h::Mesh> omegahMeshes;  // vector of omegah 2D planer meshes
     int meshDim = 2;  // Default = 2, but read the dimension of mesh in constructor
 
+    pMeshDataId transformCoordinates = MD_newMeshDataId("tCoord");  // data attach on mesh vertices for coordinate transformation.
     Omega_h::filesystem::path adiosOutFileName = "stommsMesh.bp";
 
     // In future, read this from user's input
@@ -32,7 +33,13 @@ class StommsOutput{
      * std::vector <pVertex> v (in): Vector of mesh vertices on the poloidal plane.
      */  
     void setMeshIndices(std::vector <pVertex> v);  
-
+    
+    /*
+     * Function to attach transformation of coordinates data.
+     * Transformation from Cartesian to 2D Cylindrical (R,Z).
+     * std::vector <pVertex> v (in): Vector of mesh vertices on the poloidal plane.
+     */ 
+    void attachCoordinateTransformationData(std::vector <pVertex> v);
     /*
      * Function to write Omegah planer meshes from Simmetrix mesh.
      */ 

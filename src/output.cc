@@ -62,12 +62,27 @@ void StommsOutput::writeOmegahMeshes()
 // To make sure, vertex indices start from 0 to nVertices-1. 
 void StommsOutput::setMeshIndices(std::vector <pVertex> v)
 {
+  for (int i = 0; i < v.size(); i++)
+    EN_setID(v[i],i);
+}
+
+
+// Transformation of 3D Cartesian (XYZ) to 2D Cylindrical (RZ) for planer meshes.
+void StommsOutput::attachCoordinateTransformationData(std::vector <pVertex> v)
+{
   double xyz[3];
   for (int i = 0; i < v.size(); i++)
   {
     V_coord(v[i], xyz);
-    EN_setID(v[i],i);
-  }
+
+    // Convert 3D cartesian to 2D Planer (R_Z) cylindrical
+    double r = sqrt(xyz[0]*xyz[0] + xyz[1]*xyz[1]);
+    double *vData = new double[3];
+    vData[0] = r;
+    vData[1] = xyz[2];
+    vData[2] = 0.0;
+    EN_attachDataPtr((pEntity)v[i], transformCoordinates, (void*)vData);
+  }  
 }
 
 // Give Plane as input to this fucntion
@@ -83,6 +98,7 @@ Omega_h::Mesh StommsOutput::simMesh2Omegah2D(const PlaneMeshData& plane)
 
   // Step 2: Make sure vertex indices are consistent and starts from 0 on each plane
   setMeshIndices(meshV);
+  attachCoordinateTransformationData(meshV);
 
   // Step 3: Create an object of Omegah mesh. 
   auto lib = Omega_h::Library(NULL, NULL);
