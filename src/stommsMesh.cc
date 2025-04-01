@@ -199,7 +199,6 @@ void StommsMesh::setMeshDataOnPlanes()
     p.setMeshDataOnPlane();
     planesMeshData.push_back(p);    
   }
-  std::cout << "DONE\n";
 }
 
 const std::vector <PlaneMeshData>& StommsMesh::getMeshDataOnPlanes()
@@ -226,9 +225,6 @@ void PlaneMeshData::getMeshInfoOnPlane(const PlaneMeshMetaData& plane, const pMe
 // Function to set mesh data on a plane.
 void PlaneMeshData::setMeshDataOnPlane()
 {
-  // Set up mesh entities on a plane.
-  setMeshEntitiesOnPlane();
-
   // Add model domain for the 2D plane
   set2DPlanerDomain();  
 
@@ -267,89 +263,6 @@ void PlaneMeshData::set2DPlanerMesh()
   GDomain_delete(gd);
 }
 
-void PlaneMeshData::setMeshEntitiesOnPlane()
-{
-  std::vector<Face> modelFaces = meshMetaDataOnP.getModelFacesOnPlane();
-  for (int i = 0; i < modelFaces.size(); i++)
-  {
-    Face f = modelFaces[i];
-    pGFace gf = f.getSimFace();
-    
-    // Find vertices on model vertices:
-    pPList gvOnFace = GF_vertices(gf);
-    for (int j = 0; j < PList_size(gvOnFace); j++)
-    {
-      pGVertex gv = static_cast<pGVertex>(PList_item(gvOnFace,j));
-      int gvDone = -1;
-      GEN_nativeIntAttribute(gv, "vertexDone", &gvDone);
-      if (gvDone == 1)
-        continue;
-      
-      pVertex v = M_classifiedVertex(simMeshGlobal, gv);
-      meshVonP.push_back(v);
-      GEN_setNativeIntAttribute(gv, 1, "vertexDone");
-    }
-    PList_delete(gvOnFace);
-   
-
-    // Find mesh vertices and mesh edges classified on model edges
-    pPList geOnFace = GF_edges(gf);
-    for (int j = 0; j < PList_size(geOnFace); j++)
-    {
-      pGEdge ge = static_cast<pGEdge>(PList_item(geOnFace,j));
-      int geDone = -1;
-      GEN_nativeIntAttribute(ge, "edgeDone", &geDone);
-      if (geDone == 1)
-        continue;
-
-      // Get the mesh vertices classified on the model edge
-      std::vector <pVertex> verticesOnEdge = getMeshVerticesOnModelEdge(simMeshGlobal, ge);
-      meshVonP.insert(meshVonP.end(), verticesOnEdge.begin(), verticesOnEdge.end());
-
-      // Get the mesh edges classified on the model edge
-      std::vector <pEdge> edgesOnEdge = getMeshEdgesOnModelEdge(simMeshGlobal, ge);
-      meshEonP.insert(meshEonP.end(), edgesOnEdge.begin(), edgesOnEdge.end());
-      GEN_setNativeIntAttribute(ge, 1, "edgeDone");
-    }
-    PList_delete(geOnFace);
-
-    // Get the mesh vertices classified on model face
-    std::vector <pVertex> verticesOnFace = getMeshVerticesOnModelFace(simMeshGlobal, gf);
-    meshVonP.insert(meshVonP.end(), verticesOnFace.begin(), verticesOnFace.end());
-
-    // Get the mesh edges classified on model face
-    std::vector <pEdge> edgesOnFace = getMeshEdgesOnModelFace(simMeshGlobal, gf);
-    meshEonP.insert(meshEonP.end(), edgesOnFace.begin(), edgesOnFace.end());
-
-    // Get the mesh faces classified on model face
-    std::vector <pFace> facesOnFace = getMeshFacesOnModelFace(simMeshGlobal, gf);
-    meshFonP.insert(meshFonP.end(), facesOnFace.begin(), facesOnFace.end());
-  }
-}
-
-// Return mesh vertices on a poloidal plane.
-const std::vector <pVertex>& PlaneMeshData::getMeshVerticesOnPlane()
-{
-  return meshVonP;
-}
-
-// Return mesh edges on a poloidal plane.
-const std::vector <pEdge>& PlaneMeshData::getMeshEdgesOnPlane()
-{
-  return meshEonP;
-}
-
-// Return mesh faces on a poloidal plane.
-const std::vector <pFace>& PlaneMeshData::getMeshFacesOnPlane()
-{
-  return meshFonP;
-}
-
-// Return mesh regions on a poloidal plane.
-const std::vector <pRegion>& PlaneMeshData::getMeshRegionsOnPlane()
-{
-  return meshRonP;
-}
 
 const pGDomain PlaneMeshData::getDomain()
 {

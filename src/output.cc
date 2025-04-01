@@ -60,20 +60,26 @@ void StommsOutput::writeOmegahMeshes()
 }
 
 // To make sure, vertex indices start from 0 to nVertices-1. 
-void StommsOutput::setMeshIndices(std::vector <pVertex> v)
+void StommsOutput::setMeshIndices(pMesh& m)
 {
-  for (int i = 0; i < v.size(); i++)
-    EN_setID(v[i],i);
+  VIter vIter = M_vertexIter(m);
+  int vNum = 0;
+  while (pVertex v =  VIter_next(vIter))
+  {
+    EN_setID(v,vNum);
+    vNum++;
+  }
+  VIter_delete(vIter);
 }
 
-
 // Transformation of 3D Cartesian (XYZ) to 2D Cylindrical (RZ) for planer meshes.
-void StommsOutput::attachCoordinateTransformationData(std::vector <pVertex> v)
+void StommsOutput::attachCoordinateTransformationData(pMesh& m)
 {
   double xyz[3];
-  for (int i = 0; i < v.size(); i++)
+  VIter vIter = M_vertexIter(m);
+  while (pVertex v =  VIter_next(vIter))
   {
-    V_coord(v[i], xyz);
+    V_coord(v, xyz);
 
     // Convert 3D cartesian to 2D Planer (R_Z) cylindrical
     double r = sqrt(xyz[0]*xyz[0] + xyz[1]*xyz[1]);
@@ -81,8 +87,9 @@ void StommsOutput::attachCoordinateTransformationData(std::vector <pVertex> v)
     vData[0] = r;
     vData[1] = xyz[2];
     vData[2] = 0.0;
-    EN_attachDataPtr((pEntity)v[i], transformCoordinates, (void*)vData);
+    EN_attachDataPtr((pEntity)v, transformCoordinates, (void*)vData);
   }  
+  VIter_delete(vIter);
 }
 
 // Give Plane as input to this fucntion
@@ -91,33 +98,17 @@ Omega_h::Mesh StommsOutput::simMesh2Omegah2D(const PlaneMeshData& plane)
   // Step 1: Get the Simmetrix mesh enteties on each plane and construct SimMesh m
   // to feed into Omegah APIs.
   PlaneMeshData p = plane;
-  std::vector <pVertex> meshV = p.getMeshVerticesOnPlane();
-  std::vector <pEdge> meshE = p.getMeshEdgesOnPlane();
-  std::vector <pFace> meshF = p.getMeshFacesOnPlane();
-  std::vector <pRegion> meshR = p.getMeshRegionsOnPlane();
+  pMesh m = p.getMesh();
 
   // Step 2: Make sure vertex indices are consistent and starts from 0 on each plane
-  setMeshIndices(meshV);
-  attachCoordinateTransformationData(meshV);
+  setMeshIndices(m);
+  attachCoordinateTransformationData(m);
 
   // Step 3: Create an object of Omegah mesh. 
   auto lib = Omega_h::Library(NULL, NULL);
   auto comm = lib.world();
 
-  auto mesh = Omega_h::Mesh(comm->library());
-  mesh.set_comm(comm);
-  mesh.set_parting(OMEGA_H_ELEM_BASED);
-
-  // Step 4: Construct SimMesh to use it in Omegah functions.
-  Omega_h::meshsim::SimMesh m(meshV, meshE, meshF, meshR);
-
-  // Step 5: Get entity info from gives mesh data and convert it to omegah mesh.
-  auto info = Omega_h::meshsim::getSimMeshInfo(m);
-  const bool hasNumbering = false;
-  pMeshNex numbering = {};  
-
-  Omega_h::meshsim::SimMeshEntInfo simEnts(m, hasNumbering);
-  Omega_h::meshsim::setEntToMesh(&mesh, simEnts, numbering, info);
+  auto mesh = Omega_h::meshsim::readImpl(m, std::string(""), comm);
 
   return mesh; 
 }
@@ -129,18 +120,8 @@ Omega_h::Mesh StommsOutput::simMesh2Omegah3D()
   auto lib = Omega_h::Library(NULL, NULL);
   auto comm = lib.world();
 
-  auto mesh = Omega_h::Mesh(comm->library());
-  mesh.set_comm(comm);
+  auto mesh = Omega_h::meshsim::readImpl(simMesh, std::string(""), comm);
 
-  // Step 2: Construct SimMesh to use it in Omegah functions.
-  Omega_h::meshsim::SimMesh m(simMesh);
-  
-  // Step 3: Get entity info from gives mesh data and convert it to omegah mesh.
-  auto info = Omega_h::meshsim::getSimMeshInfo(m);
-  const bool hasNumbering = false;
-  pMeshNex numbering = {};  
-
-  Omega_h::meshsim::read_internal(simMesh, &mesh, numbering, info);
   return mesh;
 }
 

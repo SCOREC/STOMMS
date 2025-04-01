@@ -31,32 +31,9 @@ class PlaneMeshData{
      */ 
     void setMeshDataOnPlane();
 
-    /*
-     * Function to return mesh vertices on a poloidal plane.
-     */ 
-    const std::vector <pVertex>& getMeshVerticesOnPlane();
-
-    /*
-     * Function to return mesh edges on a poloidal plane. 
-     */ 
-    const std::vector <pEdge>& getMeshEdgesOnPlane();
-
-    /*
-     * Function to return mesh faces on a poloidal plane.
-     */ 
-    const std::vector <pFace>& getMeshFacesOnPlane();
-
-    /*
-     * Function to return mesh regions on a poloidal plane.
-     * The vector size of returned vector should be zero.
-     */ 
-    const std::vector <pRegion>& getMeshRegionsOnPlane();
+    const pMesh getMesh();
+    const pGDomain getDomain();
   private:
-    std::vector <pVertex> meshVonP;  // a vector to hold mesh vertices on a plane
-    std::vector <pEdge> meshEonP;  // a vector to hold mesh edges on a plane
-    std::vector <pFace> meshFonP;  // a vector to hold mesh faces on a plane
-    std::vector <pRegion> meshRonP = {};  // a vector to hold mesh regions on a plane (no regions on a plane)
-
     pMesh simMeshGlobal;  // Simmetrix full domain mesh
     PlaneMeshMetaData meshMetaDataOnP;  // Mesh meta data on a plane. Needed to extract mesh data on planes.
     pGDomain modelDomain;
@@ -65,11 +42,8 @@ class PlaneMeshData{
     /*
      * Function to set mesh entities on a plane.
      */ 
-    void setMeshEntitiesOnPlane();
     void set2DPlanerDomain();
-    const pGDomain getDomain();
     void set2DPlanerMesh();
-    const pMesh getMesh(); 
 };
 
 // class StommsMesh handles the meshing.

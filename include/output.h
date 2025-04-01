@@ -5,7 +5,6 @@
 #include <adios2.h>
 #include "Omega_h_build.hpp"
 #include "Omega_h_mesh.hpp"
-#include "Omega_h_meshsim.hpp"
 #include "Omega_h_file.hpp"
 #include "Omega_h_adios2.hpp"
 
@@ -32,14 +31,14 @@ class StommsOutput{
      * start from 0 to nVertices-1.
      * std::vector <pVertex> v (in): Vector of mesh vertices on the poloidal plane.
      */  
-    void setMeshIndices(std::vector <pVertex> v);  
+    void setMeshIndices(pMesh& m);  
     
     /*
      * Function to attach transformation of coordinates data.
      * Transformation from Cartesian to 2D Cylindrical (R,Z).
      * std::vector <pVertex> v (in): Vector of mesh vertices on the poloidal plane.
      */ 
-    void attachCoordinateTransformationData(std::vector <pVertex> v);
+    void attachCoordinateTransformationData(pMesh& m);
     /*
      * Function to write Omegah planer meshes from Simmetrix mesh.
      */ 
