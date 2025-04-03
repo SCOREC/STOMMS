@@ -108,7 +108,7 @@ Omega_h::Mesh StommsOutput::simMesh2Omegah2D(const PlaneMeshData& plane)
   auto lib = Omega_h::Library(NULL, NULL);
   auto comm = lib.world();
 
-  auto mesh = Omega_h::meshsim::readImpl(m, std::string(""), comm);
+  auto mesh = Omega_h::meshsim::read(&m, std::string(""), comm);
 
   return mesh; 
 }
@@ -120,7 +120,7 @@ Omega_h::Mesh StommsOutput::simMesh2Omegah3D()
   auto lib = Omega_h::Library(NULL, NULL);
   auto comm = lib.world();
 
-  auto mesh = Omega_h::meshsim::readImpl(simMesh, std::string(""), comm);
+  auto mesh = Omega_h::meshsim::read(&simMesh, std::string(""), comm);
 
   return mesh;
 }
@@ -135,9 +135,8 @@ void StommsOutput::writeAdiosFile()
   adios2::Engine writer = io.Open(filename, adios2::Mode::Write);
   writer.BeginStep();
 
-  // Replace this with git info.
-  // This block is just for testing
-  const std::string versionNumber = "=== STOMMS version 1.0 ===";
+  // Write git hash to the adios2 file
+  const std::string versionNumber = GIT_HASH;
   adios2::Variable<std::string> versionVariable = io.DefineVariable<std::string>("Version");
   writer.Put(versionVariable, versionNumber);
 
