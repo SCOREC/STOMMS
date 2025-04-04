@@ -31,18 +31,36 @@ class PlaneMeshData{
      */ 
     void setMeshDataOnPlane();
 
+    /*
+     *  Function to get global mesh back (contains all the poloidal planes).
+     */ 
+    const pMesh getGlobalMesh();
+
+    /*
+     * Function to return mesh defined on a plane.
+     */ 
     const pMesh getMesh();
+
+    /*
+     * Function to return domain that defines a poloidal plane.
+     */ 
     const pGDomain getDomain();
   private:
     pMesh simMeshGlobal;  // Simmetrix full domain mesh
     PlaneMeshMetaData meshMetaDataOnP;  // Mesh meta data on a plane. Needed to extract mesh data on planes.
-    pGDomain modelDomain;
-    pMesh simMesh;
+    pGDomain modelDomain;  //Domain defined by the model faces, edges, vertices on a single plane
+    pMesh simMesh;  // planer mesh defined on the domain
 
     /*
-     * Function to set mesh entities on a plane.
+     * Function to define a pGDomain for a plane. This function sets the model faces on a plane
+     * including closure (edge, and vertices) to the domain.
+     *
      */ 
     void set2DPlanerDomain();
+
+    /*
+     * Function to set pMesh on a plane defined by the pGDomain.
+     */ 
     void set2DPlanerMesh();
 };
 

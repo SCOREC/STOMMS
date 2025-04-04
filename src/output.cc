@@ -38,6 +38,8 @@ StommsOutput::StommsOutput(const StommsMesh& m):mesh(m)
 // for each individual plane. And store them in container (omegahMeshes).
 void StommsOutput::writeOmegahMeshes()
 {
+  // If its 2D mesh, go over each plane one by one and write omegah mesh 
+  // for each plane. 
   if (meshDim == 2)
   {
     for (int i = 0; i < planes.size(); i++)
@@ -50,7 +52,7 @@ void StommsOutput::writeOmegahMeshes()
       std::cout << "===============================================\n";
     }
   }
-  else if (meshDim == 3)
+  else if (meshDim == 3) // For 3D mesh, will have a single omegah mesh.
   {
     auto mesh = simMesh2Omegah3D();
     omegahMeshes.push_back(mesh);
@@ -87,6 +89,8 @@ void StommsOutput::attachCoordinateTransformationData(pMesh& m)
     vData[0] = r;
     vData[1] = xyz[2];
     vData[2] = 0.0;
+
+    // Attach the data to the mesh vertices.
     EN_attachDataPtr((pEntity)v, transformCoordinates, (void*)vData);
   }  
   VIter_delete(vIter);
@@ -127,25 +131,33 @@ Omega_h::Mesh StommsOutput::simMesh2Omegah3D()
 
 void StommsOutput::writeAdiosFile()
 {
+  // Step 1: Create a file for adios2 output.
   Omega_h::filesystem::create_directory(adiosOutFileName);
+
+  // Step 2: Create adios2 object and io. And set the filename.
   adios2::ADIOS adios;
   adios2::IO io = adios.DeclareIO("stommsWriter");
   std::string filename=adiosOutFileName.c_str();
 
+  // Step 3: Start the writer engine
   adios2::Engine writer = io.Open(filename, adios2::Mode::Write);
   writer.BeginStep();
 
-  // Write git hash to the adios2 file
+  // Step 4: Write git hash to the adios2 file. GIT_HASH variable coming from Cmake. 
   const std::string versionNumber = GIT_HASH;
   adios2::Variable<std::string> versionVariable = io.DefineVariable<std::string>("Version");
   writer.Put(versionVariable, versionNumber);
 
+  // Step 5: Iterate over omegah meshes for planes and write them to adios2.
+  // See namespace adios in omegah for more details.
   for (int i = 0; i < omegahMeshes.size(); i++)
   {
     std::string meshName = "meshPlane_" + std::to_string(i);
     Omega_h::Mesh* meshPlane = &omegahMeshes[i];
     Omega_h::adios::write_mesh(io, writer, meshPlane, meshName);
   }
+
+  // Step 6: End the writer engine.
   writer.EndStep();
   writer.Close();
 
@@ -155,12 +167,17 @@ void StommsOutput::writeAdiosFile()
 // Need this function for verification of mesh data written to adios2 file.
 void StommsOutput::readAdiosFile()
 {
-  std::string filename = "stommsMesh.bp";
+  std::string filename = "stommsMesh.bp";  // adios2 file to read
+
+  // Step 1: Create adios2 object and io.
   adios2::ADIOS adios;
   adios2::IO io = adios.DeclareIO("stommsReader");
-  adios2::Engine reader = io.Open(filename, adios2::Mode::Read);
 
+  // Step 2: Start the reader engine
+  adios2::Engine reader = io.Open(filename, adios2::Mode::Read);
   reader.BeginStep();
+
+  // Step 3: Read and print all the variables from adios2 file
   auto available_vars = io.AvailableVariables();
   std::cout << "========== Reading output file: " << filename << " ==========\n";
   
@@ -170,7 +187,8 @@ void StommsOutput::readAdiosFile()
   } 
   reader.EndStep();
 
-  // Read Omega_h meshes in adios2 file
+  // Step 4: Read Omega_h meshes from adios2 file. 
+  // The data printing out from the loop is just for verification.
   auto lib = Omega_h::Library(NULL, NULL);
   auto world = lib.world();
   std::vector <Omega_h::Mesh> meshFromAdiosFile;
@@ -187,6 +205,7 @@ void StommsOutput::readAdiosFile()
     std::cout << "# of elements = " << meshFromFile.nelems() << "\n";
   }
 
+  // Step 5: Close the reder engine.
   reader.Close();
 }
 

@@ -232,8 +232,10 @@ void PlaneMeshData::setMeshDataOnPlane()
   set2DPlanerMesh();
 }
 
+// Function to define a pGDomain for a plane.
 void PlaneMeshData::set2DPlanerDomain()
 {
+  // Step 1: Set the model faces on a plane to a pPList.
   pPList gfOnDomain =  PList_new();
   std::vector<Face> modelFaces = meshMetaDataOnP.getModelFacesOnPlane();
   for (int i = 0; i < modelFaces.size(); i++)
@@ -243,37 +245,42 @@ void PlaneMeshData::set2DPlanerDomain()
     PList_append(gfOnDomain, gf);
   } 
 
-  pGDomain planeDomain = GDomain_new();
-  GDomain_addModelEntities(planeDomain, gfOnDomain,1);
-  modelDomain = planeDomain;  // set it in planeMeshData
+  // Step 2: Define a model domain using the model faces in the pPList.
+  // Set closure = 1 (3rd argument) to make sure domain contains the 
+  // model edges and vertices on the poloidal plane.
+  modelDomain = GDomain_new();
+  GDomain_addModelEntities(modelDomain, gfOnDomain,1);
 
   PList_delete(gfOnDomain);
-  //GDomain_delete(planeDomain);
 }
 
+// Function to set pMesh on a plane defined by the pGDomain.
 void PlaneMeshData::set2DPlanerMesh()
 {
-  pGDomain gd = GDomain_new();
-  gd = modelDomain;
-
   // Get the simMesh (data member) on plane and 
   // save it in PlaneMeshData.
-  simMesh =  M_copyDomain(simMeshGlobal, gd);
+  simMesh =  M_copyDomain(simMeshGlobal, modelDomain);
  
-  GDomain_delete(gd);
+  GDomain_delete(modelDomain);
 }
 
-
+// Function to return domain that defines a poloidal plane.
 const pGDomain PlaneMeshData::getDomain()
 {
   return modelDomain;
 }
 
+// Function to return Simmetrix mesh defined on a plane.
 const pMesh PlaneMeshData::getMesh()
 {
   return simMesh;
 }
 
+// Function to get global mesh back (contains all the poloidal planes).
+const pMesh PlaneMeshData::getGlobalMesh()
+{
+  return simMeshGlobal;
+}
 // Function to return a vector of mesh vertices classified on geometric edge (ge).
 std::vector <pVertex> getMeshVerticesOnModelEdge(pMesh m, pGEdge ge)
 {
