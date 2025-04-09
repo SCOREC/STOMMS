@@ -23,16 +23,16 @@ pkg_check_modules(netcdf-cxx4 REQUIRED IMPORTED_TARGET netcdf-cxx4)
 execute_process(
   COMMAND git rev-parse HEAD
   RESULT_VARIABLE gitHashFound  # returns 0 for success, non-zero for an error
-  OUTPUT_VARIABLE GIT_HASH
+  OUTPUT_VARIABLE STOMMS_GIT_HASH
   OUTPUT_STRIP_TRAILING_WHITESPACE  # Flag to remove trailing white spaces from the output
 )
 
 if (gitHashFound EQUAL 0)
-  message("-- Git Version: ${GIT_HASH}")
+  message("-- Git Version: ${STOMMS_GIT_HASH}")
 else()
   message("-- Warning: GIT_HASH not found")
 endif()
-add_definitions(-DGIT_HASH="${GIT_HASH}")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/include/stommsVersion.h.in" "${CMAKE_INSTALL_INCLUDEDIR}/stommsVersion.h" @ONLY)
 
 # set sources files in STELLMESH_SRCS
 set(STELLMESH_SRCS
@@ -54,6 +54,7 @@ set(STELLMESH_SRCS
 # Add executables and include the directory containing header files
 add_executable(stell_meshgen ${STELLMESH_SRCS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)        # Header files for the code
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR})  # for stommsVersion.h header file.
 
 # Link dependent libraries and header files
 target_link_libraries(stell_meshgen PRIVATE MPI::MPI_CXX OpenMP::OpenMP_CXX)

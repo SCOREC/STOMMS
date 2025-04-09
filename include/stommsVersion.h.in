@@ -1,0 +1,6 @@
+#ifndef STOMMS_VERSION_H
+#define STOMMS_VERSION_H
+
+#define STOMMS_GIT_HASH "@STOMMS_GIT_HASH@"
+
+#endif

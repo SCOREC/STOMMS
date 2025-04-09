@@ -157,7 +157,7 @@ void StommsOutput::writeAdiosFile()
   writer.BeginStep();
 
   // Step 4: Write git hash to the adios2 file. GIT_HASH variable coming from Cmake. 
-  const std::string versionNumber = GIT_HASH;
+  const std::string versionNumber = STOMMS_GIT_HASH;
   adios2::Variable<std::string> versionVariable = io.DefineVariable<std::string>("Version");
   writer.Put(versionVariable, versionNumber);
 
