@@ -11,6 +11,7 @@
 class StommsOutput{
   public:
     StommsOutput(const StommsMesh& m);
+    ~StommsOutput();
   private:
     StommsMesh mesh;  // StommsMesh with underlying Simmetrix mesh and other meta data.
     pMesh simMesh;  // Simmetrix mesh
@@ -18,7 +19,7 @@ class StommsOutput{
     std::vector <PlaneMeshData> planes;  // Mesh data set on individual planes
     std::vector <Omega_h::Mesh> omegahMeshes;  // vector of omegah 2D planer meshes
     int meshDim = 2;  // Default = 2, but read the dimension of mesh in constructor
-
+ 
     pMeshDataId transformCoordinates = MD_newMeshDataId("tCoord");  // data attach on mesh vertices for coordinate transformation.
     Omega_h::filesystem::path adiosOutFileName = "stommsMesh.bp";  // adios2 file for outputs
 

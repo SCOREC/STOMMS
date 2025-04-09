@@ -34,6 +34,18 @@ StommsOutput::StommsOutput(const StommsMesh& m):mesh(m)
   readAdiosFile();
 }
 
+StommsOutput::~StommsOutput()
+{
+  M_release(simMesh);
+  for (int i = 0; i < planes.size(); i++)
+  {
+    PlaneMeshData p = planes[i];
+    M_release(p.getMesh());
+  }
+  MD_deleteMeshDataId(transformCoordinates);
+  GM_release(simModel);
+}
+
 // Function to iterate over all the planes and creates omegah meshes
 // for each individual plane. And store them in container (omegahMeshes).
 void StommsOutput::writeOmegahMeshes()
@@ -92,6 +104,7 @@ void StommsOutput::attachCoordinateTransformationData(pMesh& m)
 
     // Attach the data to the mesh vertices.
     EN_attachDataPtr((pEntity)v, transformCoordinates, (void*)vData);
+    //delete[] vData;
   }  
   VIter_delete(vIter);
 }

@@ -35,6 +35,7 @@ class StommsModel{
      * const ModelMetaData& md (in): Takes the object of class ModelMetaData as input.
      */   
     StommsModel(const ModelMetaData& md);
+
     /*
      * Function to return the vector containing all the planes with their geometric data.
      */ 
