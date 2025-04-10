@@ -165,7 +165,7 @@ void StommsOutput::writeAdiosFile()
   // See namespace adios in omegah for more details.
   for (int i = 0; i < omegahMeshes.size(); i++)
   {
-    std::string meshName = "meshPlane_" + std::to_string(i);
+    std::string meshName = "mesh/plane" + std::to_string(i)+"/";
     Omega_h::Mesh* meshPlane = &omegahMeshes[i];
     Omega_h::adios::write_mesh(io, writer, meshPlane, meshName);
   }
@@ -207,7 +207,7 @@ void StommsOutput::readAdiosFile()
   std::vector <Omega_h::Mesh> meshFromAdiosFile;
   for (int i = 0; i < omegahMeshes.size(); i++)
   {
-    std::string meshName = "meshPlane_" + std::to_string(i);
+    std::string meshName = "mesh/plane" + std::to_string(i)+"/";
     Omega_h::Mesh meshFromFile = Omega_h::adios::read(adiosOutFileName, &lib, meshName);
     meshFromAdiosFile.push_back(meshFromFile);
     std::cout << "========== Reading Mesh: " << meshName << " ========== \n";
