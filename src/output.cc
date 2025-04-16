@@ -107,6 +107,7 @@ void StommsOutput::attachCoordinateTransformationData(pMesh& m)
     //delete[] vData;
   }  
   VIter_delete(vIter);
+
 }
 
 // Give Plane as input to this fucntion
@@ -165,7 +166,7 @@ void StommsOutput::writeAdiosFile()
   // See namespace adios in omegah for more details.
   for (int i = 0; i < omegahMeshes.size(); i++)
   {
-    std::string meshName = "mesh/plane" + std::to_string(i)+"/";
+    std::string meshName = "mesh/planes/" + std::to_string(i)+"/";
     Omega_h::Mesh* meshPlane = &omegahMeshes[i];
     Omega_h::adios::write_mesh(io, writer, meshPlane, meshName);
   }
@@ -197,7 +198,7 @@ void StommsOutput::readAdiosFile()
   std::cout << "Number of variables in file = " << available_vars.size() << "\n";
   for (const auto& var_pair : available_vars) {
     std::cout << "Variable name: " << var_pair.first << "\n";
-  } 
+  }
   reader.EndStep();
 
   // Step 4: Read Omega_h meshes from adios2 file. 
@@ -207,7 +208,7 @@ void StommsOutput::readAdiosFile()
   std::vector <Omega_h::Mesh> meshFromAdiosFile;
   for (int i = 0; i < omegahMeshes.size(); i++)
   {
-    std::string meshName = "mesh/plane" + std::to_string(i)+"/";
+    std::string meshName = "mesh/planes/" + std::to_string(i)+"/";
     Omega_h::Mesh meshFromFile = Omega_h::adios::read(adiosOutFileName, &lib, meshName);
     meshFromAdiosFile.push_back(meshFromFile);
     std::cout << "========== Reading Mesh: " << meshName << " ========== \n";
@@ -218,7 +219,7 @@ void StommsOutput::readAdiosFile()
     std::cout << "# of elements = " << meshFromFile.nelems() << "\n";
   }
 
-  // Step 5: Close the reder engine.
+  // Step 5: Close the reader engine.
   reader.Close();
 }
 
