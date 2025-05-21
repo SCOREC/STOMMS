@@ -107,7 +107,6 @@ void StommsOutput::attachCoordinateTransformationData(pMesh& m)
     //delete[] vData;
   }  
   VIter_delete(vIter);
-
 }
 
 // Give Plane as input to this fucntion
@@ -126,8 +125,7 @@ Omega_h::Mesh StommsOutput::simMesh2Omegah2D(const PlaneMeshData& plane)
   auto lib = Omega_h::Library(NULL, NULL);
   auto comm = lib.world();
 
-  auto mesh = Omega_h::meshsim::read(&m, std::string(""), comm);
-
+  auto mesh = Omega_h::meshsim::read(&m, std::string(""), comm, &transformCoordinates);
   return mesh; 
 }
 
@@ -159,7 +157,7 @@ void StommsOutput::writeAdiosFile()
 
   // Step 4: Write git hash to the adios2 file. GIT_HASH variable coming from Cmake. 
   const std::string versionNumber = STOMMS_GIT_HASH;
-  adios2::Variable<std::string> versionVariable = io.DefineVariable<std::string>("Version");
+  adios2::Variable<std::string> versionVariable = io.DefineVariable<std::string>("StommsVersion");
   writer.Put(versionVariable, versionNumber);
 
   // Step 5: Iterate over omegah meshes for planes and write them to adios2.
