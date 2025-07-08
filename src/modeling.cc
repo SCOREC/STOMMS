@@ -74,13 +74,22 @@ Model generateCoreSimModel(std::vector <PlaneMetaData> md)
 pGModel simModelFromVmec(pVmecFlux vf, int npsi, int nzeta, const double *psis, const double *zetas)
 {
   std::cout << " ============ Modeling Starts ============\n";
-  // Step 1: Declare and create Model from vf data
+  // Step 1: Create a new Simmetrix model (pGModel)
   pProgress prog = Progress_new();
   Progress_setDefaultCallback(prog);
   pGModel model = GM_new(0);
-  pGIPart gp = GM_createVmecPart(model, vf, 2, prog); 
 
-  // Step 2: Sanity check (Verifying some of the model entities)
+  // Step 2: Set model type (2D or 3D) - Hardcoded for now to test.
+  // Add an input parameter in future for it.
+  int type = 2; // 2D
+  bool model_3d = false;
+  if (model_3d)
+    type = 3; 
+
+  std::cout << "Model Type: " << (type == 2 ? "2D":"3D") << "\n";
+  pGIPart gp = GM_createVmecPart(model, vf, type, prog); 
+
+  // Step 3: Sanity check (Verifying some of the model entities)
   // This check assumes minimum 3 poloidal planes. Only check it
   // if nzeta > 2.
   if (nzeta > 2)

@@ -206,10 +206,10 @@ std::vector<double> args::readPlaneFile()
   for (int i = 0; i < planeAngles.size(); i++)
   {
     double toroidalAngle = planeAngles[i];
-    if (toroidalAngle < 0.0 || toroidalAngle >= 360.0)
+    if (toroidalAngle < 0.0 || toroidalAngle > 360.0)
     {
         planeAngles.erase(planeAngles.begin()+i);
-        std::cout << " The toroidal angles " << toroidalAngle << " is removed since it was either lesser than 0 or greater than or equal to 360\n";
+        std::cout << " The toroidal angle " << toroidalAngle << " is removed since it was either lesser than 0 or greater than 360\n";
         i--;  // Makes sure to iterate over the element next to the deleted element.
     }
     else
