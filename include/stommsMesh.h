@@ -5,13 +5,6 @@
 #include "meshMetaData.h"
 #include <assert.h>
 
-/*
- * Simmetrix function not yet available in any Simmetrix header. (2024-11-01).
- * Once its available, remove it from here.
- * See Simmetrix documentation for the usage of this function.
- */
- void MS_setGEdgesToDisallowAllFaceVertices(pACase cs, pGFace gf, pPList ges);
-
 /* 
  * Once Simmetrix mesh is generated, this class will hold the planer mesh data.
  */

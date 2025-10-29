@@ -56,10 +56,10 @@ StommsMesh::StommsMesh(const MeshMetaData& m):meshMetaData(m)
       pPList edgesOnFace = GF_edges(gf);  // get list of edges on the face.
       for (int k = 0; k < PList_size(edgesOnFace); k++)
       {
-        pPList edgesList = PList_new();  // A list to store edges to pass to function "MS_setGEdgesToDisallowAllFaceVertices"
+        pPList edgesList = PList_new();  // A list to store edges to pass to function "MS_preventAllFaceVerticesOnGEdges"
         pGEdge ge = static_cast<pGEdge>(PList_item(edgesOnFace, k)); 
         PList_append(edgesList, ge);
-        MS_setGEdgesToDisallowAllFaceVertices(meshCase, gf, edgesList);
+        MS_preventAllFaceVerticesOnGEdges(meshCase, gf, edgesList);
 	PList_delete(edgesList);
       }
       PList_delete(edgesOnFace);
