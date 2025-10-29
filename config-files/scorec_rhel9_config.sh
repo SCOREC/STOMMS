@@ -1,9 +1,9 @@
-SIM_VER=simmetrix-simmodsuite-2025.1-250602dev-yv5oiomk2sdcru5cn5vqjxprycytc4ow
-SIM_ARCHOS=x64_rhel9_gcc11
-PSPLINE_DIR=/lore/riazu2/Tools/install/PSPLINE/gcc12.3.0
-OMEGAH_DIR=/lore/riazu2/Tools/install/OmegaH/gcc12.3.0
+SIM_VER=simmetrix-simmodsuite-2025.0-250108dev-llxq6skz2cuht5glyftojzw5tkgodnub
+SIM_ARCHOS=x64_rhel8_gcc83
+PSPLINE_DIR=/users/riazu2/lore.scorec.rpi.edu/Tools/install/PSPLINE/gcc12.3.0
+OMEGAH_DIR=/users/riazu2/lore.scorec.rpi.edu/Tools/install/OmegaH/gcc12.3.0
 ADIOS2_DIR=/opt/scorec/spack/rhel9/v0201_4/install/linux-rhel9-x86_64/gcc-12.3.0/adios2-2.9.0-nztsv7oahftcta2dntesql2wkep6kdfp
-PREFIX=/lore/riazu2/STOMMS_dev/STOMMS/install
+PREFIX=/users/riazu2/lore.scorec.rpi.edu/STOMMS_dev/STOMMS/install
 CMAKETYPE=Debug
 cmake .. \
   -DCMAKE_C_COMPILER=mpicc \

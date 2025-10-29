@@ -4,7 +4,6 @@
 #include "MeshSim.h"
 #include "SimAdvModel.h"
 #include "SimModel.h"
-#include "GeomSimVmec.h"
 #include "SimUtil.h"
 #include <cassert>
 #include <vector>
