@@ -16,12 +16,7 @@ args::args(int argc, char* argv[])
 // This function initializes the input parameters with default values.
 void args::setDefaultValues()
 {
-  // Values to read from users.
   // Nothing here yet.
-  
-  // Variables for internal use.
-  tokamak = false;
-  stellarator = false;
 }
 
 // This function reads the input parameter from the mesh input file.
@@ -41,12 +36,12 @@ void args::setValuesFromInputFile()
     if (token == "vmecFile")
     {
       input >> vmecFile;
-      stellarator = true;
+      reactorType = ReactorType::Stellarator;
     }
     else if (token == "eqdskFile")
     {
       input >> eqdskFile;
-      tokamak = true;
+      reactorType = ReactorType::Tokamak;
     }
     else if (token == "fluxFile")
       input >> fluxFile;
@@ -63,23 +58,18 @@ void args::setValuesFromInputFile()
 // A function to set values to local variables and containers for internal code use.
 void args::setValuesForLocalUse()
 {
-  // Step 1: Read magnetic field source. 
-  if (stellarator)
-  	in.vm = readVmecFile();	// Read the vmec file and store data in vmecData vm.
-  if (tokamak)
-	in.eq = readEqdskFile();
+  // Step 1: Initialize magnetic field file sources if needed. 
+  if (reactorType == ReactorType::Tokamak)
+    initializeEqdskFile();
 
   // Step 2: Read files to set resolution.
   in.fd.fluxInput = readFluxFile();  // Read the flux input file.
   in.fd.fluxMeshSize = readMeshSizeOnFlux();  // Read the mesh size input file.
 
-  if (stellarator)
+  if (reactorType == ReactorType::Stellarator)
     in.pd.planeInput = readPlaneFile();  // Read the plane input file.
-  else if (tokamak)
+  else if (reactorType == ReactorType::Tokamak)
     in.pd.planeInput.push_back(0.0); // 
-
-  // Step 3: Set properties (move to MagneticGeometry class)
-  //setPsiBounds();  // Set the psi values of axis and last closed flux curve.
 }
 
 // A function to set mesh sizes on each flux curves for later use (in meshing).
@@ -235,60 +225,11 @@ std::vector<double> args::readPlaneFile()
   return planeAnglesRadian;
 }
 
-// Read input VMEC file and store relevant data in struct vmecData.
-VmecData args::readVmecFile()
+// Read input tokamak equilibrium file (.eqd or geqdsk).
+// Need to initialize it here, so we can use PSPLINE
+// functions in next steps. 
+void args::initializeEqdskFile()
 {
-  VmecData v;  
- 
-  // Step 1: Read all the variables in vmec file
-  NcFile vFile(vmecFile, NcFile::read); 
-
-  // netCDF Variables. First four hold single values and the rest are arrays of data.
-  NcVar vmecMinor, vmecMajor, vmecSurf, vmecMode, vmecR, vmecZ, vmecL, vmecXm, vmecXn, vmecPsi, vmecIota;    
-
-  // Step 2: Read required variables from vmec file
-  vmecMinor = vFile.getVar("Aminor_p");
-  vmecMajor = vFile.getVar("Rmajor_p");
-  vmecSurf = vFile.getVar("ns");
-  vmecMode = vFile.getVar("mnmax");
-  vmecR = vFile.getVar("rmnc");
-  vmecZ = vFile.getVar("zmns");
-  vmecL = vFile.getVar("lmns");
-  vmecXm = vFile.getVar("xm");
-  vmecXn = vFile.getVar("xn");
-  vmecPsi = vFile.getVar("phi");
-  vmecIota = vFile.getVar("iotaf");
-
-  // Step 3: Assign netCDF variables to local variables and arrays
-  vmecMinor.getVar(&v.minorR);
-  vmecMajor.getVar(&v.majorR);
-  vmecSurf.getVar(&v.nSurf);
-  vmecMode.getVar(&v.nMode);
-
-  v.R.resize(v.nSurf*v.nMode);
-  v.Z.resize(v.nSurf*v.nMode);
-  v.L.resize(v.nSurf*v.nMode);
-  v.xm.resize(v.nMode);
-  v.xn.resize(v.nMode);
-  v.psi.resize(v.nSurf);
-  v.iota.resize(v.nSurf);
-
-  vmecR.getVar(v.R.data());
-  vmecZ.getVar(v.Z.data());
-  vmecL.getVar(v.L.data());
-  vmecXm.getVar(v.xm.data());
-  vmecXn.getVar(v.xn.data());
-  vmecPsi.getVar(v.psi.data());
-  vmecIota.getVar(v.iota.data());
-
-  // Step 4: Return vmec data.
-  return v;
-}
-
-EqdskData args::readEqdskFile()
-{
-  EqdskData gFileData;  // EqdskData struct to return
-
   // Step 1: Initialize few of the variables that are taken as
   // input in TOMMS (should be add to parametes list??)
   double eqd_psi_factor = 1.0;
@@ -321,18 +262,29 @@ EqdskData args::readEqdskFile()
   if(reverse_psi) rev = 1;
 
   // Step 5: Spline fitting of the discrete 2D data on background grid.
-  init_ez_spline_(&rev, &eqd_tag); 
- 
-  return gFileData;
+  init_ez_spline_(&rev, &eqd_tag);
 }
 
+// Function to return limiter (wall curve) file name.
 const std::string& args::getLimiterFile() const
 {
   return limiterFile;
 }
 
-void args::setPsiBounds()
+// Function to return reactor type (Stellarator, Tokamak).
+const ReactorType& args::getReactorType() const
 {
-  psiAxis = in.vm.psi[0];
-  psiLCF = in.vm.psi[in.vm.nSurf - 1];
+  return reactorType;
+}
+
+// Function to VMEC file name.
+const std::string& args::getVmecFile() const
+{
+  return vmecFile;
+}
+
+// Function to return InputData struct which contains flux and planes info.
+const InputData& args::getInputData() const
+{
+  return in;
 }

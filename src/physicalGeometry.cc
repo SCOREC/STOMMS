@@ -98,7 +98,11 @@ WallCurveFromFile::WallCurveFromFile(const std::string& wallCurveFile):limiterFi
 // PhysicalGeometryClass
 PhysicalGeometry::PhysicalGeometry(const args& a)
 {
-  // Step 1: If external limiter file is provided, read the wall curve 
+  // Step 1: If Stellarator, don't do anything.
+  if (a.getReactorType() == ReactorType::Stellarator)
+    return;    
+
+  // Step 2: If external limiter file is provided, read the wall curve 
   // from that file, otherwise use wall curve from eqdsk file.
   if (!a.getLimiterFile().empty())
     reactorWall = WallCurveFromFile(a.getLimiterFile());

@@ -1,10 +1,6 @@
 #ifndef INPUT_H
 #define INPUT_H
 
-#include <netcdf>
-#include "ncFile.h"
-#include "ncVar.h"
-#include "gfileUtil.h"
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -12,35 +8,7 @@
 #include <map>
 #include <assert.h>
 #include <math.h>
-
-using namespace netCDF;
-
-// Struct VmecData contains all the input VmecData.
-struct VmecData{
-  double majorR;  // Major radius of the reactor.
-  double minorR;  // Minor radius of the reactor.
-  int nSurf;  // Number of poloidal flux surfaces.
-  int nMode;  // Number of modes for Fourier series.
-  std::vector <double> R;  // Vector of cosines coeffiecents of R for Fourier series.
-  std::vector <double> Z;  // Vector of sines coeffiecents of Z for Fourier series.
-  std::vector <double> L;  // Vector of sines of lambdas coeffiecents for Fourier series.
-  std::vector <double> iota;  // Vector of iota values corresponding to flux surfaces.
-  std::vector <double> psi;  // Vector of list of psi values of flux surfaces.
-  std::vector <double> xm;   // poloidal modes.
-  std::vector <double> xn;   // Toroidal modes.
-};
-
-// Struct bmwData contains the data from BMW file.
-struct BmwData{
-  // Populate it as we move forward.
-};
-
-// Struct eqdskData contains the magnetic field information from eqdsk file.
-struct EqdskData{
-  // add data here as we move forward.
-  double psiAxis;
-  double psiSep;
-};
+#include "gfileUtil.h"
 
 // A struct to hold the input flux curves data. 
 struct FluxData{
@@ -55,10 +23,15 @@ struct PlaneData{
 
 // A struct to contain all the input data from different set of files.
 struct InputData{
-  VmecData vm;  // Read the VMEC data for construction of model inside last closed flux curve.
-  EqdskData eq; // Read the EQDSK data for construction of tokamak models.
   FluxData fd;  // Read the flux data from input files (fluxFile, meshSizeFile).
   PlaneData pd;  // Read the plane data from the input file (planeFile).
+};
+
+// Geometry Type - Based on input we decide it.
+enum class ReactorType{
+  Tokamak,
+  Stellarator,
+  None
 };
 
 // Class args handles all the input information. This includes:
@@ -68,8 +41,27 @@ class args{
   public:
     args(int argc, char* argv[]);
     
+    /*
+     * Function to return limiter (wall curve) file name.
+     */ 
     const std::string& getLimiterFile() const;
 
+    /*
+     * Function to VMEC file name.
+     */ 
+    const std::string& getVmecFile() const;
+
+    /*
+     * Function to return InputData struct which contains flux and planes info.
+     */ 
+    const InputData& getInputData() const;
+
+    /*
+     *  Function to return reactor type (Stellarator, Tokamak)
+     */ 
+    const ReactorType& getReactorType() const;
+
+  private:
     // Input parameters
     std::string inputFile;
     std::string vmecFile;	// VMEC file to load magnetic field for stellarator core region
@@ -77,31 +69,21 @@ class args{
     std::string fluxFile;	// Input file containing the number of flux curves and their flux indices 
     std::string planeFile;	// Input file containing the number and toroidal position (degrees) of the planes
     std::string meshSizeFile;	// Input file to define the mesh size on each flux curve in terms of number of desired points on flux curves
+    std::string limiterFile;    // Input file for the wall curve (limiter). Optional
 
     // Variables and containers for internal use
-    double psiAxis, psiLCF;  // psi values of Opoint and last closed flux curve.
-    bool stellarator;  // True if vmec file is provided.         
-    bool tokamak;  // True if eqdsk file is provided.
-    /*
+    ReactorType reactorType = ReactorType::Stellarator;  // Default Stellarator for now.    
+ 
+   /*
      * Hierarchy in Input data to understand how to call data from other parts of code.
      * a (all input data including parameters under this umbrella)
      * .. in (input data from different input files to setup physics)
-     * ..... vm  (vmec data)
-     * ........ vmec data attributes (see struct VmecData)
-     * ..... eq (eqdsk data)
-     * ........ eqdsk data attributes (see struct EqdskData)
      * ..... fd  (flux curves data)
      * ........ flux data attributes (see struct FluxData)
      * ..... pd  (plane data)
      * ........ plane data attributes (see struct PlaneData)
     */ 
     InputData in;  // Read the input data from different input files in this one.
-
-    // Public member functions
-    void setPsiBounds();
-  private:
-    // Data Members
-    std::string limiterFile;    // Input file for the wall curve (limiter). Optional
 
     // Member Functions
     
@@ -121,18 +103,6 @@ class args{
     void setValuesForLocalUse();
 
     /*
-     * Read input VMEC file and store relevant data in struct vmecData.
-     * returns the struct vmecData vm.
-     */ 
-    VmecData readVmecFile();
-  
-    /*
-     * Read input tokamak equilibrium file (.eqd or geqdsk) in struct EqdskData.
-     * returns the struct EqdskData eq.
-     */  
-    EqdskData readEqdskFile(); 
-
-    /*
      * Read the flux input file and check its validity.
      * returns a vector containing the normalized psi values of desired flux curves.
      */
@@ -146,11 +116,16 @@ class args{
     std::vector<double> readPlaneFile();
 
     /*
+     * Read input tokamak equilibrium file (.eqd or geqdsk).
+     */
+    void initializeEqdskFile();
+
+    /*
      * Read the input for desired number of mesh vertices on each flux curve.
      * set them to a map between flux normalized psi value and desired number of mesh vertices on that flux.
      * returns a map between flux normalized psi value and desired number of mesh vertices on that flux.
      */
-    std::map <double, int> readMeshSizeOnFlux();    
+    std::map <double, int> readMeshSizeOnFlux();
 };
 
 #endif

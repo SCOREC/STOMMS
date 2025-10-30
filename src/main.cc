@@ -28,10 +28,10 @@ int main(int argc, char* argv[])
 
     // Step 5: Setup the model metadata by setting up the meta data on poloidal planes.
     ModelMetaData modelMetaData;
-    for (int i = 0; i < a.in.pd.planeInput.size(); i++)
+    for (int i = 0; i < a.getInputData().pd.planeInput.size(); i++)
     {
-      double toroidalAngle = a.in.pd.planeInput[i];
-      PlaneMetaData pg(a.in.fd, mg, toroidalAngle);
+      double toroidalAngle = a.getInputData().pd.planeInput[i];
+      PlaneMetaData pg(a.getInputData().fd, mg, toroidalAngle);
       modelMetaData.addPlane(pg);
     }
 
