@@ -54,6 +54,8 @@ void args::setValuesFromInputFile()
       input >> planeFile;
     else if (token == "meshSizeFile")
       input >> meshSizeFile;
+    else if (token == "limiterFile")
+      input >> limiterFile;
   }
   input.close();
 }
@@ -322,6 +324,11 @@ EqdskData args::readEqdskFile()
   init_ez_spline_(&rev, &eqd_tag); 
  
   return gFileData;
+}
+
+const std::string& args::getLimiterFile() const
+{
+  return limiterFile;
 }
 
 void args::setPsiBounds()

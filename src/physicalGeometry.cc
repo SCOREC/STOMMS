@@ -30,6 +30,8 @@ std::vector <Point> WallCurve::filterPoints(std::vector <Point>& givenPoints)
 // Class to read wall curve from the eqdsk file.
 WallCurveFromEqdsk::WallCurveFromEqdsk()
 {
+  std::cout << "Reading wall curve from eqdsk file ..\n";
+
   // Step 1: Get the wall curve points in the g-eqdsk file.
   // First get number of points and then points.
   int numPts = 0;
@@ -51,8 +53,55 @@ WallCurveFromEqdsk::WallCurveFromEqdsk()
 
 }
 
+// Class to read wall curve from a file that contains the limiter points (R,Z).
+WallCurveFromFile::WallCurveFromFile(const std::string& wallCurveFile):limiterFile(wallCurveFile)
+{
+  std::cout << "Reading wall curve from given limiter file ..\n";
+
+  int numPts;
+  std::ifstream wallFile(limiterFile);
+  
+  // Step 1: If can't open the file, exit the program with an error message.
+  if (!wallFile.is_open())
+  {
+    std::cout << "Error opening the limiter input file " << limiterFile << "\n";
+    exit(1);
+  }
+
+  // Step 2: If the first line is empty, exit with an error message. Else, the value
+  // from the first line is stored to numPts
+  if (!(wallFile >> numPts))
+  {
+    std::cout << "The given limiter file seems to be empty" << "\n";
+    exit(1);
+  }
+
+  // Step 3: Read the values and set them to points
+  Point pt = {};  // initializes x,y,z to zero
+  int numReadPoints = 0;
+  while (wallFile >> pt.x && wallFile >> pt.y)
+  {
+    if (numReadPoints == numPts)
+    {
+      std::cout << "Error: Data exceeds number of given points in the file " << limiterFile << "\n";
+      exit(1);
+    }
+
+    givenPoints.push_back(pt);
+    numReadPoints++;
+  }
+
+  // Step 4: Get final points (filtered).
+  points = filterPoints(givenPoints);
+}
+
 // PhysicalGeometryClass
 PhysicalGeometry::PhysicalGeometry(const args& a)
 {
-  reactorWall = WallCurveFromEqdsk();
+  // Step 1: If external limiter file is provided, read the wall curve 
+  // from that file, otherwise use wall curve from eqdsk file.
+  if (!a.getLimiterFile().empty())
+    reactorWall = WallCurveFromFile(a.getLimiterFile());
+  else
+    reactorWall = WallCurveFromEqdsk();
 }

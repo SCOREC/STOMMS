@@ -67,6 +67,8 @@ struct InputData{
 class args{
   public:
     args(int argc, char* argv[]);
+    
+    const std::string& getLimiterFile() const;
 
     // Input parameters
     std::string inputFile;
@@ -98,6 +100,11 @@ class args{
     // Public member functions
     void setPsiBounds();
   private:
+    // Data Members
+    std::string limiterFile;    // Input file for the wall curve (limiter). Optional
+
+    // Member Functions
+    
     /*
      * A function to set the default values of the parameters.
      */  

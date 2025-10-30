@@ -28,8 +28,10 @@ class WallCurve{
 class WallCurveFromFile: public WallCurve{
   public:
     WallCurveFromFile(){};
+    WallCurveFromFile(const std::string& wallCurveFile);
   private:
     std::vector <Point> givenPoints;  // raw unfiltered points
+    std::string limiterFile;  // file for wall curve points
 };
 
 // Class to read wall curve from the eqdsk file.
