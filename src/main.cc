@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
     args a(argc, argv);
 
     // Step 2: Setup the physical geometry (wall curve for now).
-    // PhysicalGeometry();
+    PhysicalGeometry physicalGeometry(a);
     
     // Step 3: Setup the magnetic field information. 
     MagneticGeometry mg;

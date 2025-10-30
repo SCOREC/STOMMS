@@ -5,7 +5,7 @@
 void MagneticGeometry::setMagneticGeometry(const args& a)
 {
   // Step 1: Look for vmec file. If found read it, else return a warning.
-  if(a.vmecFileFound)
+  if(a.stellarator)
     vmec = a.in.vm; 
   else
     std::cout << "vmec data not found\n";

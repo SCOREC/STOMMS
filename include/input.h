@@ -78,8 +78,8 @@ class args{
 
     // Variables and containers for internal use
     double psiAxis, psiLCF;  // psi values of Opoint and last closed flux curve.
-    bool vmecFileFound;  // Check if vmec file is provided or not.         
-    bool eqdskFileFound;  // Check if eqdsk file is provided or not.
+    bool stellarator;  // True if vmec file is provided.         
+    bool tokamak;  // True if eqdsk file is provided.
     /*
      * Hierarchy in Input data to understand how to call data from other parts of code.
      * a (all input data including parameters under this umbrella)

@@ -20,8 +20,8 @@ void args::setDefaultValues()
   // Nothing here yet.
   
   // Variables for internal use.
-  vmecFileFound = false;
-  eqdskFileFound = false;
+  tokamak = false;
+  stellarator = false;
 }
 
 // This function reads the input parameter from the mesh input file.
@@ -41,12 +41,12 @@ void args::setValuesFromInputFile()
     if (token == "vmecFile")
     {
       input >> vmecFile;
-      vmecFileFound = true;
+      stellarator = true;
     }
     else if (token == "eqdskFile")
     {
       input >> eqdskFile;
-      eqdskFileFound = true;
+      tokamak = true;
     }
     else if (token == "fluxFile")
       input >> fluxFile;
@@ -61,14 +61,23 @@ void args::setValuesFromInputFile()
 // A function to set values to local variables and containers for internal code use.
 void args::setValuesForLocalUse()
 {
-  if (vmecFileFound)
+  // Step 1: Read magnetic field source. 
+  if (stellarator)
   	in.vm = readVmecFile();	// Read the vmec file and store data in vmecData vm.
-  if (eqdskFileFound)
+  if (tokamak)
 	in.eq = readEqdskFile();
+
+  // Step 2: Read files to set resolution.
   in.fd.fluxInput = readFluxFile();  // Read the flux input file.
-  in.pd.planeInput = readPlaneFile();  // Read the plane input file.
   in.fd.fluxMeshSize = readMeshSizeOnFlux();  // Read the mesh size input file.
-  setPsiBounds();  // Set the psi values of axis and last closed flux curve.
+
+  if (stellarator)
+    in.pd.planeInput = readPlaneFile();  // Read the plane input file.
+  else if (tokamak)
+    in.pd.planeInput.push_back(0.0); // 
+
+  // Step 3: Set properties (move to MagneticGeometry class)
+  //setPsiBounds();  // Set the psi values of axis and last closed flux curve.
 }
 
 // A function to set mesh sizes on each flux curves for later use (in meshing).
