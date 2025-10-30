@@ -1,0 +1,23 @@
+!******************MAGNETIC FIELD SOURCE FILES (VMEC, EQDSK for now)***************
+
+!STELLARATORS 
+!The name of the vmec file for the core region
+!vmecFile wout.nc
+
+!TOKAMAKS
+!The name of eqdsk file for the tokamak cases
+eqdskFile g096333.03337 
+
+!******************PHYSICAL COMPONENTS SOURCES (WALL CURVE FOR NOW)*****************
+!limiterFile limiter.txt
+
+!*******************************RESOLUTION SETTINGS******************************** 
+!The file containing the number and normalized psi values of flux curves
+fluxFile flux.txt 
+
+!The file containing the number and toroidal angles of the desired poloidal planes
+planeFile plane.txt
+
+!Set the mesh size from the input file
+meshSizeFile mesh_size.txt
+
