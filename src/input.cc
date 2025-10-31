@@ -16,7 +16,7 @@ args::args(int argc, char* argv[])
 // This function initializes the input parameters with default values.
 void args::setDefaultValues()
 {
-  // Nothing here yet.
+  reversePsi = false;
 }
 
 // This function reads the input parameter from the mesh input file.
@@ -51,6 +51,8 @@ void args::setValuesFromInputFile()
       input >> meshSizeFile;
     else if (token == "limiterFile")
       input >> limiterFile;
+    else if (token == "reversePsi")
+      input >> reversePsi;
   }
   input.close();
 }
@@ -233,7 +235,6 @@ void args::initializeEqdskFile()
   // Step 1: Initialize few of the variables that are taken as
   // input in TOMMS (should be add to parametes list??)
   double eqd_psi_factor = 1.0;
-  int reverse_psi = 0;
 
   // Step 2: Read the length of file string and set psi factor.
   // Not sure how factor works (but without it, it pspline throws an error.
@@ -259,7 +260,7 @@ void args::initializeEqdskFile()
 
   // Step 4: If reverse psi, flip the signs of field.
   int rev = 0;
-  if(reverse_psi) rev = 1;
+  if(reversePsi) rev = 1;
 
   // Step 5: Spline fitting of the discrete 2D data on background grid.
   init_ez_spline_(&rev, &eqd_tag);
