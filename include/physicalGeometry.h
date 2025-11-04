@@ -8,7 +8,10 @@
 // Class for wall curve.
 class WallCurve{
   public:
-   
+    /*
+     * Function to return points on wall curve.
+     */ 
+    const std::vector <Point>& getPoints() const; 
   protected:
    // Data members
    std::vector <Point> points;
@@ -48,8 +51,12 @@ class PhysicalGeometry{
   public:
     PhysicalGeometry(){};
     PhysicalGeometry(const args& a);
+
+    const WallCurve& getWallCurveAtPlane(const int& planeId) const;
+    const int& getNumPlanes() const;
   private:
-    WallCurve reactorWall;
+    std::vector <WallCurve> reactorWall;
+    int numPlanes = 1;
 };
 
 

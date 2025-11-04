@@ -1,5 +1,10 @@
 #include "physicalGeometry.h"
 
+/***********************************************/
+// Class: WallCurve
+// Base class for wall curves.
+/***********************************************/
+
 // Function to filter out the points that are not needed in the final definition 
 // of the curve.  Right now only filters out points that are on a straight line.
 std::vector <Point> WallCurve::filterPoints(std::vector <Point>& givenPoints)
@@ -27,7 +32,16 @@ std::vector <Point> WallCurve::filterPoints(std::vector <Point>& givenPoints)
   return filteredPoints;
 }
 
+// Function to return points on wall curve.
+const std::vector <Point>& WallCurve::getPoints() const
+{
+  return points;
+}
+
+/***********************************************/
+// Class: WallCurveFromEqdsk
 // Class to read wall curve from the eqdsk file.
+/***********************************************/
 WallCurveFromEqdsk::WallCurveFromEqdsk()
 {
   std::cout << "Reading wall curve from eqdsk file ..\n";
@@ -53,7 +67,11 @@ WallCurveFromEqdsk::WallCurveFromEqdsk()
 
 }
 
-// Class to read wall curve from a file that contains the limiter points (R,Z).
+/***********************************************/
+// Class: WallCurveFromFile
+// Class to read wall curve from a file that 
+// contains the limiter points (R,Z).
+/***********************************************/
 WallCurveFromFile::WallCurveFromFile(const std::string& wallCurveFile):limiterFile(wallCurveFile)
 {
   std::cout << "Reading wall curve from given limiter file ..\n";
@@ -95,17 +113,44 @@ WallCurveFromFile::WallCurveFromFile(const std::string& wallCurveFile):limiterFi
   points = filterPoints(givenPoints);
 }
 
-// PhysicalGeometryClass
+/***********************************************/
+// Class: PhysicalGeometry
+// Class to contain all physical features.
+/***********************************************/
 PhysicalGeometry::PhysicalGeometry(const args& a)
 {
-  // Step 1: If Stellarator, don't do anything.
+  // Step 1: Read the number of planes
+  numPlanes = a.getInputData().pd.planeInput.size();
+
+  // Step 2: If Stellarator, don't do anything (For now, 
+  // may need something in future).
   if (a.getReactorType() == ReactorType::Stellarator)
     return;    
 
-  // Step 2: If external limiter file is provided, read the wall curve 
+  // Step 3: If external limiter file is provided, read the wall curve 
   // from that file, otherwise use wall curve from eqdsk file.
   if (!a.getLimiterFile().empty())
-    reactorWall = WallCurveFromFile(a.getLimiterFile());
+    reactorWall.push_back(WallCurveFromFile(a.getLimiterFile()));
   else
-    reactorWall = WallCurveFromEqdsk();
+    reactorWall.push_back(WallCurveFromEqdsk());
+}
+
+// Function to return wall curve at specific plane
+const WallCurve& PhysicalGeometry::getWallCurveAtPlane(const int& planeId) const
+{
+  if (planeId >= numPlanes)
+  {
+    std::cout << "Max plane index allowed for this case = " << numPlanes-1 << "\n";
+    std::cout << "Make sure input plane number index is lower than this number " << "\n";
+    std::cout << "Error: Current input index is " << planeId << "\n";
+    exit(1);
+  }
+  
+  return reactorWall[planeId];
+}
+
+// Function to get number of planes from physical geometry
+const int& PhysicalGeometry::getNumPlanes() const
+{
+  return numPlanes;
 }

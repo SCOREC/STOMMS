@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 
     // Step 2: Setup the physical geometry (wall curve for now).
     PhysicalGeometry physicalGeometry(a);
-    
+
     // Step 3: Setup the magnetic field information. 
     MagneticGeometry mg;
     mg.setMagneticGeometry(a);
