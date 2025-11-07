@@ -13,7 +13,7 @@ Model generateCoreSimModel(std::vector <PlaneMetaData> md)
 {
   // Step 1: Retrieve the data (magnetic geometric) from the MetaData
   // and read vmecData from it.
-  MagneticGeometry mg = md[0].getMagneticGeometry();
+  const MagneticGeometry& mg = md[0].getMagneticGeometry();
   VmecData vm = mg.getVmecData();  
 
   // Step 2: Read the data from the vmec object (vm)

@@ -3,7 +3,7 @@
 #include <iterator>
 
 // Constructor gets the flux data (f), magnetic geometry (mg), and plane toroidal angle to setup meta data on the plane.
-PlaneMetaData::PlaneMetaData(const FluxData& f, const MagneticGeometry& magGeom, double angle):toroidalAngle(angle),mg(magGeom)
+PlaneMetaData::PlaneMetaData(const FluxData& f, std::shared_ptr<MagneticGeometry> magGeom, double angle):toroidalAngle(angle),mg(magGeom)
 {
   // Step 1: Setup the flux values on the plane.
   fluxValues = f.fluxInput;
@@ -38,7 +38,7 @@ const std::vector <int>& PlaneMetaData::getPlaneFluxSizes()
 // Function to return the magnetic geometry set on the plane meta data.
 const MagneticGeometry& PlaneMetaData::getMagneticGeometry()
 {
-  return mg;
+  return *mg;
 }
 
 // Function to add individual plane meta data to the object of class ModelMetaData.

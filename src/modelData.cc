@@ -180,7 +180,7 @@ std::vector <Flux> setFluxCurvesOnPlanes(Model m, int planeNum, std::vector <Pla
 
   // Step 2: Get the magnetic field information associated to the plane (although current one is
   // global but it will change in future) and psi bounds.
-  MagneticGeometry mg = md[planeNum].getMagneticGeometry();
+  const MagneticGeometry& mg = md[planeNum].getMagneticGeometry();
   double psiAxis = mg.getPsiAxis();
   double psiLCF = mg.getPsiLCFS();
 

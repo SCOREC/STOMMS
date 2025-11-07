@@ -5,9 +5,12 @@
 #include "util.h"
 #include "modelTopology.h"
 
-// Class for wall curve.
+/* 
+ * Base Class for wall curve.
+ */
 class WallCurve{
   public:
+
     /*
      * Function to return points on wall curve.
      */ 
@@ -27,7 +30,10 @@ class WallCurve{
    std::vector <Point> filterPoints(std::vector <Point>& givenPoints);
 };
 
-// Class to read wall curve from a file that contains the points.
+/* 
+ * Class to read wall curve from a file that contains the points.
+ * Derived class 1 for WallCurve.
+ */
 class WallCurveFromFile: public WallCurve{
   public:
     WallCurveFromFile(){};
@@ -37,7 +43,10 @@ class WallCurveFromFile: public WallCurve{
     std::string limiterFile;  // file for wall curve points
 };
 
-// Class to read wall curve from the eqdsk file.
+/* 
+ * Class to read wall curve from the eqdsk file.
+ * Derived class 2 for WallCurve.
+ */
 class WallCurveFromEqdsk: public WallCurve{
   public:
     WallCurveFromEqdsk();
@@ -52,11 +61,19 @@ class PhysicalGeometry{
     PhysicalGeometry(){};
     PhysicalGeometry(const args& a);
 
+    /*
+     * Function to return wall curve at specific plane.
+     * const int& planeId (in): number of the plane on which wall curve is needed.
+     */ 
     const WallCurve& getWallCurveAtPlane(const int& planeId) const;
+
+    /*
+     * Function to get number of planes from physical geometry.
+     */ 
     const int& getNumPlanes() const;
   private:
-    std::vector <WallCurve> reactorWall;
-    int numPlanes = 1;
+    std::vector <WallCurve> reactorWall;  // Vector of wall curves. One for each plane.
+    int numPlanes = 1;  // set number of planes (minimum = 1).
 };
 
 

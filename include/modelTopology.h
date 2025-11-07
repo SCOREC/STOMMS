@@ -16,13 +16,6 @@ struct Point{
   double z;
 };
 
-// Struct PhysicsPoint contains the physical coordinates of the point
-// along with the psi value.
-struct PhysicsPoint{
-  Point pt;  // Point in physical space
-  double psi;  // associated psi value
-};
-
 // Vertex class contains the information on geometric vertex
 // and related queries. 
 class Vertex{

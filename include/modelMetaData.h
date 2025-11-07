@@ -17,7 +17,7 @@ class PlaneMetaData{
      * const MagneticGeometry& magGeom (in): The given magnetic geometry (vmec, eqdsk, bmw etc.).
      * double angle: Toroidal angle of the poloidal plane.
      */ 
-    PlaneMetaData(const FluxData& f, const MagneticGeometry& magGeom, double angle);
+    PlaneMetaData(const FluxData& f, std::shared_ptr<MagneticGeometry> magGeom, double angle);
 
     /*
      * Function to return the psi values of the desired flux curves on the poloidal plane.
@@ -50,7 +50,7 @@ class PlaneMetaData{
      */ 
     const MagneticGeometry& getMagneticGeometry();
   private:
-    MagneticGeometry mg;  // Magnetic geometry information.
+    std::shared_ptr<MagneticGeometry> mg;  // Magnetic geometry information.
     std::vector <double> fluxValues;  // vector of psi values of desired flux curves on the plane. 
     double toroidalAngle;  // Toroidal angle of the plane.
     std::vector <int> fluxMeshSize;  // Desired number of mesh points on each flux curve. fluxMeshSize.size() == fluxValues.size(). 

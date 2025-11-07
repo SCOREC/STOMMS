@@ -1,29 +1,84 @@
 #include "magneticGeometry.h"
 
-// A fucntion to set magnetic geometry information (any kind of physics information given)
-// to class MagneticGeometry.
-void MagneticGeometry::setMagneticGeometry(const args& a)
+/***********************************************/
+// Class: PhysicsPoint
+// Class to define and access physics of a 
+// physical point.
+/***********************************************/
+PhysicsPoint::PhysicsPoint(const Point& point, const double& psiAtPoint, const PointType pType)
 {
-  // Step 1: Look for vmec file. If found read it, else return a warning.
-  if(a.getReactorType() == ReactorType::Stellarator)
-  {
-    vmecFileName = a.getVmecFile();
-    vmec = readVmecData();
-  }
-  else
-    std::cout << "vmec data not found\n";
-
-  psiAxis = vmec.psi[0];
-  psiLCFS = vmec.psi[vmec.nSurf - 1];
+  pt = point;
+  psi = psiAtPoint;
+  pointType = pType;
 }
 
-// Read input VMEC file and store relevant data in struct vmecData.
-VmecData MagneticGeometry::readVmecData()
+// Function to get physical coordinates of a point.
+const Point& PhysicsPoint::getPoint() const
+{
+  return pt;
+}
+
+// Function to get psi value at a point.
+const double& PhysicsPoint::getPsi() const
+{
+  return psi;
+}
+
+// Function to get point type.
+const PointType& PhysicsPoint::getPointType() const
+{
+  return pointType;
+}
+
+
+/***********************************************/
+// Class: MagneticGeometry
+// Base class for magnetic geometry
+/***********************************************/
+const std::map<int,std::vector<PhysicsPoint>>& MagneticGeometry::getOPoints() const
+{
+  return oPoints;
+}
+
+const std::map<int,std::vector<PhysicsPoint>>& MagneticGeometry::getXPoints() const
+{
+  return xPoints;
+}
+
+const VmecData& MagneticGeometry::getVmecData() const
+{
+  return vmec;
+}
+
+const EqdskData& MagneticGeometry::getEqdskData() const
+{
+  return eqdsk;
+}
+
+/***********************************************/
+// Class: MagneticGeometryForStellarator
+// Derived class for MagneticGeometry
+/***********************************************/
+
+/*
+ * A fucntion to set magnetic geometry information (any kind of physics information given)
+ * to class MagneticGeometry.
+ */
+MagneticGeometryForStellarator::MagneticGeometryForStellarator(const std::string& vmecFileName):vmecFile(vmecFileName)
+{
+  // Step 1: Read VMEC file data
+  vmec = readVmecData();
+}
+
+/*
+ * Reads input VMEC file and store relevant data in struct vmecData.
+ */
+VmecData MagneticGeometryForStellarator::readVmecData()
 {
   VmecData v;
 
   // Step 1: Read all the variables in vmec file
-  NcFile vFile(vmecFileName, NcFile::read);
+  NcFile vFile(vmecFile, NcFile::read);
 
   // netCDF Variables. First four hold single values and the rest are arrays of data.
   NcVar vmecMinor, vmecMajor, vmecSurf, vmecMode, vmecR, vmecZ, vmecL, vmecXm, vmecXn, vmecPsi, vmecIota;
@@ -67,20 +122,60 @@ VmecData MagneticGeometry::readVmecData()
   return v;
 }
 
-// A function to return vmec data (struct VmecData)
-const VmecData& MagneticGeometry::getVmecData()
+/* 
+ * A function to return psi value of the axis in the vmec domain.
+ */
+double MagneticGeometryForStellarator::getPsiAxis() const
 {
-  return vmec;
+  return vmec.psi[0];
 }
 
-// A function to return psi value of the axis in the vmec domain.
-const double& MagneticGeometry::getPsiAxis()
+/* 
+ * A function to return psi value of the last closed flux curve in the vmec domain.
+ */
+double MagneticGeometryForStellarator::getPsiLCFS() const
 {
-  return psiAxis;
+  return vmec.psi[vmec.nSurf - 1]; 
 }
 
-// A function to return psi value of the last closed flux curve in the vmec domain.
-const double& MagneticGeometry::getPsiLCFS()
+/*
+ * Function to return the reactor type(Stellarator for this class).
+ */
+ReactorType MagneticGeometryForStellarator::getReactorType() const
 {
-  return psiLCFS;
+  return ReactorType::Stellarator;
+}
+
+/* 
+ * Function to set magnetic geometry.
+ */
+std::unique_ptr <MagneticGeometry> setMagneticGeometry(const args& input)
+{
+  std::unique_ptr <MagneticGeometry> mg;
+
+  // Step 1: If reactor type is stellarator, look for VMEC file and set
+  // magnetic geometry using MagneticGeometryForStellarator.
+  if(input.getReactorType() == ReactorType::Stellarator)
+  {
+    std::cout << "Geometry (Reactor) Type: Stellarator\n"; 
+    std::string vmecFileName;
+
+    // Step 1.1: If can't find VMEC file, throw an error.
+    if (!input.getVmecFile().empty())
+      vmecFileName = input.getVmecFile();
+    else
+    {
+      std::cerr << "ERROR: VMEC file not found. Make sure the name or path to file is correct\n";
+      exit(1);
+    }
+    
+    // Step 1.2: Set up the magnetic geometry
+    mg =  std::make_unique<MagneticGeometryForStellarator>(vmecFileName);
+  }
+
+  // Step 2: If reactor type is tokamak, look for EQDSK file and set magnetic 
+  // geometry using MagneticGeometryForTokamak.
+  /** ADD HERE **/
+
+  return mg;
 }

@@ -135,7 +135,9 @@ PhysicalGeometry::PhysicalGeometry(const args& a)
     reactorWall.push_back(WallCurveFromEqdsk());
 }
 
-// Function to return wall curve at specific plane
+/*
+ * Function to return wall curve at specific plane.
+ */
 const WallCurve& PhysicalGeometry::getWallCurveAtPlane(const int& planeId) const
 {
   if (planeId >= numPlanes)
@@ -149,7 +151,9 @@ const WallCurve& PhysicalGeometry::getWallCurveAtPlane(const int& planeId) const
   return reactorWall[planeId];
 }
 
-// Function to get number of planes from physical geometry
+/* 
+ * Function to get number of planes from physical geometry.
+ */
 const int& PhysicalGeometry::getNumPlanes() const
 {
   return numPlanes;
