@@ -1,37 +1,6 @@
 #include "magneticGeometry.h"
 
 /***********************************************/
-// Class: PhysicsPoint
-// Class to define and access physics of a 
-// physical point.
-/***********************************************/
-PhysicsPoint::PhysicsPoint(const Point& point, const double& psiAtPoint, const PointType pType)
-{
-  pt = point;
-  psi = psiAtPoint;
-  pointType = pType;
-}
-
-// Function to get physical coordinates of a point.
-const Point& PhysicsPoint::getPoint() const
-{
-  return pt;
-}
-
-// Function to get psi value at a point.
-const double& PhysicsPoint::getPsi() const
-{
-  return psi;
-}
-
-// Function to get point type.
-const PointType& PhysicsPoint::getPointType() const
-{
-  return pointType;
-}
-
-
-/***********************************************/
 // Class: MagneticGeometry
 // Base class for magnetic geometry
 /***********************************************/
@@ -146,6 +115,15 @@ ReactorType MagneticGeometryForStellarator::getReactorType() const
   return ReactorType::Stellarator;
 }
 
+/***********************************************/
+// Class: MagneticGeometryForTokamak
+// Derived class for MagneticGeometry
+/***********************************************/
+MagneticGeometryForTokamak::MagneticGeometryForTokamak()
+{
+  
+}
+
 /* 
  * Function to set magnetic geometry.
  */
@@ -162,7 +140,10 @@ std::unique_ptr <MagneticGeometry> setMagneticGeometry(const args& input)
 
     // Step 1.1: If can't find VMEC file, throw an error.
     if (!input.getVmecFile().empty())
+    {
       vmecFileName = input.getVmecFile();
+      std::cout << "Input VMEC file: " << vmecFileName << "\n";
+    }
     else
     {
       std::cerr << "ERROR: VMEC file not found. Make sure the name or path to file is correct\n";
@@ -175,7 +156,11 @@ std::unique_ptr <MagneticGeometry> setMagneticGeometry(const args& input)
 
   // Step 2: If reactor type is tokamak, look for EQDSK file and set magnetic 
   // geometry using MagneticGeometryForTokamak.
-  /** ADD HERE **/
+  if(input.getReactorType() == ReactorType::Tokamak)
+  {
+    std::cout << "Geometry (Reactor) Type: Tokamak \n";
+    mg =  std::make_unique<MagneticGeometryForTokamak>();
+  }
 
   return mg;
 }

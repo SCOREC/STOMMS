@@ -38,7 +38,8 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/include/stommsVersion.h.in" "${CMAKE
 set(STELLMESH_SRCS
   src/main.cc
   src/input.cc
-  src/physicalGeometry.cc 
+  src/physicalGeometry.cc
+  src/criticalPoints.cc 
   src/magneticGeometry.cc
   src/util.cc 
   src/stomms.cc

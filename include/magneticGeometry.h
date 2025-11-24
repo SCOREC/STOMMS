@@ -3,59 +3,12 @@
 
 #include <memory>
 #include "input.h"
-#include "modelTopology.h"
+#include "criticalPoints.h"
 #include "ncFile.h"
 #include "ncVar.h"
 #include "gfileUtil.h"
 
 using namespace netCDF;
-
-/*
- * Basic model vertices types.
- */
-enum class PointType{
-  OPoint,
-  XPoint,
-  None
-};
-
-/*
- * Physics point contains both the physical coordinate (Point) and physics
- * properties such as point type, psi values. Add more point properties here
- * if needed.
- */
-class PhysicsPoint{
-  public:
-    PhysicsPoint(){};
-
-    /*
-     * Constructor.
-     * const Point& point (in): physical coordinates of the point defined in Point.
-     * const double& psiAtPoint (in): psi value at the point.
-     * const PointType pType (in): physics type of the point (oPoint, xPoint).
-     */ 
-    PhysicsPoint(const Point& point, const double& psiAtPoint, const PointType pType);
-
-    /*
-     * Function to get physical coordinates of a point.
-     */ 
-    const Point& getPoint() const;
-
-    /*
-     * Function to get psi value at a point.
-     */ 
-    const double& getPsi() const;
-
-    /*
-     * Function to get point type.
-     */ 
-    const PointType& getPointType() const;
-  private:
-    Point pt;  // Point in physical space
-    double psi;  // associated psi value 
-    PointType pointType = PointType::None;  // initialize point with type None.  
-}; 
-
 
 // Struct VmecData contains all the input VmecData.
 struct VmecData{
@@ -178,6 +131,23 @@ class MagneticGeometryForStellarator: public MagneticGeometry{
      */
     VmecData readVmecData();
 }; 
+
+/*
+ * 
+ */
+class MagneticGeometryForTokamak: public MagneticGeometry{
+  public:
+    MagneticGeometryForTokamak();
+
+    /*
+     * A function to return psi value of the axis in the tokamak domain.
+     */ 
+    double getPsiAxis() const override {return 0.0;};
+
+    double getPsiLCFS() const override {return 0.0;};
+
+    ReactorType getReactorType() const override {return ReactorType::Tokamak;};
+};
 
 /*
  * Function to set magnetic geometry. This function makes decision based on type

@@ -1,8 +1,7 @@
 #ifndef GFILEUTIL_H
 #define GFILEUTIL_H
 #include <vector>
-using std::vector;
-class args;
+
 extern "C"{
 /*
  * PSPLINE Utility to read data from equilibrium files (.eqd and .eqdsk).
@@ -77,6 +76,40 @@ void eq_ftn_setup_ts_ (double *, int *, const char *, int *, double*, double*, d
 void eval_gri_val_ (double *, double *, double *, int *);
 void eval_grs_val_ (double *, double *, double *, int *);
 }
-//return -1 if not found
-// else return the idx of startPt
+
+/*
+ * In case of reverse psi, we need to reverse the values. Functions for them are defined here.
+ */
+inline void eval_field_val(const double* r, const double* z, double* val, int* ierr, bool reversePsi)
+{
+  eval_field_val_(r, z, val, ierr);
+  if (reversePsi)
+    *val *= -1;
+}
+
+inline void eval_field_grad (const double* r, const double* z, double* val, int* ierr, bool reversePsi)
+{
+  eval_field_grad_(r, z, val, ierr);
+  if(reversePsi)
+  {
+    val[0] *= -1;
+    val[1] *= -1;
+  }
+}
+
+inline void eval_field_grad_abs2 (const double* r, const double* z, double* val, int* ierr, bool reversePsi)
+{
+  double grad[2] = {0., 0.};
+  eval_field_grad_(r, z, grad, ierr);
+  assert(!(*ierr));
+  *val = grad[0]*grad[0] + grad[1]*grad[1];
+}
+
+inline void eval_field_deriv (const double* r, const double* z, int* dr, int* dz, double* val, int* ierr, bool reversePsi)
+{
+  eval_field_deriv_(r, z, dr, dz, val, ierr);
+  if(reversePsi)
+    *val *= -1;
+}
+
 #endif
