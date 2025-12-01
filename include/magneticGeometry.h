@@ -4,6 +4,7 @@
 #include <memory>
 #include "input.h"
 #include "criticalPoints.h"
+#include "physicalGeometry.h"
 #include "ncFile.h"
 #include "ncVar.h"
 #include "gfileUtil.h"
@@ -137,7 +138,7 @@ class MagneticGeometryForStellarator: public MagneticGeometry{
  */
 class MagneticGeometryForTokamak: public MagneticGeometry{
   public:
-    MagneticGeometryForTokamak();
+    MagneticGeometryForTokamak(const WallCurve& wall);
 
     /*
      * A function to return psi value of the axis in the tokamak domain.
@@ -147,6 +148,8 @@ class MagneticGeometryForTokamak: public MagneticGeometry{
     double getPsiLCFS() const override {return 0.0;};
 
     ReactorType getReactorType() const override {return ReactorType::Tokamak;};
+  private:
+    WallCurve wallCurve;
 };
 
 /*
@@ -154,6 +157,6 @@ class MagneticGeometryForTokamak: public MagneticGeometry{
  * of reactor, and set magnetic geometry accordingly.
  * const args& input (in): class holding all the input data
  */
-std::unique_ptr <MagneticGeometry> setMagneticGeometry(const args& input);
+std::unique_ptr <MagneticGeometry> setMagneticGeometry(const args& input, const PhysicalGeometry& physicalGeometry);
 
 #endif

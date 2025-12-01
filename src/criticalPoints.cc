@@ -5,6 +5,7 @@
 // 1- Simplex 
 // 2- Simplex Grid
 /***********************************************/
+// Simplex
 Simplex::Simplex(Point pt1, Point pt2, Point pt3):point1(pt1), point2(pt2), point3(pt3){}
 Simplex::Simplex(std::vector <Point> pts)
 {
@@ -14,6 +15,43 @@ Simplex::Simplex(std::vector <Point> pts)
   point3 = pts[2];
 }
 
+// Simplex Grid
+SimplexGrid::SimplexGrid(int xResolution, int yResolution, std::array<double,4> box)
+{
+  double xMin = box[0], yMin = box[1];
+  double xMax = box[2], yMax = box[3];
+  for (int i = 0; i < xResolution; i++)
+  {
+    for (int j = 0; j < yResolution; j++)
+    {
+      Point p1, p2, p3;
+      p1.z = p2.z = p3.z = 0.0;
+
+      // Point 1
+      p1.x = (xMin*(xResolution-i) + xMax*i)/double(xResolution);
+      p1.y = (yMin*(yResolution-j) + yMax*j)/double(yResolution);
+
+      // Point 2
+      p2.x = (xMin*(xResolution-i-1) + xMax*(i+1))/double(xResolution);
+      p2.y = p1.y;
+
+      // Point 3
+      p3.x = p1.x;
+      p3.y = (yMin*(yResolution-j-1) + yMax*(j+1))/double(yResolution);
+
+      // To make sure we are not getting a point just outside of the
+      // computational domain because of numerical inconsistencies.
+      checkBounds(p1, box);
+      checkBounds(p2, box);
+      checkBounds(p3, box);
+
+      // Create Simplex
+      Simplex simplex(p1,p2,p3);
+      grid.push_back(simplex);
+    }
+  }
+  assert (grid.size() == (xResolution*yResolution));
+}
 
 /***********************************************/
 // Class: PhysicsPoint
@@ -104,4 +142,21 @@ std::vector <PhysicsPoint> CriticalPointsOnPlane::findMinimumSimplexMethod()
  
   std::vector <PhysicsPoint> minimumPoints;
   return minimumPoints; 
+}
+
+void checkBounds(Point& pt, std::array<double,4> box)
+{
+  double xMin = box[0], yMin = box[1];
+  double xMax = box[2], yMax = box[3];
+
+  // If point is outside the box and within tolerance (1e-8)
+  // set point to the corresponding bound.
+  if (pt.x < xMin && (fabs(pt.x - xMin) < 1e-8))
+    pt.x = xMin;
+  if (pt.x > xMax && (fabs(pt.x - xMax) < 1e-8))
+    pt.x = xMax;
+  if (pt.y < yMin && (fabs(pt.y - yMin) < 1e-8))
+    pt.y = yMin;
+  if (pt.y > yMax && (fabs(pt.y - yMax) < 1e-8))
+    pt.y = yMax;
 }

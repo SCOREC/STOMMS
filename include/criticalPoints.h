@@ -4,6 +4,7 @@
 #include "modelTopology.h"
 #include "gfileUtil.h"
 #include <array>
+#include <cmath>
 
 /*
  * Basic model vertices types.
@@ -30,7 +31,21 @@ struct Simplex{
 struct SimplexGrid{
   SimplexGrid(){};
   SimplexGrid(int xResolution, int yResolution, std::array<double,4> box);
+  std::vector <Simplex> grid;
 };
+
+/*
+ * Field Types (Not sure if its the best way but going with this for now).
+ */
+/*enum class FieldType{
+  EqdskPsi,
+  EqdskGradPsi,
+  EqdskDerivativePsi
+
+  // add here any field type for stellarator for function getFieldAtPoint()
+}*/
+
+
 
 /*
  * Physics point contains both the physical coordinate (Point) and physics
@@ -69,6 +84,15 @@ class PhysicsPoint{
     PointType pointType = PointType::None;  // initialize point with type None.
 };
 
+class SimplexMethod {
+  public:
+    SimplexMethod(){};
+    SimplexMethod(const std::vector <Simplex>& simplexGrid, std::array <double,4> box);
+
+  private:
+    
+    std::vector <PhysicsPoint> candidates;
+};
 
 class CriticalPointsOnPlane{
   public:
@@ -94,4 +118,5 @@ class CriticalPoints{
 
 // Helper Functions:
 double getHessianAtPoint(const Point& pt);
+void checkBounds(Point& pt, std::array<double,4> box);
 #endif

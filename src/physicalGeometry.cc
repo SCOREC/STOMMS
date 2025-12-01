@@ -23,7 +23,7 @@ std::vector <Point> WallCurve::filterPoints(std::vector <Point>& givenPoints)
     int backward = i-1;  
     int forward = (i+1)%numPts;
     
-    if(!isPointOnCorner(&givenPoints[backward], &givenPoints[i], &givenPoints[forward]))
+    if(!isPointOnCorner(givenPoints[backward], givenPoints[i], givenPoints[forward]))
       continue;  // skip the point
 
     filteredPoints.push_back(givenPoints[i]);  // Save point to final list of points

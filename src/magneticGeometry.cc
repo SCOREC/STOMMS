@@ -119,15 +119,15 @@ ReactorType MagneticGeometryForStellarator::getReactorType() const
 // Class: MagneticGeometryForTokamak
 // Derived class for MagneticGeometry
 /***********************************************/
-MagneticGeometryForTokamak::MagneticGeometryForTokamak()
+MagneticGeometryForTokamak::MagneticGeometryForTokamak(const WallCurve& wall)
 {
-  
+  wallCurve = wall;  
 }
 
 /* 
  * Function to set magnetic geometry.
  */
-std::unique_ptr <MagneticGeometry> setMagneticGeometry(const args& input)
+std::unique_ptr <MagneticGeometry> setMagneticGeometry(const args& input, const PhysicalGeometry& physicalGeometry)
 {
   std::unique_ptr <MagneticGeometry> mg;
 
@@ -159,7 +159,10 @@ std::unique_ptr <MagneticGeometry> setMagneticGeometry(const args& input)
   if(input.getReactorType() == ReactorType::Tokamak)
   {
     std::cout << "Geometry (Reactor) Type: Tokamak \n";
-    mg =  std::make_unique<MagneticGeometryForTokamak>();
+    int planeNum = 0; // for tokamaks
+    WallCurve wall = physicalGeometry.getWallCurveAtPlane(planeNum);
+    mg =  std::make_unique<MagneticGeometryForTokamak>(wall);
+    
   }
 
   return mg;
