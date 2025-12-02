@@ -11,6 +11,9 @@
 
 // Struct Point defines a point in terms of physical coordinates (x,y,z).
 struct Point{
+  Point(){};
+  Point(double xCoord, double yCoord);
+  Point(double xCoord, double yCoord, double zCoord);
   double x = 0.0;
   double y = 0.0;
   double z = 0.0;

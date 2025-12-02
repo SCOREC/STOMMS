@@ -49,3 +49,42 @@ void checkBounds(Point& pt, std::array<double,4> box)
     pt.y = yMax;
 }
 
+bool inDomain(const Point& pt, std::array<double,4> box)
+{
+  double xMin = box[0], yMin = box[1];
+  double xMax = box[2], yMax = box[3];
+
+  // If point is outside the box and within tolerance (1e-8)
+  // set point to the corresponding bound.
+  if (pt.x < xMin || pt.x > xMax || pt.y < yMin || pt.y > yMax)
+    return false;
+
+  return true;
+}
+
+std::vector <PhysicsPoint> filterUniquePoints(const std::vector <PhysicsPoint>& candidates)
+{
+  std::vector <PhysicsPoint> uniquePoints;
+
+  for(int i = 0; i < candidates.size(); i++)
+  {
+    bool foundSame = false;
+    Point ptToCheck = candidates[i].getPoint();
+    for (int j = 0; j < uniquePoints.size(); j++)
+    {
+      Point uniquePt = uniquePoints[j].getPoint();
+      if (arePointsSame(ptToCheck, uniquePt))
+      {
+        foundSame = true;
+        break;
+      }
+    }
+    if (foundSame)
+      continue;
+
+    uniquePoints.push_back(candidates[i]);
+  }
+
+  return uniquePoints;
+}
+

@@ -121,7 +121,8 @@ ReactorType MagneticGeometryForStellarator::getReactorType() const
 /***********************************************/
 MagneticGeometryForTokamak::MagneticGeometryForTokamak(const WallCurve& wall)
 {
-  wallCurve = wall;  
+  wallCurve = wall;
+  CriticalPointsEqdsk crticalPoints(wall);  
 }
 
 /* 

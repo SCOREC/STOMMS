@@ -2,6 +2,7 @@
 #define CRITICALPOINTS_H
 
 #include "modelTopology.h"
+#include "physicalGeometry.h"
 #include <array>
 #include <cmath>
 
@@ -52,5 +53,7 @@ class PhysicsPoint{
 };
 
 // Helper Functions:
+std::vector <PhysicsPoint> filterUniquePoints(const std::vector <PhysicsPoint>& candidates);
 void checkBounds(Point& pt, std::array<double,4> box);
+bool inDomain(const Point& pt, std::array<double,4> box);
 #endif

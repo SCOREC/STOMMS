@@ -14,36 +14,59 @@ struct Simplex{
   Point point1;
   Point point2;
   Point point3;
+
+  // Accessing simplex in array form is desireable at some points.
+  std::array<std::array<double, 2>, 3> points;
   // Extend it to 3D if needed in future.
 }; 
 
 struct SimplexGrid{
   SimplexGrid(){};
   SimplexGrid(int xResolution, int yResolution, std::array<double,4> box);
-  std::vector <Simplex> grid;
+  std::vector <Simplex> simplexVec;
 };
 
+/**********************************************************/
+// Class SimplexMethod 
+// 2D Downhill Simplex Method for finding  critical points
+// Sources modified from Numerical Recipe Ch. 10.4
+/**********************************************************/
 class SimplexMethod {
   public:
     SimplexMethod(){};
-    SimplexMethod(const std::vector <Simplex>& simplexGrid, std::array <double,4> box);
+    SimplexMethod(const SimplexGrid& simplexGrid, std::array <double,4> box);
 
-  private:    
+    const std::vector <PhysicsPoint>& getCandidates();
+  private:
+    // Input information
+    std::array <double, 4> domainBox;
+    SimplexGrid grid;
+    WallCurve wallCurve;
+
+    // Output information    
     std::vector <PhysicsPoint> candidates;
+
+    // Member functions:
+    double evaluateTrialPoint(std::array<std::array<double, 2>, 3>& points, std::array<double,3>& y, std::array<double,2>& pSum, int ihi, double factor);
+    int evaluateMinimum(std::array<std::array<double, 2>, 3>& points, std::array<double,3>& y, const double& funcTolerance, 
+                        const double& relativeTolerance, int& nFunc);
 };
 
 class CriticalPointsEqdsk{
   public:
     CriticalPointsEqdsk(){};
+    CriticalPointsEqdsk(const WallCurve& wall);
   private:
     // Input information
     std::array <double, 4> domainBox;
+    WallCurve wallCurve;
 
     // Information to evaluate first
     std::vector <PhysicsPoint> oPoints;
     std::vector <PhysicsPoint> xPoints;
 
-    std::vector <PhysicsPoint> findMinimumSimplexMethod(); 
+    std::vector <PhysicsPoint> findMinimumSimplexMethod();
+    int findMinimumNewtonMethod(const Point& initialGuess, Point finalPosition, const std::array<double,4> domain); 
 };
 
 // Helper Functions:
