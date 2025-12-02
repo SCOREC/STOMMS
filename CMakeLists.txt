@@ -39,7 +39,8 @@ set(STELLMESH_SRCS
   src/main.cc
   src/input.cc
   src/physicalGeometry.cc
-  src/criticalPoints.cc 
+  src/criticalPoints.cc
+  src/criticalPointsEqdsk.cc 
   src/magneticGeometry.cc
   src/util.cc 
   src/stomms.cc

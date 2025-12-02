@@ -3,7 +3,7 @@
 
 #include <memory>
 #include "input.h"
-#include "criticalPoints.h"
+#include "criticalPointsEqdsk.h"
 #include "physicalGeometry.h"
 #include "ncFile.h"
 #include "ncVar.h"

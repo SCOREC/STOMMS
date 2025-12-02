@@ -112,3 +112,4 @@ int windingNumberPolygonTest(const Point& pt, const std::vector <Point>& curve)
 
   return windingNumber;
 }
+
