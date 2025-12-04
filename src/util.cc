@@ -62,7 +62,7 @@ bool arePointsSame(const Point& pt1, const Point& pt2)
 int isLeft(const Point& pt1, const Point& pt2, const Point& testPoint)
 {
   std::array <double,2> edgeVector = {pt2.x - pt1.x, pt2.y - pt1.y};
-  std::array <double,2> pointToLineVector = {testPoint.x - pt1.y, testPoint.x - pt1.y};
+  std::array <double,2> pointToLineVector = {testPoint.x - pt1.x, testPoint.y - pt1.y};
 
   double crossProduct = edgeVector[0]*pointToLineVector[1] - pointToLineVector[0]*edgeVector[1];
 
@@ -79,6 +79,7 @@ int windingNumberPolygonTest(const Point& pt, const std::vector <Point>& curve)
 {
   // Step 1: Make sure curve is closed (first and last point is same)
   assert (curve.size() >= 4);  // Minimum 4 points required
+
   if (!arePointsSame(curve[0], curve[curve.size()-1]))
   {
     std::cout << "ERROR: First and last points are not identical. Curve is not closed\n";
@@ -105,7 +106,7 @@ int windingNumberPolygonTest(const Point& pt, const std::vector <Point>& curve)
     else  // pt1.y > pt.y
     {
       if (pt2.y <= pt.y)  // downward crossing
-        if (isLeft(pt1, pt2, pt) > 0)  // pt is left of the edge
+        if (isLeft(pt1, pt2, pt) < 0)  // pt is left of the edge
           windingNumber--;
     }
   }

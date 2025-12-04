@@ -62,17 +62,17 @@ bool inDomain(const Point& pt, std::array<double,4> box)
   return true;
 }
 
-std::vector <PhysicsPoint> filterUniquePoints(const std::vector <PhysicsPoint>& candidates)
+std::vector <Point> filterUniquePoints(const std::vector <Point>& candidates)
 {
-  std::vector <PhysicsPoint> uniquePoints;
+  std::vector <Point> uniquePoints;
 
   for(int i = 0; i < candidates.size(); i++)
   {
     bool foundSame = false;
-    Point ptToCheck = candidates[i].getPoint();
+    Point ptToCheck = candidates[i];
     for (int j = 0; j < uniquePoints.size(); j++)
     {
-      Point uniquePt = uniquePoints[j].getPoint();
+      Point uniquePt = uniquePoints[j];
       if (arePointsSame(ptToCheck, uniquePt))
       {
         foundSame = true;
@@ -88,3 +88,18 @@ std::vector <PhysicsPoint> filterUniquePoints(const std::vector <PhysicsPoint>& 
   return uniquePoints;
 }
 
+
+
+void printCriticalPoints(const std::vector <PhysicsPoint>& criticalPoints)
+{
+  std::string pointType;
+  criticalPoints[0].getPointType() == PointType::OPoint ? pointType = "O Point" : pointType = "X Point";
+
+  std::cout << "\t* " << pointType << " * \n\n";
+  for (int i = 0; i < criticalPoints.size(); i++)
+  {
+    Point pt = criticalPoints[i].getPoint();
+    std::cout << "\t\tPosition of " << pointType << " # " << i+1 << " (R,Z) = (" << pt.x << ", " << pt.y << ")\n";
+    std::cout << "\t\tMagnetic flux (psi) " << pointType << " #" << i+1 << " = " << criticalPoints[i].getPsi() << "\n";
+  }
+} 

@@ -53,7 +53,8 @@ class PhysicsPoint{
 };
 
 // Helper Functions:
-std::vector <PhysicsPoint> filterUniquePoints(const std::vector <PhysicsPoint>& candidates);
 void checkBounds(Point& pt, std::array<double,4> box);
 bool inDomain(const Point& pt, std::array<double,4> box);
+std::vector <Point> filterUniquePoints(const std::vector <Point>& candidates);
+void printCriticalPoints(const std::vector <PhysicsPoint>& criticalPoints);
 #endif

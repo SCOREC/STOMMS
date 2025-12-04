@@ -122,7 +122,14 @@ ReactorType MagneticGeometryForStellarator::getReactorType() const
 MagneticGeometryForTokamak::MagneticGeometryForTokamak(const WallCurve& wall)
 {
   wallCurve = wall;
-  CriticalPointsEqdsk crticalPoints(wall);  
+  CriticalPointsEqdsk criticalPoints(wall);
+
+  printCriticalPoints(criticalPoints.getOPoints());
+  printCriticalPoints(criticalPoints.getXPoints());
+
+  // Just one plane for tokamak
+  oPoints[0] = criticalPoints.getOPoints();
+  xPoints[0] = criticalPoints.getXPoints();  
 }
 
 /* 

@@ -72,7 +72,7 @@ class args{
     std::string limiterFile;    // Input file for the wall curve (limiter). Optional
     
     bool reversePsi;            // To reverse the given psi values to get minimum psi at axis.
-
+    double eqdPsiFactor;
     // Variables and containers for internal use
     ReactorType reactorType = ReactorType::Stellarator;  // Default Stellarator for now.    
  

@@ -6,7 +6,11 @@
 // 2- Simplex Grid
 /***********************************************/
 // Simplex
-Simplex::Simplex(Point pt1, Point pt2, Point pt3):point1(pt1), point2(pt2), point3(pt3){}
+Simplex::Simplex(Point pt1, Point pt2, Point pt3):point1(pt1), point2(pt2), point3(pt3)
+{
+  points = {{ {point1.x, point1.y}, {point2.x, point2.y}, {point3.x, point3.y} }};
+}
+
 Simplex::Simplex(std::vector <Point> pts)
 {
   assert (pts.size() == 3 || pts.size() == 4); // 3 for 2D, 4 for 3D
@@ -22,6 +26,8 @@ SimplexGrid::SimplexGrid(int xResolution, int yResolution, std::array<double,4> 
 {
   double xMin = box[0], yMin = box[1];
   double xMax = box[2], yMax = box[3];
+  std::cout << "xBox = " << xMin << " , " << xMax << "\n";
+  std::cout << "yBox = " << yMin << " , " << yMax << "\n";
   for (int i = 0; i < xResolution; i++)
   {
     for (int j = 0; j < yResolution; j++)
@@ -72,8 +78,10 @@ SimplexMethod::SimplexMethod(const SimplexGrid& simplexGrid, std::array <double,
   double psi;
   int ierr;
 
+  
   // Step 3: Call the simplex method
   int numSimplex = grid.simplexVec.size();
+  std::cout << "Simplex Grid Size = " << numSimplex << "\n";
   for (int i = 0; i < numSimplex; i++)
   {
     Simplex simplex = grid.simplexVec[i];
@@ -86,10 +94,8 @@ SimplexMethod::SimplexMethod(const SimplexGrid& simplexGrid, std::array <double,
     if (evaluateMinimum(simplexPoints, gradPsi, absoluteTolerance, relativeTolerance, nFunc) == 0)
       continue;
 
-    Point possibleMinimum(simplexPoints[0][1], simplexPoints[0][1]);
-    eval_field_val(&simplexPoints[0][0], &simplexPoints[0][1], &psi, &ierr, false); 
-    PhysicsPoint physicsPt(possibleMinimum, psi, PointType::None);
-    candidates.push_back(physicsPt);
+    Point possibleMinimum(simplexPoints[0][0], simplexPoints[0][1]);
+    candidates.push_back(possibleMinimum);
   } 
 }
 
@@ -124,7 +130,7 @@ double SimplexMethod::evaluateTrialPoint(std::array<std::array<double, 2>, 3>& p
 }
 
 int SimplexMethod::evaluateMinimum(std::array<std::array<double, 2>, 3>& points, std::array<double,3>& y, 
-                                   const double& funcTolerance, const double& relativeTolerance, int& nFunc)
+                                   const double& fToleranceAbs, const double& fToleranceRel, int& nFunc)
 {
   // Step 1: Define the variables needed 
   // ihi = index of highest field value, ilo = lowest, inhi = next highest (intermediate)
@@ -133,15 +139,17 @@ int SimplexMethod::evaluateMinimum(std::array<std::array<double, 2>, 3>& points,
   std::array <double, 2> pSum;
   int nMax = 5000;
   double psiToleranceAbsolute = 1e-10;
-  nFunc = 0.0;
+  nFunc = 0;
 
   // Step 2: Iterate over number of dimension and get the sum of coordinates
   // of individual dimension (sum over x and sum over y)
   for (int j = 0; j < 2; j++)  // dimension
   {
     pSum[j] = 0.0;
-    for (int i = 0, sum = 0.0; i < 3; i++)  // Number of points in simplex
+    sum = 0.0;
+    for (int i = 0; i < 3; i++)  // Number of points in simplex
       sum += points[i][j];
+    pSum[j] = sum;
   }
 
   // Step 3: 
@@ -164,14 +172,14 @@ int SimplexMethod::evaluateMinimum(std::array<std::array<double, 2>, 3>& points,
         inhi = ihi;
         ihi = i;
       }
-      else if (y[i] > y[inhi] && i != inhi)
+      else if (y[i] > y[inhi] && i != ihi)
         inhi = i;
     }
 
     // Step 3.2: Exit condition
     rTolerance = 2.0 * fabs(y[ihi] - y[ilo])/(fabs(y[ihi]) + fabs(y[ilo]) + psiToleranceAbsolute); // psiToleranceAbsolute to prevent from division by 0
     aTolerance = fabs(y[ihi] - y[ilo]);
-    if(rTolerance < funcTolerance && aTolerance < funcTolerance) 
+    if(rTolerance < fToleranceRel && aTolerance < fToleranceAbs) 
     {
       std::swap(y[0], y[ilo]);
       for(int i = 0; i < 2; i++) 
@@ -179,8 +187,9 @@ int SimplexMethod::evaluateMinimum(std::array<std::array<double, 2>, 3>& points,
       break;
     }
 
-    if(nFunc >= nMax) {
-      std::cout << "Downhill Simplex Method exceeds 5000 evaluations of magnetic field values| " << rTolerance << " < " << funcTolerance << "\n";
+    if(nFunc >= nMax) 
+    {
+      std::cout << "Downhill Simplex Method exceeds 5000 evaluations of magnetic field values| " << fToleranceRel << " < " << fToleranceAbs << "\n";
       std::cout << points[0][0] << "," << points[0][1] << "|" << points[1][0] << "," << points[1][1]<< "|" << points[2][0] << "," << points[2][1] << "\n";
       std::cout << y[ihi]<< ", " <<y[ilo] << "\n";
       exit(1);
@@ -218,7 +227,8 @@ int SimplexMethod::evaluateMinimum(std::array<std::array<double, 2>, 3>& points,
 
         for(int j = 0; j < 2; j++) 
         {
-          for(int i = 0, sum = 0.0; i < 3; i++) 
+          sum = 0.0;
+          for(int i = 0; i < 3; i++) 
             sum += points[i][j];
           pSum[j]=sum;
         }
@@ -228,16 +238,16 @@ int SimplexMethod::evaluateMinimum(std::array<std::array<double, 2>, 3>& points,
       --nFunc;
 
     Point p1, p2, p3;
-    p1.x = points[0][1], p1.y = points[0][1];
-    p2.x = points[1][1], p2.y = points[1][1];
-    p3.x = points[3][1], p3.y = points[2][1];
+    p1.x = points[0][0], p1.y = points[0][1];
+    p2.x = points[1][0], p2.y = points[1][1];
+    p3.x = points[2][0], p3.y = points[2][1];
     if (!inDomain(p1, domainBox) || !inDomain(p2, domainBox) || !inDomain(p3, domainBox))
       return 0;
   }
   return 1;  //Sucssess
 }
 
-const std::vector <PhysicsPoint>& SimplexMethod::getCandidates()
+const std::vector <Point>& SimplexMethod::getCandidates()
 {
   return candidates;
 }
@@ -247,21 +257,61 @@ const std::vector <PhysicsPoint>& SimplexMethod::getCandidates()
 /***********************************************/
 CriticalPointsEqdsk::CriticalPointsEqdsk(const WallCurve& wall):wallCurve(wall)
 {
+  wallPoints = wallCurve.getPoints();
+
   // Step 1: Simplex Method
-  std::vector <PhysicsPoint> candidates = findMinimumSimplexMethod();
+  std::vector <Point> candidates = findMinimumSimplexMethod();
 
   // Step 2: filter unique points
-  std::vector <PhysicsPoint> filtered = filterUniquePoints(candidates);  
+  for (int  i = 0; i < candidates.size(); i++)
+  {
+    Point pt = candidates[i];
+    if (windingNumberPolygonTest(pt, wallPoints) == 0)
+    {
+      candidates.erase(candidates.begin()+i);
+      i--;
+    }
+  }
+  std::vector <Point> filtered = filterUniquePoints(candidates);  
+  for (int i = 0; i < filtered.size(); i++)
+    std::cout << "Filtered Points: " << filtered[i].x <<  " , " << filtered[i].y << "\n";
 
   // Step 3: Newton Method
-  
+  std::vector <Point> updatedPoints;
+  for (int i = 0; i < filtered.size(); i++)
+  {
+    Point pt = filtered[i], ptFinal;
+    if (windingNumberPolygonTest(pt, wallPoints) == 0)
+      continue;
+    
+    int returnIndx = findMinimumNewtonMethod(pt, ptFinal, domainBox);
+    if (returnIndx == 0)
+      updatedPoints.push_back(ptFinal);
+  } 
 
   // Step 4: filter unique points
-  // Step 4: Hessain Test
+  filtered.clear();
+  filtered = filterUniquePoints(updatedPoints);
+  updatedPoints.clear();
 
+  // Step 4: Hessain Test
+  for (int i = 0; i < filtered.size(); i++)
+  {
+    Point pt = filtered[i];
+    PointType ptType = getPointType(pt);
+    double psi;
+    int ierr;
+    eval_field_val(&pt.x, &pt.y, &psi, &ierr, false);
+    PhysicsPoint physicsPt(pt, psi, ptType);
+
+    if (ptType == PointType::OPoint)
+      oPoints.push_back(physicsPt);
+    else if (ptType == PointType::XPoint)
+      xPoints.push_back(physicsPt);
+  }
 }
 
-std::vector <PhysicsPoint> CriticalPointsEqdsk::findMinimumSimplexMethod()
+std::vector <Point> CriticalPointsEqdsk::findMinimumSimplexMethod()
 {
   // Step 1: Domain box bounds
   double bbox[4]; // min r, min z, max r, max z
@@ -274,12 +324,12 @@ std::vector <PhysicsPoint> CriticalPointsEqdsk::findMinimumSimplexMethod()
 
   SimplexGrid simplexGrid(x, y, domainBox);
   SimplexMethod simplexMethod(simplexGrid, domainBox);
-  std::vector <PhysicsPoint> minimumPoints = simplexMethod.getCandidates();
+  std::vector <Point> minimumPoints = simplexMethod.getCandidates();
 
   return minimumPoints; 
 }
 
-int CriticalPointsEqdsk::findMinimumNewtonMethod(const Point& initialGuess, Point finalPosition, const std::array<double,4> domain) 
+int CriticalPointsEqdsk::findMinimumNewtonMethod(const Point& initialGuess, Point& finalPosition, const std::array<double,4> domain) 
 {
   //check validity
   if(!inDomain(initialGuess, domain))
@@ -329,7 +379,8 @@ int CriticalPointsEqdsk::findMinimumNewtonMethod(const Point& initialGuess, Poin
   double steplimit_rel = 0.1;  // 10% size of smaller box side limits  one step
   double stepMax = steplimit_rel* std::min(domainBox[3] - domainBox[1], domainBox[2] - domainBox[0]);
   dl = std::min(dl, stepMax);
-  dr = drUnit*dl; dz = dzUnit*dz;
+  dr = drUnit*dl; 
+  dz = dzUnit*dl;
 
   //position update
   trialPosition[0] += dr; 
@@ -376,7 +427,7 @@ int CriticalPointsEqdsk::findMinimumNewtonMethod(const Point& initialGuess, Poin
     dzUnit = dz/dl;
     dl = std::min(dl, stepMax);
     dr = drUnit*dl; 
-    dz = dzUnit*dz;
+    dz = dzUnit*dl;
 
     //position update
     trialPosition[0] += dr; 
@@ -405,15 +456,25 @@ int CriticalPointsEqdsk::findMinimumNewtonMethod(const Point& initialGuess, Poin
   }
 }
 
+const std::vector <PhysicsPoint>& CriticalPointsEqdsk::getOPoints()
+{
+  return oPoints;
+}
+
+const std::vector <PhysicsPoint>& CriticalPointsEqdsk::getXPoints()
+{
+  return xPoints;
+}
+
 /***********************************************/
 // Helper Functions
 /***********************************************/
-double getHessianAtPoint(const Point& pt)
+PointType getPointType(const Point& pt)
 {
   int ier;
   double d2[3];
-
   bool reversePsi = false;  // for now, change it to argument later or define field some other way
+
   // Step 1: Evaluate d^2(psi)/dr^2
   int dr = 2, dz = 0;
   eval_field_deriv(&pt.x, &pt.y, &dr, &dz, &d2[0], &ier, reversePsi);
@@ -434,5 +495,15 @@ double getHessianAtPoint(const Point& pt)
   double det = d2[0]*d2[2] - d2[1]*d2[1];
   assert(det != 0);
 
-  return det;
+  PointType pointType;
+
+  if (det < 0)
+    pointType = PointType::XPoint;     // Saddle point
+  else if (d2[0] > 0)
+    pointType = PointType::OPoint;     // Minimum
+  else if (d2[0] < 0)
+    pointType = PointType::None;     // Maximum
+  
+  return pointType;
 }
+

@@ -36,39 +36,41 @@ class SimplexMethod {
     SimplexMethod(){};
     SimplexMethod(const SimplexGrid& simplexGrid, std::array <double,4> box);
 
-    const std::vector <PhysicsPoint>& getCandidates();
+    const std::vector <Point>& getCandidates();
   private:
     // Input information
     std::array <double, 4> domainBox;
     SimplexGrid grid;
-    WallCurve wallCurve;
 
     // Output information    
-    std::vector <PhysicsPoint> candidates;
+    std::vector <Point> candidates;
 
     // Member functions:
     double evaluateTrialPoint(std::array<std::array<double, 2>, 3>& points, std::array<double,3>& y, std::array<double,2>& pSum, int ihi, double factor);
-    int evaluateMinimum(std::array<std::array<double, 2>, 3>& points, std::array<double,3>& y, const double& funcTolerance, 
-                        const double& relativeTolerance, int& nFunc);
+    int evaluateMinimum(std::array<std::array<double, 2>, 3>& points, std::array<double,3>& y, const double& fToleranceAbs, 
+                        const double& fToleranceRel, int& nFunc);
 };
 
 class CriticalPointsEqdsk{
   public:
     CriticalPointsEqdsk(){};
     CriticalPointsEqdsk(const WallCurve& wall);
+    const std::vector <PhysicsPoint>& getOPoints();
+    const std::vector <PhysicsPoint>& getXPoints();
   private:
     // Input information
     std::array <double, 4> domainBox;
     WallCurve wallCurve;
+    std::vector <Point> wallPoints;
 
     // Information to evaluate first
     std::vector <PhysicsPoint> oPoints;
     std::vector <PhysicsPoint> xPoints;
 
-    std::vector <PhysicsPoint> findMinimumSimplexMethod();
-    int findMinimumNewtonMethod(const Point& initialGuess, Point finalPosition, const std::array<double,4> domain); 
+    std::vector <Point> findMinimumSimplexMethod();
+    int findMinimumNewtonMethod(const Point& initialGuess, Point& finalPosition, const std::array<double,4> domain); 
 };
 
 // Helper Functions:
-double getHessianAtPoint(const Point& pt);
+PointType getPointType(const Point& pt);
 #endif

@@ -29,6 +29,10 @@ std::vector <Point> WallCurve::filterPoints(std::vector <Point>& givenPoints)
     filteredPoints.push_back(givenPoints[i]);  // Save point to final list of points
   }
 
+  // Step 3: If last point is not same as first point, push first point at the end.
+  if (!arePointsSame(filteredPoints[0], filteredPoints[filteredPoints.size()-1]))
+    filteredPoints.push_back(filteredPoints[0]);
+
   return filteredPoints;
 }
 
