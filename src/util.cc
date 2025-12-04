@@ -47,6 +47,8 @@ bool isPointOnCorner(const Point& pt1, const Point& pt2, const Point& pt3)
   return false;
 }
 
+// Function to compare two points. 
+// returns true if points are same, else false.
 bool arePointsSame(const Point& pt1, const Point& pt2)
 {
   double dx = fabs(pt1.x - pt2.x);
@@ -59,13 +61,20 @@ bool arePointsSame(const Point& pt1, const Point& pt2)
   return false;
 }
 
+// Given two endpoints of a line segment (p1 ... p2), and a point (testPoint),
+// evaluate if the testPoint is on left side or right side of line segment.
+// This is done using the orientation (clockwise vs counter clockwise).
 int isLeft(const Point& pt1, const Point& pt2, const Point& testPoint)
 {
+  // Step 1: Define two vector. First for the line segment (edgeVector) and second for the
+  // segment connecting one end point of line and test point.
   std::array <double,2> edgeVector = {pt2.x - pt1.x, pt2.y - pt1.y};
   std::array <double,2> pointToLineVector = {testPoint.x - pt1.x, testPoint.y - pt1.y};
 
+  // Step 2: Evaluate cross product.
   double crossProduct = edgeVector[0]*pointToLineVector[1] - pointToLineVector[0]*edgeVector[1];
 
+  // Step 3: Make the decison based on cross product. 
   if (crossProduct > 0.0)
     return 1;  // is left (counter clock wise)
   else if (crossProduct < 0.0)

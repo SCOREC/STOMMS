@@ -41,9 +41,30 @@ std::vector <double> convertNormToPsiVector(std::vector <double> normPsi, double
  */
 bool isPointOnCorner(const Point& pt1, const Point& pt2, const Point& pt3);
 
+/*
+ * Function to compare two points.
+ * const Point& pt1 (in): first test point.
+ * const Point& pt2 (in): second test point.
+ * returns true if points are same, else false.
+ */
 bool arePointsSame(const Point& pt1, const Point& pt2);
 
+/*
+ * Given two endpoints of a line segment (p1 ... p2), and a point (testPoint),
+ * evaluate if the testPoint is on left side or right side of line segment.
+ * const Point& pt1 (in): end point 1 of line segment.
+ * const Point& pt2 (in): end point 2 of line segment.
+ * const Point& testPoint (in): point to bes tested.
+ * returns true if point is on left side, else false.
+ */
 int isLeft(const Point& pt1, const Point& pt2, const Point& testPoint);
+
+/*
+ * Winding number test for a point in polygon. 
+ * const Point& pt (in): test point.
+ * const std::vector <Point>& curve (in): vector of points defining a closed curve (polygon).
+ * Returs 0 if point is outside the polygon. 
+ */
 int windingNumberPolygonTest(const Point& pt, const std::vector <Point>& curve);
 
 #endif

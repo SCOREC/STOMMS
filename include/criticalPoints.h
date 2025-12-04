@@ -53,8 +53,33 @@ class PhysicsPoint{
 };
 
 // Helper Functions:
-void checkBounds(Point& pt, std::array<double,4> box);
-bool inDomain(const Point& pt, std::array<double,4> box);
+
+/*
+ * If the given Point pt is slightly outside the domain box due to 
+ * floating point inconsistencies, readjust it to the boundary of box.
+ * Point& pt (in, out): point to be tested and adjusted.
+ * const std::array<double,4>& box (in): domain box boundary. 
+ */
+void checkBounds(Point& pt, const std::array<double,4>& box);
+
+/*
+ * Check if the given point pt is inside or outside of the domain box.
+ * const Point& pt (in): point to be tested.
+ * const std::array<double,4>& box (in): domain box boundary.
+ * returns true if the point is inside the box.
+ */
+bool inDomain(const Point& pt, const std::array<double,4>& box);
+
+/*
+ * Given a vector of points, filter the unique points and get rid of duplicates.
+ * const std::vector <Point>& candidates (in): a vector on input points.
+ * returns a vector of filtered points with no duplicates.
+ */
 std::vector <Point> filterUniquePoints(const std::vector <Point>& candidates);
+
+/*
+ *  Given a vector of critical points, print them out for execution report.
+ *  const std::vector <PhysicsPoint>& criticalPoints (in) : a vector of critical points.
+ */
 void printCriticalPoints(const std::vector <PhysicsPoint>& criticalPoints);
 #endif

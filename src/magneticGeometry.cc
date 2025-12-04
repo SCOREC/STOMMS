@@ -121,12 +121,14 @@ ReactorType MagneticGeometryForStellarator::getReactorType() const
 /***********************************************/
 MagneticGeometryForTokamak::MagneticGeometryForTokamak(const WallCurve& wall)
 {
+  // Step 1: Find critical points from EQDSK file and print them.
   wallCurve = wall;
   CriticalPointsEqdsk criticalPoints(wall);
 
   printCriticalPoints(criticalPoints.getOPoints());
   printCriticalPoints(criticalPoints.getXPoints());
 
+  // Step 2: Setup critical points on each plane.
   // Just one plane for tokamak
   oPoints[0] = criticalPoints.getOPoints();
   xPoints[0] = criticalPoints.getXPoints();  
