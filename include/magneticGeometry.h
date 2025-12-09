@@ -69,31 +69,20 @@ class MagneticGeometry{
      * Key in map: plane number (id)
      * Value in map: a vector of OPoints on the plane.   
      */ 
-    const std::map<int, std::vector<PhysicsPoint>>& getOPoints() const;
+    virtual const std::map<int, std::vector<PhysicsPoint>>& getOPoints() const = 0;
 
     /*
      * Function to get a map between plane number and vector of XPoints.
      * Key in map: plane number (id)
      * Value in map: a vector of XPoints on the plane.   
      */ 
-    const std::map<int, std::vector<PhysicsPoint>>& getXPoints() const;
+    virtual const std::map<int, std::vector<PhysicsPoint>>& getXPoints() const = 0;
 
     /*
      * Function to return the VMEC data. All required VMEC data is
      * in the VmecData class.
      */ 
-    const VmecData& getVmecData() const;
-
-    /*
-     * Function to return the EQDSK data.
-     */ 
-    const EqdskData& getEqdskData() const;
-  protected:
-    std::map<int , std::vector<PhysicsPoint>> oPoints;  // map between plane number and OPoints
-    std::map<int , std::vector<PhysicsPoint>> xPoints;  // map between plane number and XPoints
-    VmecData vmec;  // VMEC data (Stellarator core region)
-    EqdskData eqdsk; // EQDSK data (Tokamak magnetic data)
-    BmwData bmw;  // For future. Might use alternate options for outside LCFS magnetic geometry.
+    virtual const VmecData& getVmecData() const = 0;
 };
 
 /*
@@ -106,25 +95,49 @@ class MagneticGeometryForStellarator: public MagneticGeometry{
     /*
      * Constructor to set magnetic geometry information from stellarator to class MagneticGeometry.
      * const args& a (in): class holding all the input data (magnetic geometry, modeling and meshing parameters etc.)
-     */ 
+    */ 
     MagneticGeometryForStellarator(const std::string& vmecFileName);
 
     /*
      * A function to return psi value of the axis in the vmec domain.
-     */ 
+    */ 
     double getPsiAxis() const override;
 
     /*
      * A function to return psi value of the last closed flux curve in the vmec domain.
-     */ 
+    */ 
     double getPsiLCFS() const override;
 
     /*
      * Return the reactor type(Stellarator for this class).
-     */
-     ReactorType getReactorType() const override; 
+    */
+     ReactorType getReactorType() const override;
+
+    /*
+     * Function to get a map between plane number and vector of OPoints.
+     * Key in map: plane number (id)
+     * Value in map: a vector of OPoints on the plane.   
+    */ 
+    const std::map<int, std::vector<PhysicsPoint>>& getOPoints() const override;
+
+    /*
+     * Function to get a map between plane number and vector of XPoints.
+     * Key in map: plane number (id)
+     * Value in map: a vector of XPoints on the plane.   
+     */ 
+    const std::map<int, std::vector<PhysicsPoint>>& getXPoints() const override;
+
+    /*
+     * Function to return the VMEC data. All required VMEC data is
+     * in the VmecData class.
+    */ 
+    const VmecData& getVmecData() const override;
+
   private:
     std::string vmecFile;    
+    std::map<int , std::vector<PhysicsPoint>> oPoints;  // map between plane number and OPoints
+    std::map<int , std::vector<PhysicsPoint>> xPoints;  // map between plane number and XPoints
+    VmecData vmec;  // VMEC data (Stellarator core region)
     
     /*
      * Read input VMEC file and store relevant data in struct vmecData.
@@ -148,8 +161,30 @@ class MagneticGeometryForTokamak: public MagneticGeometry{
     double getPsiLCFS() const override {return 0.0;};
 
     ReactorType getReactorType() const override {return ReactorType::Tokamak;};
+    
+    /*
+     * Function to get a map between plane number and vector of OPoints.
+     * Key in map: plane number (id)
+     * Value in map: a vector of OPoints on the plane.   
+    */ 
+    const std::map<int, std::vector<PhysicsPoint>>& getOPoints() const override;
+
+    /*
+     * Function to get a map between plane number and vector of XPoints.
+     * Key in map: plane number (id)
+     * Value in map: a vector of XPoints on the plane.   
+     */ 
+    const std::map<int, std::vector<PhysicsPoint>>& getXPoints() const override;
+
+    /*
+     * Function to return the VMEC data. All required VMEC data is
+     * in the VmecData class.
+    */ 
+    const VmecData& getVmecData() const override;
   private:
-    WallCurve wallCurve;
+    WallCurve wallCurve; 
+    std::map<int , std::vector<PhysicsPoint>> oPoints;  // map between plane number and OPoints
+    std::map<int , std::vector<PhysicsPoint>> xPoints;  // map between plane number and XPoints
 };
 
 /*

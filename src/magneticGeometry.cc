@@ -1,30 +1,6 @@
 #include "magneticGeometry.h"
 
 /***********************************************/
-// Class: MagneticGeometry
-// Base class for magnetic geometry
-/***********************************************/
-const std::map<int,std::vector<PhysicsPoint>>& MagneticGeometry::getOPoints() const
-{
-  return oPoints;
-}
-
-const std::map<int,std::vector<PhysicsPoint>>& MagneticGeometry::getXPoints() const
-{
-  return xPoints;
-}
-
-const VmecData& MagneticGeometry::getVmecData() const
-{
-  return vmec;
-}
-
-const EqdskData& MagneticGeometry::getEqdskData() const
-{
-  return eqdsk;
-}
-
-/***********************************************/
 // Class: MagneticGeometryForStellarator
 // Derived class for MagneticGeometry
 /***********************************************/
@@ -115,6 +91,24 @@ ReactorType MagneticGeometryForStellarator::getReactorType() const
   return ReactorType::Stellarator;
 }
 
+// Function to get a map between plane number and vector of OPoints.
+const std::map<int, std::vector<PhysicsPoint>>& MagneticGeometryForStellarator::getOPoints() const
+{
+  return oPoints;
+}
+
+// Function to get a map between plane number and vector of XPoints.
+const std::map<int, std::vector<PhysicsPoint>>& MagneticGeometryForStellarator::getXPoints() const
+{
+  return xPoints;
+}
+
+// Function to return the VMEC data.
+const VmecData& MagneticGeometryForStellarator::getVmecData() const
+{
+  return vmec;
+}
+
 /***********************************************/
 // Class: MagneticGeometryForTokamak
 // Derived class for MagneticGeometry
@@ -133,6 +127,28 @@ MagneticGeometryForTokamak::MagneticGeometryForTokamak(const WallCurve& wall)
   oPoints[0] = criticalPoints.getOPoints();
   xPoints[0] = criticalPoints.getXPoints();  
 }
+
+// Function to get a map between plane number and vector of OPoints.
+const std::map<int, std::vector<PhysicsPoint>>& MagneticGeometryForTokamak::getOPoints() const
+{
+  return oPoints;
+}
+
+// Function to get a map between plane number and vector of XPoints.
+const std::map<int, std::vector<PhysicsPoint>>& MagneticGeometryForTokamak::getXPoints() const
+{
+  return xPoints;
+}
+
+// Function to return the VMEC data. Not applicable for Tokamaks. 
+// Return an error message.
+const VmecData& MagneticGeometryForTokamak::getVmecData() const
+{
+  std::cerr << "Input magnetic field is EQDSK for Tokamaks. Make sure to provide VMEC input file to use this function\n";
+  std::cerr << "If not, use the correct functions to access magnetic field data from EQDSK file\n";
+  exit(1);
+}
+
 
 /* 
  * Function to set magnetic geometry.
