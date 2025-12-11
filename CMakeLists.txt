@@ -28,15 +28,14 @@ execute_process(
 )
 
 if (gitHashFound EQUAL 0)
-  message("-- Git Version: ${STOMMS_GIT_HASH}")
+  message(STATUS "Git Version: ${STOMMS_GIT_HASH}")
 else()
-  message("-- Warning: GIT_HASH not found")
+  message(STATUS "-- Warning: GIT_HASH not found")
 endif()
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/include/stommsVersion.h.in" "${CMAKE_INSTALL_INCLUDEDIR}/stommsVersion.h" @ONLY)
 
 # set sources files in STELLMESH_SRCS
 set(STELLMESH_SRCS
-  src/main.cc
   src/input.cc
   src/physicalGeometry.cc
   src/criticalPoints.cc
@@ -54,23 +53,42 @@ set(STELLMESH_SRCS
   src/ezfit.F90
 )
 
-# Add executables and include the directory containing header files
-add_executable(stell_meshgen ${STELLMESH_SRCS})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)        # Header files for the code
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR})  # for stommsVersion.h header file.
+# Add library
+add_library(stommsLib ${STELLMESH_SRCS})
 
 # Link dependent libraries and header files
-target_link_libraries(stell_meshgen PRIVATE MPI::MPI_CXX OpenMP::OpenMP_CXX)
-target_link_libraries(stell_meshgen PRIVATE ${SIMMODSUITE_LIBS})
-target_link_libraries(stell_meshgen PRIVATE PkgConfig::netcdf-cxx4)
-target_link_libraries(stell_meshgen PRIVATE ${PSPLINE_LIBRARIES})
-target_link_libraries(stell_meshgen PRIVATE Omega_h::omega_h)
-target_link_libraries(stell_meshgen PRIVATE ${ADIOS2_LIB_DIR}/libadios2_cxx11.so)
+target_include_directories(stommsLib PUBLIC 
+  ${CMAKE_CURRENT_SOURCE_DIR}/include  # Header files for the code
+  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR}  # for stommsVersion.h header file
+  ${SIMMODSUITE_INCLUDE_DIR}
+  ${PSPLINE_INCLUDE_DIR}
+  ${ADIOS2_INCLUDE_DIR}
+)
 
-target_include_directories(stell_meshgen PRIVATE ${SIMMODSUITE_INCLUDE_DIR})
-target_include_directories(stell_meshgen PRIVATE ${PSPLINE_INCLUDE_DIR})
-target_include_directories(stell_meshgen PRIVATE ${ADIOS2_INCLUDE_DIR})
+target_link_libraries(stommsLib PUBLIC 
+   MPI::MPI_CXX OpenMP::OpenMP_CXX
+   ${SIMMODSUITE_LIBS}
+   PkgConfig::netcdf-cxx4
+   ${PSPLINE_LIBRARIES}
+   Omega_h::omega_h
+   ${ADIOS2_LIB_DIR}/libadios2_cxx11.so
+)
+                                           
+# Finally add executable
+add_executable(stomms_meshgen src/main.cc)
+target_link_libraries(stomms_meshgen PRIVATE stommsLib)
+
+# Enable testing if its set to ON in config file
+option(ENABLE_TESTING "Build for CTest" OFF)
+message(STATUS "ENABLE_TESTING: ${ENABLE_TESTING}")
+
+if(ENABLE_TESTING)
+  set(TEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/testCases" CACHE STRING "Directory of test cases")
+  message(STATUS "TEST_DIR: ${TEST_DIR}")
+  
+  add_subdirectory(test)
+endif()
 
 # Install the target
-install(TARGETS stell_meshgen
+install(TARGETS stomms_meshgen
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
