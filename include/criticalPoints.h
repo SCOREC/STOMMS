@@ -5,6 +5,7 @@
 #include "physicalGeometry.h"
 #include <array>
 #include <cmath>
+#include <algorithm>
 
 /*
  * Basic model vertices types.
@@ -82,4 +83,12 @@ std::vector <Point> filterUniquePoints(const std::vector <Point>& candidates);
  *  const std::vector <PhysicsPoint>& criticalPoints (in) : a vector of critical points.
  */
 void printCriticalPoints(const std::vector <PhysicsPoint>& criticalPoints);
+
+/*
+ * Given two points, compare their pis values. If psi of pt1 is less than or equal to
+ * psi of pt 2, return true.
+ * const PhysicsPoint& pt1 (in): first point
+ * const PhysicsPoint& pt2 (in): second point
+ */
+bool comparePhysicsPoints(const PhysicsPoint& pt1, const PhysicsPoint& pt2);
 #endif

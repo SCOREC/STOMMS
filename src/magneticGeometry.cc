@@ -119,13 +119,20 @@ MagneticGeometryForTokamak::MagneticGeometryForTokamak(const WallCurve& wall)
   wallCurve = wall;
   CriticalPointsEqdsk criticalPoints(wall);
 
-  printCriticalPoints(criticalPoints.getOPoints());
-  printCriticalPoints(criticalPoints.getXPoints());
+  // Step 2: Read and sort critical points.
+  std::vector <PhysicsPoint> oPointsVec = criticalPoints.getOPoints();
+  std::vector <PhysicsPoint> xPointsVec = criticalPoints.getXPoints();
+  std::sort(oPointsVec.begin(), oPointsVec.end(), comparePhysicsPoints);
+  std::sort(xPointsVec.begin(), xPointsVec.end(), comparePhysicsPoints);
+
+  // Step 3: Print critical points
+  printCriticalPoints(oPointsVec);
+  printCriticalPoints(xPointsVec);
 
   // Step 2: Setup critical points on each plane.
   // Just one plane for tokamak
-  oPoints[0] = criticalPoints.getOPoints();
-  xPoints[0] = criticalPoints.getXPoints();  
+  oPoints[0] = oPointsVec;
+  xPoints[0] = xPointsVec;  
 }
 
 // Function to get a map between plane number and vector of OPoints.

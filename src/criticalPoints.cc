@@ -121,4 +121,12 @@ void printCriticalPoints(const std::vector <PhysicsPoint>& criticalPoints)
     std::cout << "\t\tPosition of " << pointType << " # " << i+1 << " (R,Z) = (" << pt.x << ", " << pt.y << ")\n";
     std::cout << "\t\tMagnetic flux (psi) " << pointType << " # " << i+1 << " = " << criticalPoints[i].getPsi() << "\n";
   }
-} 
+}
+
+// Function to compare two physics points value. Need to feed this function 
+// to std::sort.
+bool comparePhysicsPoints(const PhysicsPoint& pt1, const PhysicsPoint& pt2)
+{
+  return pt1.getPsi() <= pt2.getPsi();
+}
+ 

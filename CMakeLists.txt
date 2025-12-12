@@ -85,7 +85,8 @@ message(STATUS "ENABLE_TESTING: ${ENABLE_TESTING}")
 if(ENABLE_TESTING)
   set(TEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/testCases" CACHE STRING "Directory of test cases")
   message(STATUS "TEST_DIR: ${TEST_DIR}")
-  
+ 
+  enable_testing() 
   add_subdirectory(test)
 endif()
 
