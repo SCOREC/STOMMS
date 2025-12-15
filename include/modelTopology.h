@@ -11,9 +11,12 @@
 
 // Struct Point defines a point in terms of physical coordinates (x,y,z).
 struct Point{
-  double x;
-  double y;
-  double z;
+  Point(){};
+  Point(double xCoord, double yCoord);
+  Point(double xCoord, double yCoord, double zCoord);
+  double x = 0.0;
+  double y = 0.0;
+  double z = 0.0;
 };
 
 // Vertex class contains the information on geometric vertex

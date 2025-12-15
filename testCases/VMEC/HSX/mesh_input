@@ -1,0 +1,38 @@
+!***********************************************************************************
+!******************MAGNETIC FIELD SOURCE FILES (VMEC, EQDSK for now)****************
+!***********************************************************************************
+
+!****************** STELLARATOR VMEC *************** 
+!The name of the vmec file for the core region
+vmecFile wout_HSX.nc
+
+ !****************** TOKAMAK EQDSK ***************
+!The name of eqdsk file for the tokamak cases
+!eqdskFile g096333.03337 
+
+!If set to 1, this reverses the sign of Psi in eqdsk file, 
+!allowing minimum at axis.(default 0)
+reversePsi 0
+
+!Factor to rescale psi (default 1.0)
+eqdPsiFactor 1.3
+
+!***********************************************************************************
+!******************PHYSICAL COMPONENTS SOURCES (WALL CURVE FOR NOW)*****************
+!***********************************************************************************
+
+!limiterFile lim_adj_PT2.txt
+
+!***********************************************************************************
+!*******************************RESOLUTION SETTINGS*********************************
+!***********************************************************************************
+ 
+!The file containing the number and normalized psi values of flux curves
+fluxFile flux.txt 
+
+!The file containing the number and toroidal angles of the desired poloidal planes
+planeFile plane.txt
+
+!Set the mesh size from the input file
+meshSizeFile mesh_size.txt
+

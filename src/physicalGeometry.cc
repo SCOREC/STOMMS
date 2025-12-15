@@ -23,11 +23,15 @@ std::vector <Point> WallCurve::filterPoints(std::vector <Point>& givenPoints)
     int backward = i-1;  
     int forward = (i+1)%numPts;
     
-    if(!isPointOnCorner(&givenPoints[backward], &givenPoints[i], &givenPoints[forward]))
+    if(!isPointOnCorner(givenPoints[backward], givenPoints[i], givenPoints[forward]))
       continue;  // skip the point
 
     filteredPoints.push_back(givenPoints[i]);  // Save point to final list of points
   }
+
+  // Step 3: If last point is not same as first point, push first point at the end.
+  if (!arePointsSame(filteredPoints[0], filteredPoints[filteredPoints.size()-1]))
+    filteredPoints.push_back(filteredPoints[0]);
 
   return filteredPoints;
 }
@@ -64,7 +68,6 @@ WallCurveFromEqdsk::WallCurveFromEqdsk()
   
   // Step 3: Get final points (filtered).
   points = filterPoints(givenPoints);
-
 }
 
 /***********************************************/

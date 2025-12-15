@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 
     // Step 3: Setup the magnetic field information. 
     //MagneticGeometry mg(a);
-    std::shared_ptr <MagneticGeometry> mg = setMagneticGeometry(a);
+    std::shared_ptr <MagneticGeometry> mg = setMagneticGeometry(a, physicalGeometry);
 
     // Step 4: Setup the STOMMS class to intialize Simmetrix objects.
     STOMMS s;

@@ -3,59 +3,13 @@
 
 #include <memory>
 #include "input.h"
-#include "modelTopology.h"
+#include "criticalPointsEqdsk.h"
+#include "physicalGeometry.h"
 #include "ncFile.h"
 #include "ncVar.h"
 #include "gfileUtil.h"
 
 using namespace netCDF;
-
-/*
- * Basic model vertices types.
- */
-enum class PointType{
-  OPoint,
-  XPoint,
-  None
-};
-
-/*
- * Physics point contains both the physical coordinate (Point) and physics
- * properties such as point type, psi values. Add more point properties here
- * if needed.
- */
-class PhysicsPoint{
-  public:
-    PhysicsPoint(){};
-
-    /*
-     * Constructor.
-     * const Point& point (in): physical coordinates of the point defined in Point.
-     * const double& psiAtPoint (in): psi value at the point.
-     * const PointType pType (in): physics type of the point (oPoint, xPoint).
-     */ 
-    PhysicsPoint(const Point& point, const double& psiAtPoint, const PointType pType);
-
-    /*
-     * Function to get physical coordinates of a point.
-     */ 
-    const Point& getPoint() const;
-
-    /*
-     * Function to get psi value at a point.
-     */ 
-    const double& getPsi() const;
-
-    /*
-     * Function to get point type.
-     */ 
-    const PointType& getPointType() const;
-  private:
-    Point pt;  // Point in physical space
-    double psi;  // associated psi value 
-    PointType pointType = PointType::None;  // initialize point with type None.  
-}; 
-
 
 // Struct VmecData contains all the input VmecData.
 struct VmecData{
@@ -115,62 +69,73 @@ class MagneticGeometry{
      * Key in map: plane number (id)
      * Value in map: a vector of OPoints on the plane.   
      */ 
-    const std::map<int, std::vector<PhysicsPoint>>& getOPoints() const;
+    virtual const std::map<int, std::vector<PhysicsPoint>>& getOPoints() const = 0;
 
     /*
      * Function to get a map between plane number and vector of XPoints.
      * Key in map: plane number (id)
      * Value in map: a vector of XPoints on the plane.   
      */ 
-    const std::map<int, std::vector<PhysicsPoint>>& getXPoints() const;
+    virtual const std::map<int, std::vector<PhysicsPoint>>& getXPoints() const = 0;
 
     /*
      * Function to return the VMEC data. All required VMEC data is
      * in the VmecData class.
      */ 
-    const VmecData& getVmecData() const;
-
-    /*
-     * Function to return the EQDSK data.
-     */ 
-    const EqdskData& getEqdskData() const;
-  protected:
-    std::map<int , std::vector<PhysicsPoint>> oPoints;  // map between plane number and OPoints
-    std::map<int , std::vector<PhysicsPoint>> xPoints;  // map between plane number and XPoints
-    VmecData vmec;  // VMEC data (Stellarator core region)
-    EqdskData eqdsk; // EQDSK data (Tokamak magnetic data)
-    BmwData bmw;  // For future. Might use alternate options for outside LCFS magnetic geometry.
+    virtual const VmecData& getVmecData() const = 0;
 };
 
 /*
- * A class to hold all the magnetic geometries. Only VMEC is supported 
- * at the moemnt. Reads the data from args class that handles all the 
- * input data.
+ * A class to hold magnetic geometry of Stellarators. 
  */
 class MagneticGeometryForStellarator: public MagneticGeometry{
   public:
     /*
      * Constructor to set magnetic geometry information from stellarator to class MagneticGeometry.
      * const args& a (in): class holding all the input data (magnetic geometry, modeling and meshing parameters etc.)
-     */ 
+    */ 
     MagneticGeometryForStellarator(const std::string& vmecFileName);
 
     /*
      * A function to return psi value of the axis in the vmec domain.
-     */ 
+    */ 
     double getPsiAxis() const override;
 
     /*
      * A function to return psi value of the last closed flux curve in the vmec domain.
-     */ 
+    */ 
     double getPsiLCFS() const override;
 
     /*
      * Return the reactor type(Stellarator for this class).
-     */
-     ReactorType getReactorType() const override; 
+    */
+     ReactorType getReactorType() const override;
+
+    /*
+     * Function to get a map between plane number and vector of OPoints.
+     * Key in map: plane number (id)
+     * Value in map: a vector of OPoints on the plane.   
+    */ 
+    const std::map<int, std::vector<PhysicsPoint>>& getOPoints() const override;
+
+    /*
+     * Function to get a map between plane number and vector of XPoints.
+     * Key in map: plane number (id)
+     * Value in map: a vector of XPoints on the plane.   
+     */ 
+    const std::map<int, std::vector<PhysicsPoint>>& getXPoints() const override;
+
+    /*
+     * Function to return the VMEC data. All required VMEC data is
+     * in the VmecData class.
+    */ 
+    const VmecData& getVmecData() const override;
+
   private:
     std::string vmecFile;    
+    std::map<int , std::vector<PhysicsPoint>> oPoints;  // map between plane number and OPoints
+    std::map<int , std::vector<PhysicsPoint>> xPoints;  // map between plane number and XPoints
+    VmecData vmec;  // VMEC data (Stellarator core region)
     
     /*
      * Read input VMEC file and store relevant data in struct vmecData.
@@ -180,10 +145,52 @@ class MagneticGeometryForStellarator: public MagneticGeometry{
 }; 
 
 /*
+ * A class to hold magnetic geometry of Tokamak.
+ */
+class MagneticGeometryForTokamak: public MagneticGeometry{
+  public:
+    MagneticGeometryForTokamak(const WallCurve& wall, const bool& useReversePsi);
+
+    /*
+     * A function to return psi value of the axis in the tokamak domain.
+     */ 
+    double getPsiAxis() const override {return 0.0;};
+
+    double getPsiLCFS() const override {return 0.0;};
+
+    ReactorType getReactorType() const override {return ReactorType::Tokamak;};
+    
+    /*
+     * Function to get a map between plane number and vector of OPoints.
+     * Key in map: plane number (id)
+     * Value in map: a vector of OPoints on the plane.   
+    */ 
+    const std::map<int, std::vector<PhysicsPoint>>& getOPoints() const override;
+
+    /*
+     * Function to get a map between plane number and vector of XPoints.
+     * Key in map: plane number (id)
+     * Value in map: a vector of XPoints on the plane.   
+     */ 
+    const std::map<int, std::vector<PhysicsPoint>>& getXPoints() const override;
+
+    /*
+     * Function to return the VMEC data. All required VMEC data is
+     * in the VmecData class.
+    */ 
+    const VmecData& getVmecData() const override;
+  private:
+    WallCurve wallCurve;
+    bool reversePsi; 
+    std::map<int , std::vector<PhysicsPoint>> oPoints;  // map between plane number and OPoints
+    std::map<int , std::vector<PhysicsPoint>> xPoints;  // map between plane number and XPoints
+};
+
+/*
  * Function to set magnetic geometry. This function makes decision based on type
  * of reactor, and set magnetic geometry accordingly.
  * const args& input (in): class holding all the input data
  */
-std::unique_ptr <MagneticGeometry> setMagneticGeometry(const args& input);
+std::unique_ptr <MagneticGeometry> setMagneticGeometry(const args& input, const PhysicalGeometry& physicalGeometry);
 
 #endif

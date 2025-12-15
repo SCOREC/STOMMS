@@ -61,6 +61,10 @@ class args{
      */ 
     const ReactorType& getReactorType() const;
 
+    /*
+     * Function to check if psi is reverse or not.
+     */
+    const bool& useReversePsi() const; 
   private:
     // Input parameters
     std::string inputFile;
@@ -71,10 +75,10 @@ class args{
     std::string meshSizeFile;	// Input file to define the mesh size on each flux curve in terms of number of desired points on flux curves.
     std::string limiterFile;    // Input file for the wall curve (limiter). Optional
     
-    bool reversePsi;            // To reverse the given psi values to get minimum psi at axis.
-
     // Variables and containers for internal use
-    ReactorType reactorType = ReactorType::Stellarator;  // Default Stellarator for now.    
+    bool reversePsi;            // To reverse the given psi values to get minimum psi at axis.
+    double eqdPsiFactor;        // A factor to multipy the psi field.
+    ReactorType reactorType;
  
    /*
      * Hierarchy in Input data to understand how to call data from other parts of code.

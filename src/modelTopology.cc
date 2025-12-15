@@ -1,5 +1,10 @@
 #include "modelTopology.h"
 
+// Physical Point Definition
+Point::Point(double xCoord, double yCoord):x(xCoord),y(yCoord){}
+Point::Point(double xCoord, double yCoord, double zCoord): x(xCoord),y(yCoord), z(zCoord) {}
+
+
 // Model Vertex Definitions
 // Function to get the Simmetrix vertex and to use it in the definition of Vertex.
 void Vertex::setSimVertex(pGVertex simVertex)

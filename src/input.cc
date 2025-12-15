@@ -16,7 +16,9 @@ args::args(int argc, char* argv[])
 // This function initializes the input parameters with default values.
 void args::setDefaultValues()
 {
+  reactorType = ReactorType::Stellarator;  // Default Stellarator for now.
   reversePsi = false;
+  eqdPsiFactor = 1.0;
 }
 
 // This function reads the input parameter from the mesh input file.
@@ -53,6 +55,8 @@ void args::setValuesFromInputFile()
       input >> limiterFile;
     else if (token == "reversePsi")
       input >> reversePsi;
+    else if (token == "eqdPsiFactor")
+      input >> eqdPsiFactor;
   }
   input.close();
 }
@@ -232,21 +236,17 @@ std::vector<double> args::readPlaneFile()
 // functions in next steps. 
 void args::initializeEqdskFile()
 {
-  // Step 1: Initialize few of the variables that are taken as
-  // input in TOMMS (should be add to parametes list??)
-  double eqd_psi_factor = 1.0;
-
-  // Step 2: Read the length of file string and set psi factor.
+  // Step 1: Read the length of file string and set psi factor.
   // Not sure how factor works (but without it, it pspline throws an error.
   // Figure it out.
   int strLength = eqdskFile.length();
-  set_eqd_psi_factor_(&eqd_psi_factor);
+  set_eqd_psi_factor_(&eqdPsiFactor);
 
-  // Step 3: Check if the file is eqd (no wall) or gFile,
+  // Step 2: Check if the file is eqd (no wall) or gFile,
   // and set the tag. Then laod the file.
   int eqd_tag = 0;
 
-  // Step 3.1: If last 4 character of file name are ".eqd", its an eqd file.
+  // Step 2.1: If last 4 character of file name are ".eqd", its an eqd file.
   if(eqdskFile.compare(eqdskFile.size()-4,4,".eqd")==0)
   {  // eqd format
     eqd_tag=1;
@@ -288,4 +288,9 @@ const std::string& args::getVmecFile() const
 const InputData& args::getInputData() const
 {
   return in;
+}
+
+const bool& args::useReversePsi() const
+{
+  return reversePsi;
 }
