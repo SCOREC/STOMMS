@@ -68,7 +68,6 @@ WallCurveFromEqdsk::WallCurveFromEqdsk()
   
   // Step 3: Get final points (filtered).
   points = filterPoints(givenPoints);
-
 }
 
 /***********************************************/

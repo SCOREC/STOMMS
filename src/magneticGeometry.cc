@@ -113,11 +113,13 @@ const VmecData& MagneticGeometryForStellarator::getVmecData() const
 // Class: MagneticGeometryForTokamak
 // Derived class for MagneticGeometry
 /***********************************************/
-MagneticGeometryForTokamak::MagneticGeometryForTokamak(const WallCurve& wall)
+MagneticGeometryForTokamak::MagneticGeometryForTokamak(const WallCurve& wall, const bool& useReversePsi)
 {
   // Step 1: Find critical points from EQDSK file and print them.
   wallCurve = wall;
-  CriticalPointsEqdsk criticalPoints(wall);
+  reversePsi = useReversePsi;
+  CriticalPointsEqdsk criticalPoints(wall, reversePsi);
+  std::cout << "Reverse Psi " << (reversePsi == true ? "ON" : "OFF" ) << "\n";
 
   // Step 2: Read and sort critical points.
   std::vector <PhysicsPoint> oPointsVec = criticalPoints.getOPoints();
@@ -132,7 +134,7 @@ MagneticGeometryForTokamak::MagneticGeometryForTokamak(const WallCurve& wall)
   // Step 2: Setup critical points on each plane.
   // Just one plane for tokamak
   oPoints[0] = oPointsVec;
-  xPoints[0] = xPointsVec;  
+  xPoints[0] = xPointsVec;
 }
 
 // Function to get a map between plane number and vector of OPoints.
@@ -155,7 +157,6 @@ const VmecData& MagneticGeometryForTokamak::getVmecData() const
   std::cerr << "If not, use the correct functions to access magnetic field data from EQDSK file\n";
   exit(1);
 }
-
 
 /* 
  * Function to set magnetic geometry.
@@ -194,8 +195,8 @@ std::unique_ptr <MagneticGeometry> setMagneticGeometry(const args& input, const 
     std::cout << "Geometry (Reactor) Type: Tokamak \n";
     int planeNum = 0; // for tokamaks
     WallCurve wall = physicalGeometry.getWallCurveAtPlane(planeNum);
-    mg =  std::make_unique<MagneticGeometryForTokamak>(wall);
-    
+    bool reversePsi = input.useReversePsi();
+    mg =  std::make_unique<MagneticGeometryForTokamak>(wall, reversePsi);
   }
 
   return mg;

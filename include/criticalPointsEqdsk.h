@@ -55,7 +55,7 @@ class SimplexMethod {
      * const SimplexGrid& simplexGrid (in): a grid of 2D simplexes.
      * const std::array<double,4>& box (in): domain box.
      */ 
-    SimplexMethod(const SimplexGrid& simplexGrid, const std::array <double,4>& box);
+    SimplexMethod(const SimplexGrid& simplexGrid, const std::array <double,4>& box, const bool& useReversePsi);
 
     /*
      * Function to return the minimum found from Simplex method. 
@@ -65,6 +65,7 @@ class SimplexMethod {
     // Input information
     std::array <double, 4> domainBox;  // domain box
     SimplexGrid grid;  // simplex grid.
+    bool reversePsi = false;
 
     // Output information    
     std::vector <Point> candidates;  
@@ -112,7 +113,7 @@ class CriticalPointsEqdsk{
      * evaluates the critical points in the doamin.
      * const WallCurve& wall (in): input wall curve.
      */ 
-    CriticalPointsEqdsk(const WallCurve& wall);
+    CriticalPointsEqdsk(const WallCurve& wall, const bool& reversePsi);
 
     /*
      * Function to return O-points in the domain.
@@ -128,6 +129,7 @@ class CriticalPointsEqdsk{
     std::array <double, 4> domainBox;
     WallCurve wallCurve;
     std::vector <Point> wallPoints;
+    bool useReversePsi;
 
     // Information to evaluate.
     std::vector <PhysicsPoint> oPoints;
@@ -158,6 +160,6 @@ class CriticalPointsEqdsk{
  * const Point& pt (in): point to be tested.
  * returns point type (PointType::XPoint, PointType::OPoint, PointType::None)
  */
-PointType getPointType(const Point& pt);
+PointType getPointType(const Point& pt, bool reversePsi);
 
 #endif

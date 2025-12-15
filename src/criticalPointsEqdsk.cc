@@ -63,11 +63,12 @@ SimplexGrid::SimplexGrid(int xResolution, int yResolution, const std::array<doub
 /***********************************************/
 // Class SimplexMethod
 /***********************************************/
-SimplexMethod::SimplexMethod(const SimplexGrid& simplexGrid, const std::array <double,4>& box)
+SimplexMethod::SimplexMethod(const SimplexGrid& simplexGrid, const std::array <double,4>& box, const bool& useReversePsi)
 {
   // Step 1: Read domain information and grid of simplexes.
   domainBox = box;
   grid = simplexGrid;
+  reversePsi = useReversePsi;
 
    // Step 2: Set up variables for Simplex points, tolerance, and number of iterations.
   std::array<std::array<double, 2>, 3> simplexPoints;
@@ -91,7 +92,7 @@ SimplexMethod::SimplexMethod(const SimplexGrid& simplexGrid, const std::array <d
     
     // Step 3.1: Get field value (grad_psi) for each of the points of simplex.
     for (int j = 0; j < 3; j++)
-      eval_field_grad_abs2(&simplexPoints[j][0], &simplexPoints[j][1], &gradPsi[j], &ierr, false);
+      eval_field_grad_abs2(&simplexPoints[j][0], &simplexPoints[j][1], &gradPsi[j], &ierr, reversePsi);
 
     // Step 3.2: Evaluate minimums from each simplex. If returned 0, means no minium found, so move
     // to next simplex. If returns 1, means a minium is found from given simplex.
@@ -131,7 +132,7 @@ double SimplexMethod::evaluateTrialPoint(std::array<std::array<double, 2>, 3>& p
   //  the highest point (ihi) replace ihi with trial point. Update 
   //  pSum and return trial point.
   int ierr;
-  eval_field_grad_abs2(&pTry[0], &pTry[1], &yTry, &ierr, false);
+  eval_field_grad_abs2(&pTry[0], &pTry[1], &yTry, &ierr, reversePsi);
   if (yTry < y[ihi]) 
   {
     y[ihi] = yTry;
@@ -237,7 +238,7 @@ int SimplexMethod::evaluateMinimum(std::array<std::array<double, 2>, 3>& points,
           {
             for(int j = 0; j < 2; j++)
               points[i][j] = pSum[j] = 0.5 * (points[i][j] + points[ilo][j]);
-            eval_field_grad_abs2(&pSum[0], &pSum[1], &y[i], &ierr, false);
+            eval_field_grad_abs2(&pSum[0], &pSum[1], &y[i], &ierr, reversePsi);
           }
         }
 
@@ -277,7 +278,8 @@ const std::vector <Point>& SimplexMethod::getCandidates()
 /***********************************************/
 // Class CriticalPointsEqdsk
 /***********************************************/
-CriticalPointsEqdsk::CriticalPointsEqdsk(const WallCurve& wall):wallCurve(wall)
+CriticalPointsEqdsk::CriticalPointsEqdsk(const WallCurve& wall, const bool& reversePsi):
+                                         wallCurve(wall), useReversePsi(reversePsi)
 {
   std::cout << "==========CRITICAL POINTS SEARCH==========\n";
   wallPoints = wallCurve.getPoints();
@@ -289,18 +291,7 @@ CriticalPointsEqdsk::CriticalPointsEqdsk(const WallCurve& wall):wallCurve(wall)
   // Step 2: Filter out the points that are outside the wall curve 
   // and only keep unique points (get rid of duplicates). Save 
   // unique points in a new vector.
-  for (int  i = 0; i < candidates.size(); i++)
-  {
-    Point pt = candidates[i];
-
-    // Step 2.1: If outside the wall curve, erase it from vector and
-    // reset iterator.
-    if (windingNumberPolygonTest(pt, wallPoints) == 0)
-    {
-      candidates.erase(candidates.begin()+i);
-      i--;
-    }
-  }
+  filterOutsideTheWallPoints(candidates, wallPoints);
   std::vector <Point> filtered = filterUniquePoints(candidates);  
 
   // Step 3: Execute Newton Method.
@@ -308,13 +299,12 @@ CriticalPointsEqdsk::CriticalPointsEqdsk(const WallCurve& wall):wallCurve(wall)
   for (int i = 0; i < filtered.size(); i++)
   {
     Point pt = filtered[i], ptFinal;
-
+    if (i == 0)
+      std::cout << "Newton Method Started ..........\n";
+ 
     // Step 3.1: If point is outside wall curve, ignore it.
     if (windingNumberPolygonTest(pt, wallPoints) == 0)
       continue;
-
-    if (i == 0)
-      std::cout << "Newton Method Started ..........\n";      
 
     // Step 3.4: If minimum, save it to the a new vector.
     int returnIndx = findMinimumNewtonMethod(pt, ptFinal, domainBox);
@@ -324,6 +314,7 @@ CriticalPointsEqdsk::CriticalPointsEqdsk(const WallCurve& wall):wallCurve(wall)
 
   // Step 4: Clear the old filtered vector and do filteration step again.
   filtered.clear();
+  filterOutsideTheWallPoints(updatedPoints, wallPoints);
   filtered = filterUniquePoints(updatedPoints);
   updatedPoints.clear();
 
@@ -331,10 +322,10 @@ CriticalPointsEqdsk::CriticalPointsEqdsk(const WallCurve& wall):wallCurve(wall)
   for (int i = 0; i < filtered.size(); i++)
   {
     Point pt = filtered[i];
-    PointType ptType = getPointType(pt);
+    PointType ptType = getPointType(pt, useReversePsi);
     double psi;
     int ierr;
-    eval_field_val(&pt.x, &pt.y, &psi, &ierr, false);
+    eval_field_val(&pt.x, &pt.y, &psi, &ierr, useReversePsi);
 
     // Step 5.1: Setup PhysicsPoint.
     PhysicsPoint physicsPt(pt, psi, ptType);
@@ -361,7 +352,7 @@ std::vector <Point> CriticalPointsEqdsk::findMinimumSimplexMethod()
   SimplexGrid simplexGrid(x, y, domainBox);
 
   // Step 3: Run the simplex method, and get miniums (candidates) from it.
-  SimplexMethod simplexMethod(simplexGrid, domainBox);
+  SimplexMethod simplexMethod(simplexGrid, domainBox, useReversePsi);
   std::vector <Point> minimumPoints = simplexMethod.getCandidates();
 
   return minimumPoints; 
@@ -384,20 +375,20 @@ int CriticalPointsEqdsk::findMinimumNewtonMethod(const Point& initialGuess, Poin
   // Field value
   double psiVal;
   int ierr; 
-  eval_field_val(&trialPosition[0], &trialPosition[1], &psiVal, &ierr, false);
+  eval_field_val(&trialPosition[0], &trialPosition[1], &psiVal, &ierr, useReversePsi);
 
   // Field derivative
   std::array <double,3> dy;
-  eval_field_grad(&trialPosition[0], &trialPosition[1], &dy[0], &ierr, false);
+  eval_field_grad(&trialPosition[0], &trialPosition[1], &dy[0], &ierr, useReversePsi);
   
   // Step 4: Find Second order derivatives
   // d^2 psi/dr^2, d^2 psi/drdz, d^2 psi/dz^2
   std::array <double,3> dy2;
   int ndr, ndz;
   double dr, dz, dl;
-  ndr = 2; ndz = 0; eval_field_deriv(&trialPosition[0], &trialPosition[1], &ndr, &ndz, &dy2[0], &ierr, false); if(ierr) return false;
-  ndr = 1; ndz = 1; eval_field_deriv(&trialPosition[0], &trialPosition[1], &ndr, &ndz, &dy2[1], &ierr, false); if(ierr) return false;
-  ndr = 0; ndz = 2; eval_field_deriv(&trialPosition[0], &trialPosition[1], &ndr, &ndz, &dy2[2], &ierr, false); if(ierr) return false;
+  ndr = 2; ndz = 0; eval_field_deriv(&trialPosition[0], &trialPosition[1], &ndr, &ndz, &dy2[0], &ierr, useReversePsi); if(ierr) return false;
+  ndr = 1; ndz = 1; eval_field_deriv(&trialPosition[0], &trialPosition[1], &ndr, &ndz, &dy2[1], &ierr, useReversePsi); if(ierr) return false;
+  ndr = 0; ndz = 2; eval_field_deriv(&trialPosition[0], &trialPosition[1], &ndr, &ndz, &dy2[2], &ierr, useReversePsi); if(ierr) return false;
 
   // Step 5: Newton Step. dr, dz limited by given maximal length
   double updateFactor = 1.0;
@@ -435,7 +426,7 @@ int CriticalPointsEqdsk::findMinimumNewtonMethod(const Point& initialGuess, Poin
 
   //psi(x_1)
   double psiValNext;
-  eval_field_val(&trialPosition[0], &trialPosition[1], &psiValNext, &ierr, false);
+  eval_field_val(&trialPosition[0], &trialPosition[1], &psiValNext, &ierr, useReversePsi);
 
   //for exit quantities
   double psiDiffAbs = fabs(psiValNext - psiVal);
@@ -450,12 +441,12 @@ int CriticalPointsEqdsk::findMinimumNewtonMethod(const Point& initialGuess, Poin
     psiVal = psiValNext;
 
     // dpsi/dr, dpsi/dz
-    eval_field_grad(&trialPosition[0], &trialPosition[1], &dy[0], &ierr, false);
+    eval_field_grad(&trialPosition[0], &trialPosition[1], &dy[0], &ierr, useReversePsi);
 
     // d^2 psi/dr^2, d^2 psi/drdz, d^2 psi/dz^2
-    ndr = 2; ndz = 0; eval_field_deriv(&trialPosition[0], &trialPosition[1], &ndr, &ndz, &dy2[0], &ierr, false); if(ierr) return false;
-    ndr = 1; ndz = 1; eval_field_deriv(&trialPosition[0], &trialPosition[1], &ndr, &ndz, &dy2[1], &ierr, false); if(ierr) return false;
-    ndr = 0; ndz = 2; eval_field_deriv(&trialPosition[0], &trialPosition[1], &ndr, &ndz, &dy2[2], &ierr, false); if(ierr) return false;
+    ndr = 2; ndz = 0; eval_field_deriv(&trialPosition[0], &trialPosition[1], &ndr, &ndz, &dy2[0], &ierr, useReversePsi); if(ierr) return false;
+    ndr = 1; ndz = 1; eval_field_deriv(&trialPosition[0], &trialPosition[1], &ndr, &ndz, &dy2[1], &ierr, useReversePsi); if(ierr) return false;
+    ndr = 0; ndz = 2; eval_field_deriv(&trialPosition[0], &trialPosition[1], &ndr, &ndz, &dy2[2], &ierr, useReversePsi); if(ierr) return false;
 
     //dr, dz limited by given maximal length
     divisor = dy2[0]*dy2[2] - dy2[1]*dy2[1];  // (d^2 psi /dr^2) * (d^2 psi / dz^2) - (d^2 psi / drdz)^2
@@ -482,7 +473,7 @@ int CriticalPointsEqdsk::findMinimumNewtonMethod(const Point& initialGuess, Poin
       return -1;
 
     //psi(x_n+1)
-    eval_field_val(&trialPosition[0], &trialPosition[1], &psiValNext, &ierr, false);
+    eval_field_val(&trialPosition[0], &trialPosition[1], &psiValNext, &ierr, useReversePsi);
 
     //for exit quantities
     psiDiffAbs = fabs(psiValNext - psiVal);
@@ -513,11 +504,10 @@ const std::vector <PhysicsPoint>& CriticalPointsEqdsk::getXPoints()
 /***********************************************/
 // Helper Functions
 /***********************************************/
-PointType getPointType(const Point& pt)
+PointType getPointType(const Point& pt, bool reversePsi)
 {
   int ier;
   double d2[3];
-  bool reversePsi = false;  // for now, change it to argument later or define field some other way
 
   // Step 1: Evaluate d^2(psi)/dr^2
   int dr = 2, dz = 0;

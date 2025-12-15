@@ -16,6 +16,7 @@ args::args(int argc, char* argv[])
 // This function initializes the input parameters with default values.
 void args::setDefaultValues()
 {
+  reactorType = ReactorType::Stellarator;  // Default Stellarator for now.
   reversePsi = false;
   eqdPsiFactor = 1.0;
 }
@@ -287,4 +288,9 @@ const std::string& args::getVmecFile() const
 const InputData& args::getInputData() const
 {
   return in;
+}
+
+const bool& args::useReversePsi() const
+{
+  return reversePsi;
 }

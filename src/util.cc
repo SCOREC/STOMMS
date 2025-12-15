@@ -55,7 +55,7 @@ bool arePointsSame(const Point& pt1, const Point& pt2)
   double dy = fabs(pt1.y - pt2.y);
   double dz = fabs(pt1.z - pt2.z);
 
-  if (dx < 1e-8 && dy < 1e-8 && dz < 1e-8)
+  if (dx < 1e-5 && dy < 1e-5 && dz < 1e-5)
     return true;
   
   return false;
@@ -74,10 +74,11 @@ int isLeft(const Point& pt1, const Point& pt2, const Point& testPoint)
   // Step 2: Evaluate cross product.
   double crossProduct = edgeVector[0]*pointToLineVector[1] - pointToLineVector[0]*edgeVector[1];
 
-  // Step 3: Make the decison based on cross product. 
-  if (crossProduct > 0.0)
+  // Step 3: Make the decison based on cross product.
+  const double tolerance = 1e-12; 
+  if (crossProduct > tolerance)
     return 1;  // is left (counter clock wise)
-  else if (crossProduct < 0.0)
+  else if (crossProduct < tolerance)
     return -1;  // is right (clock wise)
   else
     return 0;  // on the line (not necessarily line segment).
@@ -115,7 +116,7 @@ int windingNumberPolygonTest(const Point& pt, const std::vector <Point>& curve)
     else  // pt1.y > pt.y
     {
       if (pt2.y <= pt.y)  // downward crossing
-        if (isLeft(pt1, pt2, pt) < 0)  // pt is left of the edge
+        if (isLeft(pt1, pt2, pt) < 0)  // pt is right of the edge
           windingNumber--;
     }
   }

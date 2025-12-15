@@ -105,14 +105,34 @@ std::vector <Point> filterUniquePoints(const std::vector <Point>& candidates)
   return uniquePoints;
 }
 
+// Given a vector of points, filter out the points that are outside the wall curve.
+void filterOutsideTheWallPoints(std::vector <Point>& candidates, const std::vector <Point>& wall)
+{
+  for (int  i = 0; i < candidates.size(); i++)
+  {
+    Point pt = candidates[i];
+  
+    // Step 1: If outside the wall curve, erase it from vector and 
+    // reset iterator.
+    if (windingNumberPolygonTest(pt, wall) == 0)
+    {
+      candidates.erase(candidates.begin()+i);
+      i--;
+    }
+  }
+}
+
 // Given a vector of critical points, print them out.
 void printCriticalPoints(const std::vector <PhysicsPoint>& criticalPoints)
 {
   // Step 1: Determine the type of critical point. This could be check by checking the type
   // of one of the points in the vector. Print out the type.
   std::string pointType;
-  criticalPoints[0].getPointType() == PointType::OPoint ? pointType = "O Point" : pointType = "X Point";
-  std::cout << "\t* " << pointType << " * \n\n";
+  if (criticalPoints.size() > 0)
+  {
+    criticalPoints[0].getPointType() == PointType::OPoint ? pointType = "O Point" : pointType = "X Point";
+    std::cout << "\t* " << pointType << " * \n\n";
+  }
 
   // Step 2: Iterate over the rest of the points and print them out.
   for (int i = 0; i < criticalPoints.size(); i++)

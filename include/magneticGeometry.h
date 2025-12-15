@@ -86,9 +86,7 @@ class MagneticGeometry{
 };
 
 /*
- * A class to hold all the magnetic geometries. Only VMEC is supported 
- * at the moemnt. Reads the data from args class that handles all the 
- * input data.
+ * A class to hold magnetic geometry of Stellarators. 
  */
 class MagneticGeometryForStellarator: public MagneticGeometry{
   public:
@@ -147,11 +145,11 @@ class MagneticGeometryForStellarator: public MagneticGeometry{
 }; 
 
 /*
- * 
+ * A class to hold magnetic geometry of Tokamak.
  */
 class MagneticGeometryForTokamak: public MagneticGeometry{
   public:
-    MagneticGeometryForTokamak(const WallCurve& wall);
+    MagneticGeometryForTokamak(const WallCurve& wall, const bool& useReversePsi);
 
     /*
      * A function to return psi value of the axis in the tokamak domain.
@@ -182,7 +180,8 @@ class MagneticGeometryForTokamak: public MagneticGeometry{
     */ 
     const VmecData& getVmecData() const override;
   private:
-    WallCurve wallCurve; 
+    WallCurve wallCurve;
+    bool reversePsi; 
     std::map<int , std::vector<PhysicsPoint>> oPoints;  // map between plane number and OPoints
     std::map<int , std::vector<PhysicsPoint>> xPoints;  // map between plane number and XPoints
 };
