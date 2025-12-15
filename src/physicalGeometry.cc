@@ -120,20 +120,20 @@ WallCurveFromFile::WallCurveFromFile(const std::string& wallCurveFile):limiterFi
 // Class: PhysicalGeometry
 // Class to contain all physical features.
 /***********************************************/
-PhysicalGeometry::PhysicalGeometry(const args& a)
+PhysicalGeometry::PhysicalGeometry(const Inputs& in)
 {
   // Step 1: Read the number of planes
-  numPlanes = a.getInputData().pd.planeInput.size();
+  numPlanes = in.getInputData().pd.planeInput.size();
 
   // Step 2: If Stellarator, don't do anything (For now, 
   // may need something in future).
-  if (a.getReactorType() == ReactorType::Stellarator)
+  if (in.getReactorType() == ReactorType::Stellarator)
     return;    
 
   // Step 3: If external limiter file is provided, read the wall curve 
   // from that file, otherwise use wall curve from eqdsk file.
-  if (!a.getLimiterFile().empty())
-    reactorWall.push_back(WallCurveFromFile(a.getLimiterFile()));
+  if (!in.getLimiterFile().empty())
+    reactorWall.push_back(WallCurveFromFile(in.getLimiterFile()));
   else
     reactorWall.push_back(WallCurveFromEqdsk());
 }

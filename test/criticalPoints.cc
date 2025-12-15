@@ -4,7 +4,7 @@
 #include "input.h"
 
 // Structs and Helper Functions
-struct Inputs{
+struct Input{
   std::string testName;  // Add more if needed
 };
 
@@ -14,7 +14,7 @@ struct ValidationData{
   std::vector <PhysicsPoint> xPoints;
 };
 
-Inputs verifyInputs(int argc, char** argv);
+Input verifyInputs(int argc, char** argv);
 ValidationData getValidationData(const std::string& testCase);
 bool validateData(const ValidationData& data, const std::map<int, std::vector<PhysicsPoint>>& oPoints,
                   const std::map<int, std::vector<PhysicsPoint>>& xPoints);
@@ -23,16 +23,16 @@ bool validateData(const ValidationData& data, const std::map<int, std::vector<Ph
 int main(int argc, char** argv)
 {
   // Step 1: Verify the inputs
-  Inputs in = verifyInputs(argc, argv);
+  Input in = verifyInputs(argc, argv);
 
   // Step 2: Read the input file (mesh_input) for the input parameters.
-  args a(argc, argv);
+  Inputs input;
 
   // Step 3: Setup the physical geometry (wall curve for now).
-  PhysicalGeometry physicalGeometry(a);
+  PhysicalGeometry physicalGeometry(input);
 
   // Step 4: Setup the magnetic field information. 
-  std::shared_ptr <MagneticGeometry> mg = setMagneticGeometry(a, physicalGeometry);
+  std::shared_ptr <MagneticGeometry> mg = setMagneticGeometry(input, physicalGeometry);
 
   std::map<int, std::vector<PhysicsPoint>> oPoints = mg->getOPoints();
   std::map<int, std::vector<PhysicsPoint>> xPoints = mg->getXPoints();
@@ -47,9 +47,9 @@ int main(int argc, char** argv)
   return 0;
 }
 
-Inputs verifyInputs(int argc, char** argv)
+Input verifyInputs(int argc, char** argv)
 {
-  Inputs inputs;
+  Input inputs;
   
   // Step 1: Verify that we have required number of inputs
   if (argc < 2)

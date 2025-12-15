@@ -14,24 +14,24 @@ int main(int argc, char* argv[])
   MPI_Init(&argc, &argv);
   { 
     // Step 1: Read the input file (mesh_input) for the input parameters
-    args a(argc, argv);
+    Inputs inputs;
 
     // Step 2: Setup the physical geometry (wall curve for now).
-    PhysicalGeometry physicalGeometry(a);
+    PhysicalGeometry physicalGeometry(inputs);
 
     // Step 3: Setup the magnetic field information. 
     //MagneticGeometry mg(a);
-    std::shared_ptr <MagneticGeometry> mg = setMagneticGeometry(a, physicalGeometry);
+    std::shared_ptr <MagneticGeometry> mg = setMagneticGeometry(inputs, physicalGeometry);
 
     // Step 4: Setup the STOMMS class to intialize Simmetrix objects.
     STOMMS s;
 
     // Step 5: Setup the model metadata by setting up the meta data on poloidal planes.
     ModelMetaData modelMetaData;
-    for (int i = 0; i < a.getInputData().pd.planeInput.size(); i++)
+    for (int i = 0; i < inputs.getInputData().pd.planeInput.size(); i++)
     {
-      double toroidalAngle = a.getInputData().pd.planeInput[i];
-      PlaneMetaData pg(a.getInputData().fd, mg, toroidalAngle);
+      double toroidalAngle = inputs.getInputData().pd.planeInput[i];
+      PlaneMetaData pg(inputs.getInputData().fd, mg, toroidalAngle);
       modelMetaData.addPlane(pg);
     }
 

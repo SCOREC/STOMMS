@@ -34,12 +34,12 @@ enum class ReactorType{
   None
 };
 
-// Class args handles all the input information. This includes:
+// Class Inputs handles all the input information. This includes:
 // magnetic field information, modeling and mesh parameters,
 // any kind of control parameters.
-class args{
+class Inputs{
   public:
-    args(int argc, char* argv[]);
+    Inputs();
     
     /*
      * Function to return limiter (wall curve) file name.

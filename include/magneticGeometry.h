@@ -92,7 +92,7 @@ class MagneticGeometryForStellarator: public MagneticGeometry{
   public:
     /*
      * Constructor to set magnetic geometry information from stellarator to class MagneticGeometry.
-     * const args& a (in): class holding all the input data (magnetic geometry, modeling and meshing parameters etc.)
+     * const std::string& vmecFileName (in): vmec file name containing all the vmec data.
     */ 
     MagneticGeometryForStellarator(const std::string& vmecFileName);
 
@@ -189,8 +189,8 @@ class MagneticGeometryForTokamak: public MagneticGeometry{
 /*
  * Function to set magnetic geometry. This function makes decision based on type
  * of reactor, and set magnetic geometry accordingly.
- * const args& input (in): class holding all the input data
+ * const Inputs& input (in): class holding all the input data
  */
-std::unique_ptr <MagneticGeometry> setMagneticGeometry(const args& input, const PhysicalGeometry& physicalGeometry);
+std::unique_ptr <MagneticGeometry> setMagneticGeometry(const Inputs& input, const PhysicalGeometry& physicalGeometry);
 
 #endif

@@ -1,6 +1,6 @@
 #include "input.h"
 
-args::args(int argc, char* argv[])
+Inputs::Inputs()
 {
   // First set the default values of parameters - write a fucntion for it
   setDefaultValues();  
@@ -14,7 +14,7 @@ args::args(int argc, char* argv[])
 }
 
 // This function initializes the input parameters with default values.
-void args::setDefaultValues()
+void Inputs::setDefaultValues()
 {
   reactorType = ReactorType::Stellarator;  // Default Stellarator for now.
   reversePsi = false;
@@ -22,7 +22,7 @@ void args::setDefaultValues()
 }
 
 // This function reads the input parameter from the mesh input file.
-void args::setValuesFromInputFile()
+void Inputs::setValuesFromInputFile()
 {
   inputFile = "mesh_input";
   std::ifstream input(inputFile);
@@ -62,7 +62,7 @@ void args::setValuesFromInputFile()
 }
 
 // A function to set values to local variables and containers for internal code use.
-void args::setValuesForLocalUse()
+void Inputs::setValuesForLocalUse()
 {
   // Step 1: Initialize magnetic field file sources if needed. 
   if (reactorType == ReactorType::Tokamak)
@@ -79,7 +79,7 @@ void args::setValuesForLocalUse()
 }
 
 // A function to set mesh sizes on each flux curves for later use (in meshing).
-std::map<double,int> args::readMeshSizeOnFlux()
+std::map<double,int> Inputs::readMeshSizeOnFlux()
 {
   int numFlux;  // Number of flux curves from first line of the file.
   double psiNorm;  // To read the normalized psi values of flux curves one by one from file.
@@ -131,7 +131,7 @@ std::map<double,int> args::readMeshSizeOnFlux()
 } 
 
 // Read flux file and check its validity
-std::vector<double> args::readFluxFile()
+std::vector<double> Inputs::readFluxFile()
 {
   int numFlux;  // Number of flux curves from the first line of the file.
   double psiNorm;  // To read the normalized psi values of flux curves one by one from the file
@@ -178,7 +178,7 @@ std::vector<double> args::readFluxFile()
 
 // Read the planes file and check its validity.
 // Converts the given angles in degrees to radians.
-std::vector<double> args::readPlaneFile()
+std::vector<double> Inputs::readPlaneFile()
 {
   int numPlanes;  // Number of poloidal planes from the first line of the file.
   double angle;  // To read the poloidal plane angles one by one from the file.
@@ -234,7 +234,7 @@ std::vector<double> args::readPlaneFile()
 // Read input tokamak equilibrium file (.eqd or geqdsk).
 // Need to initialize it here, so we can use PSPLINE
 // functions in next steps. 
-void args::initializeEqdskFile()
+void Inputs::initializeEqdskFile()
 {
   // Step 1: Read the length of file string and set psi factor.
   // Not sure how factor works (but without it, it pspline throws an error.
@@ -267,30 +267,30 @@ void args::initializeEqdskFile()
 }
 
 // Function to return limiter (wall curve) file name.
-const std::string& args::getLimiterFile() const
+const std::string& Inputs::getLimiterFile() const
 {
   return limiterFile;
 }
 
 // Function to return reactor type (Stellarator, Tokamak).
-const ReactorType& args::getReactorType() const
+const ReactorType& Inputs::getReactorType() const
 {
   return reactorType;
 }
 
 // Function to VMEC file name.
-const std::string& args::getVmecFile() const
+const std::string& Inputs::getVmecFile() const
 {
   return vmecFile;
 }
 
 // Function to return InputData struct which contains flux and planes info.
-const InputData& args::getInputData() const
+const InputData& Inputs::getInputData() const
 {
   return in;
 }
 
-const bool& args::useReversePsi() const
+const bool& Inputs::useReversePsi() const
 {
   return reversePsi;
 }

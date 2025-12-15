@@ -59,7 +59,7 @@ class WallCurveFromEqdsk: public WallCurve{
 class PhysicalGeometry{
   public:
     PhysicalGeometry(){};
-    PhysicalGeometry(const args& a);
+    PhysicalGeometry(const Inputs& in);
 
     /*
      * Function to return wall curve at specific plane.

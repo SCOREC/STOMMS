@@ -161,7 +161,7 @@ const VmecData& MagneticGeometryForTokamak::getVmecData() const
 /* 
  * Function to set magnetic geometry.
  */
-std::unique_ptr <MagneticGeometry> setMagneticGeometry(const args& input, const PhysicalGeometry& physicalGeometry)
+std::unique_ptr <MagneticGeometry> setMagneticGeometry(const Inputs& input, const PhysicalGeometry& physicalGeometry)
 {
   std::unique_ptr <MagneticGeometry> mg;
 
