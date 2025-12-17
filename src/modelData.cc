@@ -182,7 +182,7 @@ std::vector <Flux> setFluxCurvesOnPlanes(Model m, int planeNum, std::vector <Pla
   // global but it will change in future) and psi bounds.
   const MagneticGeometry& mg = md[planeNum].getMagneticGeometry();
   double psiAxis = mg.getPsiAxis();
-  double psiLCF = mg.getPsiLCFS();
+  double psiLCF = mg.getPsiCoreBoundary();
 
   // Step 3: Set each flux curve one by one and then push the flux curve to flux 
   // curves container.  Iterate over the fluxMeshSize Map to start with.

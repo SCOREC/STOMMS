@@ -78,7 +78,7 @@ double MagneticGeometryForStellarator::getPsiAxis() const
 /* 
  * A function to return psi value of the last closed flux curve in the vmec domain.
  */
-double MagneticGeometryForStellarator::getPsiLCFS() const
+double MagneticGeometryForStellarator::getPsiCoreBoundary() const
 {
   return vmec.psi[vmec.nSurf - 1]; 
 }
@@ -147,6 +147,24 @@ const std::map<int, std::vector<PhysicsPoint>>& MagneticGeometryForTokamak::getO
 const std::map<int, std::vector<PhysicsPoint>>& MagneticGeometryForTokamak::getXPoints() const
 {
   return xPoints;
+}
+
+/* 
+ * A function to return psi value of the axis in the tokamak domain.
+ */
+double MagneticGeometryForTokamak::getPsiAxis() const
+{
+  PhysicsPoint axis = oPoints.at(0).at(0);  // first member on first plane. 
+  return axis.getPsi();
+}
+
+/* 
+ * A function to return psi value of the innermost separatrix.
+ */
+double MagneticGeometryForTokamak::getPsiCoreBoundary() const
+{
+  PhysicsPoint xPt = xPoints.at(0).at(0);
+  return xPt.getPsi();
 }
 
 // Function to return the VMEC data. Not applicable for Tokamaks. 

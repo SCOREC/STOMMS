@@ -55,9 +55,11 @@ class MagneticGeometry{
     virtual double getPsiAxis() const = 0;
 
     /*
-     * A function to return psi value of the last closed flux curve in the domain.
+     * A function to return psi value of the xore region boundary in the domain.
+     * Mainly needed for normalization. In VMEC, its last flux curve psi. In the 
+     * case of tokamaks, its innermost separatrix curve (x-point).
      */ 
-    virtual double getPsiLCFS() const = 0;
+    virtual double getPsiCoreBoundary() const = 0;
 
     /*
      * A function to return the reactor type.
@@ -104,7 +106,7 @@ class MagneticGeometryForStellarator: public MagneticGeometry{
     /*
      * A function to return psi value of the last closed flux curve in the vmec domain.
     */ 
-    double getPsiLCFS() const override;
+    double getPsiCoreBoundary() const override;
 
     /*
      * Return the reactor type(Stellarator for this class).
@@ -154,9 +156,9 @@ class MagneticGeometryForTokamak: public MagneticGeometry{
     /*
      * A function to return psi value of the axis in the tokamak domain.
      */ 
-    double getPsiAxis() const override {return 0.0;};
+    double getPsiAxis() const override;
 
-    double getPsiLCFS() const override {return 0.0;};
+    double getPsiCoreBoundary() const override;
 
     ReactorType getReactorType() const override {return ReactorType::Tokamak;};
     

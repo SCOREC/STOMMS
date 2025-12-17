@@ -4,20 +4,20 @@
 // UTILITY FUNCTIONS FOR COVERSIONS
 /***********************************************/
 // Convert the normalized psi values to actual psi values for a single given value.
-double convertNormToPsi(double normPsi, double psiAxis, double psiLCF)
+double convertNormToPsi(double normPsi, double psiAxis, double psiCoreBoundary)
 {
-  double psi = normPsi*(psiLCF - psiAxis) + psiAxis;
+  double psi = normPsi*(psiCoreBoundary - psiAxis) + psiAxis;
   return psi; 
 }
 
 // Convert the normalized psi values to actual psi values for the full vector. 
-std::vector <double> convertNormToPsiVector(std::vector <double> normPsi, double psiAxis, double psiLCF)
+std::vector <double> convertNormToPsiVector(std::vector <double> normPsi, double psiAxis, double psiCoreBoundary)
 {
   std::vector <double> psiValues;
   for (int i = 0; i < normPsi.size(); i++)
   {
     double psiNorm = normPsi[i];  // Normalized psi value
-    double psi = psiNorm*(psiLCF - psiAxis) + psiAxis;
+    double psi = psiNorm*(psiCoreBoundary - psiAxis) + psiAxis;
     psiValues.push_back(psi);
   }
   return psiValues;
