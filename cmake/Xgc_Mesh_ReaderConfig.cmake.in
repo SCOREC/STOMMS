@@ -1,0 +1,5 @@
+# Xgc_Mesh_ReaderConfig.cmake
+
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/Xgc_Mesh_ReaderTargets.cmake") 

@@ -2,7 +2,7 @@ SIM_VER=simmetrix-simmodsuite-2025.1-250602dev-yv5oiomk2sdcru5cn5vqjxprycytc4ow
 SIM_ARCHOS=x64_rhel9_gcc11
 PSPLINE_DIR=/users/riazu2/lore.scorec.rpi.edu/Tools/install/PSPLINE/gcc12.3.0
 OMEGAH_DIR=/users/riazu2/lore.scorec.rpi.edu/Tools/install/OmegaH/gcc12.3.0
-ADIOS2_DIR=/opt/scorec/spack/rhel9/v0201_4/install/linux-rhel9-x86_64/gcc-12.3.0/adios2-2.9.0-nztsv7oahftcta2dntesql2wkep6kdfp
+ADIOS_DIR=/opt/scorec/spack/rhel9/v0201_4/install/linux-rhel9-x86_64/gcc-12.3.0/adios2-2.9.0-nztsv7oahftcta2dntesql2wkep6kdfp
 PREFIX=/users/riazu2/lore.scorec.rpi.edu/STOMMS_dev/STOMMS/install
 CMAKETYPE=Debug
 cmake .. \
@@ -18,8 +18,7 @@ cmake .. \
   -DPSPLINE_INCLUDE_DIR=$PSPLINE_DIR/mod \
   -DPSPLINE_LIB_DIR=$PSPLINE_DIR/lib \
   -DOmega_h_DIR=$OMEGAH_DIR/lib64/cmake/Omega_h \
-  -DADIOS2_INCLUDE_DIR=$ADIOS2_DIR/include \
-  -DADIOS2_LIB_DIR=$ADIOS2_DIR/lib64 \
+  -DAdios2_DIR=$ADIOS2_DIR/lib64/cmake/adios2 \
   -DCMAKE_INSTALL_PREFIX="$PREFIX" \
   -DENABLE_TESTING=OFF \
   -DCMAKE_BUILD_TYPE=$CMAKETYPE
