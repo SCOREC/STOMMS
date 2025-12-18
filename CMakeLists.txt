@@ -12,8 +12,8 @@ find_package(MPI COMPONENTS CXX REQUIRED)
 find_package(OpenMP COMPONENTS CXX REQUIRED)
 
 # Optional target building.
-option(ENABLE_STOMMS_MESHGEN "Enable Stomms Mesh Generation Tools" ON)
-option(ENABLE_STOMMS_READER "Enable Stomms Mesh Reader" ON)
+option(ENABLE_STOMMS_MESHGEN "Enable Stomms Mesh Generation Tools" OFF)
+option(ENABLE_STOMMS_READER "Enable Stomms Mesh Reader" OFF)
 
 message (STATUS "ENABLE_STOMMS_MESHGEN:  ${ENABLE_STOMMS_MESHGEN} ")
 message (STATUS "ENABLE_STOMMS_READER:  ${ENABLE_STOMMS_READER} ")
