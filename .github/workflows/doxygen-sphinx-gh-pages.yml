@@ -44,6 +44,7 @@ jobs:
              doxygen Doxyfile
              cd ../docs
              sphinx-build -b html source build/html
+             cd ..
 
       # Step 5: Upload the document
       - name: Upload the document
@@ -55,5 +56,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-      
