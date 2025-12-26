@@ -44,5 +44,4 @@ html_static_path = ['_static']
 breathe_projects = {
     "STOMMS": "../../build/docs/xml"
 }
-
 breathe_default_project = "STOMMS"
