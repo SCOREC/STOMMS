@@ -1,0 +1,4 @@
+/**
+ * @defgroup MeshGenDoc STOMMS Mesh Generation APIs
+ * @brief All Mesh Generation APIs in STOMMS are documented here.
+ */

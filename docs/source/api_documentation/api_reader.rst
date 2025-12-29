@@ -1,6 +1,7 @@
 STOMMS Mesh Reader APIs
 =======================
 
-.. doxygenindex::
+.. doxygenclass:: XgcMesh
+   :members:
    :project: STOMMS
    :path: Reader

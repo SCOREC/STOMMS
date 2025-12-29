@@ -1,6 +1,6 @@
 STOMMS Mesh Generation APIs
 ===========================
 
-.. doxygenindex::
+.. doxygenindex:: 
    :project: STOMMS
    :path: MeshGenDoc

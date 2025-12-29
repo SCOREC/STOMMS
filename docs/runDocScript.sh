@@ -2,7 +2,7 @@
 
 # Step 1: First run doxygen inside /STOMMS/build
 # Make sure Doxyfile is in build folder. If not run config-files according to your system.
-echo "Runnind Doxygen ..."
+echo "Running Doxygen ..."
 cd ../build
 doxygen ../build/Doxyfile
 
@@ -10,6 +10,7 @@ doxygen ../build/Doxyfile
 # requirements.txt and env_sphinx.sh according to the python version available on the 
 # system.
 cd ../docs
+rm -rf build # clear the cache
 if [ -z "$VIRTUAL_ENV"]; then 
   echo "Activating pyEnv ..."
   source env_sphinx.sh
