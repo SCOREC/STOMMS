@@ -10,7 +10,8 @@ Stellarator & Tokamak Modeling and Meshing Software (STOMMS) is the upgraded ver
 
 .. toctree::
    :maxdepth: 2
-   :caption: STOMMS Documentation:
 
-   installation
-   api_documentation/index
+   src_files/installation
+   src_files/input_parameters
+   src_files/output_files
+   src_files/api_documentation/index
