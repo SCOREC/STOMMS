@@ -23,6 +23,7 @@ Tokamaks
    * 0 (default) : Use psi value from eqdskFile as it is.
    * 1 : Multiply -1 to psi value so that psi at minor axis (O-point) gets minimum value of psi in outboard midplane.
 
+-----
 
 Physical Components
 ^^^^^^^^^^^^^^^^^^^
@@ -31,6 +32,8 @@ The only physical component supported at the moment is limiter (wall curve). As 
 * ``limiterFile``
    * A filename that contains a user-specified wall curve. Used when a complex wall curve causes trouble in meshing or in XGC run.
  
+-----
+
 Flux Curves Definition
 ^^^^^^^^^^^^^^^^^^^^^^
 * ``fluxFile`` 
@@ -55,6 +58,8 @@ Flux Curves Definition
   0.9
   1.0
 
+-----
+
 Poloidal Planes Definition
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 * ``planeFile``
@@ -73,6 +78,8 @@ Poloidal Planes Definition
   60.0
   75.0
   90.0
+
+-----
 
 Meshing Parameters
 ^^^^^^^^^^^^^^^^^^
@@ -97,6 +104,7 @@ Meshing Parameters
   0.8  28
   0.9  32
   1.0  36
+
 
 
 .. _sample-input:
