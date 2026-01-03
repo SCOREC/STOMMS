@@ -21,7 +21,7 @@ struct DomainBox{
 
 /*************** UTILITY FUNCTIONS FOR COVERSIONS ********************************/
 
-/*
+/**
  * Convert the normalized psi values to actual psi values for a single given value
  * double normPsi (in): normalized psi values.
  * double psiAxis (in): actual psi value at the axis (O-point).
@@ -30,7 +30,7 @@ struct DomainBox{
 */
 double convertNormToPsi(double normPsi, double psiAxis, double psiCoreBoundary);
 
-/*
+/**
  * Convert the normalized psi values to actual psi values. Takes normalized psi values
  * in a vector and return a vector of actual psi values.
  * std::vector <double> normPsi (in): vector of normalized psi values.
@@ -51,7 +51,7 @@ double convertPsiToNorm(double psi, double psiAxis, double psiCoreBoundary);
 
 /*************** UTILITY FUNCTIONS FOR GEOMETRY ********************************/
 
-/*
+/**
  * Function to check if a point is on a straight line or it makes a corner on the
  * curve. Need two intersecting lines of the curve on that point to check.
  * Point& pt1 (in): start point of the line one.
@@ -61,15 +61,16 @@ double convertPsiToNorm(double psi, double psiAxis, double psiCoreBoundary);
  */
 bool isPointOnCorner(const Point& pt1, const Point& pt2, const Point& pt3);
 
-/*
+/** \fn
  * Function to compare two points.
  * const Point& pt1 (in): first test point.
  * const Point& pt2 (in): second test point.
  * returns true if points are same, else false.
  */
+
 bool arePointsSame(const Point& pt1, const Point& pt2);
 
-/*
+/**
  * Given two endpoints of a line segment (p1 ... p2), and a point (testPoint),
  * evaluate if the testPoint is on left side or right side of line segment.
  * const Point& pt1 (in): end point 1 of line segment.
@@ -79,7 +80,7 @@ bool arePointsSame(const Point& pt1, const Point& pt2);
  */
 int isLeft(const Point& pt1, const Point& pt2, const Point& testPoint);
 
-/*
+/**
  * Winding number test for a point in polygon. 
  * const Point& pt (in): test point.
  * const std::vector <Point>& curve (in): vector of points defining a closed curve (polygon).

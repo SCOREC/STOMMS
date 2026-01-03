@@ -1,4 +1,17 @@
-/**
- * @defgroup MeshGenDoc STOMMS Mesh Generation APIs
- * @brief All Mesh Generation APIs in STOMMS are documented here.
- */
+/** \page meshgen STOMMS Mesh Generation APIs
+Page for mesh generation API's:
+
+- \ref include/input.h "Inputs"
+- \ref include/gfileUtil.h "PSPLINE GEQDSK Utility"
+- \ref include/modelMetaData.h "Model Topological Definitions"
+- \ref include/physicalGeometry.h "Physical Geometry"
+- \ref include/magneticGeometry.h "Magnetic Geometry"
+- \ref include/criticalPoints.h "Critical Points"
+- \ref include/criticalPointsEqdsk.h "Critical Points from EQDSK file"
+- \ref include/modelMetaData.h "Model Metadata"
+- \ref include/modeling.h "Geometric Modeling"
+- \ref include/meshMetaData.h "Mesh Metadata"
+- \ref include/stommsMesh.h "Meshing"
+- \ref include/output.h "Output"
+- \ref include/util.h "Other Utility Functions"
+*/
