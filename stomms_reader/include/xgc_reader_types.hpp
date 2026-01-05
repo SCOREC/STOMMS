@@ -3,17 +3,50 @@
 
 #include <iostream>
 
-
-using GeomIdType = int;
-using MeshIdType = int;
+/**
+ * Interger identifier for the physical dimensions. <br>
+ * (0D = 0, 1D = 1, 2D = 2, 3D = 3).
+ */
 using DimType = int;
-using PhysicsIndexType = int;
-using CurveIdType = int;
-using SurfaceIdType = int;
-using VertexIdType = int;
-using EdgeIdType = int;
-using PlaneId = int;
 
+/**
+ * Interger identifier for the model and mesh vertices.
+ */
+using VertexIdType = int;
+
+/**
+ * Interger identifier for the model and mesh edges.
+ */
+using EdgeIdType = int;
+
+/**
+ * Interger identifier for the model curves (both physics and physical curves).
+ */
+using CurveIdType = int;
+
+/**
+ * Interger identifier for the model faces.
+ */
+using SurfaceIdType = int;
+
+/**
+ * Integer identifier for the model entities. Although we do have identifier for 
+ * individual entities, this is helpful in functions that take in and return 
+ * entities of any dimension.
+ */
+using GeomIdType = int;
+
+/**
+ * Integer identifier for the mesh entities. Although we do have identifier for 
+ * individual entities, this is helpful in functions that take in and return 
+ * entities of any dimensions.
+ */
+using MeshIdType = int;
+
+/**
+ * Interger identifier for the planes. Unique for each poloidal plane.
+ */
+using PlaneId = int;
 
 /*
  * Physics geometry defines sets of surfaces, edges, vertices that have specific physical meaning.

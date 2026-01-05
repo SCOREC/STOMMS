@@ -51,7 +51,7 @@ Compilation
 
 Perlmutter
 ^^^^^^^^^^
-Simmetrix Simmodsuite libraries are not available, therefore ``stomms_meshgen`` is not supported at Perlmutter. Only ``stomms_reader`` can be compiled at Perlmutter.
+Perlmutter is mainly used to run the analysis codes, therefore mesh generation libraries and Simmetrix Simmodsuite tools are not available at Perlmutter. Since Perlmuuter does not have Simmetrix libraries, ``stomms_meshgen`` is not supported and only ``stomms_reader`` can be compiled at Perlmutter.
 
 - ADD INSTRUCTIONS HERE LATER...
 

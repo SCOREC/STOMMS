@@ -5,7 +5,7 @@
 // Class to define and access physics of a
 // physical point.
 /***********************************************/
-PhysicsPoint::PhysicsPoint(const Point& point, const double& psiAtPoint, const PointType pType)
+PhysicsPoint::PhysicsPoint(const Point& point, const double& psiAtPoint, const PhysicsPointType pType)
 {
   pt = point;
   psi = psiAtPoint;
@@ -25,7 +25,7 @@ const double& PhysicsPoint::getPsi() const
 }
 
 // Function to get point type.
-const PointType& PhysicsPoint::getPointType() const
+const PhysicsPointType& PhysicsPoint::getPointType() const
 {
   return pointType;
 }
@@ -130,7 +130,7 @@ void printCriticalPoints(const std::vector <PhysicsPoint>& criticalPoints)
   std::string pointType;
   if (criticalPoints.size() > 0)
   {
-    criticalPoints[0].getPointType() == PointType::OPoint ? pointType = "O Point" : pointType = "X Point";
+    criticalPoints[0].getPointType() == PhysicsPointType::OPoint ? pointType = "O Point" : pointType = "X Point";
     std::cout << "\t* " << pointType << " * \n\n";
   }
 

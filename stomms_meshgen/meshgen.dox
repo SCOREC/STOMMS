@@ -3,7 +3,7 @@ Page for mesh generation API's:
 
 - \ref include/input.h "Inputs"
 - \ref include/gfileUtil.h "PSPLINE GEQDSK Utility"
-- \ref include/modelMetaData.h "Model Topological Definitions"
+- \ref include/modelTopology.h "Model Topological Definitions"
 - \ref include/physicalGeometry.h "Physical Geometry"
 - \ref include/magneticGeometry.h "Magnetic Geometry"
 - \ref include/criticalPoints.h "Critical Points"

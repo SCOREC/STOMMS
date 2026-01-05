@@ -158,8 +158,8 @@ class CriticalPointsEqdsk{
  * based on that. 
  * Second Partial Derivative Test: https://en.wikipedia.org/wiki/Second_partial_derivative_test
  * const Point& pt (in): point to be tested.
- * returns point type (PointType::XPoint, PointType::OPoint, PointType::None)
+ * returns point type (PhysicsPointType::XPoint, PhysicsPointType::OPoint, PhysicsPointType::None)
  */
-PointType getPointType(const Point& pt, bool reversePsi);
+PhysicsPointType getPointType(const Point& pt, bool reversePsi);
 
 #endif
