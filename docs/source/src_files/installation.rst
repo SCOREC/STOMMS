@@ -8,6 +8,7 @@ STOMMS has two compilation targets:
   2. ``stomms_reader``
 
 ``stomms_meshgen`` is an executable to generate tokamak and stellarator models and meshes. ``stomms_reader`` is a library to read the STOMMS meshes. It contains a set of API's to read the mesh data from stomms output. The dependencies for these targets are:
+
   1. Simmetrix Simmodsuite (for ``stomms_meshgen``)
   2. PSPLINE (for ``stomms_meshgen``)
   3. Omega_h (for both ``stomms_meshgen`` and ``stomms_reader``)
