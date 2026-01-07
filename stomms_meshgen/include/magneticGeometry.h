@@ -9,7 +9,7 @@
 #include "magneticGeometryDataTypes.h"
 #include "modelingVmec.h"
 
-/**
+/*
  * Abstract Base class for MagneticGeometry. 
  * The derived class will depend on the reactor type.
  * Right now, we plan to have two derived classes.

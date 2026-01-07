@@ -1,5 +1,4 @@
 #include "magneticGeometry.h"
-<<<<<<< HEAD
 #include "magneticGeometryStellarator.h"
 #include "magneticGeometryTokamak.h"
 
