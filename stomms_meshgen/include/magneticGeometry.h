@@ -61,7 +61,8 @@ class MagneticGeometry{
     virtual const std::vector <Plane>& getPlanes() const = 0;
 };
 
-/**
+
+/*
  * Function to set magnetic geometry. This function makes decision based on type
  * of reactor, and set magnetic geometry accordingly.
  * @param input: class holding all the input data.

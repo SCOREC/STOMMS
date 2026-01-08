@@ -19,6 +19,7 @@ void Inputs::setDefaultValues()
   reactorType = ReactorType::Stellarator;  // Default Stellarator for now.
   reversePsi = false;
   eqdPsiFactor = 1.0;
+  numPlanes = 64;  // default is 64
 }
 
 // This function reads the input parameter from the mesh input file.
@@ -277,7 +278,14 @@ const InputData& Inputs::getInputData() const
   return in;
 }
 
+// Function to check if psi is reverse or not.
 const bool& Inputs::useReversePsi() const
 {
   return reversePsi;
+}
+
+// Returns the number of tokamak planes for magnetic field line tracing.
+const int& Inputs::getNumTokamakPlanes() const
+{
+  return numPlanes;
 }
