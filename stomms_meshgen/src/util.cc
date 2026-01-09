@@ -1,6 +1,28 @@
 #include <util.h>
 
 /***********************************************/
+// UTILITY DATA STRUCTURES
+/***********************************************/
+// 1. DomainBox
+
+DomainBox::DomainBox(const double& xMinumum, const double& yMinumum, 
+                     const double& xMaximum, const double& yMaximum)
+{
+  xMin = xMinumum; 
+  yMin = yMinumum;
+  xMax = xMaximum;
+  yMax = yMaximum;
+}
+
+DomainBox::DomainBox(const std::array <double, 4> box)
+{
+  xMin = box[0];
+  yMin = box[1];
+  xMax = box[2];
+  yMax = box[3];
+}
+
+/***********************************************/
 // UTILITY FUNCTIONS FOR COVERSIONS
 /***********************************************/
 // Convert the normalized psi values to actual psi values for a single given value.
@@ -124,3 +146,10 @@ int windingNumberPolygonTest(const Point& pt, const std::vector <Point>& curve)
   return windingNumber;
 }
 
+double distance2D(const Point& pt1, const Point& pt2)
+{
+  double dist = 0.0;
+  double distMagnitude = (pt1.x - pt2.x)*(pt1.x - pt2.x) + (pt1.y - pt2.y)*(pt1.y - pt2.y);
+  dist = sqrt(distMagnitude);
+  return dist;
+}

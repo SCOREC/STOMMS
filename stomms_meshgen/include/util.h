@@ -8,6 +8,16 @@
 
 // All the utility functions will be written here.
 
+/*************** UTILITY DATA STRUCTURES  ****************************************/
+struct DomainBox{
+  DomainBox(const double& xMinumum, const double& yMinumum, const double& xMaximum, const double& yMaximum);
+  DomainBox(const std::array <double, 4> box);
+  double xMin;
+  double yMin;
+  double xMax;
+  double yMax;
+};
+
 /*************** UTILITY FUNCTIONS FOR COVERSIONS ********************************/
 
 /*
@@ -67,4 +77,11 @@ int isLeft(const Point& pt1, const Point& pt2, const Point& testPoint);
  */
 int windingNumberPolygonTest(const Point& pt, const std::vector <Point>& curve);
 
+/**
+ * Function to calculate 2D distance between two points.
+ * @param pt1: first point.
+ * @param pt2: second point.
+ * @return 2D distance.
+ */
+double distance2D(const Point& pt1, const Point& pt2);
 #endif
