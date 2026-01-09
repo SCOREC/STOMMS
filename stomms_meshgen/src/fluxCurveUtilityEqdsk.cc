@@ -1,6 +1,78 @@
 #include "fluxCurveUtilityEqdsk.h"
 
-bool findNextFieldFollowingPoint(Point& startPoint, Point& point1, double& dist, int m, CurveMetaData& curveData, 
+// Given a point on curve, and properties of magnetic field along with the curve meta deta, 
+// find next point on the poloidal curve. Not field following.
+bool findNextPoint(Point& startPoint, Point& nextPoint, double& lengthPoloidalGoal, const PhysicsPoint& oPoint, 
+                   CurveMetaData& curveData, EqdskData eqdsk, const DomainBox& box)
+{
+  double stepToroidalUnit = getStepToroidalUnit(oPoint, lengthPoloidalGoal, eqdsk.getNumPlanes());
+  double distNewToStartLast = 0.0;
+  double lengthPoloidal = 0.0; // actual curve length in a poloidal plane obtained by sum
+  double lengthTolerance = 1e-6;  // tracing tolerance
+
+  nextPoint = startPoint;
+  Point curveStart = curveData.origin;
+  Point point2; // point to hold temporary values
+
+  // Move the step
+  int numIterations = 0;
+  int maxIterationsAllowed = 100000;
+  while (true)
+  {
+    int outOfDomain = 0;
+    outOfDomain = eqdsk.rk4(nextPoint, point2, stepToroidalUnit, 2);
+    if (outOfDomain)
+    {
+       int side = updatePointOnBoundary(point2, box);
+       if (side < 0)
+         return false;
+
+       bool ok = eqdsk.findNextPsiPointOnBoundary(point2, curveData.psi, side);
+       assert(ok);
+      
+       nextPoint = point2;
+       return false;
+    }
+    numIterations++;
+
+    // Step : Check if the psi is correct
+    double dpsi = eqdsk.getPsiAtPoint(point2) - curveData.psi;
+    if (fabs(dpsi) < eqdsk.getPsiTolerance())
+    {
+      bool adjustedPointToPsi = eqdsk.snapToPsi(point2, curveData.psi);
+      assert(adjustedPointToPsi);
+    }
+    
+    // Step : Calculate distance moved
+    double distOldToNew = distance2D(nextPoint, point2);
+    double lengthPoloidalCandidate = distOldToNew + lengthPoloidal;
+    if(lengthPoloidalCandidate > lengthPoloidalGoal) 
+    {
+      stepToroidalUnit *= 0.5;
+      continue;
+    }
+    else
+      lengthPoloidal = lengthPoloidalCandidate;
+
+    if (doesPointHitTheOrigin(nextPoint, point2, startPoint, lengthPoloidalGoal, distNewToStartLast, curveData, eqdsk))
+      return true;
+    distNewToStartLast = distance2D(point2, curveData.origin);
+
+    if (numIterations > maxIterationsAllowed)
+    {
+      std::cerr << "In function " << __func__ << ": loop iteration is over 100k. i.e. hard to find next point on a flux curve. \n";
+      exit(1);
+    }
+
+    nextPoint = point2;  // update the point
+    if (stepToroidalUnit < lengthTolerance)
+      return true;
+  }
+}
+
+// Given a point on curve, and properties of magnetic field along with the curve meta deta, 
+// find next point on the poloidal curve. Field following point tracing.
+bool findNextFieldFollowingPoint(Point& startPoint, Point& nextPoint, double& dist, int m, CurveMetaData& curveData, 
                                  EqdskData eqdsk, const DomainBox& box)
 {
   int steps;
@@ -10,9 +82,9 @@ bool findNextFieldFollowingPoint(Point& startPoint, Point& point1, double& dist,
   dist = 0.0;
   double distNewToStartLast = 0.0;
 
-  point1 = startPoint;
+  nextPoint = startPoint;
   Point curveStart = curveData.origin;
-  Point point2; // point to hold updated values
+  Point point2; // point to hold temporary values
 
   // Move the step
   int numIterations = 0;
@@ -20,14 +92,14 @@ bool findNextFieldFollowingPoint(Point& startPoint, Point& point1, double& dist,
   double stepToroidalMeter = 0.0;
   while (true)
   {
-    stepToroidalMeter = point1.x*stepToroidalAngle;
-    int res = eqdsk.rk4(point1, point2, stepToroidalMeter, 3);
+    stepToroidalMeter = nextPoint.x*stepToroidalAngle;
+    int res = eqdsk.rk4(nextPoint, point2, stepToroidalMeter, 3);
     point2.z = 0.0;
 
     // Step : If point is outside the domain, try to find the point on the box boundary and return
     // true if the point founded is close to origin(start of the curve).
     if (res > 0)
-      return isBoundaryPointOnOrigin(point1, point2, dist, numIterations, curveData, eqdsk, box);
+      return isBoundaryPointOnOrigin(nextPoint, point2, dist, numIterations, curveData, eqdsk, box);
 
     numIterations++;
 
@@ -40,7 +112,9 @@ bool findNextFieldFollowingPoint(Point& startPoint, Point& point1, double& dist,
     }
 
     // Step : Calculate distance moved
-    if (doesPointHitTheOrigin(point1, point2, startPoint, dist, goal, distNewToStartLast, curveData, eqdsk))
+    double distOldToNew = distance2D(nextPoint, point2);
+    dist = dist + distOldToNew;
+    if (doesPointHitTheOrigin(nextPoint, point2, startPoint, goal, distNewToStartLast, curveData, eqdsk))
       return true;
     distNewToStartLast = distance2D(point2, curveData.origin);
 
@@ -58,6 +132,7 @@ bool findNextFieldFollowingPoint(Point& startPoint, Point& point1, double& dist,
   }
 }
 
+// To find the toroidal step size for rk4 method.
 double getStepToroidalAngle(int numPlanes, int m, int& steps, double stepRadians)
 {
   double pi = 3.14159265359;
@@ -85,6 +160,22 @@ double getStepToroidalAngle(int numPlanes, int m, int& steps, double stepRadians
   return stepToroidalAngle;
 }
 
+// To find normalized toroidal step for rk4 method.
+double getStepToroidalUnit(const PhysicsPoint& oPoint, double goal, int numPlanes)
+{
+  // Set up variables needed in the calculation.
+  double subStepMaxBound = 100.00;
+
+  // toridalMaxBound = (2*pi*R_axis)/(# of poloidal planes*subStepMaxBound)
+  double pi = 3.14159265359;
+  Point axis = oPoint.getPoint();
+  double toridalMaxBound = (2.0*pi*axis.x)/(numPlanes*subStepMaxBound);
+  double stepToroidalUnit = std::min(goal, toridalMaxBound);
+
+  return stepToroidalUnit;
+}
+
+// If a point is outside the bounding box, readjust it on the boundary.
 // Update point pt on the edges of bounding box and return the side of the box its on.
 // side = 1 is left, side = 3 is right, side = 2 is bottom, side = 0 is top.
 int updatePointOnBoundary(Point& pt, const DomainBox& box)
@@ -126,6 +217,7 @@ int updatePointOnBoundary(Point& pt, const DomainBox& box)
   return side;
 }
 
+// Check if the point adjusted on the bounding box, hits the origin (starting point) of curve or not.
 bool isBoundaryPointOnOrigin(Point& pt1, Point& pt2, double& dist, int numIterations, 
                              CurveMetaData& curveData, EqdskData& eqdsk, const DomainBox& box)
 {
@@ -149,11 +241,10 @@ bool isBoundaryPointOnOrigin(Point& pt1, Point& pt2, double& dist, int numIterat
   return false;
 }
 
-bool doesPointHitTheOrigin(Point& pt1, Point& pt2, Point startPt, double& dist, double goal,
-                           double distNewToStartLast, CurveMetaData& curveData, EqdskData& eqdsk)
+// Check if the next traced points, hits the origin (starting point) of curve or not.
+bool doesPointHitTheOrigin(Point& pt1, Point& pt2, Point startPt, double goal, double distNewToStartLast, 
+                           CurveMetaData& curveData, EqdskData& eqdsk)
 {
-  double distOldToNew = distance2D(pt1, pt2);
-  dist = dist + distOldToNew;
   double distNewToStart = distance2D(pt2, curveData.origin);
   double distSourceToNew = distance2D(startPt, pt2);
   
