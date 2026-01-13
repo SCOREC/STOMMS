@@ -8,11 +8,7 @@ PlaneMetaData::PlaneMetaData(const FluxData& f, std::shared_ptr<MagneticGeometry
   // Step 1: Setup the flux values on the plane.
   fluxValues = f.fluxInput;
 
-  // Step 2: Find any critical points on plane (Future Task).
-  //oPoints = searchOPoints(magGeom);
-  //xPoints = searchXPoints(magGeom);
- 
-  // Step 3:Setup the vector for number of desired mesh vertices on each flux curve.
+  // Step 2:Setup the vector for number of desired mesh vertices on each flux curve.
   for( const auto &itr : f.fluxMeshSize)
     fluxMeshSize.push_back(itr.second);
 }
@@ -41,16 +37,17 @@ const MagneticGeometry& PlaneMetaData::getMagneticGeometry()
   return *mg;
 }
 
-// Function to add individual plane meta data to the object of class ModelMetaData.
-void ModelMetaData::addPlane(PlaneMetaData pg)
+// ModelMetaData Constructor
+ModelMetaData::ModelMetaData(const Inputs& inputs, std::shared_ptr<MagneticGeometry> magGeom)
 {
-  // Step 1: Get the individual plane meta data and save it to the vector of planes (planesContainer).
-  planesContainer.push_back(pg);
-
-  // Step 2: Retrieve the toroidal angle of each plane and save it to the vector holding 
-  // the plane angles data.
-  double toroidalAngle = pg.getPlaneToroidalAngle();
-  planesToroidalAngles.push_back(toroidalAngle);
+  // Step 1: Set up planer metadata
+  for (int i = 0; i < inputs.getInputData().pd.planeInput.size(); i++)
+  {
+    double toroidalAngle = inputs.getInputData().pd.planeInput[i];
+    PlaneMetaData pg(inputs.getInputData().fd, magGeom, toroidalAngle);
+    planesContainer.push_back(pg);
+    planesToroidalAngles.push_back(toroidalAngle);
+  }
 }
 
 // Function to return a vector containing all the planes with their meta data.

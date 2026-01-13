@@ -27,13 +27,7 @@ int main(int argc, char* argv[])
     STOMMS s;
 
     // Step 5: Setup the model metadata by setting up the meta data on poloidal planes.
-    ModelMetaData modelMetaData;
-    for (int i = 0; i < inputs.getInputData().pd.planeInput.size(); i++)
-    {
-      double toroidalAngle = inputs.getInputData().pd.planeInput[i];
-      PlaneMetaData pg(inputs.getInputData().fd, mg, toroidalAngle);
-      modelMetaData.addPlane(pg);
-    }
+    ModelMetaData modelMetaData(inputs, mg);
 
     // Step 6: Generate the stomms model(geometric model) from the given meta data (modelMetaData).
     StommsModel stommsModel(modelMetaData);

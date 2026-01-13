@@ -34,41 +34,22 @@ class PlaneMetaData{
      * on the poloidal plane.
      */ 
     const std::vector <int>& getPlaneFluxSizes();
- 
-    /*
-     * Function to return the vector of O-points on the poloidal plane (future task).
-     */ 
-    const std::vector <PhysicsPoint>& getPlaneOpoints();
-
-    /*
-     * Function to return the vector of X-points on the poloidal plane (future task).
-     */ 
-    const std::vector <PhysicsPoint>& getPlaneXpoints();
 
     /*
      * Function to return the magnetic geometry.
      */ 
-    const MagneticGeometry& getMagneticGeometry();
+    const MagneticGeometry& getMagneticGeometry(); 
   private:
     std::shared_ptr<MagneticGeometry> mg;  // Magnetic geometry information.
     std::vector <double> fluxValues;  // vector of psi values of desired flux curves on the plane. 
     double toroidalAngle;  // Toroidal angle of the plane.
     std::vector <int> fluxMeshSize;  // Desired number of mesh points on each flux curve. fluxMeshSize.size() == fluxValues.size(). 
- 
-    // PhysicsPoint contains both the physical coordinates and psi value of the point.
-    std::vector <PhysicsPoint> oPoints;
-    std::vector <PhysicsPoint> xPoints;
 };
 
 // class ModelMetaData holds the metadata information for all the poloidal planes.
 class ModelMetaData{
   public:
-    /*
-     * Function to add individual plane meta data to ModelMetaData.
-     * PlaneMetaData pg (in): Takes the PlaneMetaData as input.
-     */
-    void addPlane(PlaneMetaData pg);
-
+    ModelMetaData(const Inputs& input, std::shared_ptr<MagneticGeometry> magGeom);
     /*
      *  Function to return a vector containing all the planes with their meta data.
      */ 
