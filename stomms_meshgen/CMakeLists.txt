@@ -28,6 +28,8 @@ set(STELLMESH_SRCS
   src/criticalPoints.cc
   src/criticalPointsEqdsk.cc 
   src/magneticGeometry.cc
+  src/magneticGeometryStellarator.cc
+  src/magneticGeometryTokamak.cc
   src/util.cc 
   src/stomms.cc
   src/modelTopology.cc
