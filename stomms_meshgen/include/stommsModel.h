@@ -2,10 +2,6 @@
 #define STOMMSMODEL_H
 
 #include "magneticGeometry.h"
-#include "modelTopology.h"
-#include "modelMetaData.h"
-#include "modelingVmec.h"
-#include "input.h"
 #include <util.h>
 #include <map>
 

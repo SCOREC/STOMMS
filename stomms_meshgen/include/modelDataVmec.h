@@ -2,8 +2,6 @@
 #define MODELDATAVMEC_H 
 
 #include "modelingVmec.h"
-#include "modelMetaData.h"
-//#include "modelTopology.h"
 
 class ModelVmec{
   public:

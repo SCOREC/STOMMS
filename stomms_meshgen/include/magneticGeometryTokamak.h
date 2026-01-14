@@ -11,13 +11,19 @@ class MagneticGeometryForTokamak: public MagneticGeometry{
   public:
     MagneticGeometryForTokamak(const WallCurve& wall, const bool& useReversePsi);
 
-    /*
+    /**
      * A function to return psi value of the axis in the tokamak domain.
-     */
+    */
     double getPsiAxis() const override;
 
+    /**
+     * A function to return psi value at the boundary of core region.
+    */ 
     double getPsiCoreBoundary() const override;
 
+    /**
+     * A fucntion to get the reactor type of geometry (stellarator/tokamak).
+    */ 
     ReactorType getReactorType() const override {return ReactorType::Tokamak;};
 
     /*

@@ -1,7 +1,10 @@
 #ifndef MAGNETICGEOMETRYDATATYPES_H
 #define MAGNETICGEOMETRYDATATYPES_H
 
-// A class to contain the information fo a flux curve.
+// TO-DO: Make members in Flux and Plane private and use set-get functions.
+/**
+ * A class to contain the information fo a flux curve.
+ */
 class Flux{
   public:
     int planeNumber;  // plane on which flux curve lies.
@@ -10,6 +13,9 @@ class Flux{
     int meshVerticesOnFlux;  // Number of vertices desired on flux curves
 };
 
+/**
+ * A class to define geometric model on a plane.
+ */
 class Plane{
   public:
     std::vector <Face> modelFaces;
@@ -18,7 +24,9 @@ class Plane{
     int planeNumber;  // plane number starting from 0 to numPlanes-1
 };
 
-// Struct VmecData contains all the input VmecData.
+/**
+ * Struct VmecData contains all the input VmecData.
+ */
 struct VmecData{
   double majorR;  // Major radius of the reactor.
   double minorR;  // Minor radius of the reactor.
@@ -33,12 +41,16 @@ struct VmecData{
   std::vector <double> xn;   // Toroidal modes.
 };
 
-// Struct bmwData contains the data from BMW file.
+/**
+ * Struct bmwData contains the data from BMW file.
+ */
 struct BmwData{
   // Populate it as we move forward.
 };
 
-// Struct eqdskData contains the magnetic field information from eqdsk file.
+/** 
+ * Struct eqdskData contains the magnetic field information from eqdsk file.
+ */
 struct EqdskData{
   // add data here as we move forward.
   double psiAxis;

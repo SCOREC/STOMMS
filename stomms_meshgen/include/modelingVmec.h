@@ -3,8 +3,6 @@
 
 #include <map>
 #include "input.h"
-#include "modelTopology.h"
-#include "modelMetaData.h"
 #include "magneticGeometry.h"
 
 /*
