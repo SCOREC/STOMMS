@@ -1,6 +1,23 @@
 #ifndef MAGNETICGEOMETRYDATATYPES_H
 #define MAGNETICGEOMETRYDATATYPES_H
 
+// A class to contain the information fo a flux curve.
+class Flux{
+  public:
+    int planeNumber;  // plane on which flux curve lies.
+    double psiNormOnFlux;  // normalized psi value of flux curve
+    std::vector <Edge> edgesOnFlux;
+    int meshVerticesOnFlux;  // Number of vertices desired on flux curves
+};
+
+class Plane{
+  public:
+    std::vector <Face> modelFaces;
+    std::vector <Flux> fluxCurves;  // vector of flux curves on the poloidal plane.
+    Vertex oPoint;
+    int planeNumber;  // plane number starting from 0 to numPlanes-1
+};
+
 // Struct VmecData contains all the input VmecData.
 struct VmecData{
   double majorR;  // Major radius of the reactor.

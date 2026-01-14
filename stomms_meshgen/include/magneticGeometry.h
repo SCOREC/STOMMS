@@ -5,7 +5,9 @@
 #include "input.h"
 #include "criticalPointsEqdsk.h"
 #include "physicalGeometry.h"
+#include "modelMetaData.h"
 #include "magneticGeometryDataTypes.h"
+#include "modelingVmec.h"
 
 /*
  * Abstract Base class for MagneticGeometry. 
@@ -49,10 +51,10 @@ class MagneticGeometry{
     virtual const std::map<int, std::vector<PhysicsPoint>>& getXPoints() const = 0;
 
     /*
-     * Function to return the VMEC data. All required VMEC data is
-     * in the VmecData class.
-     */ 
-    virtual const VmecData& getVmecData() const = 0;
+     * Get the Model for the magnetic geometry (redo commenting).
+     */  
+    virtual const Model& getModel() const = 0;
+    virtual const std::vector <Plane>& getPlanes() const = 0;
 };
 
 /*
@@ -60,6 +62,6 @@ class MagneticGeometry{
  * of reactor, and set magnetic geometry accordingly.
  * const Inputs& input (in): class holding all the input data
  */
-std::unique_ptr <MagneticGeometry> setMagneticGeometry(const Inputs& input, const PhysicalGeometry& physicalGeometry);
+std::unique_ptr <MagneticGeometry> setMagneticGeometry(const Inputs& input, const PhysicalGeometry& physicalGeometry, const ModelMetaData& modelMetaData);
 
 #endif

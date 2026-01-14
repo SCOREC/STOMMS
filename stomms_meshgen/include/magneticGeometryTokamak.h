@@ -34,16 +34,20 @@ class MagneticGeometryForTokamak: public MagneticGeometry{
      */
     const std::map<int, std::vector<PhysicsPoint>>& getXPoints() const override;
 
-    /*
-     * Function to return the VMEC data. All required VMEC data is
-     * in the VmecData class.
-    */
-    const VmecData& getVmecData() const override;
+    // DO COMMENTING LATER
+    const Model& getModel() const override;
+    const std::vector <Plane>& getPlanes() const override;
+
+   
   private:
     WallCurve wallCurve;
     bool reversePsi;
     std::map<int , std::vector<PhysicsPoint>> oPoints;  // map between plane number and OPoints
     std::map<int , std::vector<PhysicsPoint>> xPoints;  // map between plane number and XPoints
+
+    // For temporary place holder
+    Model model;
+    std::vector <Plane> planes; 
 };
 
 #endif

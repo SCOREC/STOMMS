@@ -58,11 +58,14 @@ double MagneticGeometryForTokamak::getPsiCoreBoundary() const
   return xPt.getPsi();
 }
 
-// Function to return the VMEC data. Not applicable for Tokamaks. 
-// Return an error message.
-const VmecData& MagneticGeometryForTokamak::getVmecData() const
+
+// PLACEHOLDER YET- DO COMMENTING LATER
+const Model& MagneticGeometryForTokamak::getModel() const
 {
-  std::cerr << "Input magnetic field is EQDSK for Tokamaks. Make sure to provide VMEC input file to use this function\n";
-  std::cerr << "If not, use the correct functions to access magnetic field data from EQDSK file\n";
-  exit(1);
+  return model;
+}
+
+const std::vector <Plane>& MagneticGeometryForTokamak::getPlanes() const
+{
+  return planes;
 }

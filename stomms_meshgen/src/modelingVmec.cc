@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <assert.h>
-#include "modeling.h"
+#include "modelingVmec.h"
 #include <util.h>
 
 #ifndef M_PI
@@ -9,13 +9,8 @@
 #endif
 
 //From a given plane meta data (Vmec, flux and plane info), generate the model of the core region of stellarator
-Model generateCoreSimModel(std::vector <PlaneMetaData> md)
+Model generateCoreSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& vm)
 {
-  // Step 1: Retrieve the data (magnetic geometric) from the MetaData
-  // and read vmecData from it.
-  const MagneticGeometry& mg = md[0].getMagneticGeometry();
-  VmecData vm = mg.getVmecData();  
-
   // Step 2: Read the data from the vmec object (vm)
   double avmajr = vm.majorR;
   double avminr = vm.minorR;

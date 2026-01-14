@@ -5,7 +5,7 @@
 /* 
  * Function to set magnetic geometry.
  */
-std::unique_ptr <MagneticGeometry> setMagneticGeometry(const Inputs& input, const PhysicalGeometry& physicalGeometry)
+std::unique_ptr <MagneticGeometry> setMagneticGeometry(const Inputs& input, const PhysicalGeometry& physicalGeometry, const ModelMetaData& modelMetaData)
 {
   std::unique_ptr <MagneticGeometry> mg;
 
@@ -29,7 +29,7 @@ std::unique_ptr <MagneticGeometry> setMagneticGeometry(const Inputs& input, cons
     }
     
     // Step 1.2: Set up the magnetic geometry
-    mg =  std::make_unique<MagneticGeometryForStellarator>(vmecFileName);
+    mg =  std::make_unique<MagneticGeometryForStellarator>(modelMetaData, vmecFileName);
   }
 
   // Step 2: If reactor type is tokamak, look for EQDSK file and set magnetic 

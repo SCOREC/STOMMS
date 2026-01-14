@@ -4,10 +4,13 @@
  * A fucntion to set magnetic geometry information (any kind of physics information given)
  * to class MagneticGeometry.
  */
-MagneticGeometryForStellarator::MagneticGeometryForStellarator(const std::string& vmecFileName):vmecFile(vmecFileName)
+MagneticGeometryForStellarator::MagneticGeometryForStellarator(const ModelMetaData& md, const std::string& vmecFileName):vmecFile(vmecFileName)
 {
   // Step 1: Read VMEC file data
   vmec = readVmecData();
+
+  // Step 2: Get the vector of planes with their meta data from ModelMetadata.
+  modelVmec = ModelVmec(md, vmec);
 }
 
 /*
@@ -98,9 +101,12 @@ const std::map<int, std::vector<PhysicsPoint>>& MagneticGeometryForStellarator::
   return xPoints;
 }
 
-// Function to return the VMEC data.
-const VmecData& MagneticGeometryForStellarator::getVmecData() const
+const Model& MagneticGeometryForStellarator::getModel() const
 {
-  return vmec;
+  return modelVmec.getModel();
 }
 
+const std::vector <Plane>& MagneticGeometryForStellarator::getPlanes() const
+{
+  return modelVmec.getPlanes();
+}

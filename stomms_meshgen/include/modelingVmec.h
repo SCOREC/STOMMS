@@ -12,7 +12,7 @@
  * std::vector <PlaneMetaData> mD (in): a vector of planes with their meta data. 
  * returns Model;
 */
-Model generateCoreSimModel(std::vector <PlaneMetaData> mD);
+Model generateCoreSimModelVmec(std::vector <PlaneMetaData> mD, const VmecData& vm);
 
 /* 
  * From Vmec flux data (vf), flux indices (nrho and rhos), and, poloidal planes (nzeta and zetas)

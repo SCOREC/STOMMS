@@ -4,6 +4,7 @@
 #include "ncFile.h"
 #include "ncVar.h"
 #include "magneticGeometry.h"
+#include "modelDataVmec.h"
 
 using namespace netCDF;
 
@@ -16,7 +17,7 @@ class MagneticGeometryForStellarator: public MagneticGeometry{
      * Constructor to set magnetic geometry information from stellarator to class MagneticGeometry.
      * const std::string& vmecFileName (in): vmec file name containing all the vmec data.
     */ 
-    MagneticGeometryForStellarator(const std::string& vmecFileName);
+    MagneticGeometryForStellarator(const ModelMetaData& md, const std::string& vmecFileName);
 
     /*
      * A function to return psi value of the axis in the vmec domain.
@@ -47,17 +48,15 @@ class MagneticGeometryForStellarator: public MagneticGeometry{
      */ 
     const std::map<int, std::vector<PhysicsPoint>>& getXPoints() const override;
 
-    /*
-     * Function to return the VMEC data. All required VMEC data is
-     * in the VmecData class.
-    */ 
-    const VmecData& getVmecData() const override;
-
+    // DO COMMENTING LATER
+    const Model& getModel() const override;
+    const std::vector <Plane>& getPlanes() const override;
   private:
     std::string vmecFile;    
     std::map<int , std::vector<PhysicsPoint>> oPoints;  // map between plane number and OPoints
     std::map<int , std::vector<PhysicsPoint>> xPoints;  // map between plane number and XPoints
     VmecData vmec;  // VMEC data (Stellarator core region)
+    ModelVmec modelVmec;  
     
     /*
      * Read input VMEC file and store relevant data in struct vmecData.

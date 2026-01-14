@@ -3,7 +3,7 @@
 #include <iterator>
 
 // Constructor gets the flux data (f), magnetic geometry (mg), and plane toroidal angle to setup meta data on the plane.
-PlaneMetaData::PlaneMetaData(const FluxData& f, std::shared_ptr<MagneticGeometry> magGeom, double angle):toroidalAngle(angle),mg(magGeom)
+PlaneMetaData::PlaneMetaData(const FluxData& f, double angle):toroidalAngle(angle)
 {
   // Step 1: Setup the flux values on the plane.
   fluxValues = f.fluxInput;
@@ -31,27 +31,21 @@ const std::vector <int>& PlaneMetaData::getPlaneFluxSizes()
   return fluxMeshSize;
 }
 
-// Function to return the magnetic geometry set on the plane meta data.
-const MagneticGeometry& PlaneMetaData::getMagneticGeometry()
-{
-  return *mg;
-}
-
 // ModelMetaData Constructor
-ModelMetaData::ModelMetaData(const Inputs& inputs, std::shared_ptr<MagneticGeometry> magGeom)
+ModelMetaData::ModelMetaData(const Inputs& inputs)
 {
   // Step 1: Set up planer metadata
   for (int i = 0; i < inputs.getInputData().pd.planeInput.size(); i++)
   {
     double toroidalAngle = inputs.getInputData().pd.planeInput[i];
-    PlaneMetaData pg(inputs.getInputData().fd, magGeom, toroidalAngle);
+    PlaneMetaData pg(inputs.getInputData().fd, toroidalAngle);
     planesContainer.push_back(pg);
     planesToroidalAngles.push_back(toroidalAngle);
   }
 }
 
 // Function to return a vector containing all the planes with their meta data.
-const std::vector <PlaneMetaData>& ModelMetaData::getPlanesContainer()
+const std::vector <PlaneMetaData>& ModelMetaData::getPlanesContainer() const
 {
   return planesContainer;
 }

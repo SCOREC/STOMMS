@@ -1,7 +1,7 @@
 #ifndef MESHMETADATA_H
 #define MESHMETADATA_H
 
-#include "modelData.h"
+#include "stommsModel.h"
 
 // Class PlaneMeshMetaData holds the information required in meshing of individual poloidal planes.
 class PlaneMeshMetaData{

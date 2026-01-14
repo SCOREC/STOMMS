@@ -1,7 +1,7 @@
 #ifndef STOMMSMESH_H
 #define STOMMSMESH_H
 
-#include "modelData.h"
+#include "stommsMesh.h"
 #include "meshMetaData.h"
 #include <assert.h>
 
