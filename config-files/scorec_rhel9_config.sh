@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Set the targets that need to be compiled.
-COMPILE_STOMMS_MESHGEN="OFF"
-COMPILE_STOMMS_READER="ON"
+COMPILE_STOMMS_MESHGEN="ON"
+COMPILE_STOMMS_READER="OFF"
 
 # Set common variables
 OMEGAH_DIR=/users/riazu2/lore.scorec.rpi.edu/Tools/install/OmegaH/gcc12.3.0

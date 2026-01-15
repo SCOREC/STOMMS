@@ -1,24 +1,27 @@
-#include "modelData.h"
+#include "modelDataVmec.h"
 
+/***********************************************/
+// Class ModelDataVmec
+// creates a geometry based on model meta data,
+// and sets properties of model based on 
+// specific magnetic input type.
+/***********************************************/
 // Constructor gets the model meta data and uses it to setup StommsModel.
-StommsModel::StommsModel(const ModelMetaData& md):modelMetaData(md)
+ModelVmec::ModelVmec(const ModelMetaData& md, const VmecData& vm): modelMetaData(md), vmec(vm)
 {
   // Step 1: Get the vector of planes with their meta data from ModelMetadata.
-  planesContainer = modelMetaData.getPlanesContainer(); 
+  planesContainer = modelMetaData.getPlanesContainer();
 
   // Step 2: Generate the model using planes meta data.
-  model = generateCoreSimModel(planesContainer);
+  model = generateCoreSimModelVmec(planesContainer, vmec);
 
-  // Step 3: Steup the poloidal planes with their model enteties using 
+  // Step 3: Steup the poloidal planes with their model enteties using
   // the model information.
   setPlanes();
-
-  // Step 4: Set attributes on model entities.
-  setModelAttributes();
 }
 
 // Setting model entities from Simmetrix Model (pGModel) to respective planes.
-void StommsModel::setPlanes()
+void ModelVmec::setPlanes()
 {
   // Step 1: Get the Simmetrix model (pGModel) from Model.
   pGModel simModel = model.getSimModel();
@@ -28,8 +31,8 @@ void StommsModel::setPlanes()
 
   // Step 3: Sort all the model faces and O-point vertices  according to plane number in a map.
   // In map, the key is the plane # and the element is relevant model data on the plane.
-  std::map <int, Vertex> planesAxisMap = sortOPointsByPlanes(model, planeAngles); 
-  std::map <int, std::vector<Face>> planesFacesMap = sortFacesByPlanes(model, planeAngles); 
+  std::map <int, Vertex> planesAxisMap = sortOPointsByPlanes(model, planeAngles);
+  std::map <int, std::vector<Face>> planesFacesMap = sortFacesByPlanes(model, planeAngles);
 
   // Step 4: Iterate over the map and assign the data to each plane (using object Plane)
   std::map <int, std::vector<Face>>::iterator itr;
@@ -44,7 +47,7 @@ void StommsModel::setPlanes()
     p.oPoint = planesAxisMap[itr->first];  // Set the Opoint on the plane.
 
     // Step 4.3: Set the flux curves on each plane.
-    std::vector <Flux> fluxCurves = setFluxCurvesOnPlanes(model, p.planeNumber, planesContainer); 
+    std::vector <Flux> fluxCurves = setFluxCurvesOnPlanes(model, p.planeNumber, planesContainer);
     p.fluxCurves = fluxCurves;  // Set flux curves on the plane.
 
     // Step 4.4: Set the faces on each plane.
@@ -55,56 +58,8 @@ void StommsModel::setPlanes()
   }
 }
 
-// Function to setup attributes on model entities.
-void StommsModel::setModelAttributes()
-{
-  // Set attributes on model faces.
-  setModelFaceAttributes();
-
-  // Extend it if needed for other model entity types.
-}
-
-// Function to setup attributes on model faces.
-void StommsModel::setModelFaceAttributes()
-{
-  // Step 1: Get all the faces on the model.
-  std::vector <Face> modelFaces = model.getModelFaces();
-
-  // Step 2: Iterate over the face and check if they belong to core, sol, pvt, or any other physics region.
-  for (int i = 0; i < modelFaces.size(); i++)
-  {
-    Face f = modelFaces[i];
-
-    // Step 2.1: If belongs to core, set the face type = 1.
-    int fAttribute = 0;
-    if (isFaceOnCore(f))
-      fAttribute = 1;
-
-    // Step 2.2: Set the face types in attribute vector.
-    faceAttributes.push_back(fAttribute);
-  }
-}
-
-// Function to return the underlying model in StommsModel.
-const Model& StommsModel::getModel()
-{
-  return model;
-}
-
-// Function to return the vector containing all the planes with their geometric data.
-const std::vector <Plane>& StommsModel::getPlanes()
-{
-  return planes;
-}
-
-// Function to return ModelMetaData stored in StommsModel.
-const ModelMetaData& StommsModel::getModelMetaData()
-{
-  return modelMetaData;
-}
-
 // From the Model, sort the oPoints by planes.
-std::map<int, Vertex> sortOPointsByPlanes(Model m, std::vector <double> planeAngles)
+std::map<int, Vertex> ModelVmec::sortOPointsByPlanes(Model m, std::vector <double> planeAngles)
 {
   // Step 1: Fetch the Simmetrix model (pGModel) from Model m and the vmecFlux data (vf) from 
   // the pGModel. Also read the plane information from plane meta data.
@@ -128,7 +83,7 @@ std::map<int, Vertex> sortOPointsByPlanes(Model m, std::vector <double> planeAng
 
 // From the Model, sort the model entities by planes. This results defining
 // each plane using its model entities (model faces for now).
-std::map<int,std::vector<Face>> sortFacesByPlanes(Model m, std::vector <double> planeAngles) 
+std::map<int,std::vector<Face>> ModelVmec::sortFacesByPlanes(Model m, std::vector <double> planeAngles) 
 {
   // Step 1: Fetch the Simmetrix model (pGModel) from Model m and the vmecFlux data (vf) from 
   // the pGModel. Also read the plane information from plane meta data.
@@ -170,7 +125,7 @@ std::map<int,std::vector<Face>> sortFacesByPlanes(Model m, std::vector <double> 
 }
 
 // Set all the flux curves on a plane.
-std::vector <Flux> setFluxCurvesOnPlanes(Model m, int planeNum, std::vector <PlaneMetaData> md)
+std::vector <Flux> ModelVmec::setFluxCurvesOnPlanes(Model m, int planeNum, std::vector <PlaneMetaData> md)
 {
   // Step 1: Fetch the Simmetrix model (pGModel) from Model m and the vmecFlux data (vf) from 
   // the pGModel. Also read the plane information from plane meta data.
@@ -180,9 +135,8 @@ std::vector <Flux> setFluxCurvesOnPlanes(Model m, int planeNum, std::vector <Pla
 
   // Step 2: Get the magnetic field information associated to the plane (although current one is
   // global but it will change in future) and psi bounds.
-  const MagneticGeometry& mg = md[planeNum].getMagneticGeometry();
-  double psiAxis = mg.getPsiAxis();
-  double psiLCF = mg.getPsiCoreBoundary();
+  double psiAxis = vmec.psi[0];
+  double psiLCF = vmec.psi[vmec.nSurf - 1];
 
   // Step 3: Set each flux curve one by one and then push the flux curve to flux 
   // curves container.  Iterate over the fluxMeshSize Map to start with.
@@ -218,43 +172,14 @@ std::vector <Flux> setFluxCurvesOnPlanes(Model m, int planeNum, std::vector <Pla
   return fluxCurvesOnPlane;
 }
 
-// Function to check if a model face is on core or not.
-bool isFaceOnCore(const Face& f)
+// Function to get model associated with vmec geometry.
+const Model& ModelVmec::getModel() const
 {
-  // Step 1: Get the vector of model edges on the model face.
-  Face gf = f;
-  std::vector <Edge> edges = gf.getEdgesOnFace();
-
-  // Step 2: Iterate over the model edges and check how man of them are periodic. 
-  int numPeriodicEdges = 0;
-  for (int i = 0; i < edges.size(); i++)
-  {
-    Edge ge = edges[i];
-    if (ge.edgeIsPeriodic())
-     numPeriodicEdges++; 
-  }
-
-  // Step 3: If number of periodic edges are 2, its on core region.
-  // or if its on faces adjacent to oPoint with one edge, its on core region.
-  bool isCore = false;
-  if (numPeriodicEdges == 2 || edges.size() == 1 && numPeriodicEdges == 1)
-    isCore = true;
-  
-  return isCore;
+  return model;
 }
 
-// Function to get the physics region type of a model face.
-int getModelFacePhysicsType(const Face& face)
+// Function to get all the geometric information on individual planes.
+const std::vector <Plane>& ModelVmec::getPlanes() const
 {
-  // Step 1: Get the face that needs to be checked.
-  Face f = face;
-
-  // Step 2: If face is not classified on known model types, set it to
-  // 0, if on core set it to 1, and extend accordingly in future.
-  int physicsType = 0;
-  if (isFaceOnCore(f))
-    physicsType = 1;
-
-  // Step 3: Return the physics type.
-  return physicsType;
+  return planes;
 }
