@@ -26,7 +26,8 @@ set(STELLMESH_SRCS
   src/input.cc
   src/physicalGeometry.cc
   src/criticalPoints.cc
-  src/criticalPointsEqdsk.cc 
+  src/criticalPointsEqdsk.cc
+  src/magneticGeometryDataTypes.cc 
   src/magneticGeometry.cc
   src/magneticGeometryStellarator.cc
   src/magneticGeometryTokamak.cc
