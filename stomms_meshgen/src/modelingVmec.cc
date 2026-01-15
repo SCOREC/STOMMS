@@ -11,7 +11,7 @@
 //From a given plane meta data (Vmec, flux and plane info), generate the model of the core region of stellarator
 Model generateCoreSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& vm)
 {
-  // Step 2: Read the data from the vmec object (vm)
+  // Step 1: Read the data from the vmec object (vm)
   double avmajr = vm.majorR;
   double avminr = vm.minorR;
   int nsurf = vm.nSurf;
@@ -24,10 +24,10 @@ Model generateCoreSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& v
   std::vector <double> xm = vm.xm;
   std::vector <double> xn = vm.xn;
 
-  // Step 3: Create an object to hold Vmec flux data
+  // Step 2: Create an object to hold Vmec flux data
   pVmecFlux vf = VmecFlux_create(avmajr, avminr, nsurf, nmode, R.data(), Z.data(), L.data(), iota.data(), psi.data(), xm.data(), xn.data());
 
-  // Step 4: Read number of flux curves (npsi) on each poloidal plane with the respective normalized psi values (psiNorm) from the
+  // Step 3: Read number of flux curves (npsi) on each poloidal plane with the respective normalized psi values (psiNorm) from the
   // plane meta data (md). Also, read the number of toroidal planes (nzeta) with the toroidal angles (zetas) of each poloidal plane.
   // Also, read psi values at O-point and last closed flux curve from VMEC file and use them to convert
   // normalized psi to actual psi. 
@@ -35,29 +35,29 @@ Model generateCoreSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& v
   std::vector <double> zetas;
   for (int i = 0; i  < md.size(); i++)
   {
-    // Step 4.1: The toroidal angles from the plane meta data.
+    // Step 3.1: The toroidal angles from the plane meta data.
     double toroidalAngle = md[i].getPlaneToroidalAngle();
     zetas.push_back(toroidalAngle);
   }
   const int npsi = psiNorm.size(), nzeta = zetas.size(); 
 
-  // Step 5: Convert normalized psi values to actual psi values. We need read psi values at O-point and last closed 
+  // Step 4: Convert normalized psi values to actual psi values. We need read psi values at O-point and last closed 
   // flux curve from VMEC file and use them to convert normalized psi to actual psi.
   double psiAxis = psi[0];
   double psiLCF = psi[nsurf-1];
   std::vector <double> psiVec = convertNormToPsiVector(psiNorm, psiAxis, psiLCF);  
 
-  // Step 6: Set flux curves and planes in the vmec vf object.
+  // Step 5: Set flux curves and planes in the vmec vf object.
   VmecFlux_setFluxes(vf, npsi, 0, psiVec.data()); 
   VmecFlux_setToroidalAngles(vf, nzeta, zetas.data());
 
-  // Step 7: Create model entities from the vmec physics data.
+  // Step 6: Create model entities from the vmec physics data.
   pGModel simModel = simModelFromVmec(vf, npsi, nzeta, psiVec.data(), zetas.data());
 
-  // Step 8: Write the model (.smd) on disk for visualization.
+  // Step 7: Write the model (.smd) on disk for visualization.
   GM_write(simModel, "vmec.smd", 0, 0);
 
-  // Step 9: Save it as type Model
+  // Step 8: Save it as type Model
   Model model;
   model.setSimModel(simModel);
 

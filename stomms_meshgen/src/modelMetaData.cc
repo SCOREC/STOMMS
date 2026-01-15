@@ -2,6 +2,11 @@
 #include "modelTopology.h"
 #include <iterator>
 
+/***********************************************/
+// Class PlaneMetaData
+// Sets metadata on a poloidal plane.
+/***********************************************/
+
 // Constructor gets the flux data (f), magnetic geometry (mg), and plane toroidal angle to setup meta data on the plane.
 PlaneMetaData::PlaneMetaData(const FluxData& f, double angle):toroidalAngle(angle)
 {
@@ -30,6 +35,11 @@ const std::vector <int>& PlaneMetaData::getPlaneFluxSizes()
 {
   return fluxMeshSize;
 }
+
+/***********************************************/
+// Class ModelMetaData
+// sets metadata for the model (all the planes)
+/***********************************************/
 
 // ModelMetaData Constructor
 ModelMetaData::ModelMetaData(const Inputs& inputs)

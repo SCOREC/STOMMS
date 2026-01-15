@@ -22,7 +22,7 @@ MagneticGeometryForTokamak::MagneticGeometryForTokamak(const WallCurve& wall, co
   printCriticalPoints(oPointsVec);
   printCriticalPoints(xPointsVec);
 
-  // Step 2: Setup critical points on each plane.
+  // Step 4: Setup critical points on each plane.
   // Just one plane for tokamak
   oPoints[0] = oPointsVec;
   xPoints[0] = xPointsVec;
@@ -40,31 +40,27 @@ const std::map<int, std::vector<PhysicsPoint>>& MagneticGeometryForTokamak::getX
   return xPoints;
 }
 
-/* 
- * A function to return psi value of the axis in the tokamak domain.
- */
+// A function to return psi value of the axis in the tokamak domain.
 double MagneticGeometryForTokamak::getPsiAxis() const
 {
   PhysicsPoint axis = oPoints.at(0).at(0);  // first member on first plane. 
   return axis.getPsi();
 }
 
-/* 
- * A function to return psi value of the innermost separatrix.
- */
+// A function to return psi value of the innermost separatrix.
 double MagneticGeometryForTokamak::getPsiCoreBoundary() const
 {
   PhysicsPoint xPt = xPoints.at(0).at(0);
   return xPt.getPsi();
 }
 
-
-// PLACEHOLDER YET- DO COMMENTING LATER
+// Function to get model associated with tokamak geometry.
 const Model& MagneticGeometryForTokamak::getModel() const
 {
   return model;
 }
 
+// Function to get all the geometric information on individual planes.
 const std::vector <Plane>& MagneticGeometryForTokamak::getPlanes() const
 {
   return planes;

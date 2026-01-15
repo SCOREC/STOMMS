@@ -1,5 +1,9 @@
 #include "stommsModel.h"
 
+/***********************************************/
+// Class: StommsModel
+/***********************************************/
+
 // Constructor gets the model meta data and uses it to setup StommsModel.
 StommsModel::StommsModel(std::shared_ptr<MagneticGeometry> mg):magneticGeometry(mg)
 {

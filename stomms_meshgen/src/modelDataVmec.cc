@@ -1,5 +1,11 @@
 #include "modelDataVmec.h"
 
+/***********************************************/
+// Class ModelDataVmec
+// creates a geometry based on model meta data,
+// and sets properties of model based on 
+// specific magnetic input type.
+/***********************************************/
 // Constructor gets the model meta data and uses it to setup StommsModel.
 ModelVmec::ModelVmec(const ModelMetaData& md, const VmecData& vm): modelMetaData(md), vmec(vm)
 {
@@ -166,11 +172,13 @@ std::vector <Flux> ModelVmec::setFluxCurvesOnPlanes(Model m, int planeNum, std::
   return fluxCurvesOnPlane;
 }
 
+// Function to get model associated with vmec geometry.
 const Model& ModelVmec::getModel() const
 {
   return model;
 }
 
+// Function to get all the geometric information on individual planes.
 const std::vector <Plane>& ModelVmec::getPlanes() const
 {
   return planes;

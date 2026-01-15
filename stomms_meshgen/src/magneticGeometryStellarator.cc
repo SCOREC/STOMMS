@@ -1,10 +1,15 @@
 #include "magneticGeometryStellarator.h"
 
-/*
- * A fucntion to set magnetic geometry information (any kind of physics information given)
- * to class MagneticGeometry.
- */
-MagneticGeometryForStellarator::MagneticGeometryForStellarator(const ModelMetaData& md, const std::string& vmecFileName):vmecFile(vmecFileName)
+/***********************************************/
+// class MagneticGeometryForStellarator
+// Geometry construction along with the physics
+// properties of stellarators are done here.
+/***********************************************/
+
+// A fucntion to set magnetic geometry information (any kind of physics information given)
+// to class MagneticGeometry.
+MagneticGeometryForStellarator::MagneticGeometryForStellarator(const ModelMetaData& md, 
+                                const std::string& vmecFileName):vmecFile(vmecFileName)
 {
   // Step 1: Read VMEC file data
   vmec = readVmecData();
@@ -13,9 +18,7 @@ MagneticGeometryForStellarator::MagneticGeometryForStellarator(const ModelMetaDa
   modelVmec = ModelVmec(md, vmec);
 }
 
-/*
- * Reads input VMEC file and store relevant data in struct vmecData.
- */
+// Reads input VMEC file and store relevant data in struct vmecData.
 VmecData MagneticGeometryForStellarator::readVmecData()
 {
   VmecData v;
@@ -65,25 +68,19 @@ VmecData MagneticGeometryForStellarator::readVmecData()
   return v;
 }
 
-/* 
- * A function to return psi value of the axis in the vmec domain.
- */
+// A function to return psi value of the axis in the vmec domain.
 double MagneticGeometryForStellarator::getPsiAxis() const
 {
   return vmec.psi[0];
 }
 
-/* 
- * A function to return psi value of the last closed flux curve in the vmec domain.
- */
+// A function to return psi value of the last closed flux curve in the vmec domain.
 double MagneticGeometryForStellarator::getPsiCoreBoundary() const
 {
   return vmec.psi[vmec.nSurf - 1]; 
 }
 
-/*
- * Function to return the reactor type(Stellarator for this class).
- */
+// Function to return the reactor type(Stellarator for this class).
 ReactorType MagneticGeometryForStellarator::getReactorType() const
 {
   return ReactorType::Stellarator;
@@ -101,11 +98,13 @@ const std::map<int, std::vector<PhysicsPoint>>& MagneticGeometryForStellarator::
   return xPoints;
 }
 
+// Function to get model associated with stellarator geometry.
 const Model& MagneticGeometryForStellarator::getModel() const
 {
   return modelVmec.getModel();
 }
 
+// Function to get all the geometric information on individual planes.
 const std::vector <Plane>& MagneticGeometryForStellarator::getPlanes() const
 {
   return modelVmec.getPlanes();

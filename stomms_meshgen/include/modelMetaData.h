@@ -4,31 +4,31 @@
 #include "input.h"
 #include "modelTopology.h"
 
-// The class PlaneMetaData contains the informtion on the magnetic geometry (mg), desired
-// flux curves, and desired planes.
+/**
+ * The class PlaneMetaData contains the informtion on the magnetic geometry (mg), desired
+ * flux curves, and desired planes.
+ */
 class PlaneMetaData{
   public:
-    /*
-     * Constructor gets the flux data (f), magnetic geometry (mg), and plane toroidal angle to setup
-     * meta data on the plane.
-     * const FluxData& f (in): The struct FluxData that constains the list of desired flux curves amd
-     * 			       corresponding mesh sizes (number of desired vertices) on the flux curves.
-     * const MagneticGeometry& magGeom (in): The given magnetic geometry (vmec, eqdsk, bmw etc.).
-     * double angle: Toroidal angle of the poloidal plane.
+    /**
+     * Constructor gets the flux data (f)plane toroidal angle to setup metadata on the plane.
+     * @param f: the struct FluxData that constains the list of desired flux curves amd
+     *           corresponding mesh sizes (number of desired vertices) on the flux curves.
+     * @param angle: toroidal angle of the poloidal plane.
      */ 
     PlaneMetaData(const FluxData& f, double angle);
 
-    /*
+    /**
      * Function to return the psi values of the desired flux curves on the poloidal plane.
      */ 
     const std::vector<double>& getPlaneFluxValues();
 
-    /*
+    /**
      * Function to return the toroidal angle of the poloidal plane.
      */ 
     const double& getPlaneToroidalAngle();
 
-    /*
+    /**
      * Function to return a vector of desired number of vertices on each flux curve
      * on the poloidal plane.
      */ 
@@ -40,23 +40,35 @@ class PlaneMetaData{
     std::vector <int> fluxMeshSize;  // Desired number of mesh points on each flux curve. fluxMeshSize.size() == fluxValues.size(). 
 };
 
-// class ModelMetaData holds the metadata information for all the poloidal planes.
+/** 
+ * class ModelMetaData holds the metadata information for all the poloidal planes.
+ */
 class ModelMetaData{
   public:
+    /**
+     * Constructor to create an object of ModelMetaData.
+     */ 
     ModelMetaData(){};
+
+    /**
+     * Constructor to create an object of ModelMetaData using input information.
+     * @param input: class holding all the input data.
+     */ 
     ModelMetaData(const Inputs& input);
-    /*
+
+    /**
      *  Function to return a vector containing all the planes with their meta data.
      */ 
     const std::vector <PlaneMetaData>& getPlanesContainer() const;
   
-    /*
+    /**
      *  Function to return the metadata on a individual plane by index.
-     *  int index (in): Takes the index value of the plane (0 to nPlanes-1) as input.
+     *  @param index: Takes the index value of the plane (0 to nPlanes-1) as input.
+     *  @return an object of PlaneMetaData.
      */ 
     const PlaneMetaData& getPlaneMetaDataByIndex(int index);
 
-    /*
+    /**
      *  Function to get toroidal angles of all the planes. Returns a vector of the angles in radians.
      */  
     const std::vector <double>& getToroidalAnglesMetaData();
