@@ -1,6 +1,11 @@
 #ifndef MAGNETICGEOMETRYDATATYPES_H
 #define MAGNETICGEOMETRYDATATYPES_H
 
+#include <modelTopology.h>
+#include <criticalPoints.h>
+#include <input.h>
+#include <array>
+
 // TO-DO: Make members in Flux and Plane private and use set-get functions.
 /**
  * A class to contain the information fo a flux curve.

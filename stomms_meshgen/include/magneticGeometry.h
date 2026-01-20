@@ -2,7 +2,6 @@
 #define MAGNETICGEOMETRY_H
 
 #include <memory>
-#include "input.h"
 #include "criticalPointsEqdsk.h"
 #include "physicalGeometry.h"
 #include "modelMetaData.h"
