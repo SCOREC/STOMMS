@@ -7,7 +7,9 @@ EqdskData::EqdskData(const Inputs& input, const PhysicsPoint& oPoint, const doub
 {
   // Step 1: Read properties of eqdsk file from the inputs
   reversePsi = input.useReversePsi();
-  numPlanes = input.getNumTokamakPlanes(); 
+  numPlanes = input.getNumTokamakPlanes();
+  InputData inputData = input.getInputData();
+  fluxInputData = inputData.fd; 
 
   // Step 2: Domain box bounds
   double bbox[4]; // min r, min z, max r, max z
@@ -360,6 +362,13 @@ Point EqdskData::convertPsiToPoint(double psi)
   return returnPt;
 }
 
+// Function to get domain bounding box.
+DomainBox EqdskData::getDomainBox()
+{
+  DomainBox box(boundingBox);
+  return box;
+}
+
 bool EqdskData::insideBox(const Point& pt)
 {
    // Step 1: Get the lower and upper limits of rectangular box.
@@ -401,4 +410,34 @@ const double EqdskData::getPsiTolerance() const
 const double EqdskData::getSpacingToleranceOptimal() const
 {
   return spacingToleranceOptimal;
+}
+
+// Returns struct FluxData containing input data of flux.
+const FluxData& EqdskData::getFluxInputData() const
+{
+  return fluxInputData;
+}
+
+// Function to check if start of the flux curve is random or not.
+const bool& EqdskData::randomStart() const
+{
+  return fluxRandomStart;
+}
+
+// Returns the type of desired intra curve spacing option.
+const int& EqdskData::getIntraCurveSpacingOption() const
+{
+  return intraCurveSpacingOption;
+}
+
+// Returns the absolute spacing tolerance.
+const double& EqdskData::getSpacingToleranceAbsolute() const
+{
+  return spacingToleranceAbsolute;
+}
+
+// Function to check if the small spacing variation is allowed or not.
+const bool& EqdskData::getIntraCurveSpacingSmallVariation() const
+{
+  return intraCurveSpacingSmallVariation;
 }

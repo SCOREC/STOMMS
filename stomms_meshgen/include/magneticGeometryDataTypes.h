@@ -24,13 +24,14 @@ enum class CurveType {
  */
 class Flux{
   public:
-    int planeNumber;  // plane on which flux curve lies.
+    int planeNumber = 0;  // plane on which flux curve lies.
     double psiNormOnFlux;  // normalized psi value of flux curve
     std::vector <Edge> edgesOnFlux;
     double nodeSpacingOnFlux;  // node spacing on flux curves
 
     // Tokamak Part Development
     CurveType curveType;
+    std::vector <Point> fieldPoints;
 };
 
 /**
@@ -191,6 +192,11 @@ class EqdskData{
     Point convertPsiToPoint(double psi);
 
     /**
+     * Function to get domain bounding box.
+     */
+    DomainBox getDomainBox(); 
+
+    /**
      * Checks if a point pt is inside or outside of the bounding box.
      * @param pt: point to check.
      * @return true if point is inside, false for outside.
@@ -224,17 +230,46 @@ class EqdskData{
      */
     const double getSpacingToleranceOptimal() const;
 
+    /**
+     * Returns struct FluxData containing input data of flux.
+     */
+    const FluxData& getFluxInputData() const;
+
+    /**
+     * Function to check if start of the flux curve is random or not.
+     */
+    const bool& randomStart() const;
+ 
+    /**
+     *  Returns the type of desired intra curve spacing option.
+     */  
+    const int& getIntraCurveSpacingOption() const;
+
+    /**
+     * Returns the absolute spacing tolerance
+     */ 
+    const double& getSpacingToleranceAbsolute() const;
+
+    /*
+     * Function to check if the small spacing variation is allowed or not.
+     */ 
+    const bool& getIntraCurveSpacingSmallVariation() const;
   private:
   // input data.
   // Write a function to read these values directly from inputs (LATER).
   bool reversePsi = false;
   bool inboardStart = false;
+  bool fluxRandomStart = false;
   int numPlanes = 64;
   bool stepRadians = 0.00125;
   double psiTolerance = 1e-8;
   double spacingToleranceOptimal = 0.5;
+  double spacingToleranceAbsolute = 0.61803398874989484820;
+  bool intraCurveSpacingSmallVariation = false;
   bool zeroXptWall = false; 
   std::array <double, 4> boundingBox;  // bounding box
+  FluxData fluxInputData;
+  int intraCurveSpacingOption = -1;
 
   // Derived data.
   PhysicsPoint axis;

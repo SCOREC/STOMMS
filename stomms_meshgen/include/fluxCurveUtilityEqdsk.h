@@ -32,7 +32,7 @@ struct CurveMetaData{
  * @param box: bounding box of the domain.
  * @return true if the next point is found.
  */
-bool findNextPoint(Point& startPoint, Point& nextPoint, double& lengthPoloidalGoal, const PhysicsPoint& oPoint, CurveMetaData& curveData, EqdskData eqdsk, const DomainBox& box);
+bool findNextPoint(Point& startPoint, Point& nextPoint, double& lengthPoloidalGoal, const PhysicsPoint& oPoint, CurveMetaData& curveData, EqdskData eqdsk);
 
 /**
  * Given a point on curve, and properties of magnetic field along with the curve meta deta, find next point on the poloidal curve.
@@ -46,7 +46,7 @@ bool findNextPoint(Point& startPoint, Point& nextPoint, double& lengthPoloidalGo
  * @param box: bounding box of the domain.
  * @return true if the next point is found.
  */
-bool findNextFieldFollowingPoint(Point& startPoint, Point& nextPoint, double& dist, int m, CurveMetaData& curveData, EqdskData eqdsk, const DomainBox& box);
+bool findNextFieldFollowingPoint(Point& startPoint, Point& nextPoint, double& dist, int m, CurveMetaData& curveData, EqdskData eqdsk);
 
 /**
  * To find the toroidal step size for rk4 method.
@@ -113,5 +113,5 @@ bool doesPointHitTheOrigin(Point& pt1, Point& pt2, Point startPt, double goal, d
  * @param eqdskData: class for queries related to eqdsk data.
  * @return a vector of PhysicsPoint containing both coordinate and psi value.
  */
-std::vector <PhysicsPoint> getStartPointClosed(const std::vector <double>& corePsiValues, const EqdskData& eqdskData);
+std::vector <PhysicsPoint> getStartPointClosed(const std::vector <double>& corePsiValues, EqdskData& eqdskData);
 #endif

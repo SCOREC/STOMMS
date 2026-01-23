@@ -3,12 +3,13 @@
 // Given a point on curve, and properties of magnetic field along with the curve meta deta, 
 // find next point on the poloidal curve. Not field following.
 bool findNextPoint(Point& startPoint, Point& nextPoint, double& lengthPoloidalGoal, const PhysicsPoint& oPoint, 
-                   CurveMetaData& curveData, EqdskData eqdsk, const DomainBox& box)
+                   CurveMetaData& curveData, EqdskData eqdsk)
 {
   double stepToroidalUnit = getStepToroidalUnit(oPoint, lengthPoloidalGoal, eqdsk.getNumPlanes());
   double distNewToStartLast = 0.0;
   double lengthPoloidal = 0.0; // actual curve length in a poloidal plane obtained by sum
   double lengthTolerance = 1e-6;  // tracing tolerance
+  const DomainBox& box = eqdsk.getDomainBox();
 
   nextPoint = startPoint;
   Point curveStart = curveData.origin;
@@ -73,10 +74,11 @@ bool findNextPoint(Point& startPoint, Point& nextPoint, double& lengthPoloidalGo
 // Given a point on curve, and properties of magnetic field along with the curve meta deta, 
 // find next point on the poloidal curve. Field following point tracing.
 bool findNextFieldFollowingPoint(Point& startPoint, Point& nextPoint, double& dist, int m, CurveMetaData& curveData, 
-                                 EqdskData eqdsk, const DomainBox& box)
+                                 EqdskData eqdsk)
 {
   int steps;
   double stepToroidalAngle = getStepToroidalAngle(eqdsk.getNumPlanes(), m, steps, eqdsk.getStepRadians());
+  const DomainBox& box = eqdsk.getDomainBox();
 
   double goal = dist;
   dist = 0.0;
