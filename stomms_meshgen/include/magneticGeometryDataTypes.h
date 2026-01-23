@@ -8,6 +8,18 @@
 
 // TO-DO: Make members in Flux and Plane private and use set-get functions.
 /**
+ * Curves are divided into four basics types. Three of them (closed, open, separatrix) are purely
+ * defined by physics and wall curve is the only one that is physical curve.
+*/
+enum class CurveType {
+  Closed,
+  Open,
+  Separatrix,
+  Wall,
+  None
+};
+
+/**
  * A class to contain the information fo a flux curve.
  */
 class Flux{
@@ -16,6 +28,9 @@ class Flux{
     double psiNormOnFlux;  // normalized psi value of flux curve
     std::vector <Edge> edgesOnFlux;
     double nodeSpacingOnFlux;  // node spacing on flux curves
+
+    // Tokamak Part Development
+    CurveType curveType;
 };
 
 /**
@@ -65,10 +80,11 @@ class EqdskData{
 
     /**
      * Eqdsk Constructor.
-     * @param useReversePsi: a user-defined parameter to set a factor (positive or 
-     *                        negative) on magnetic field calls in eqdsk.
+     * @param input: class holding all the input data.
+     * @param oPoint: primary oPoint.
+     * @param xPoint: primary xPoint.
      */ 
-    EqdskData(const Inputs& input);
+    EqdskData(const Inputs& input, const PhysicsPoint& oPoint, const double& psiCoreBoundary);
 
     /**
      * Returns the values of psi at a physical location defined by pt.
@@ -107,6 +123,20 @@ class EqdskData{
      */ 
     double getCurrentAtPsi(double psi);
 
+    /**
+     * Function to convert normalized psi to psi for given eqdsk.
+     * @param normPsi: normalized psi value to be converted to psi.
+     * @return: psi value.
+     */ 
+    double convertNormToPsi(double normPsi);
+
+    /**
+     * Function to convert psi to normalized psi for given eqdsk.
+     * @param psi: psi value to be converted to normalized psi.
+     * @return: normalized psi value.
+     */ 
+    double convertPsiToNorm(double psi);
+    
     /**
      * Function to update point pt, to the nearest point with goalPsi.
      * @param pt: point to readjust on goalPsi.
@@ -152,7 +182,13 @@ class EqdskData{
      * @param finalPoint: the point with target psi value on the vector dir.
      * @return 1 for success, 0 otherwise.
      */ 
-    int findPsiPt(double targetPsi, Point startPoint, std::array<double,2> dir, Point finalPoint);
+    int findPsiPt(double targetPsi, Point startPoint, std::array<double,2> dir, Point& finalPoint);
+
+    /**
+     * Given the psi value, this function finds the coordinates of the point on a 
+     * horizontal line from axis to the box (either inward or outward).
+     */ 
+    Point convertPsiToPoint(double psi);
 
     /**
      * Checks if a point pt is inside or outside of the bounding box.
@@ -189,16 +225,20 @@ class EqdskData{
     const double getSpacingToleranceOptimal() const;
 
   private:
-  // add data here as we move forward.
-  double psiAxis;
-  double psiSep;
+  // input data.
+  // Write a function to read these values directly from inputs (LATER).
   bool reversePsi = false;
+  bool inboardStart = false;
   int numPlanes = 64;
   bool stepRadians = 0.00125;
   double psiTolerance = 1e-8;
-  double spacingToleranceOptimal = 0.5; 
+  double spacingToleranceOptimal = 0.5;
+  bool zeroXptWall = false; 
   std::array <double, 4> boundingBox;  // bounding box
-};
 
+  // Derived data.
+  PhysicsPoint axis;
+  double psiCoreEdge;  // last curve of core
+};
 
 #endif

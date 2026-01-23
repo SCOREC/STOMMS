@@ -16,7 +16,8 @@ struct CurveMetaData{
   bool hitXPoint = false;
   bool xPoint = false;
 
-  std::vector <PhysicsPoint> xPoints; 
+  std::vector <PhysicsPoint> xPoints;
+  std::vector <Point> points; 
 };
 
 /**
@@ -104,4 +105,13 @@ bool isBoundaryPointOnOrigin(Point& pt1, Point& pt2, double& dist, int numIterat
  */
 bool doesPointHitTheOrigin(Point& pt1, Point& pt2, Point startPt, double goal, double distNewToStartLast, 
                            CurveMetaData& curveData, EqdskData& eqdsk);
+
+/**
+ * Given the list of psi values for closed curves, find the starting points for each flux
+ * curve on the horizontal line starting from axis to box boundary.
+ * @param corePsiValues: list of psi values for closed curves.
+ * @param eqdskData: class for queries related to eqdsk data.
+ * @return a vector of PhysicsPoint containing both coordinate and psi value.
+ */
+std::vector <PhysicsPoint> getStartPointClosed(const std::vector <double>& corePsiValues, const EqdskData& eqdskData);
 #endif

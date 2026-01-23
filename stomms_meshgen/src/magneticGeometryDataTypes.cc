@@ -3,7 +3,7 @@
 /***********************************************/
 // Class: EqdskData
 /***********************************************/
-EqdskData::EqdskData(const Inputs& input)
+EqdskData::EqdskData(const Inputs& input, const PhysicsPoint& oPoint, const double& psiCoreBoundary)
 {
   // Step 1: Read properties of eqdsk file from the inputs
   reversePsi = input.useReversePsi();
@@ -13,6 +13,10 @@ EqdskData::EqdskData(const Inputs& input)
   double bbox[4]; // min r, min z, max r, max z
   get_b_box_(bbox);
   boundingBox = {bbox[0], bbox[1], bbox[2], bbox[3]};
+
+  // Step 3: Domain definition needs primary o and x points.
+  axis = oPoint;
+  psiCoreEdge = psiCoreBoundary;
 }
 
 // Returns the values of psi at a physical location defined by pt.
@@ -79,6 +83,20 @@ double EqdskData::getCurrentAtPsi(double psi)
     std::cout << "WARNING: current derivative at psi =  " << psi << " could not be found\n";
 
   return current;
+}
+
+//  Convert the normalized psi value to psi value.
+double EqdskData::convertNormToPsi(double normPsi)
+{
+  double psiAxis = axis.getPsi(); 
+  return normPsi*(psiCoreEdge - psiAxis) + psiAxis;
+}
+
+// Convert the psi value to normalized psi value.
+double EqdskData::convertPsiToNorm(double psi)
+{
+  double psiAxis = axis.getPsi();
+  return (psi - psiAxis)/(psiCoreEdge - psiAxis);
 }
 
 // Function to update point pt, to the nearest point with goalPsi.
@@ -276,7 +294,7 @@ bool EqdskData::findNextPsiPointOnBoundary(Point& pt, double psi, int side)
 }
 
 // Given a target psi and an initial guess, find a point in direction of dir.
-int EqdskData::findPsiPt(double targetPsi, Point startPoint, std::array<double,2> dir, Point finalPoint) 
+int EqdskData::findPsiPt(double targetPsi, Point startPoint, std::array<double,2> dir, Point& finalPoint) 
 {
   // Step 1: Get the psi value at the initial guess pt, and setup variables. Also, check if point is
   // inside the box
@@ -320,6 +338,26 @@ int EqdskData::findPsiPt(double targetPsi, Point startPoint, std::array<double,2
     return 1;
   else
     return 0;
+}
+
+// Given the psi value, this function finds the coordinates of the point on a
+// horizontal line from axis to the box (either inward or outward).
+Point EqdskData::convertPsiToPoint(double psi)
+{
+  std::array<double,2> dir = {1,0};
+  Point initialGuess;
+  double psiNorm = convertPsiToNorm(psi);
+
+  if (inboardStart && psiNorm < 1.0)
+    initialGuess = Point((axis.getPoint().x + boundingBox[0])*0.5, axis.getPoint().y);
+  else if (!inboardStart || psiNorm > 1.0)
+    initialGuess = Point((axis.getPoint().x + boundingBox[2])*0.5, axis.getPoint().y); 
+
+  Point returnPt;
+  int returnIndex = findPsiPt(psi, initialGuess, dir, returnPt);
+  assert(returnIndex == 1);
+
+  return returnPt;
 }
 
 bool EqdskData::insideBox(const Point& pt)

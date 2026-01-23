@@ -39,8 +39,7 @@ std::unique_ptr <MagneticGeometry> setMagneticGeometry(const Inputs& input, cons
     std::cout << "Geometry (Reactor) Type: Tokamak \n";
     int planeNum = 0; // for tokamaks
     WallCurve wall = physicalGeometry.getWallCurveAtPlane(planeNum);
-    bool reversePsi = input.useReversePsi();
-    mg =  std::make_unique<MagneticGeometryForTokamak>(wall, reversePsi);
+    mg =  std::make_unique<MagneticGeometryForTokamak>(modelMetaData, wall, input);
   }
 
   return mg;

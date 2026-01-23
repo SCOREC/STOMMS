@@ -271,3 +271,19 @@ bool doesPointHitTheOrigin(Point& pt1, Point& pt2, Point startPt, double goal, d
   return false;
 }
 
+std::vector <PhysicsPoint> getStartPointClosed(const std::vector <double>& corePsiValues, EqdskData& eqdskData)
+{
+  std::vector <PhysicsPoint> startPoints;
+  for (int i = 0; i < corePsiValues.size(); i++)
+  {
+    double psi = corePsiValues[i];
+    double psiNormalized = eqdskData.convertPsiToNorm(psi);
+    assert (psiNormalized >= 0.0);
+ 
+    Point pt = eqdskData.convertPsiToPoint(psi);
+    PhysicsPoint startPoint(pt, psi, PointType::None);
+    startPoints.push_back(startPoint);
+  }
+
+  return startPoints;
+} 

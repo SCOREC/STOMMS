@@ -45,6 +45,13 @@ std::vector <double> convertNormToPsiVector(std::vector <double> normPsi, double
   return psiValues;
 }
 
+// Convert the psi value to normalized psi value.
+double convertPsiToNorm(double psi, double psiAxis, double psiCoreBoundary)
+{
+  double psiNorm = (psi - psiAxis)/(psiCoreBoundary - psiAxis); 
+  return psiNorm;
+}
+
 /***********************************************/
 // UTILITY FUNCTIONS FOR GEOMETRY 
 /***********************************************/

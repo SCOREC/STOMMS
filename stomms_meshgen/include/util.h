@@ -39,6 +39,15 @@ double convertNormToPsi(double normPsi, double psiAxis, double psiCoreBoundary);
 */ 
 std::vector <double> convertNormToPsiVector(std::vector <double> normPsi, double psiAxis, double psiCoreBoundary);
 
+/*
+ * Convert the psi value to normalized psi value.
+ * @param psi: psi value to be converted.
+ * @param psiAxis: actual psi value at the axis (O-point).
+ * @param psiCoreBoundary: actual psi value at the boundary of core region.
+ * @return normalized psi value.
+*/
+double convertPsiToNorm(double psi, double psiAxis, double psiCoreBoundary);
+
 /*************** UTILITY FUNCTIONS FOR GEOMETRY ********************************/
 
 /*

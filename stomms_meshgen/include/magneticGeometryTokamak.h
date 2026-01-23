@@ -3,6 +3,7 @@
 
 #include "magneticGeometry.h"
 #include "gfileUtil.h"
+#include "genFluxCurvesEqdsk.h"
 
 /**
  * A class to hold magnetic geometry of tokamaks along with the
@@ -14,10 +15,9 @@ class MagneticGeometryForTokamak: public MagneticGeometry{
      * Constructor to set magnetic geometry information from tokamak to class MagneticGeometry.
      * @param wall: phsyical wall curve of the reactor. Needed for critical point search and 
      *              flux curves (open and separatrix) generation.
-     * @param useReversePsi: parameter to determine if psi in the given eqdsk needs to be 
-     *                       multiplied with -1 or not. Ensures minium at o-point.
+     * @param input: class holding all the input data.
      */ 
-    MagneticGeometryForTokamak(const WallCurve& wall, const bool& useReversePsi);
+    MagneticGeometryForTokamak(const ModelMetaData& modelMetaData, const WallCurve& wall, const Inputs& input);
 
     /**
      * A function to return psi value of the axis in the tokamak domain.
@@ -59,16 +59,27 @@ class MagneticGeometryForTokamak: public MagneticGeometry{
      */ 
     const std::vector <Plane>& getPlanes() const override;
 
-   
   private:
+    // Input data.
     WallCurve wallCurve;  // physical wall curve.
     bool reversePsi;  // mutliplies psi field with -1 if true.
+    std::vector <double> psiNormList;
+
+    // Derived Data.
     std::map<int , std::vector<PhysicsPoint>> oPoints;  // map between plane number and OPoints
     std::map<int , std::vector<PhysicsPoint>> xPoints;  // map between plane number and XPoints
+    double psiAxis;
+    double psiCoreBoundary;
+    std::vector <double> psiValuesClosed;
+    std::vector <double> psiValuesSeparatrix;
+    std::vector <double> psiValuesOpen;
 
-    // For temporary place holder
     Model model;
-    std::vector <Plane> planes; 
+    std::vector <Plane> planes;
+
+    // Internal functions:
+    void classifyPsiValues();
+    void genFluxCurves(EqdskData& eqdskData); 
 };
 
 #endif
