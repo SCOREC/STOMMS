@@ -79,7 +79,7 @@ class MagneticGeometryForTokamak: public MagneticGeometry{
 
     // Internal functions:
     void classifyPsiValues();
-    void genFluxCurves(EqdskData& eqdskData); 
+    void genFluxCurves(EqdskData& eqdskData, const WallCurve& wall); 
 };
 
 #endif

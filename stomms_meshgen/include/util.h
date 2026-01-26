@@ -5,6 +5,7 @@
 #include "modelTopology.h"
 #include <array>
 #include <math.h>
+#include <cfloat>
 
 // All the utility functions will be written here.
 
@@ -93,4 +94,22 @@ int windingNumberPolygonTest(const Point& pt, const std::vector <Point>& curve);
  * @return 2D distance.
  */
 double distance2D(const Point& pt1, const Point& pt2);
+
+/**
+ * Function to get the parametric coordinate of a point on a line segment.
+ * @param pt1: start point of the line segment.
+ * @param pt2: end point of the line segment. 
+ * @param pt: point for which parametric value is needed.
+ * @return parametric value of point pt on line segment(pt1---pt2).
+ */
+double getParamatricCoordinate(const Point& pt1, const Point& pt2, const Point& pt);
+
+/**
+ * Function to get the distance from a point to a line segment.
+ * @param pt1: start point of the line segment.
+ * @param pt2: end point of the line segment. 
+ * @param pt: point for which distance from the line is needed.
+ * @return distance from point pt to line segment(pt1---pt2).
+ */
+double distanceLineToPoint(const Point& pt1, const Point& pt2, const Point& pt);
 #endif

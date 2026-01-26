@@ -41,7 +41,7 @@ std::vector <Flux> genClosedFluxCurves(const std::vector <double>& corePsiValues
     PhysicsPoint startPoint = startPoints[i];
     ClosedFluxCurve closedFluxCurve(startPoint, mySeed, eqdskData);
     Flux fluxCurve = closedFluxCurve.getFluxCurve();
-    fluxCurve.curveType = CurveType::closed;
+    fluxCurve.curveType = CurveType::Closed;
   }
 
   return closedFluxCurves;
@@ -192,4 +192,20 @@ void ClosedFluxCurve::updateM(int& m, bool increase)
 Flux& ClosedFluxCurve::getFluxCurve()
 {
   return f;
+}
+
+std::vector <Flux> genSeparatrixCurves(const std::vector <double>& separatrixPsiValues, EqdskData& eqdskData, const WallCurve& wall)
+{
+/*  std::vector <PhysicsPoint> startPoints = getStartPointClosed(corePsiValues, eqdskData);
+  std::vector <Flux> closedFluxCurves;
+  for (int i = 0; i < startPoints.size(); i++)
+  {
+    unsigned int mySeed = 1024 + i +1; // for random start
+    PhysicsPoint startPoint = startPoints[i];
+    ClosedFluxCurve closedFluxCurve(startPoint, mySeed, eqdskData);
+    Flux fluxCurve = closedFluxCurve.getFluxCurve();
+    fluxCurve.curveType = CurveType::closed;
+  }
+
+  return closedFluxCurves;*/
 }

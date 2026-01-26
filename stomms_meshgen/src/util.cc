@@ -153,10 +153,48 @@ int windingNumberPolygonTest(const Point& pt, const std::vector <Point>& curve)
   return windingNumber;
 }
 
+// Function to calculate 2D distance between two points.
 double distance2D(const Point& pt1, const Point& pt2)
 {
   double dist = 0.0;
   double distMagnitude = (pt1.x - pt2.x)*(pt1.x - pt2.x) + (pt1.y - pt2.y)*(pt1.y - pt2.y);
   dist = sqrt(distMagnitude);
+  return dist;
+}
+
+// Function to get the parametric coordinate of a point on a line segment.
+double getParamatricCoordinate(const Point& pt1, const Point& pt2, const Point& pt)
+{
+  double dx = fabs(pt2.x - pt1.x);
+  double dy = fabs(pt2.y - pt1.y);
+
+  double par;
+
+  if (dx > dy) // x-distance based
+    par = (pt.x - pt1.x)/(pt2.x - pt1.x);
+  else if (dx < dy)  // y-distance based
+    par = (pt.y - pt1.y)/(pt2.y - pt1.y);
+  else
+    assert(0);
+
+  return par;
+}
+
+// Function to get the distance from a point to a line segment.
+double distanceLineToPoint(const Point& pt1, const Point& pt2, const Point& pt)
+{
+  // Step 1: Find length of the line.
+  double dxLine = pt2.x - pt1.x;
+  double dyLine = pt2.y - pt1.y;
+  double length = sqrt(dxLine*dxLine + dyLine*dyLine);
+
+  // Step 2: Find x and y distance from point pt, to one of the points of
+  // the line (either start or end point).
+  double dx = pt.x - pt1.x;
+  double dy = pt.y - pt1.y;
+  
+  // Step 3: Compute the distance from line(pt1-pt2) to point pt.
+  double dist = (dxLine*dy - dyLine*dx)/length;
+
   return dist;
 }

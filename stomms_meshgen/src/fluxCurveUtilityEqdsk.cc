@@ -288,4 +288,152 @@ std::vector <PhysicsPoint> getStartPointClosed(const std::vector <double>& coreP
   }
 
   return startPoints;
+}
+
+std::vector <PhysicsPoint> getStartPointsOnWall(double psiNormal, EqdskData& eqdskData, const WallCurve& wall)
+{
+  double distSampling = 1e-2;  // cm
+  double psi = eqdskData.convertNormToPsi(psiNormal);
+  std::vector <Point> points = wall.getPoints();
+
+  std::vector <PhysicsPoint> startPoints;
+  for (int i = 0; i < points.size() - 1; i++)
+  {
+    double dx = points[i+1].x - points[i].x;
+    double dy = points[i+1].y - points[i].y;
+    double edgeLength = sqrt(dx*dx + dy*dy);
+    int nSample = 1 + std::max(1, static_cast<int> (edgeLength/distSampling));
+      
+  }
 } 
+
+int findStartPointIndexAtIntersection(const Point& pt1, const Point& pt2, std::vector<PhysicsPoint>& startPoints, int iFilter) 
+{
+  // Note that small number may cause some problems here since magnetic field 
+  // is not a straight line, and an error can be accumulated during a trace.
+  double toleranceDistanceFromSegment = 0.01; 
+
+  int intersect = -1;
+  double pMin = DBL_MAX;
+
+  for(int i=0; i<startPoints.size(); i++) 
+  {
+    PhysicsPoint pt = startPoints[i];
+    if(iFilter == i) 
+      continue;
+    if(toleranceDistanceFromSegment < fabs(distanceLineToPoint(pt1, pt2, pt.getPoint()))) 
+      continue;
+
+    double pCand = getParamatricCoordinate(pt1, pt2, pt.getPoint());
+    if(pCand >= 0.0 && pCand <= 1.0 && pCand < pMin) 
+    {
+      pMin = pCand;
+      intersect = i;
+    }
+  }
+
+  return intersect;
+}
+
+
+int intersectBetweenTwoLineSegments(const Point& testPt1, const Point& testPt2, const Point& refPt1, const Point& refPt2,
+                                    double toleranceMeter, double toleranceSine, Point& intersectPt1, Point& intersectPt2)
+{
+  std::array <double,2> u = {testPt2.x - testPt1.x, testPt2.y - testPt1.y};
+  std::array <double,2> v = {refPt2.x - refPt1.x, refPt2.y - refPt1.y};
+  double du = sqrt(u[0]*u[0]+u[1]*u[1]);
+  double dv = sqrt(v[0]*v[0]+v[1]*v[1]);
+  assert( du > toleranceMeter && dv > toleranceMeter);
+
+  std::array <double,2> w = {testPt1.x - refPt1.x, testPt1.y - refPt1.y};
+  double D = u[0]*v[1] - u[1]*v[0];
+
+  // test if they are parallel
+  if (fabs(D)/(du*dv) < toleranceSine) 
+  {           // S1 and S2 are parallel
+    double perpUW = u[0]*w[1] - u[1]*w[0];
+    double perpVW = v[0]*w[1] - v[1]*w[0];
+
+    // parallel lines are not within tolernace in perpendicular direction
+    if (fabs(perpUW/du) > toleranceMeter || fabs(perpVW>dv) > toleranceMeter)  
+      return 0;                    // they are NOT collinear
+
+    // they are collinear segments - get  overlap (or not)
+    double t0, t1;                    // endpoints of S1 in eqn for S2
+    std::array <double,2>  w2= {testPt2.x - refPt1.x, testPt2.y - refPt1.y};
+
+    if (v[0] != 0.) 
+    {
+      t0 = w[0] / v[0];
+      t1 = w2[0] / v[0];
+    } 
+    else 
+    {
+      t0 = w[1] / v[1];
+      t1 = w2[1] / v[1];
+    }
+
+    // must have t0 smaller than t1 (just sorting)
+    if (t0 > t1)
+    { 
+      double t = t0; 
+      t0 = t1; 
+      t1 = t;    // swap if not
+    }
+    double toleranceRelativeRef = toleranceMeter / dv;
+
+    if (t0 > 1. + toleranceMeter || t1 < -toleranceMeter) 
+      return 0;      // NO overlap
+
+    t0 = std::min( 1., std::max( 0., t0 ) ); // Force the intersection point to be returned is exactly within on the reference line
+    t1 = std::min( 1., std::max( 0., t1 ) ); // Force the intersection point to be returned is exactly within on the reference line
+    if (t0 == t1) 
+    {                  // intersect is a point
+      intersectPt1.x = refPt1.x +  t0 * v[0];
+      intersectPt1.y = refPt1.y +  t0 * v[1];
+      return 1;
+    }
+
+    // they overlap in a valid subsegment
+    intersectPt1.x = refPt1.x +  t0 * v[0];
+    intersectPt1.y = refPt1.y +  t0 * v[1];
+    intersectPt2.x = refPt1.x +  t1 * v[0];
+    intersectPt2.y = refPt1.y +  t1 * v[1];
+    return 2;
+  }
+
+  // the segments are skew and may intersect in a point
+  // get the intersect parameter for S1 (test)
+  double perpVW = v[0]*w[1] - v[1]*w[0];
+  double toleranceRelativeTest = toleranceMeter / du;
+  double sI = perpVW / D;
+  if (sI < -toleranceRelativeTest || sI > 1. + toleranceRelativeTest)  // no intersect with S1
+        return 0;
+
+  // get the intersect parameter for S2 (ref)
+  double perpUW = u[0]*w[1] - u[1]*w[0];
+  double toleranceRelativeRef = toleranceMeter / dv;
+  double tI = perpUW / D;
+  if (tI < -toleranceRelativeRef || tI > 1. + toleranceRelativeRef)  // no intersect with S2
+    return 0;
+
+  tI = std::min( 1., std::max(0., tI) );
+  intersectPt1.x = refPt1.x +  tI * v[0];
+  intersectPt1.y = refPt1.y +  tI * v[1];
+  return 1;
+}
+
+int getNumIntersection(const Point& pt1, const Point& pt2, const WallCurve& wall)
+{
+  double toleranceSine = 1e-8;
+  double toleranceMeter = 1e-4;
+
+  int numIntersections = 0;
+  Point intersectionPoint1, intersectionPoint2;
+
+  std::vector <Point> wallPoints = wall.getPoints();
+  for(int i = 0; i < wallPoints.size() -1; i++)
+    numIntersections += intersectBetweenTwoLineSegments(wallPoints[i], wallPoints[i+1], pt1, pt2, 0., toleranceSine, intersectionPoint1, intersectionPoint2);
+
+  return numIntersections;
+}
