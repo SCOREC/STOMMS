@@ -194,18 +194,26 @@ Flux& ClosedFluxCurve::getFluxCurve()
   return f;
 }
 
-std::vector <Flux> genSeparatrixCurves(const std::vector <double>& separatrixPsiValues, EqdskData& eqdskData, const WallCurve& wall)
+std::vector <Flux> genSeparatrixCurves(const std::vector <PhysicsPoint>& xPts, EqdskData& eqdskData, const WallCurve& wall)
 {
-/*  std::vector <PhysicsPoint> startPoints = getStartPointClosed(corePsiValues, eqdskData);
-  std::vector <Flux> closedFluxCurves;
-  for (int i = 0; i < startPoints.size(); i++)
+  std::vector <Flux> separatrices;
+  std::map <int, std::vector<Point>> startPointsMap;
+  for (int i = 0; i < xPts.size(); i++)
   {
-    unsigned int mySeed = 1024 + i +1; // for random start
-    PhysicsPoint startPoint = startPoints[i];
-    ClosedFluxCurve closedFluxCurve(startPoint, mySeed, eqdskData);
-    Flux fluxCurve = closedFluxCurve.getFluxCurve();
-    fluxCurve.curveType = CurveType::closed;
+    double psiNormalized = eqdskData.convertPsiToNorm(xPts[i].getPsi());
+    int type = i+2;  //don't know why we even need this. review this later while proper cleanup.
+    std::vector <Point> startPoints = findStartPointOnWall(psiNormalized, type, wall, eqdskData);
+    assert (startPoints.size()%2 == 0);
+    startPointsMap[i] = startPoints;     
   }
 
-  return closedFluxCurves;*/
+  std::vector <double> psiInputVector = eqdskData.getFluxInputData().fluxInput;
+  for (int i = 0; i < xPts.size(); i++)
+  {
+    double psiNormalized = eqdskData.convertPsiToNorm(xPts[i].getPsi());
+    if(psiInputVector.back() >= psiNormalized && psiInputVector.front() <= psiNormalized)
+      std::cout << "HERE\n";
+      //genCurve;
+  }  
+  return separatrices;
 }

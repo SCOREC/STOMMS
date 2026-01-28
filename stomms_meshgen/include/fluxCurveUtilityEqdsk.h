@@ -120,4 +120,7 @@ int findStartPointIndexAtIntersection(const Point& pt1, const Point& pt2, std::v
 int intersectBetweenTwoLineSegments(const Point& testPt1, const Point& testPt2, const Point& refPt1, const Point& refPt2,
                                     double toleranceMeter, double toleranceSine, Point& intersectPt1, Point& intersectPt2);
 int getNumIntersection(const Point& pt1, const Point& pt2, const WallCurve& wall);
+std::vector <Point> getPushedPoints(const PhysicsPoint& xPoint, double dist, EqdskData& eqdsk);
+std::vector <Point> findPointBySectioningBtwTwoPts(double targetPsi, int sampleN, const Point& pt1, const Point pt2, EqdskData& eqdsk);
+std::vector <Point> findStartPointOnWall(double psiNormalized, int type, const WallCurve& wall, EqdskData& eqdsk);
 #endif

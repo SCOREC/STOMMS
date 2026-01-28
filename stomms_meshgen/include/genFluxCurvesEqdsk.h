@@ -41,5 +41,5 @@ class ClosedFluxCurve{
 };
 
 std::vector <Flux> genClosedFluxCurves(const std::vector <double>& corePsiValues, EqdskData& eqdskData);
-std::vector <Flux> genSeparatrixCurves(const std::vector <double>& separatrixPsiValues, EqdskData& eqdskData, const WallCurve& wall);
+std::vector <Flux> genSeparatrixCurves(const std::vector <PhysicsPoint>& xPts, EqdskData& eqdskData, const WallCurve& wall);
 #endif

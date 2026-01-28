@@ -184,7 +184,7 @@ class EqdskData{
      * @return 1 for success, 0 otherwise.
      */ 
     int findPsiPt(double targetPsi, Point startPoint, std::array<double,2> dir, Point& finalPoint);
-
+    int findPsiPtOnLine(double targetPsi, const Point& pt1, const Point pt2, Point& finalPoint);
     /**
      * Given the psi value, this function finds the coordinates of the point on a 
      * horizontal line from axis to the box (either inward or outward).

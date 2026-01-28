@@ -437,3 +437,158 @@ int getNumIntersection(const Point& pt1, const Point& pt2, const WallCurve& wall
 
   return numIntersections;
 }
+
+// Traverse a circle around the Xpt and find all the points with psi value equal to psi value of Xpt.
+// This method will find all the possible points with the desired psi value on the circle.
+std::vector <Point> getPushedPoints(const PhysicsPoint& xPoint, double dist, EqdskData& eqdsk)
+{
+  std::vector <Point> startPoints;
+  double stepSize = 0.5;  // angle in degress. A size of 0.5 will result 720 scan points on the circle.
+  double angle = 0.0;   // starting angle.
+  double r = dist;    // intra_curve_spaing on the separatric curve
+  Point point;
+  double pi = 3.14159265359;
+  Point xpt = xPoint.getPoint();
+  double psi = xPoint.getPsi();
+
+  int numIterations = 0;
+  double dir1 = 0.0;
+  double dir2 = 0.0;
+  while (angle <= 360)
+  {
+    point.x = xpt.x + r*cos(angle*(pi/180));
+    point.y = xpt.y + r*sin(angle*(pi/180));
+    Point pt(point.x, point.y, 0.0);
+    Point ptPrev;
+    double psiPt = eqdsk.getPsiAtPoint(pt);
+    if (numIterations > 0) // Go to this loop in second numIterationsation.
+    {
+      double psiPrev = eqdsk.getPsiAtPoint(ptPrev);
+      psiPrev < psi ? dir1 = -1 : dir1 = 1;
+      psiPt < psi ? dir2 = -1 : dir2 = 1;
+      if (dir1*dir2 == -1)  // The desired point in between previous point and current point
+      {
+        double localStepSize = stepSize/2;  // Keep splitting the angular step size until we get desired point.
+        double localAngle = angle - localStepSize;
+        Point ptPrevTemp(ptPrev.x , ptPrev.y, 0.0);
+        Point ptTemp(pt.x, pt.y, 0.0);
+        Point ptCheck(xpt.x + r*cos(localAngle*(pi/180)), xpt.y + r*sin(localAngle*(pi/180)), 0.0);
+        double psiCheck = eqdsk.getPsiAtPoint(ptCheck);
+        double dir = 0;
+        while (fabs(psiCheck - psi) > 1e-8)
+        {
+          localStepSize = localStepSize/2;
+          psiCheck < psi ? dir = -1 : dir = 1;
+          if (dir1*dir == -1)
+          {
+            ptTemp.x = ptCheck.x;
+            ptTemp.y = ptCheck.y;
+            localAngle = localAngle - localStepSize;
+          }     
+          if (dir2*dir == -1)
+          {
+            ptPrevTemp.x = ptCheck.x;
+            ptPrevTemp.y = ptCheck.y;
+            localAngle = localAngle + localStepSize;    
+          }
+          ptCheck.x = xpt.x + r*cos(localAngle*(pi/180));
+          ptCheck.y = xpt.y + r*sin(localAngle*(pi/180));
+          psiCheck = eqdsk.getPsiAtPoint(ptCheck);
+    
+        }   
+        startPoints.push_back(ptCheck);
+      }         
+    }
+    angle += stepSize;
+    ptPrev.x = pt.x;
+    ptPrev.y = pt.y;
+    ptPrev.z = 0.0;
+    numIterations++;
+  }
+
+  // Check if startspoint is toward or outgoing from a x-point
+  for(int i=3; i>=0; i--) 
+  {
+    std::array <double,2> vec= {startPoints[i].x - xpt.x, startPoints[i].y - xpt.y};
+    std::array <double,3> startPt = {startPoints[i].x, startPoints[i].y, 0.0}; 
+    std::vector <double> bVec;
+    int err = eqdsk.magneticField(startPt, bVec,2);
+    assert(!err);
+    if(vec[0]*bVec[0] + vec[1]*bVec[1] <= 0.)
+      startPoints.erase(startPoints.begin()+i);
+  }
+
+  return startPoints;
+}
+
+std::vector <Point> findPointBySectioningBtwTwoPts(double targetPsi, int sampleN, const Point& pt1, const Point pt2, EqdskData& eqdsk) 
+{
+  std::vector <Point> pointsFound;
+  std::vector <double> samplePsi;
+
+  for(int jsample=0;  jsample < sampleN; jsample++) 
+  {
+    Point sampleX(pt1.x + (pt2.x - pt1.x)*jsample/(sampleN - 1), pt1.y + (pt2.y - pt1.y)*jsample/(sampleN - 1));
+    double psi = eqdsk.getPsiAtPoint(sampleX);
+    samplePsi.push_back(psi);
+  } //sampling
+
+  for(int jsample=0; jsample<sampleN-1; jsample++) 
+  {
+    Point ptVtx1, ptVtx2;
+    ptVtx1.x = pt1.x+(pt2.x - pt1.x)*jsample/(sampleN-1);
+    ptVtx1.y = pt1.y+(pt2.y - pt1.y)*jsample/(sampleN-1);
+    ptVtx2.x = pt1.x+(pt2.x - pt1.x)*(jsample+1)/(sampleN-1);
+    ptVtx2.y = pt1.y+(pt2.y - pt1.y)*(jsample+1)/(sampleN-1);
+    Point vtxFound;
+
+    if(((targetPsi - samplePsi[jsample])*(targetPsi - samplePsi[jsample+1]) <= 0.0)) 
+    {
+      if (eqdsk.findPsiPtOnLine(targetPsi, ptVtx1, ptVtx2, vtxFound)) 
+        pointsFound.push_back(vtxFound); 
+      else 
+      {
+        std::cout << "[CRITICAL] mathematically, the point is inside of the given section, but section search wasn't able to find it.\n";
+        exit(1);
+      }
+    }
+  }
+
+  return pointsFound;
+}
+
+std::vector <Point> findStartPointOnWall(double psiNormalized, int type, const WallCurve& wall, EqdskData& eqdsk) 
+{
+  // search parameter
+  double distSampling = 1e-2; // 1cm
+
+  double psi = eqdsk.convertNormToPsi(psiNormalized);
+  std::vector <Point> wallPoints = wall.getPoints();
+  double nPts = wallPoints.size();
+
+   std::vector <Point> startPoints;
+  for(int i = 0; i < nPts-1; i++) 
+  {  //wall edges
+    double dx = wallPoints[i+1].x - wallPoints[i].x;
+    double dy = wallPoints[i+1].y - wallPoints[i].y;
+  
+    Point pt1 = wallPoints[i];
+    Point pt2 = wallPoints[i+1];
+    double distEdge = sqrt(dx*dx + dy*dy);
+    int nSample = 1 + std::max(1, static_cast<int>(distEdge/distSampling));
+    std::vector <Point> ptFoundLocal = findPointBySectioningBtwTwoPts(psi, nSample, pt1, pt2, eqdsk);
+    for(int j = 0; j < ptFoundLocal.size(); j++) 
+    {
+      if (startPoints.size() > 0 )
+      {
+        double deltaX = startPoints[startPoints.size()-1].x - ptFoundLocal[j].x;
+        double deltaY = startPoints[startPoints.size()-1].y - ptFoundLocal[j].y;
+        double dist = sqrt(deltaX*deltaX + deltaY*deltaY);
+        if (dist < distSampling)
+          continue;
+      }
+      startPoints.push_back(ptFoundLocal[j]);
+    }
+  }
+  return startPoints;
+}

@@ -342,6 +342,67 @@ int EqdskData::findPsiPt(double targetPsi, Point startPoint, std::array<double,2
     return 0;
 }
 
+int EqdskData::findPsiPtOnLine(double targetPsi, const Point& pt1, const Point pt2, Point& finalPoint)
+{
+  double tolerance = psiTolerance;
+  int maxIter = 100;
+
+  // Evaluate a middle point of the given line as a start point (start)
+  Point start = {(pt1.x + pt2.x)*0.5, (pt1.y + pt2.y)*0.5};
+
+  // Evaluate psi at start. 
+  double psi =  getPsiAtPoint(start);
+
+  // Evaluate a relative vector
+  std::array <double, 2> vecRelative = {pt2.x - pt1.x, pt2.y - pt1.y};
+  // Evaluate length between pt1 & pt2
+  double len = sqrt(vecRelative[0]*vecRelative[0] + vecRelative[1]*vecRelative[1]);
+
+  // Set direction
+  std::array <double,2> dir = {vecRelative[0]/len, vecRelative[1]/len};
+
+  int iter=0;
+  while(fabs(psi - targetPsi) > tolerance && iter++ < maxIter) 
+  {
+    std::array <double,3> gradPsi = getPsiGradAtPoint(start);
+    double startNorm = sqrt((start.x - pt1.x)*(start.x - pt1.x) + (start.y - pt1.y)*(start.y - pt1.y))/len;
+    double dx = (targetPsi - psi)/(dir[0]*gradPsi[0] + dir[1]*gradPsi[1]);
+    double dxNorm = dx/len;
+    double nextNorm = startNorm + dxNorm;
+
+    // limiting dx = std::max(-startNorm, std::min(1.-startNorm, dx));
+    if(0. > nextNorm || 1. < nextNorm) 
+    {  //one more step to check if the value exists in the line
+      double boundaryNorm = startNorm + std::max(-startNorm, std::min(1. - startNorm, dxNorm));
+      Point boundaryPos(boundaryNorm*len*dir[0] + pt1.x, boundaryNorm*len*dir[1] + pt1.y);
+      double boundaryPsi = getPsiAtPoint(boundaryPos);
+      std::array <double, 3> boundaryGradPsi = getPsiGradAtPoint(boundaryPos);
+
+      double boundaryStartNorm = sqrt((boundaryPos.x - pt1.x)*(boundaryPos.x - pt1.x) + (boundaryPos.y - pt1.y)*(boundaryPos.y - pt1.y))/len;
+      double boundaryDx = (targetPsi - boundaryPsi)/(dir[0]*boundaryGradPsi[0] + dir[1]*boundaryGradPsi[1]);
+      double boundaryNextNorm = boundaryStartNorm + boundaryDx/len;
+      if(0. > boundaryNextNorm || 1. < boundaryNextNorm)
+        return 0;
+     
+      start.x   = boundaryPos.x;
+      start.y   = boundaryPos.y;
+      startNorm = boundaryStartNorm;
+      dx        = boundaryDx;
+      nextNorm  = boundaryNextNorm;
+    }
+
+    start.x += dx*dir[0];
+    start.y += dx*dir[1];
+    psi = getPsiAtPoint(start);
+  }
+  finalPoint.x = start.x;
+  finalPoint.y = start.y;
+  if(fabs(psi - targetPsi) < tolerance) 
+    return 1;
+  else 
+    return 0;
+}
+
 // Given the psi value, this function finds the coordinates of the point on a
 // horizontal line from axis to the box (either inward or outward).
 Point EqdskData::convertPsiToPoint(double psi)
