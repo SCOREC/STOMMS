@@ -34,7 +34,7 @@ MagneticGeometryForTokamak::MagneticGeometryForTokamak(const ModelMetaData& mode
   
   // Step 6: Set up Eqdsk Data class for curve generation.
   EqdskData eqdskData(input, oPointsVec[0], psiCoreBoundary);
-  genFluxCurves(eqdskData, wallCurve); 
+  genFluxCurves(eqdskData, wallCurve);
 }
 
 // Classify psi normalized values into respective types (open, closed etc.)
@@ -86,7 +86,8 @@ void MagneticGeometryForTokamak::classifyPsiValues()
 
 void MagneticGeometryForTokamak::genFluxCurves(EqdskData& eqdskData, const WallCurve& wall)
 {
-  std::vector <Flux> closedCurves = genClosedFluxCurves(psiValuesClosed, eqdskData);
+  closedCurves = genClosedFluxCurves(psiValuesClosed, eqdskData);
+  separatrixCurves = genSeparatrixCurves(xPoints.at(0), eqdskData, wallCurve);
 }
 
 // Function to get a map between plane number and vector of OPoints.

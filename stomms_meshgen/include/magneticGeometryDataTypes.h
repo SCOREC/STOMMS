@@ -11,12 +11,27 @@
  * Curves are divided into four basics types. Three of them (closed, open, separatrix) are purely
  * defined by physics and wall curve is the only one that is physical curve.
 */
-enum class CurveType {
+enum class CurveType{
   Closed,
   Open,
   Separatrix,
   Wall,
   None
+};
+
+enum class CurveSubType{
+  Closed,
+  Open,
+  None
+};
+
+// General struct for any curve coming out of a separatrix.
+struct SeparatrixLeg{
+  std::vector <Point> fieldPoints;
+  int numXPts = 0;  // number of xPts on the curve
+  bool xPtAtStart = false;  // checks if the curve starts with xPt
+  bool xPtAtEnd = false;  // checks if the curve ends with xPt
+  CurveSubType curveSubType = CurveSubType::None;
 };
 
 /**
@@ -30,8 +45,10 @@ class Flux{
     double nodeSpacingOnFlux;  // node spacing on flux curves
 
     // Tokamak Part Development
-    CurveType curveType;
+    CurveType curveType = CurveType::None;
+    std::vector <SeparatrixLeg> separatrixLegs;
     std::vector <Point> fieldPoints;
+    PhysicsPoint xPoint;
 };
 
 /**

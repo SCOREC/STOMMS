@@ -73,9 +73,12 @@ class MagneticGeometryForTokamak: public MagneticGeometry{
     std::vector <double> psiValuesClosed;
     std::vector <double> psiValuesSeparatrix;
     std::vector <double> psiValuesOpen;
+    std::vector <Flux> closedCurves;
+    std::vector <Flux> separatrixCurves;
 
     Model model;
     std::vector <Plane> planes;
+    
 
     // Internal functions:
     void classifyPsiValues();

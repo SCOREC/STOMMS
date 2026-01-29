@@ -116,7 +116,7 @@ bool doesPointHitTheOrigin(Point& pt1, Point& pt2, Point startPt, double goal, d
 std::vector <PhysicsPoint> getStartPointClosed(const std::vector <double>& corePsiValues, EqdskData& eqdskData);
 
 std::vector <PhysicsPoint> getStartPointsOnWall(double psiNormal, EqdskData& eqdskData, const WallCurve& wall);
-int findStartPointIndexAtIntersection(const Point& pt1, const Point& pt2, std::vector<PhysicsPoint>& startPoints, int iFilter);
+int findStartPointIndexAtIntersection(const Point& pt1, const Point& pt2, std::vector<Point>& startPoints, int iFilter = -1);
 int intersectBetweenTwoLineSegments(const Point& testPt1, const Point& testPt2, const Point& refPt1, const Point& refPt2,
                                     double toleranceMeter, double toleranceSine, Point& intersectPt1, Point& intersectPt2);
 int getNumIntersection(const Point& pt1, const Point& pt2, const WallCurve& wall);

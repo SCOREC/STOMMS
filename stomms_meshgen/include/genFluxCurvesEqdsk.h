@@ -40,6 +40,44 @@ class ClosedFluxCurve{
     void updateM(int& m, bool increase);
 };
 
+
+
+class SeparatrixCurve{
+  public:
+    SeparatrixCurve(const PhysicsPoint& xPt, std::vector <Point> startPoints, EqdskData& eqdskData, const WallCurve& wall);
+    const std::vector <Flux>& getFluxCurves() const;
+  private:
+    std::vector <Flux> sepCurves; // flux curves to create
+    CurveMetaData curveData;  // metaData for curve.
+    WallCurve wall;
+    std::vector <Point> startPts;
+    std::vector <Point> pushedPoints;    
+
+    // Variables for field following.
+    int m = 1;
+    bool mChanged = true;
+    bool mDecreased = false;
+    bool mIncreased = false;
+
+    // Variables for spacing
+    double distanceSet;
+    double distance;
+
+    // Curve magnetic properties
+    EqdskData& eqdsk;
+    double psiNorm;
+    Point xPoint;
+    double psi;
+
+    // Termination condition
+    bool intersect;
+
+    // Internal Functions.
+    void getSeparatrixLeg(const Point& point, SeparatrixLeg& leg);
+    std::vector <Flux> mergeSeparatrixLegs(std::vector <SeparatrixLeg>& separatrixLegs);
+    void updateM(int& m, bool increase);
+};
+
 std::vector <Flux> genClosedFluxCurves(const std::vector <double>& corePsiValues, EqdskData& eqdskData);
 std::vector <Flux> genSeparatrixCurves(const std::vector <PhysicsPoint>& xPts, EqdskData& eqdskData, const WallCurve& wall);
 #endif

@@ -307,7 +307,7 @@ std::vector <PhysicsPoint> getStartPointsOnWall(double psiNormal, EqdskData& eqd
   }
 } 
 
-int findStartPointIndexAtIntersection(const Point& pt1, const Point& pt2, std::vector<PhysicsPoint>& startPoints, int iFilter) 
+int findStartPointIndexAtIntersection(const Point& pt1, const Point& pt2, std::vector<Point>& startPoints, int iFilter) 
 {
   // Note that small number may cause some problems here since magnetic field 
   // is not a straight line, and an error can be accumulated during a trace.
@@ -318,13 +318,13 @@ int findStartPointIndexAtIntersection(const Point& pt1, const Point& pt2, std::v
 
   for(int i=0; i<startPoints.size(); i++) 
   {
-    PhysicsPoint pt = startPoints[i];
+    Point pt = startPoints[i];
     if(iFilter == i) 
       continue;
-    if(toleranceDistanceFromSegment < fabs(distanceLineToPoint(pt1, pt2, pt.getPoint()))) 
+    if(toleranceDistanceFromSegment < fabs(distanceLineToPoint(pt1, pt2, pt))) 
       continue;
 
-    double pCand = getParamatricCoordinate(pt1, pt2, pt.getPoint());
+    double pCand = getParamatricCoordinate(pt1, pt2, pt);
     if(pCand >= 0.0 && pCand <= 1.0 && pCand < pMin) 
     {
       pMin = pCand;
