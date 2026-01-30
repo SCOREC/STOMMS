@@ -84,26 +84,26 @@ Poloidal Planes Definition
 Meshing Parameters
 ^^^^^^^^^^^^^^^^^^
 * ``meshSizeFile``
-   * An input file to set the desired number of mesh vertices on each flux curve.
-   * The number of mesh vertices on each flux curve will remain same on all the poloidal planes. 
+   * An input file to set the desired node spacing on each flux curve.
+   * The number of mesh vertices on each flux curve remain same on all the poloidal planes. The given spacing is used to get the parametric value of nodes on each flux curve on plane 0, and then same parametric values are copied on each plane to maintain field following meshes.
    * The first line of the file provides the total number of flux curves.
-   * After that, the first column provides the normalized psi value of curve, and the second column provides desired mesh size (in terms of number mesh vertices) for the corresponding flux curve.
-   * An example ``meshSizeFile`` is provided below. In this example, there are 11 flux curves, and the desired number of vertices on flux curves with normalized psi values of 0.2 and 0.6 are 4 and 20 respectively. 
+   * After that, the first column provides the normalized psi value of curve, and the second column provides desired node spacing for the corresponding flux curve.
+   * An example ``meshSizeFile`` is provided below. In this example, there are 11 flux curves, and the desired node spacing on flux curves with normalized psi values of 0.2 and 0.6 are 0.005 and 0.008 respectively. 
 
 .. code-block:: text
 
   11
-  0.0  1
-  0.1  2
-  0.2  4
-  0.3  8
-  0.4  12
-  0.5  16
-  0.6  20
-  0.7  24
-  0.8  28
-  0.9  32
-  1.0  36
+  0.0  0.001
+  0.1  0.002
+  0.2  0.003
+  0.3  0.004
+  0.4  0.005
+  0.5  0.006
+  0.6  0.008
+  0.7  0.010
+  0.8  0.012
+  0.9  0.015
+  1.0  0.020
 
 
 
@@ -139,4 +139,3 @@ Sample Input File
 
   !Set the mesh size from the input file
   meshSizeFile mesh_size.txt
-
