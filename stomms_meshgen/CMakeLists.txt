@@ -67,18 +67,6 @@ target_link_libraries(stommsLib PUBLIC
 add_executable(stomms_meshgen src/main.cc)
 target_link_libraries(stomms_meshgen PRIVATE stommsLib)
 
-# Enable testing if its set to ON in config file
-option(ENABLE_TESTING "Build for CTest" OFF)
-message(STATUS "ENABLE_TESTING: ${ENABLE_TESTING}")
-
-if(ENABLE_TESTING)
-  set(TEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/testCases" CACHE STRING "Directory of test cases")
-  message(STATUS "TEST_DIR: ${TEST_DIR}")
- 
-  enable_testing() 
-  add_subdirectory(test)
-endif()
-
 # Install the target
 install(TARGETS stomms_meshgen
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
