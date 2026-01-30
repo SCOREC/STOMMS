@@ -110,6 +110,18 @@ const bool& Edge::edgeIsPeriodic()
   return periodicEdge;
 }
 
+// Function to get the length of the model edge.
+double Edge::getEdgeLength() const
+{
+  return GE_length(ge);
+}
+
+// Function to get length of an edge between two specified points on edge.
+double Edge::getEdgePartialLength(const double& t0, const double& t1) const
+{
+  return GE_partialLength(ge, t0, t1);
+}
+
 // Model Loop Defintions
 // A function to get the Simmetrix loop and to use it in the definition of Loop.
 void Loop::setSimLoop(pGLoopUse simLoop)

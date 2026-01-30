@@ -142,11 +142,11 @@ std::vector <Flux> ModelVmec::setFluxCurvesOnPlanes(Model m, int planeNum, std::
   // curves container.  Iterate over the fluxMeshSize Map to start with.
   std::vector <Flux> fluxCurvesOnPlane;
   std::vector <double> psiValues = md[planeNum].getPlaneFluxValues();
-  std::vector <int> numVerticesOnFlux = md[planeNum].getPlaneFluxSizes();
-  for( int i = 0; i < numVerticesOnFlux.size(); i++)
+  std::vector <double> nodeSpacingOnFlux = md[planeNum].getPlaneFluxSizes();
+  for( int i = 0; i < nodeSpacingOnFlux.size(); i++)
   {
     // Step 3.1: Don't take any action for the O-point
-    if (numVerticesOnFlux[i] == 1)
+    if (i == 0)
       continue;  // Ignore the psi value at Opoint
 
     // Step 3.2: Declare a Flux and assign data to its members.
@@ -163,7 +163,7 @@ std::vector <Flux> ModelVmec::setFluxCurvesOnPlanes(Model m, int planeNum, std::
 
     // Step 3.4: Set the edges in a container and assign remaining member variables of Flux
     f.edgesOnFlux.push_back(modelEdge);  // For now, its a single edge. In future, for open edges we will need to store multiple edges in a container.
-    f.meshVerticesOnFlux = numVerticesOnFlux[i];   
+    f.nodeSpacingOnFlux = nodeSpacingOnFlux[i];
 
     // Step 3.5: Push the flux curves to a container.
     fluxCurvesOnPlane.push_back(f);

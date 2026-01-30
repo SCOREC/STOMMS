@@ -13,7 +13,7 @@ PlaneMetaData::PlaneMetaData(const FluxData& f, double angle):toroidalAngle(angl
   // Step 1: Setup the flux values on the plane.
   fluxValues = f.fluxInput;
 
-  // Step 2:Setup the vector for number of desired mesh vertices on each flux curve.
+  // Step 2:Setup the vector for number of desired mesh spacing on each flux curve.
   for( const auto &itr : f.fluxMeshSize)
     fluxMeshSize.push_back(itr.second);
 }
@@ -30,8 +30,8 @@ const std::vector<double>& PlaneMetaData::getPlaneFluxValues()
   return fluxValues;
 }
 
-// Function to return a vector of desired number of vertices on each flux curve on the poloidal plane.
-const std::vector <int>& PlaneMetaData::getPlaneFluxSizes()
+// Function to return a vector of desired node spacing on each flux curve on the poloidal plane.
+const std::vector <double>& PlaneMetaData::getPlaneFluxSizes()
 {
   return fluxMeshSize;
 }

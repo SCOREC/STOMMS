@@ -68,7 +68,7 @@ Model generateCoreSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& v
 // generate a Simmetrix model (pGModel model)
 pGModel simModelFromVmec(pVmecFlux vf, int npsi, int nzeta, const double *psis, const double *zetas)
 {
-  std::cout << " ============ Modeling Starts ============\n";
+  std::cout << "=============== Modeling Starts ===============\n";
   // Step 1: Create a new Simmetrix model (pGModel)
   pProgress prog = Progress_new();
   Progress_setDefaultCallback(prog);

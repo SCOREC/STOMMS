@@ -10,7 +10,7 @@ class Flux{
     int planeNumber;  // plane on which flux curve lies.
     double psiNormOnFlux;  // normalized psi value of flux curve
     std::vector <Edge> edgesOnFlux;
-    int meshVerticesOnFlux;  // Number of vertices desired on flux curves
+    double nodeSpacingOnFlux;  // node spacing on flux curves
 };
 
 /**
