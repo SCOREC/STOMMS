@@ -31,16 +31,19 @@ int main(int argc, char** argv)
   // Step 3: Setup the physical geometry (wall curve for now).
   PhysicalGeometry physicalGeometry(input);
 
-  // Step 4: Setup the magnetic field information. 
-  std::shared_ptr <MagneticGeometry> mg = setMagneticGeometry(input, physicalGeometry);
+  // Step 4: Setup the model metadata by setting up the meta data on poloidal planes.
+  ModelMetaData modelMetaData(input);
+
+  // Step 5: Setup the magnetic field information. 
+  std::shared_ptr <MagneticGeometry> mg = setMagneticGeometry(input, physicalGeometry, modelMetaData);
 
   std::map<int, std::vector<PhysicsPoint>> oPoints = mg->getOPoints();
   std::map<int, std::vector<PhysicsPoint>> xPoints = mg->getXPoints();
 
-  // Step 5: Get validation data
+  // Step 6: Get validation data
   ValidationData data = getValidationData(in.testName);
 
-  // Step 6: Compare validation data with the critical points data.
+  // Step 7: Compare validation data with the critical points data.
   if (!validateData(data, oPoints, xPoints))
     return 1;  
 

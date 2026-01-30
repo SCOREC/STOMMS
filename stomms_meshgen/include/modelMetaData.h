@@ -29,15 +29,15 @@ class PlaneMetaData{
     const double& getPlaneToroidalAngle();
 
     /**
-     * Function to return a vector of desired number of vertices on each flux curve
+     * Function to return a vector of desired node spacing on each flux curve
      * on the poloidal plane.
      */ 
-    const std::vector <int>& getPlaneFluxSizes();
+    const std::vector <double>& getPlaneFluxSizes();
 
   private:
     std::vector <double> fluxValues;  // vector of psi values of desired flux curves on the plane. 
     double toroidalAngle;  // Toroidal angle of the plane.
-    std::vector <int> fluxMeshSize;  // Desired number of mesh points on each flux curve. fluxMeshSize.size() == fluxValues.size(). 
+    std::vector <double> fluxMeshSize;  // Desired node spacing on each flux curve. fluxMeshSize.size() == fluxValues.size(). 
 };
 
 /** 

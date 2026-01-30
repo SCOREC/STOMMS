@@ -79,12 +79,12 @@ void Inputs::setValuesForLocalUse()
 }
 
 // A function to set mesh sizes on each flux curves for later use (in meshing).
-std::map<double,int> Inputs::readMeshSizeOnFlux()
+std::map<double, double> Inputs::readMeshSizeOnFlux()
 {
   int numFlux;  // Number of flux curves from first line of the file.
   double psiNorm;  // To read the normalized psi values of flux curves one by one from file.
-  int numPoints;  // To read the number of desired points for each flux curve from file.
-  std::map <double, int> meshSizeOnCurves; // A map between flux psi values and number of points.  
+  double vertexSpacing;  // To read the desired mesh spacing for each flux curve from file.
+  std::map <double, double> meshSizeOnCurves; // A map between flux psi values and number of points.  
   std::ifstream meshInput(meshSizeFile);
 
   // Step 1: If can't open the file, exit the program with an error message.
@@ -104,27 +104,14 @@ std::map<double,int> Inputs::readMeshSizeOnFlux()
 
   // Step 3: Read the values from the file and store them in map.
   // Step 4: Make sure there is no flux with normalzied psi lesser than 0 or greater than 1.
-  while(meshInput >> psiNorm && meshInput >> numPoints)
+  while(meshInput >> psiNorm && meshInput >> vertexSpacing)
   {
     if (psiNorm < 0.0 || psiNorm > 1.0)
     {
       std::cout << " The normalized psi value  =  " << psiNorm << " from mesh size input file will not be used since it was either lesser than 0.0 (axis) or greater than the 1.0 (last closed flux curve)\n";
       continue;
     }
-    meshSizeOnCurves[psiNorm] = numPoints;
-  }
-
-  // DEBUG - Delete it later
-  std::map <double, int>::iterator itr;
-  for (itr = meshSizeOnCurves.begin(); itr != meshSizeOnCurves.end(); itr++)
-    double normPsi = itr->first;
-
-  // Step 4: Adjust the number of vertices on O-point if needed. O-point can only have one vertex.
-  if (meshSizeOnCurves.begin()->second != 1)
-  {
-    std::cout << "The number of mesh vertices on O-point are = " << meshSizeOnCurves.begin()->second << "\n";
-    std::cout << "Since the number of vertices on O-point cannot exceed 1, this is set to 1\n";
-    meshSizeOnCurves[meshSizeOnCurves.begin()->first] = 1;  
+    meshSizeOnCurves[psiNorm] = vertexSpacing;
   }
 
   return meshSizeOnCurves;

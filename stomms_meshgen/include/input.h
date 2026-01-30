@@ -13,7 +13,7 @@
 // A struct to hold the input flux curves data. 
 struct FluxData{
   std::vector <double> fluxInput;  // A vector to hold the input normalized psi values of flux curves.
-  std::map <double, int> fluxMeshSize;  // A map between the flux normalized value and number of points one each flux curve.
+  std::map <double, double> fluxMeshSize;  // A map between the flux normalized value and vertex spacing on each flux curve.
 }; 
 
 // A struct to hold the input plane angles (converted to radians).
@@ -127,11 +127,11 @@ class Inputs{
     void initializeEqdskFile();
 
     /*
-     * Read the input for desired number of mesh vertices on each flux curve.
-     * set them to a map between flux normalized psi value and desired number of mesh vertices on that flux.
-     * returns a map between flux normalized psi value and desired number of mesh vertices on that flux.
+     * Read the input for desired mesh resolution on each flux curve.
+     * set them to a map between flux normalized psi value and desired node spacing on that flux.
+     * returns a map between flux normalized psi value and desired node spacing on that flux.
      */
-    std::map <double, int> readMeshSizeOnFlux();
+    std::map <double, double> readMeshSizeOnFlux();
 };
 
 #endif

@@ -79,6 +79,19 @@ class Edge{
      * returns true if edge is periodic, otherwise false.
      */ 
     const bool& edgeIsPeriodic();
+
+    /**
+     * Function to get the length of the model edge.
+     */ 
+    double getEdgeLength() const;
+
+    /**
+     * Function to get length of an edge between two specified points on edge.
+     * @param t0: parametric location of start point (first point).
+     * @param t1: parametric location of end point (second point).
+     * @return the length between parametric location t0 and t1 on the edge.
+     */ 
+    double getEdgePartialLength(const double& t0, const double& t1) const;
   private:
     /*
      * Function to set the model edge to the the definition of Edge.
