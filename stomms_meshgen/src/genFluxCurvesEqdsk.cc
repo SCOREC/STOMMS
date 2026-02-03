@@ -37,6 +37,7 @@ std::vector <Flux> genClosedFluxCurves(const std::vector <double>& corePsiValues
   std::vector <Flux> closedFluxCurves;
   for (int i = 0; i < startPoints.size(); i++)
   {
+    std::cout << "Generating Curve # " << i+1 << "\n";
     unsigned int mySeed = 1024 + i +1; // for random start
     PhysicsPoint startPoint = startPoints[i];
     ClosedFluxCurve closedFluxCurve(startPoint, mySeed, eqdskData);
@@ -59,7 +60,6 @@ ClosedFluxCurve::ClosedFluxCurve(const PhysicsPoint& startPt, unsigned int& mySe
   curveData.origin = startPoint;  
 
   Point nextPoint = startPoint;
-
   if (eqdsk.randomStart())
   {
     for (int i=0; i < 5; i++)    // Just prime the RNG a bit
@@ -72,7 +72,7 @@ ClosedFluxCurve::ClosedFluxCurve(const PhysicsPoint& startPt, unsigned int& mySe
       intersect = nonFieldFollowingCase(startPoint, nextPoint);
     else 
       intersect = fieldFollowingCase(startPoint, nextPoint);    
-  
+ 
     if(eqdsk.randomStart() && tagStartingPoint) 
     {
       //random start was done. now  normal intra_curve_spacing
@@ -103,7 +103,7 @@ ClosedFluxCurve::ClosedFluxCurve(const PhysicsPoint& startPt, unsigned int& mySe
 bool ClosedFluxCurve::nonFieldFollowingCase(Point& startPoint, Point& nextPoint)
 {
   randomFactor = 1.0;
-  distanceSet = eqdsk.getFluxInputData().fluxMeshSpacing.at(psiNorm);
+  distanceSet = eqdsk.getFluxInputData().fluxMeshSize.at(psiNorm);
   
   if (eqdsk.randomStart() && !randomGen)
   {
@@ -130,7 +130,8 @@ bool ClosedFluxCurve::fieldFollowingCase(Point& startPoint, Point& nextPoint)
 
   // Step 2: Until termination condition meet, keep finding next points.
   randomFactor = 1;
-  distanceSet = eqdsk.getFluxInputData().fluxMeshSpacing.at(psiNorm);
+  distanceSet = eqdsk.getFluxInputData().fluxMeshSize.at(psiNorm);
+
   while (true)
   {
     // Step 2.1: If randomStart, adjust the factor for random start
@@ -238,7 +239,7 @@ SeparatrixCurve::SeparatrixCurve(const PhysicsPoint& xPt, std::vector <Point> st
 
   std::vector <SeparatrixLeg> separatrixLegs;
   // Step 1: Get pushed points out of the x-points.
-  double pushDistance = eqdsk.getFluxInputData().fluxMeshSpacing.at(psiNorm);
+  double pushDistance = eqdsk.getFluxInputData().fluxMeshSize.at(psiNorm);
   pushedPoints = getPushedPoints(xPt, pushDistance, eqdsk);
 
   // Step 2: Generate curve from pushed points
@@ -273,7 +274,7 @@ void SeparatrixCurve::getSeparatrixLeg(const Point& point, SeparatrixLeg& leg)
   leg.fieldPoints.push_back(point);
   Point currentPoint = point;
 
-  distance = eqdsk.getFluxInputData().fluxMeshSpacing.at(psiNorm);
+  distance = eqdsk.getFluxInputData().fluxMeshSize.at(psiNorm);
   while (true)
   {
     intersect = false;
@@ -289,7 +290,7 @@ void SeparatrixCurve::getSeparatrixLeg(const Point& point, SeparatrixLeg& leg)
     while(true)
     {
       intersect = findNextFieldFollowingPoint(currentPoint, nextPoint, distance, m, curveData, eqdsk);
-      distance = distance/eqdsk.getFluxInputData().fluxMeshSpacing.at(psiNorm);
+      distance = distance/eqdsk.getFluxInputData().fluxMeshSize.at(psiNorm);
       if(distance < 1.0/(1.0 + eqdsk.getSpacingToleranceAbsolute()) && !intersect && !curveData.hitOrigin)
         updateM(m, false);
       else if(distance > (1.0 + eqdsk.getSpacingToleranceAbsolute()) && !intersect) // for now, allow wall hits to be too long
@@ -331,7 +332,7 @@ void SeparatrixCurve::getSeparatrixLeg(const Point& point, SeparatrixLeg& leg)
     } 
     else if (!curveData.hitOrigin)
     {
-      double distPrev = eqdsk.getFluxInputData().fluxMeshSpacing.at(psiNorm);
+      double distPrev = eqdsk.getFluxInputData().fluxMeshSize.at(psiNorm);
       if (distance2D(nextPoint, xPoint) < distPrev*0.5)
         leg.fieldPoints.push_back(nextPoint);
 

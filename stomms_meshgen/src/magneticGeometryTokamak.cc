@@ -82,11 +82,17 @@ void MagneticGeometryForTokamak::classifyPsiValues()
       std::cout << "Open Curves ||  psiNorm = " << psiNorm << " , psi = " << psi << "\n";
     }
   }
+
+  for (int i = 0; i < psiValuesSeparatrix.size(); i++)
+    std::cout << "Separatrix Curves || psi = " << psiValuesSeparatrix[i] << "\n";
 }
 
 void MagneticGeometryForTokamak::genFluxCurves(EqdskData& eqdskData, const WallCurve& wall)
 {
+  std::cout << "=============== Generating Closed Curves ===============\n";
   closedCurves = genClosedFluxCurves(psiValuesClosed, eqdskData);
+
+  std::cout << "================ Generating Separatrices ================\n";
   separatrixCurves = genSeparatrixCurves(xPoints.at(0), eqdskData, wallCurve);
 }
 

@@ -281,7 +281,7 @@ std::vector <PhysicsPoint> getStartPointClosed(const std::vector <double>& coreP
     double psi = corePsiValues[i];
     double psiNormalized = eqdskData.convertPsiToNorm(psi);
     assert (psiNormalized >= 0.0);
- 
+
     Point pt = eqdskData.convertPsiToPoint(psi);
     PhysicsPoint startPoint(pt, psi, PointType::None);
     startPoints.push_back(startPoint);

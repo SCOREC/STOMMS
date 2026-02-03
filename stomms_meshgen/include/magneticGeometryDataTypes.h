@@ -276,8 +276,8 @@ class EqdskData{
   // Write a function to read these values directly from inputs (LATER).
   bool reversePsi = false;
   bool inboardStart = false;
-  bool fluxRandomStart = false;
-  int numPlanes = 64;
+  bool fluxRandomStart = true;
+  int numPlanes = 128;
   bool stepRadians = 0.00125;
   double psiTolerance = 1e-8;
   double spacingToleranceOptimal = 0.5;

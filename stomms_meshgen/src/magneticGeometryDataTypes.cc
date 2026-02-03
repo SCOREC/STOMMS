@@ -303,9 +303,9 @@ int EqdskData::findPsiPt(double targetPsi, Point startPoint, std::array<double,2
   if (!insideBox(startPoint))
     return 0;
 
-  double tolerance = 1e-5;
+  double tolerance = 1e-15;
   int maxIterations = 100;
-  double psi= getPsiAtPoint(startPoint);
+  double psi = getPsiAtPoint(startPoint);
 
   // Step 2: Define step size based on the length of domain box.
   double lenghtScaleOnR = 0.01*(boundingBox[2] - boundingBox[0]);
