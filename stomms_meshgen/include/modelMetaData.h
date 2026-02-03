@@ -34,6 +34,12 @@ class PlaneMetaData{
      */ 
     const std::vector <double>& getPlaneFluxSizes();
 
+    /**
+     * Function to get the mesh size spacing on a flux given the psi normalized value of the flux.
+     * @param psiNorm: Input psi normalized value.
+     * @return mesh spacing on the flux curve with psi normalized value.
+     */ 
+    double getNodeSpacingAtFlux(double psiNorm);
   private:
     std::vector <double> fluxValues;  // vector of psi values of desired flux curves on the plane. 
     double toroidalAngle;  // Toroidal angle of the plane.

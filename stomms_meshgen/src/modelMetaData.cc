@@ -36,6 +36,32 @@ const std::vector <double>& PlaneMetaData::getPlaneFluxSizes()
   return fluxMeshSize;
 }
 
+// Function to return mesh size at specific psi normalized value.
+double PlaneMetaData::getNodeSpacingAtFlux(double psiNorm)
+{
+  bool indexFound = false;
+  int indx = -1;
+  double tolerance = 1e-8;
+  for (int i = 0; i < fluxValues.size(); i++)
+  {
+    if (fabs(fluxValues[i] - psiNorm) < tolerance)
+    {
+      indexFound = true;
+      indx = i;
+      break;
+    }
+  }
+
+  if (!indexFound)
+  {
+    std::cerr << "ERROR: Given psi normalized value = " << psiNorm << " cannot be found in input psi normalized list\n";
+    exit(1);
+  }
+
+  double meshSize = fluxMeshSize[indx];
+  return meshSize;
+}
+
 /***********************************************/
 // Class ModelMetaData
 // sets metadata for the model (all the planes)
