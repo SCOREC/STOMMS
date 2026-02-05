@@ -10,6 +10,7 @@
  */
 class PlaneMetaData{
   public:
+    PlaneMetaData(){};
     /**
      * Constructor gets the flux data (f)plane toroidal angle to setup metadata on the plane.
      * @param f: the struct FluxData that constains the list of desired flux curves amd
@@ -72,7 +73,7 @@ class ModelMetaData{
      *  @param index: Takes the index value of the plane (0 to nPlanes-1) as input.
      *  @return an object of PlaneMetaData.
      */ 
-    const PlaneMetaData& getPlaneMetaDataByIndex(int index);
+    const PlaneMetaData& getPlaneMetaDataByIndex(int index) const;
 
     /**
      *  Function to get toroidal angles of all the planes. Returns a vector of the angles in radians.

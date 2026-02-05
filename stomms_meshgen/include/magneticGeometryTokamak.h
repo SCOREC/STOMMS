@@ -75,6 +75,7 @@ class MagneticGeometryForTokamak: public MagneticGeometry{
     std::vector <double> psiValuesOpen;
     std::vector <Flux> closedCurves;
     std::vector <Flux> separatrixCurves;
+    PlaneMetaData planeMetaData;
 
     Model model;
     std::vector <Plane> planes;
@@ -82,7 +83,7 @@ class MagneticGeometryForTokamak: public MagneticGeometry{
 
     // Internal functions:
     void classifyPsiValues();
-    void genFluxCurves(EqdskData& eqdskData, const WallCurve& wall); 
+    void genFluxCurves(const PlaneMetaData& planeMetaData, EqdskData& eqdskData, const WallCurve& wall); 
 };
 
 #endif

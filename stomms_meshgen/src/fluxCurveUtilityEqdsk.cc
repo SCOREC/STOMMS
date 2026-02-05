@@ -105,6 +105,7 @@ bool findNextFieldFollowingPoint(Point& startPoint, Point& nextPoint, double& di
 
     numIterations++;
 
+
     // Step : Check if the psi is correct
     double dpsi = eqdsk.getPsiAtPoint(point2) - curveData.psi;
     if (fabs(dpsi) - eqdsk.getPsiTolerance())
@@ -113,11 +114,13 @@ bool findNextFieldFollowingPoint(Point& startPoint, Point& nextPoint, double& di
       assert(adjustedPointToPsi);
     }
 
+
     // Step : Calculate distance moved
     double distOldToNew = distance2D(nextPoint, point2);
     dist = dist + distOldToNew;
     if (doesPointHitTheOrigin(nextPoint, point2, startPoint, goal, distNewToStartLast, curveData, eqdsk))
       return true;
+   
     distNewToStartLast = distance2D(point2, curveData.origin);
 
     if (numIterations > maxIterationsAllowed)
@@ -127,8 +130,8 @@ bool findNextFieldFollowingPoint(Point& startPoint, Point& nextPoint, double& di
     }
     if (m == 0 && dist > goal)
       return true;
-    steps--;
 
+    steps--;
     if (steps == 0 && m > 0)
       return true;
   }
@@ -303,7 +306,7 @@ std::vector <PhysicsPoint> getStartPointsOnWall(double psiNormal, EqdskData& eqd
     double dy = points[i+1].y - points[i].y;
     double edgeLength = sqrt(dx*dx + dy*dy);
     int nSample = 1 + std::max(1, static_cast<int> (edgeLength/distSampling));
-      
+     
   }
 } 
 

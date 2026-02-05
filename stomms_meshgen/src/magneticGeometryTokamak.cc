@@ -10,6 +10,7 @@ MagneticGeometryForTokamak::MagneticGeometryForTokamak(const ModelMetaData& mode
   wallCurve = wall;
   reversePsi = input.useReversePsi();
   CriticalPointsEqdsk criticalPoints(wall, reversePsi);
+  planeMetaData = modelMetaData.getPlaneMetaDataByIndex(0);
   std::cout << "Reverse Psi " << (reversePsi == true ? "ON" : "OFF" ) << "\n";
 
   // Step 2: Read and sort critical points.
@@ -34,7 +35,7 @@ MagneticGeometryForTokamak::MagneticGeometryForTokamak(const ModelMetaData& mode
   
   // Step 6: Set up Eqdsk Data class for curve generation.
   EqdskData eqdskData(input, oPointsVec[0], psiCoreBoundary);
-  genFluxCurves(eqdskData, wallCurve);
+  genFluxCurves(planeMetaData, eqdskData, wallCurve);
 }
 
 // Classify psi normalized values into respective types (open, closed etc.)
@@ -87,13 +88,13 @@ void MagneticGeometryForTokamak::classifyPsiValues()
     std::cout << "Separatrix Curves || psi = " << psiValuesSeparatrix[i] << "\n";
 }
 
-void MagneticGeometryForTokamak::genFluxCurves(EqdskData& eqdskData, const WallCurve& wall)
+void MagneticGeometryForTokamak::genFluxCurves(const PlaneMetaData& planeMetaData, EqdskData& eqdskData, const WallCurve& wall)
 {
   std::cout << "=============== Generating Closed Curves ===============\n";
-  closedCurves = genClosedFluxCurves(psiValuesClosed, eqdskData);
+  closedCurves = genClosedFluxCurves(psiValuesClosed, oPoints[0][0], eqdskData, planeMetaData);
 
   std::cout << "================ Generating Separatrices ================\n";
-  separatrixCurves = genSeparatrixCurves(xPoints.at(0), eqdskData, wallCurve);
+  separatrixCurves = genSeparatrixCurves(xPoints.at(0), eqdskData, wallCurve, planeMetaData);
 }
 
 // Function to get a map between plane number and vector of OPoints.

@@ -87,7 +87,7 @@ const std::vector <PlaneMetaData>& ModelMetaData::getPlanesContainer() const
 }
 
 // Function to return the metadata on a individual plane by index.
-const PlaneMetaData& ModelMetaData::getPlaneMetaDataByIndex(int index)
+const PlaneMetaData& ModelMetaData::getPlaneMetaDataByIndex(int index) const
 {
   return planesContainer[index];
 }

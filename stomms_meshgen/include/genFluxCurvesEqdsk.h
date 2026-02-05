@@ -5,11 +5,13 @@
 
 class ClosedFluxCurve{
   public:
-    ClosedFluxCurve(const PhysicsPoint& startPt, unsigned int& mySeed, EqdskData& eqdskData);
+    ClosedFluxCurve(const PhysicsPoint& startPt, unsigned int& mySeed, const PhysicsPoint& oPoint, 
+                    EqdskData& eqdskData, const PlaneMetaData& planeMetaData);
     Flux& getFluxCurve();
   private:
     Flux f; // flux curve to create
     CurveMetaData curveData;  // metaData for curve.
+    PlaneMetaData pMetaData;  //plane meta data.
 
     // Variables for field following.
     int m = 1;
@@ -20,7 +22,7 @@ class ClosedFluxCurve{
     // Variables for random curve start.
     bool randomGen = false;
     double randomFactor;
-    unsigned int& seed;
+    unsigned int seed;
     bool tagStartingPoint = true;
 
     // Variables for spacing
@@ -30,6 +32,7 @@ class ClosedFluxCurve{
     // Curve magnetic properties
     EqdskData& eqdsk;
     double psiNorm;
+    PhysicsPoint magneticAxis;
 
     // Termination condition
     bool intersect;
@@ -44,11 +47,12 @@ class ClosedFluxCurve{
 
 class SeparatrixCurve{
   public:
-    SeparatrixCurve(const PhysicsPoint& xPt, std::vector <Point> startPoints, EqdskData& eqdskData, const WallCurve& wall);
+    SeparatrixCurve(const PhysicsPoint& xPt, std::vector <Point> startPoints, EqdskData& eqdskData, const WallCurve& wall, const PlaneMetaData& planeMetaData);
     const std::vector <Flux>& getFluxCurves() const;
   private:
     std::vector <Flux> sepCurves; // flux curves to create
     CurveMetaData curveData;  // metaData for curve.
+    PlaneMetaData pMetaData;  //plane meta data.
     WallCurve wall;
     std::vector <Point> startPts;
     std::vector <Point> pushedPoints;    
@@ -78,6 +82,6 @@ class SeparatrixCurve{
     void updateM(int& m, bool increase);
 };
 
-std::vector <Flux> genClosedFluxCurves(const std::vector <double>& corePsiValues, EqdskData& eqdskData);
-std::vector <Flux> genSeparatrixCurves(const std::vector <PhysicsPoint>& xPts, EqdskData& eqdskData, const WallCurve& wall);
+std::vector <Flux> genClosedFluxCurves(const std::vector <double>& corePsiValues, const PhysicsPoint& oPoint, EqdskData& eqdskData, const PlaneMetaData& planeMetaData);
+std::vector <Flux> genSeparatrixCurves(const std::vector <PhysicsPoint>& xPts, EqdskData& eqdskData, const WallCurve& wall, const PlaneMetaData& planeMetaData);
 #endif

@@ -276,9 +276,9 @@ class EqdskData{
   // Write a function to read these values directly from inputs (LATER).
   bool reversePsi = false;
   bool inboardStart = false;
-  bool fluxRandomStart = true;
+  bool fluxRandomStart = false;
   int numPlanes = 128;
-  bool stepRadians = 0.00125;
+  double stepRadians = 0.00125;
   double psiTolerance = 1e-8;
   double spacingToleranceOptimal = 0.5;
   double spacingToleranceAbsolute = 0.61803398874989484820;
@@ -286,7 +286,7 @@ class EqdskData{
   bool zeroXptWall = false; 
   std::array <double, 4> boundingBox;  // bounding box
   FluxData fluxInputData;
-  int intraCurveSpacingOption = -1;
+  int intraCurveSpacingOption = -2;
 
   // Derived data.
   PhysicsPoint axis;

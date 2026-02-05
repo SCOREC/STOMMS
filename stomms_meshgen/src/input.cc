@@ -19,7 +19,7 @@ void Inputs::setDefaultValues()
   reactorType = ReactorType::Stellarator;  // Default Stellarator for now.
   reversePsi = false;
   eqdPsiFactor = 1.0;
-  numPlanes = 64;  // default is 64
+  numPlanes = 128;  // default is 64
 }
 
 // This function reads the input parameter from the mesh input file.

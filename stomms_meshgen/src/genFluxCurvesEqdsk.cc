@@ -31,32 +31,34 @@
 // Class ClosedCurve
 /***********************************************/
 
-std::vector <Flux> genClosedFluxCurves(const std::vector <double>& corePsiValues, EqdskData& eqdskData)
+std::vector <Flux> genClosedFluxCurves(const std::vector <double>& corePsiValues, const PhysicsPoint& oPoint, 
+                                       EqdskData& eqdskData, const PlaneMetaData& planeMetaData)
 {
   std::vector <PhysicsPoint> startPoints = getStartPointClosed(corePsiValues, eqdskData);
   std::vector <Flux> closedFluxCurves;
   for (int i = 0; i < startPoints.size(); i++)
   {
-    std::cout << "Generating Curve # " << i+1 << "\n";
     unsigned int mySeed = 1024 + i +1; // for random start
     PhysicsPoint startPoint = startPoints[i];
-    ClosedFluxCurve closedFluxCurve(startPoint, mySeed, eqdskData);
+    ClosedFluxCurve closedFluxCurve(startPoint, mySeed, oPoint, eqdskData, planeMetaData);
     Flux fluxCurve = closedFluxCurve.getFluxCurve();
     fluxCurve.curveType = CurveType::Closed;
+    closedFluxCurves.push_back(fluxCurve);
   }
 
   return closedFluxCurves;
 }
 
-ClosedFluxCurve::ClosedFluxCurve(const PhysicsPoint& startPt, unsigned int& mySeed, EqdskData& eqdskData):
-                                 seed(mySeed), eqdsk(eqdskData)
+ClosedFluxCurve::ClosedFluxCurve(const PhysicsPoint& startPt, unsigned int& mySeed, const PhysicsPoint& oPoint, EqdskData& eqdskData, 
+                                 const PlaneMetaData& planeMetaData):seed(mySeed), eqdsk(eqdskData)
 {
   DomainBox box = eqdskData.getDomainBox();
+  magneticAxis = oPoint;
+  pMetaData = planeMetaData;
   Point startPoint = startPt.getPoint();
   psiNorm = eqdskData.convertPsiToNorm(startPt.getPsi());
   f.fieldPoints.push_back(startPoint);
-  CurveMetaData curveData;
-  curveData.psi = psiNorm;
+  curveData.psi = startPt.getPsi();
   curveData.origin = startPoint;  
 
   Point nextPoint = startPoint;
@@ -72,7 +74,7 @@ ClosedFluxCurve::ClosedFluxCurve(const PhysicsPoint& startPt, unsigned int& mySe
       intersect = nonFieldFollowingCase(startPoint, nextPoint);
     else 
       intersect = fieldFollowingCase(startPoint, nextPoint);    
- 
+
     if(eqdsk.randomStart() && tagStartingPoint) 
     {
       //random start was done. now  normal intra_curve_spacing
@@ -103,8 +105,8 @@ ClosedFluxCurve::ClosedFluxCurve(const PhysicsPoint& startPt, unsigned int& mySe
 bool ClosedFluxCurve::nonFieldFollowingCase(Point& startPoint, Point& nextPoint)
 {
   randomFactor = 1.0;
-  distanceSet = eqdsk.getFluxInputData().fluxMeshSize.at(psiNorm);
-  
+  distanceSet = pMetaData.getNodeSpacingAtFlux(psiNorm);  
+
   if (eqdsk.randomStart() && !randomGen)
   {
     randomFactor = double(rand_r(&seed)%100000 + 1)/100000;
@@ -115,8 +117,7 @@ bool ClosedFluxCurve::nonFieldFollowingCase(Point& startPoint, Point& nextPoint)
   distance = distanceSet;
 
   curveData.hitOrigin = false;
-  PhysicsPoint oPoint; // MAKE THIS OPOINT AVAILABLE HERE.
-  intersect = findNextPoint(startPoint, nextPoint, distance, oPoint, curveData, eqdsk);  
+  intersect = !findNextPoint(startPoint, nextPoint, distance, magneticAxis, curveData, eqdsk);  
   return intersect;
 }
 
@@ -130,14 +131,13 @@ bool ClosedFluxCurve::fieldFollowingCase(Point& startPoint, Point& nextPoint)
 
   // Step 2: Until termination condition meet, keep finding next points.
   randomFactor = 1;
-  distanceSet = eqdsk.getFluxInputData().fluxMeshSize.at(psiNorm);
-
   while (true)
   {
+    distanceSet = pMetaData.getNodeSpacingAtFlux(psiNorm);
     // Step 2.1: If randomStart, adjust the factor for random start
-    if (eqdsk.randomStart() && !randomGen)
+    if (eqdsk.randomStart() && tagStartingPoint &&!randomGen)
     {
-      randomFactor = double(rand_r(&seed)%100000 + 1)/100000;
+      randomFactor = double(rand_r(&seed)%100000 + 1)/100000.0;
       randomGen = true;
     }
 
@@ -147,7 +147,7 @@ bool ClosedFluxCurve::fieldFollowingCase(Point& startPoint, Point& nextPoint)
     distance = distanceSet;
 
     curveData.hitOrigin = false;
-    intersect = findNextFieldFollowingPoint(startPoint, nextPoint, distance, m, curveData, eqdsk);
+    intersect = !findNextFieldFollowingPoint(startPoint, nextPoint, distance, m, curveData, eqdsk);
     distance = distance/distanceSet;
     if(distance < 1.0/(1.0 + eqdsk.getSpacingToleranceAbsolute()) && !intersect && !curveData.hitOrigin)
       updateM(m, false);
@@ -162,7 +162,7 @@ bool ClosedFluxCurve::fieldFollowingCase(Point& startPoint, Point& nextPoint)
     else
       break; // 1. distance acceptable, so use this point, or 2. meet boundary of what?(intersect)
   }
-  
+ 
   return intersect;
 }
 
@@ -195,7 +195,7 @@ Flux& ClosedFluxCurve::getFluxCurve()
   return f;
 }
 
-std::vector <Flux> genSeparatrixCurves(const std::vector <PhysicsPoint>& xPts, EqdskData& eqdskData, const WallCurve& wall)
+std::vector <Flux> genSeparatrixCurves(const std::vector <PhysicsPoint>& xPts, EqdskData& eqdskData, const WallCurve& wall, const PlaneMetaData& planeMetaData)
 {
   std::vector <Flux> separatrices;
   std::map <int, std::vector<Point>> startPointsMap;
@@ -216,7 +216,7 @@ std::vector <Flux> genSeparatrixCurves(const std::vector <PhysicsPoint>& xPts, E
     if(psiInputVector.back() >= psiNormalized && psiInputVector.front() <= psiNormalized)
     {
       std::cout << "Generating separatrix curves from X-point # " << i+1 << "\n";
-      SeparatrixCurve separatrixCurve(xPts[i], startPoints, eqdskData, wall);
+      SeparatrixCurve separatrixCurve(xPts[i], startPoints, eqdskData, wall, planeMetaData);
       std::vector <Flux> sepCurvesFromXpt = separatrixCurve.getFluxCurves();
       separatrices.insert(separatrices.end(), sepCurvesFromXpt.begin(), sepCurvesFromXpt.end());
     }
@@ -224,18 +224,17 @@ std::vector <Flux> genSeparatrixCurves(const std::vector <PhysicsPoint>& xPts, E
   return separatrices;
 }
 
-SeparatrixCurve::SeparatrixCurve(const PhysicsPoint& xPt, std::vector <Point> startPoints, EqdskData& eqdskData, const WallCurve& wallCurve):
-                                 eqdsk(eqdskData), wall(wallCurve)
+SeparatrixCurve::SeparatrixCurve(const PhysicsPoint& xPt, std::vector <Point> startPoints, EqdskData& eqdskData, const WallCurve& wallCurve, 
+                                 const PlaneMetaData& planeMetaData):eqdsk(eqdskData), wall(wallCurve)
 {
   psi = xPt.getPsi();
   xPoint = xPt.getPoint();
   psiNorm = eqdskData.convertPsiToNorm(xPt.getPsi());
   startPts = startPoints;
 
-  CurveMetaData curveData;
-  curveData.psi = psiNorm;
+  curveData.psi = psi;
   curveData.xPoint = true;
-  
+  pMetaData = planeMetaData;
 
   std::vector <SeparatrixLeg> separatrixLegs;
   // Step 1: Get pushed points out of the x-points.

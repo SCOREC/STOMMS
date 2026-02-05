@@ -182,7 +182,7 @@ int EqdskData::magneticField(std::array <double,3> ptArray, std::vector <double>
 bool EqdskData::rk4(Point& point0, Point& point1, double dt, int dimension)
 {
   // Step 1: Check validity of the dimension.
-  if (dimension != 2 || dimension != 3)
+  if (dimension != 2 && dimension != 3)
   {
     std::cerr << "ERROR: Invalid dimension = " << dimension << " for RK4 method\n";
     std::cerr << "Valid dimensions are 2, 3\n";
