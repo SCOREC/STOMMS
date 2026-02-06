@@ -235,10 +235,11 @@ SeparatrixCurve::SeparatrixCurve(const PhysicsPoint& xPt, std::vector <Point> st
   curveData.psi = psi;
   curveData.xPoint = true;
   pMetaData = planeMetaData;
-
+  curveData.origin = xPoint;
   std::vector <SeparatrixLeg> separatrixLegs;
+
   // Step 1: Get pushed points out of the x-points.
-  double pushDistance = eqdsk.getFluxInputData().fluxMeshSize.at(psiNorm);
+  double pushDistance = pMetaData.getNodeSpacingAtFlux(psiNorm);
   pushedPoints = getPushedPoints(xPt, pushDistance, eqdsk);
 
   // Step 2: Generate curve from pushed points
@@ -257,7 +258,6 @@ SeparatrixCurve::SeparatrixCurve(const PhysicsPoint& xPt, std::vector <Point> st
   for (int i = 0; i < startPts.size(); i++)
   {
     SeparatrixLeg leg;
-    leg.fieldPoints.push_back(startPts[i]);
     getSeparatrixLeg(startPts[i], leg);
     if (leg.fieldPoints.size())
       separatrixLegs.push_back(leg);
@@ -266,17 +266,15 @@ SeparatrixCurve::SeparatrixCurve(const PhysicsPoint& xPt, std::vector <Point> st
   sepCurves =  mergeSeparatrixLegs(separatrixLegs);
 }
 
-
-// 
 void SeparatrixCurve::getSeparatrixLeg(const Point& point, SeparatrixLeg& leg)
 {
   leg.fieldPoints.push_back(point);
   Point currentPoint = point;
 
-  distance = eqdsk.getFluxInputData().fluxMeshSize.at(psiNorm);
   while (true)
   {
     intersect = false;
+    curveData.hitOrigin = false;
 
     // Step 1: Set properties of m.
     if (m == 0)
@@ -288,8 +286,9 @@ void SeparatrixCurve::getSeparatrixLeg(const Point& point, SeparatrixLeg& leg)
     Point nextPoint;
     while(true)
     {
-      intersect = findNextFieldFollowingPoint(currentPoint, nextPoint, distance, m, curveData, eqdsk);
-      distance = distance/eqdsk.getFluxInputData().fluxMeshSize.at(psiNorm);
+      distance = pMetaData.getNodeSpacingAtFlux(psiNorm);
+      intersect = !findNextFieldFollowingPoint(currentPoint, nextPoint, distance, m, curveData, eqdsk);
+      distance = distance/pMetaData.getNodeSpacingAtFlux(psiNorm);
       if(distance < 1.0/(1.0 + eqdsk.getSpacingToleranceAbsolute()) && !intersect && !curveData.hitOrigin)
         updateM(m, false);
       else if(distance > (1.0 + eqdsk.getSpacingToleranceAbsolute()) && !intersect) // for now, allow wall hits to be too long
@@ -303,17 +302,18 @@ void SeparatrixCurve::getSeparatrixLeg(const Point& point, SeparatrixLeg& leg)
       else
         break;  // distance acceptable, use this point  
     }  // end of Inner WHILE loop
-    
+ 
     mChanged = false;
     bool pointOutside = false;
     int numIntersections = getNumIntersection(currentPoint, nextPoint, wall);
     int intersectIndex = -1;
-    if (numIntersections > leg.fieldPoints.size())
+    int numMinPoints = (leg.fieldPoints.size() == 1) ? 1:0;
+    if (numIntersections > numMinPoints)
     {
       intersectIndex = findStartPointIndexAtIntersection(currentPoint, nextPoint, startPts);
       assert (intersectIndex != -1);
       leg.fieldPoints.push_back(startPts[intersectIndex]);
-      pointOutside = true; 
+      pointOutside = true;
     }
     else if (!windingNumberPolygonTest(nextPoint, wall.getPoints()))
     {
@@ -329,10 +329,10 @@ void SeparatrixCurve::getSeparatrixLeg(const Point& point, SeparatrixLeg& leg)
       leg.fieldPoints.push_back(nextPoint);
       return; // end this curve generation. -- Intersect
     } 
-    else if (!curveData.hitOrigin)
+    else if (curveData.hitOrigin)
     {
-      double distPrev = eqdsk.getFluxInputData().fluxMeshSize.at(psiNorm);
-      if (distance2D(nextPoint, xPoint) < distPrev*0.5)
+      double distPrev = pMetaData.getNodeSpacingAtFlux(psiNorm);
+      if (distance2D(nextPoint, xPoint) > distPrev*0.5)
         leg.fieldPoints.push_back(nextPoint);
 
       leg.fieldPoints.push_back(xPoint);
@@ -341,7 +341,10 @@ void SeparatrixCurve::getSeparatrixLeg(const Point& point, SeparatrixLeg& leg)
       return;
     } 
     else
-      currentPoint = nextPoint;    
+    {
+      leg.fieldPoints.push_back(nextPoint);
+      currentPoint = nextPoint;  
+    }  
   }
 }
 
@@ -371,16 +374,21 @@ std::vector <Flux> SeparatrixCurve::mergeSeparatrixLegs(std::vector <SeparatrixL
     SeparatrixLeg& leg = separatrixLegs[i];
     if (leg.numXPts == 1)
     {
-      if (leg.xPtAtStart = true)
+      if (leg.xPtAtStart == true)
         segBack.push_back(i);
-      else if (leg.xPtAtEnd = true)
+      else if (leg.xPtAtEnd == true)
         segFront.push_back(i);
       
       leg.curveSubType = CurveSubType::Open;
     }
     else if (leg.numXPts == 2)
       leg.curveSubType = CurveSubType::Closed;
+    else 
+      continue;
   }
+
+  std::cout << "Seg Front = " << segFront.size() << "\n";
+  std::cout << "Seg Back = " << segBack.size() << "\n";
   assert (segFront.size() == segBack.size());
   assert (segFront.size() <= 2);
 

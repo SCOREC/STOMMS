@@ -286,7 +286,7 @@ class EqdskData{
   bool zeroXptWall = false; 
   std::array <double, 4> boundingBox;  // bounding box
   FluxData fluxInputData;
-  int intraCurveSpacingOption = -2;
+  int intraCurveSpacingOption = -1;
 
   // Derived data.
   PhysicsPoint axis;

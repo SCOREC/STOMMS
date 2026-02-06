@@ -90,11 +90,13 @@ void MagneticGeometryForTokamak::classifyPsiValues()
 
 void MagneticGeometryForTokamak::genFluxCurves(const PlaneMetaData& planeMetaData, EqdskData& eqdskData, const WallCurve& wall)
 {
-  std::cout << "=============== Generating Closed Curves ===============\n";
+  std::cout << ".......... Generating Closed Curves\n";
   closedCurves = genClosedFluxCurves(psiValuesClosed, oPoints[0][0], eqdskData, planeMetaData);
 
-  std::cout << "================ Generating Separatrices ================\n";
+  std::cout << ".......... Generating Separatrices\n";
   separatrixCurves = genSeparatrixCurves(xPoints.at(0), eqdskData, wallCurve, planeMetaData);
+
+  std::cout << ".......... Separatrix & Closed Curves: DONE\n";
 }
 
 // Function to get a map between plane number and vector of OPoints.

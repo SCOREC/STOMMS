@@ -254,7 +254,7 @@ bool doesPointHitTheOrigin(Point& pt1, Point& pt2, Point startPt, double goal, d
   double distSourceToNew = distance2D(startPt, pt2);
   
   pt1 = pt2; // update the point.
- 
+
   if (distNewToStart < distSourceToNew || (distNewToStart < distNewToStartLast &&
       curveData.xPoint && distNewToStart < goal*(1.0+ eqdsk.getSpacingToleranceOptimal())))
   {
@@ -293,6 +293,7 @@ std::vector <PhysicsPoint> getStartPointClosed(const std::vector <double>& coreP
   return startPoints;
 }
 
+/*
 std::vector <PhysicsPoint> getStartPointsOnWall(double psiNormal, EqdskData& eqdskData, const WallCurve& wall)
 {
   double distSampling = 1e-2;  // cm
@@ -306,9 +307,17 @@ std::vector <PhysicsPoint> getStartPointsOnWall(double psiNormal, EqdskData& eqd
     double dy = points[i+1].y - points[i].y;
     double edgeLength = sqrt(dx*dx + dy*dy);
     int nSample = 1 + std::max(1, static_cast<int> (edgeLength/distSampling));
-     
+    std::vector <Point> pts = findPointBySectioningBtwTwoPts(psi, nSample, points[i], points[i+1], eqdskData);
+    for (int j = 0; j < pts.size(); j++)
+    {
+      if (startPoints.size() > 0)
+      {
+        
+      }
+    }
   }
 } 
+*/
 
 int findStartPointIndexAtIntersection(const Point& pt1, const Point& pt2, std::vector<Point>& startPoints, int iFilter) 
 {
@@ -449,7 +458,7 @@ std::vector <Point> getPushedPoints(const PhysicsPoint& xPoint, double dist, Eqd
   double stepSize = 0.5;  // angle in degress. A size of 0.5 will result 720 scan points on the circle.
   double angle = 0.0;   // starting angle.
   double r = dist;    // intra_curve_spaing on the separatric curve
-  Point point;
+  Point point, ptPrev;
   double pi = 3.14159265359;
   Point xpt = xPoint.getPoint();
   double psi = xPoint.getPsi();
@@ -462,7 +471,6 @@ std::vector <Point> getPushedPoints(const PhysicsPoint& xPoint, double dist, Eqd
     point.x = xpt.x + r*cos(angle*(pi/180));
     point.y = xpt.y + r*sin(angle*(pi/180));
     Point pt(point.x, point.y, 0.0);
-    Point ptPrev;
     double psiPt = eqdsk.getPsiAtPoint(pt);
     if (numIterations > 0) // Go to this loop in second numIterationsation.
     {
