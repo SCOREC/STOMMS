@@ -4,6 +4,7 @@
 #include "magneticGeometry.h"
 #include "gfileUtil.h"
 #include "genFluxCurvesEqdsk.h"
+#include "modelDataEqdsk.h"
 
 /**
  * A class to hold magnetic geometry of tokamaks along with the
@@ -77,10 +78,10 @@ class MagneticGeometryForTokamak: public MagneticGeometry{
     std::vector <Flux> separatrixCurves;
     PlaneMetaData planeMetaData;
 
-    Model model;
+    ModelEqdsk modelEqdsk;
+    Model model; // place holder. delete it when modelEqdsk is done.
     std::vector <Plane> planes;
     
-
     // Internal functions:
     void classifyPsiValues();
     void genFluxCurves(const PlaneMetaData& planeMetaData, EqdskData& eqdskData, const WallCurve& wall); 

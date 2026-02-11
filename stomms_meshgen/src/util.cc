@@ -198,3 +198,55 @@ double distanceLineToPoint(const Point& pt1, const Point& pt2, const Point& pt)
 
   return dist;
 }
+
+// Check the orientation of a curve. The method is applicable 
+// to non-convex polygons too. 
+// Returns true if the curve is clockwise, false if counter-clockwise.
+bool curveOrientation(const std::vector <Point>& curvePts)
+{
+  if (curvePts.empty())
+    std::cerr << "ERROR: Given curve is empty\n"; 
+ 
+  int numPts = curvePts.size();
+  double sumEdges = 0.0;
+  for (int i = 1; i < numPts; ++i)
+  {
+    double x1 = curvePts[i-1].x;
+    double y1 = curvePts[i-1].y;
+    double x2 = curvePts[i].x;
+    double y2 = curvePts[i].y;	
+
+    double areaUnderEdge = (x2 - x1)* (y2 + y1);
+    sumEdges = sumEdges + areaUnderEdge; 
+  }
+	
+  if (sumEdges > 0)
+    return true;
+	
+  return false;
+}
+
+std::array <double, 4> getCurveBounds(const std::vector <Point>& curvePts)
+{
+  if (curvePts.empty())
+    std::cerr << "ERROR: Given curve is empty\n";  
+
+  double xMin, yMin, xMax, yMax;
+  xMin = xMax = curvePts[0].x;
+  yMin = yMax = curvePts[0].y;
+
+  for (int i = 0; i < curvePts.size(); i++)
+  {
+    Point pt = curvePts[i];
+    if (pt.x < xMin)
+      xMin = pt.x;
+    if (pt.x > xMax)
+      xMax = pt.x;
+    if (pt.y < yMin)
+      yMin = pt.y;
+    if (pt.y >  yMax)
+      yMax = pt.y;
+  }
+  std::array <double, 4> bounds = {xMin, yMin, xMax, yMax};
+  return bounds;
+}

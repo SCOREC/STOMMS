@@ -6,7 +6,7 @@
 class ModelEqdsk{
   public:
     ModelEqdsk(){};
-    ModelEqdsk(const ModelMetaData& md, EqdskData& eqdskData);
+    ModelEqdsk(const PlaneMetaData& planeMetaData, CurveContainer& curvesMetaData);
     const Model& getModel() const;
   private:
     ModelMetaData modelMetaData;  // Object of class ModelMetaData holding all the model meta data.

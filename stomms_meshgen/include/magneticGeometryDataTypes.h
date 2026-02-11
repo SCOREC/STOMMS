@@ -51,6 +51,24 @@ class Flux{
     PhysicsPoint xPoint;
 };
 
+class CurveContainer{
+  public:
+    CurveContainer(){};
+    CurveContainer(std::vector <Flux>& closedCurves, std::vector <Flux>& separatrices, WallCurve& wall);
+    void setCriticalPoints(const std::vector <PhysicsPoint>& oPts, const std::vector <PhysicsPoint>& xPts);
+    std::vector <Flux>& getCurvesClosed();
+    std::vector <Flux>& getCurvesSeparatrix();
+    WallCurve& getWallCurve();
+    const std::vector <PhysicsPoint>& getOPoints() const;
+    const std::vector <PhysicsPoint>& getXPoints() const;
+  private:
+    std::vector <Flux> curvesClosed;
+    std::vector <Flux> curvesSeparatrix;
+    std::vector <PhysicsPoint> oPoints;
+    std::vector <PhysicsPoint> xPoints;
+    WallCurve wallCurve;
+};
+
 /**
  * A class to define geometric model on a plane.
  */

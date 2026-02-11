@@ -1,11 +1,10 @@
 #include "modelDataEqdsk.h"
 
-ModelEqdsk::ModelEqdsk(const ModelMetaData& md, EqdskData& eqdskData):modelMetaData(md), eqdsk(eqdskData)
+ModelEqdsk::ModelEqdsk(const PlaneMetaData& planeMetaData, CurveContainer& curvesMetaData)
 {
-  // Step 1: Get model metadata
-
-  // Step 2: Generate Model (with underlying simmetrix model)
+  // Step 1: Generate Model (with underlying simmetrix model)
+  model = generateModelEqdsk(planeMetaData, curvesMetaData);
   
-  // Step 3: Any postprocessing if needed
+  // Step 2: Any postprocessing if needed
 
 }

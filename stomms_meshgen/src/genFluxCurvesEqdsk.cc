@@ -416,10 +416,12 @@ std::vector <Flux> SeparatrixCurve::mergeSeparatrixLegs(std::vector <SeparatrixL
     for (int i = 0; i < segFront.size(); i++)
     {
       Flux flux;
-      int iBack = segBack[i];
-      int iFront = segFront[i];
-      flux.separatrixLegs.push_back(separatrixLegs[segFront[i]]);
-      flux.separatrixLegs.push_back(separatrixLegs[segBack[i]]);
+      SeparatrixLeg startLeg = separatrixLegs[segFront[i]];
+      SeparatrixLeg endLeg = separatrixLegs[segBack[i]];
+      flux.separatrixLegs.push_back(startLeg);
+      flux.separatrixLegs.push_back(endLeg);
+      flux.fieldPoints.assign(startLeg.fieldPoints.begin(), startLeg.fieldPoints.end() - 1);
+      flux.fieldPoints.assign(endLeg.fieldPoints.begin(), endLeg.fieldPoints.end());
       flux.curveType = CurveType::Separatrix;
       PhysicsPoint pt(xPoint, psi, PointType::XPoint);
       flux.xPoint = pt;
@@ -430,13 +432,21 @@ std::vector <Flux> SeparatrixCurve::mergeSeparatrixLegs(std::vector <SeparatrixL
   else if (segFront.size() == 1)
   { // separatrix curve with 2 legs and 1 closed loop
     Flux flux;
-    flux.separatrixLegs.push_back(separatrixLegs[segFront[0]]);
+    SeparatrixLeg startLeg = separatrixLegs[segFront[0]];
+    flux.separatrixLegs.push_back(startLeg);
+    flux.fieldPoints.assign(startLeg.fieldPoints.begin(), startLeg.fieldPoints.end() - 1);
     for (int i = 0; i < separatrixLegs.size(); i++)
     {
       if (separatrixLegs[i].curveSubType == CurveSubType::Closed)
-        flux.separatrixLegs.push_back(separatrixLegs[i]); 
+      {
+        SeparatrixLeg closed = separatrixLegs[i];
+        flux.separatrixLegs.push_back(separatrixLegs[i]);
+        flux.fieldPoints.assign(closed.fieldPoints.begin(), closed.fieldPoints.end()); 
+      }
     }
-    flux.separatrixLegs.push_back(separatrixLegs[segBack[0]]);
+    SeparatrixLeg endLeg = separatrixLegs[segBack[0]];
+    flux.separatrixLegs.push_back(endLeg);
+    flux.fieldPoints.assign(endLeg.fieldPoints.begin() + 1, endLeg.fieldPoints.end());
     flux.curveType = CurveType::Separatrix;
     PhysicsPoint pt(xPoint, psi, PointType::XPoint);
     flux.xPoint = pt;

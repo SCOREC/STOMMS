@@ -293,32 +293,6 @@ std::vector <PhysicsPoint> getStartPointClosed(const std::vector <double>& coreP
   return startPoints;
 }
 
-/*
-std::vector <PhysicsPoint> getStartPointsOnWall(double psiNormal, EqdskData& eqdskData, const WallCurve& wall)
-{
-  double distSampling = 1e-2;  // cm
-  double psi = eqdskData.convertNormToPsi(psiNormal);
-  std::vector <Point> points = wall.getPoints();
-
-  std::vector <PhysicsPoint> startPoints;
-  for (int i = 0; i < points.size() - 1; i++)
-  {
-    double dx = points[i+1].x - points[i].x;
-    double dy = points[i+1].y - points[i].y;
-    double edgeLength = sqrt(dx*dx + dy*dy);
-    int nSample = 1 + std::max(1, static_cast<int> (edgeLength/distSampling));
-    std::vector <Point> pts = findPointBySectioningBtwTwoPts(psi, nSample, points[i], points[i+1], eqdskData);
-    for (int j = 0; j < pts.size(); j++)
-    {
-      if (startPoints.size() > 0)
-      {
-        
-      }
-    }
-  }
-} 
-*/
-
 int findStartPointIndexAtIntersection(const Point& pt1, const Point& pt2, std::vector<Point>& startPoints, int iFilter) 
 {
   // Note that small number may cause some problems here since magnetic field 

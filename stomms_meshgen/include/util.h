@@ -112,4 +112,7 @@ double getParamatricCoordinate(const Point& pt1, const Point& pt2, const Point& 
  * @return distance from point pt to line segment(pt1---pt2).
  */
 double distanceLineToPoint(const Point& pt1, const Point& pt2, const Point& pt);
+
+bool curveOrientation(const std::vector <Point>& curvePts);
+std::array <double, 4> getCurveBounds(const std::vector <Point>& curvePts);
 #endif
