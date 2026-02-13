@@ -49,6 +49,7 @@ MagneticGeometryForTokamak::MagneticGeometryForTokamak(const ModelMetaData& mode
 // Classify psi normalized values into respective types (open, closed etc.)
 void MagneticGeometryForTokamak::classifyPsiValues()
 {
+  std::cout << "\n========== FLUX CURVES CLASSIFICATION ==========\n";
   // Step 1: Setup psi of axis point. Since Tokamak has one plane so opoints
   // at zeroth plane, and first entry of oPoints. For cases with mutliple
   // opoints, we might need to define a logic to find axis point in future.
@@ -98,6 +99,8 @@ void MagneticGeometryForTokamak::classifyPsiValues()
 
 void MagneticGeometryForTokamak::genFluxCurves(const PlaneMetaData& planeMetaData, EqdskData& eqdskData, const WallCurve& wall)
 {
+ std::cout << "\n========== FLUX CURVES GENERATION ==========\n";
+
   std::cout << ".......... Generating Closed Curves\n";
   closedCurves = genClosedFluxCurves(psiValuesClosed, oPoints[0][0], eqdskData, planeMetaData);
 

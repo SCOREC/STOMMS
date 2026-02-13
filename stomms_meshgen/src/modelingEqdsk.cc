@@ -2,20 +2,24 @@
 
 Model generateModelEqdsk(const PlaneMetaData& planeMetaData, CurveContainer& curvesMetaData)
 {
+  std::cout << "\n========== SIMMETRIX MODEL GENERATION  ==========\n";
   pGModel model = generateSimModel(planeMetaData, curvesMetaData);
 }
 
 pGModel generateSimModel(const PlaneMetaData& planeMetaData, CurveContainer& curvesMetaData)
 {
-  // Step 1: Create a new Simmetrix model (pGModel)
+  // Step 1: Create a new Simmetrix model(pGModel)
   pProgress prog = Progress_new();
   Progress_setDefaultCallback(prog);
   pGModel model = GM_new(1);
  
+  // Step 2: Create the primary model face (defined by wall curve and magnetic axis).
   PhysicsPoint oPoint = curvesMetaData.getOPoints().at(0);
   WallCurve wall = curvesMetaData.getWallCurve();
   pGFace mainFace = createModelFace(oPoint, wall, model);
    
+  // Step 3: Insert closed curves to the primary model face.
+  insertClosedCurvesToModelFace(model, mainFace, curvesMetaData.getCurvesClosed());
 
   GM_write(model, "eqdsk.smd", 0, 0);
   Progress_delete(prog);
@@ -51,13 +55,27 @@ pGFace createModelFace(const PhysicsPoint& oPoint, const WallCurve& wall, pGMode
   return simFace;
 }
 
-/*
-pCurve createCurve(Flux& f)
+void insertClosedCurvesToModelFace(pGModel model, pGFace gf, std::vector <Flux> closedCurves)
 {
-  // High level function 
+  for (int i = 0; i < closedCurves.size(); i++)
+  {
+    Flux f = closedCurves[i];
+    std::vector <Point> pointsOnCurve = f.fieldPoints;
+    pCurve simCurve = createClosedCurve(f);
+    pGEdge ge = createClosedEdge(model, simCurve, pointsOnCurve);
 
+    std::array <pGFace, 2> newFaces;
+    GM_insertEdgeOnFace(gf, ge, newFaces.data());
+
+    for (int i = 0; i < newFaces.size(); i++)
+    {
+      pGFace newFace = newFaces[i];
+      int dir = GE_dirUsed(ge, newFace);
+      if (dir == 0)  // outer face using this edge as inner loop (clockwise)
+        gf = newFace;
+    }
+  }
 }
-*/
 
 pCurve createClosedCurve(Flux& f)
 {
@@ -96,6 +114,14 @@ pPList createWallCurve(const WallCurve& wallCurve)
   }
 
   return simWallCurves;
+}
+
+pGEdge createClosedEdge(pGModel model, pCurve simCurve, std::vector <Point> curvePoints)
+{
+  std::vector <double> xyz = {curvePoints[0].x, curvePoints[0].y, 0.0};
+  pGVertex gv = GR_createVertex(GIP_outerRegion(GM_rootPart(model)), xyz.data());
+  pGEdge ge = GR_createEdge(GIP_outerRegion(GM_rootPart(model)), gv, gv, simCurve, 1);
+  return ge;
 }
 
 pPList createWallEdges(pGModel model, const pPList& wallSimCurves, const WallCurve& wallCurve)
