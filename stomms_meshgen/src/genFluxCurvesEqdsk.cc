@@ -249,7 +249,22 @@ SeparatrixCurve::SeparatrixCurve(const PhysicsPoint& xPt, std::vector <Point> st
     leg.fieldPoints.push_back(xPoint);
     leg.numXPts++;
     leg.xPtAtStart = true;
-    getSeparatrixLeg(pushedPoints[i], leg);
+    
+    // Check if the pushed point is inside or outside the wallcurve
+    // If outside, the distance between the Xpt and wall is less than
+    // intra-curve spacing. The curve will have two points. One Xpt and 
+    // second a point from the starting points container.
+    if (!windingNumberPolygonTest(pushedPoints[i], wall.getPoints()))
+    {
+      std::cout << "The pushed point is outside the wall curve - Readjust it on the wall\n"; 
+      int intersectIndex = -1;
+      intersectIndex = findStartPointIndexAtIntersection(xPoint, pushedPoints[i], startPts);
+      assert (intersectIndex != -1);
+      leg.fieldPoints.push_back(startPts[intersectIndex]);	
+    }
+    else
+      getSeparatrixLeg(pushedPoints[i], leg);
+
     if (leg.fieldPoints.size())
       separatrixLegs.push_back(leg);
   }

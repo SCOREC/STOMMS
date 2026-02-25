@@ -39,26 +39,38 @@ const std::vector <double>& PlaneMetaData::getPlaneFluxSizes()
 // Function to return mesh size at specific psi normalized value.
 double PlaneMetaData::getNodeSpacingAtFlux(double psiNorm)
 {
-  bool indexFound = false;
-  int indx = -1;
+  // Step 1: Check bounds
   double tolerance = 1e-8;
-  for (int i = 0; i < fluxValues.size(); i++)
+  if (psiNorm < (fluxValues.front() - tolerance) || psiNorm > (fluxValues.back() + tolerance))
   {
-    if (fabs(fluxValues[i] - psiNorm) < tolerance)
+    std::cerr << "ERROR: Given psi normalized value = " << psiNorm << " is out of bounds\n";
+    std::cout << "The value should be in the following range: " << fluxValues.front() << " , " << fluxValues.back() << "\n";
+    exit(1);
+  }
+
+  // Step 2: If not out of bounds, find the index of first value in the fluxValues 
+  // vector that is equal or greater than given psiNorm. First check if its on the
+  // starting point of the vector, if yes return corresponding mesh size value
+  if (fabs(fluxValues[0] - psiNorm) < tolerance)
+    return fluxMeshSize[0];
+
+  // Step 3: Otherwise find the index.
+  int indx = -1;
+  for (int i = 1; i < fluxValues.size(); i++)
+  {
+    if (psiNorm <= fluxValues[i]) 
     {
-      indexFound = true;
       indx = i;
       break;
     }
   }
 
-  if (!indexFound)
-  {
-    std::cerr << "ERROR: Given psi normalized value = " << psiNorm << " cannot be found in input psi normalized list\n";
-    exit(1);
-  }
-
-  double meshSize = fluxMeshSize[indx];
+  // Step 4: Linear Interpolation (y = y1 +((x - x1)*(y2 - y1))/(x2 -x1))
+  double y1 = fluxMeshSize[indx - 1];
+  double y2 = fluxMeshSize[indx];
+  double x1 = fluxValues[indx - 1];
+  double x2 = fluxValues[indx];
+  double meshSize = y1 + ((psiNorm - x1)*(y2 - y1))/(x2 - x1);
   return meshSize;
 }
 

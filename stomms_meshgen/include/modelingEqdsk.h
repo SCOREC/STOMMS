@@ -22,6 +22,7 @@ pGModel generateSimModel(const PlaneMetaData& planeMetaData, CurveContainer& cur
 pGFace createModelFace(const PhysicsPoint& oPoint, SimmetrixWallCurve& wall, pGModel model);
 pGFace insertClosedCurvesToModelFace(pGModel model, pGFace gf, std::vector <Flux> closedCurves);
 void insertSeparatricesToModelFace(pGModel model, pGFace gf, SimmetrixWallCurve& wall, std::vector <Flux> separatrices);
+void insertSeparatrixLegsToModel(pGFace gf, const std::map <int, std::vector <pGEdge>>& separatrices);
 
 // Model Curve Functions
 pCurve createClosedCurve(Flux& f);
@@ -30,9 +31,10 @@ pPList createWallCurve(const WallCurve& wallCurve);
 
 // Model Edge Functions
 pGEdge createClosedEdge(pGModel model, pCurve simCurve, std::vector <Point> curvePoints);
-std::vector <pGEdge> createSeparatrixEdges(pGModel model, SimmetrixWallCurve& wall, Flux& f);
+std::vector <pGEdge> createSeparatrixEdges(pGModel model, SimmetrixWallCurve& wall, Flux& f, pGVertex vXpt);
 pPList createWallEdges(pGModel model, const pPList& wallSimCurves, const WallCurve& wallCurve);
-pGFace insertPeriodicEdgeToFace(pGFace gf, pGEdge ge);
+pGFace insertPeriodicEdgeToModelFace(pGFace gf, pGEdge ge);
+void insertLinearEdgeToModel(pGEdge ge, int endToUse);
 
 // Functions directly copied from TOMMS with minimal or no cleanup (CLEAN THEM UP WHENEVER HAVE TIME)
 void splitWallEdgeAtVertex(pGModel model, SimmetrixWallCurve& wall, pGVertex gv);

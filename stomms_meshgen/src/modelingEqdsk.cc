@@ -84,6 +84,7 @@ pGFace createModelFace(const PhysicsPoint& oPoint, SimmetrixWallCurve& wall, pGM
     edges.push_back(static_cast<pGEdge>(PList_item(wallEdges, i)));
     dirs.push_back(1);  
   }
+
   std::array <double, 4> bounds = getCurveBounds(wall.getPoints());
   std::vector <double> corner = {bounds[0], bounds[1], 0.0};
   std::vector <double> xpt = {bounds[2], bounds[1], 0.0};
@@ -107,7 +108,7 @@ pGFace insertClosedCurvesToModelFace(pGModel model, pGFace gf, std::vector <Flux
     std::vector <Point> pointsOnCurve = f.fieldPoints;
     pCurve simCurve = createClosedCurve(f);
     pGEdge ge = createClosedEdge(model, simCurve, pointsOnCurve);
-    pGFace newFace = insertPeriodicEdgeToFace(gf, ge);
+    pGFace newFace = insertPeriodicEdgeToModelFace(gf, ge);
     gf = newFace;
   }
 
@@ -115,28 +116,81 @@ pGFace insertClosedCurvesToModelFace(pGModel model, pGFace gf, std::vector <Flux
   return updatedFace;
 }
 
+bool vertexExist(std::vector <double> xyz, const std::vector <pGVertex>& vertices)
+{
+  double tol = 1e-8;  // tolerance
+  for (int i = 0; i < vertices.size(); i++)
+  {
+    double xyzTest[3];
+    GV_point(vertices[i], xyzTest);
+    if (fabs(xyz[0] - xyzTest[0]) < tol && fabs(xyz[1] - xyzTest[1]) < tol)
+      return true;
+  }
+
+  return false;
+}
+
 void insertSeparatricesToModelFace(pGModel model, pGFace gf, SimmetrixWallCurve& wall, std::vector <Flux> separatrices)
 {
+  std::map <int, std::vector <pGEdge>> sepEdgesMap;
+  std::vector <pGVertex> xPtVertices;  // to store xpt vertices to avoid repitition
+  pGVertex vXpt; 
+
+  // Step 1: Iterate over the separatrices and create model edges for each leg.
   for (int i = 0; i < separatrices.size(); i++)
   {
+    // Step 2: If there is no xPt vertex for xpt in flux curve f, create one. 
+    // if does, use the existing one. Save every new xPt vertex to the vector.
     Flux f = separatrices[i];
-    std::vector <pGEdge> sepEdges = createSeparatrixEdges(model, wall, f);
+    Point xPt = f.xPoint.getPoint();
+    std::vector <double> vCoord = {xPt.x, xPt.y, xPt.z};
+    if (!vertexExist(vCoord, xPtVertices))
+    {
+      vXpt = GR_createVertex(GIP_outerRegion(GM_rootPart(model)), vCoord.data()); 
+      xPtVertices.push_back(vXpt);
+    }
+
+    // Step 3: Get the model edges (legs) for each separatrix, and save them in map.
+    std::vector <pGEdge> sepEdges = createSeparatrixEdges(model, wall, f, vXpt);
+    sepEdgesMap[i] = sepEdges;
+  }
+
+  // Step 4: Iterate over the model edges created
+  insertSeparatrixLegsToModel(gf, sepEdgesMap); 
+}
+
+void insertSeparatrixLegsToModel(pGFace gf, const std::map <int, std::vector <pGEdge>>& separatrices)
+{
+  // Step 1: Iterate over the individual separatrices and based on the type keep inserting
+  // the model edges of separatrix curves to the model face.
+  for (int i = 0; i < separatrices.size(); i++)
+  {
+    std::vector <pGEdge> sepEdges = separatrices.at(i);
+    
+    // Step 2: If three legs, insert one closed leg and two open legs.
     if (sepEdges.size() == 3)
     {      
-      pGFace newFace = insertPeriodicEdgeToFace(gf,sepEdges[1]); // closed part
+      pGFace newFace = insertPeriodicEdgeToModelFace(gf, sepEdges[1]); // closed part
       gf = newFace;
-      std::array <pGFace, 2> newFaces1, newFaces2;
-      GM_insertEdgeOnFace(gf, sepEdges[0], newFaces1.data());  // leg 1
-      GM_insertEdgeOnFace(gf, sepEdges[2], newFaces2.data());  // leg 2
+      insertLinearEdgeToModel(sepEdges[0], 0);  // Leg 1
+      insertLinearEdgeToModel(sepEdges[2], 1);  // Leg 2
+    }
+    
+    // Step 3: if two legs, insert two separatrices leg
+    if (sepEdges.size() == 2)
+    {
+      insertLinearEdgeToModel(sepEdges[0], 0);
+      insertLinearEdgeToModel(sepEdges[1], 1);
     }
   }
 }
 
 // Return the outer face if it splits face into two
-pGFace insertPeriodicEdgeToFace(pGFace gf, pGEdge ge)
+pGFace insertPeriodicEdgeToModelFace(pGFace gf, pGEdge ge)
 {
   std::array <pGFace, 2> newFaces;
   GM_insertEdgeOnFace(gf, ge, newFaces.data());
+
   for (int i = 0; i < newFaces.size(); i++)
   {
     pGFace newFace = newFaces[i];
@@ -145,7 +199,30 @@ pGFace insertPeriodicEdgeToFace(pGFace gf, pGEdge ge)
       gf = newFace;
   }
   pGFace updatedFace = gf;
-  return updatedFace;
+  return updatedFace; 
+}
+
+// Given an edge, and what endpoint to use (start, end), inserts linear
+// edge to the model.
+void insertLinearEdgeToModel(pGEdge ge, int endToUse)
+{
+  // Step 1: Only allowe ends are 0 and 1 for linear edge, throw error if
+  // incorrect end is given
+  if (endToUse < 0 || endToUse > 1)
+  {
+    std::cerr << "ERROR: For linear edge, only allowed ends to use are: 0,1\n";
+    std::cerr << "Given end = " << endToUse << " is not valid\n";
+    exit(1);
+  }
+
+  pGVertex gv = GE_vertex(ge, endToUse);
+  pPList facesOnV = GV_faces(gv);
+  assert(PList_size(facesOnV) == 1);
+  pGFace gf = static_cast<pGFace>(PList_item(facesOnV, 0));
+
+  std::array <pGFace, 2> newFaces;  // return faces in case of split
+  GM_insertEdgeOnFace(gf, ge, newFaces.data());  // leg 2
+  PList_delete(facesOnV);
 }
 
 pCurve createClosedCurve(Flux& f)
@@ -212,7 +289,7 @@ pGEdge createClosedEdge(pGModel model, pCurve simCurve, std::vector <Point> curv
   return ge;
 }
 
-std::vector <pGEdge> createSeparatrixEdges(pGModel model, SimmetrixWallCurve& wall, Flux& f)
+std::vector <pGEdge> createSeparatrixEdges(pGModel model, SimmetrixWallCurve& wall, Flux& f, pGVertex vXpt)
 {
   /* We have three possibilites. 
    * First leg: create vertex (v1) on wall, and x-point (v2) vertex. 
@@ -221,7 +298,7 @@ std::vector <pGEdge> createSeparatrixEdges(pGModel model, SimmetrixWallCurve& wa
    * vertex on the wall. 
    * Legs are already sticthed together in right order. */
 
-  pGVertex vXpt, vStart, vEnd;
+  pGVertex vStart, vEnd;
   std::vector <pGEdge> edgesOnSep;
   for (int i = 0; i < f.separatrixLegs.size(); i++)
   {
@@ -230,9 +307,7 @@ std::vector <pGEdge> createSeparatrixEdges(pGModel model, SimmetrixWallCurve& wa
     if (leg.numXPts == 1 && leg.xPtAtEnd)
     {
       std::vector <double> xyz1 = {leg.fieldPoints[0].x, leg.fieldPoints[0].y, 0.0};
-      std::vector <double> xyz2 = {leg.fieldPoints.back().x, leg.fieldPoints.back().y, 0.0};
       vStart = GR_createVertex(GIP_outerRegion(GM_rootPart(model)), xyz1.data());
-      vXpt = GR_createVertex(GIP_outerRegion(GM_rootPart(model)), xyz2.data());
       pGEdge ge = GR_createEdge(GIP_outerRegion(GM_rootPart(model)), vStart, vXpt, simCurve, 1);
       splitWallEdgeAtVertex(model, wall, vStart);
       edgesOnSep.push_back(ge);
@@ -306,6 +381,7 @@ void splitWallEdgeAtVertex(pGModel model, SimmetrixWallCurve& wall, pGVertex gv)
   double closest = DBL_MAX;
   double par;
   int idx;
+
   for (int i = 0; i < PList_size(SimEdges); i++) 
   {
     ge = static_cast<pGEdge>(PList_item(SimEdges, i));
@@ -320,7 +396,7 @@ void splitWallEdgeAtVertex(pGModel model, SimmetrixWallCurve& wall, pGVertex gv)
       idx = i;
     }
   }
-  
+ 
   if (splitEdge) 
   {
     newVertex = GE_split(splitEdge, par);
@@ -330,24 +406,19 @@ void splitWallEdgeAtVertex(pGModel model, SimmetrixWallCurve& wall, pGVertex gv)
     {
       pPList newEdges = GV_edges(newVertex);
       double coord[3];
-      pPList edges = GV_edges(gv);
-      for (int i = 0; i < PList_size(edges); i++)
-        std::cout << "Edge # = " << GEN_tag(static_cast<pGEdge>(PList_item(edges,i))) << "\n";
-      GM_mergeVertices(gv, newVertex);
-      edges = GV_edges(gv);
-      for (int i = 0; i < PList_size(edges); i++)
-        std::cout << "Edge # = " << GEN_tag(static_cast<pGEdge>(PList_item(edges,i))) << "\n";
 
-      pPList newlist = PList_new();
+      GM_mergeVertices(gv, newVertex);
+
+      pPList newList = PList_new();
       for(int i = 0; i<idx; i++)
-        PList_append(newlist, PList_item(SimEdges, i));
-      PList_append(newlist, PList_item(newEdges, 0));
-      PList_append(newlist, PList_item(newEdges, 1));
+        PList_append(newList, PList_item(SimEdges, i));
+      PList_append(newList, PList_item(newEdges, 0));
+      PList_append(newList, PList_item(newEdges, 1));
       PList_delete(newEdges);
       for(int i = idx+1; i<PList_size(SimEdges); i++)
-        PList_append(newlist, PList_item(SimEdges, i));
+        PList_append(newList, PList_item(SimEdges, i));
       PList_delete(SimEdges);
-      wall.updateSimEdges(newlist);
+      wall.updateSimEdges(newList);
     }
   }
 }
