@@ -293,6 +293,128 @@ std::vector <PhysicsPoint> getStartPointClosed(const std::vector <double>& coreP
   return startPoints;
 }
 
+std::vector <PhysicsPoint> getStartPointsOnSimFace(pGFace face, const std::vector<double>& psiNormList, EqdskData& eqdskData) 
+{
+  std::vector <PhysicsPoint> startPoints;
+
+  // search parameter
+  double distSampling = 1e-2; // 1cm
+
+  pPList edges = GF_edges(face);
+  std::vector<double> psiToAvoid;
+
+  double tempPsi;
+  for (int i = 0; i < PList_size(edges); ++i) 
+  {
+    pGEdge edge = static_cast<pGEdge>(PList_item(edges,i));
+    if(GEN_numNativeDoubleAttribute(edge, "psiNorm")) 
+    {
+      GEN_nativeDoubleAttribute(edge, "psi", &tempPsi);
+      psiToAvoid.push_back(tempPsi);
+    }
+  }
+  
+  // get vertices of flux edges - a flux curve consists of one model edge
+  std::vector <Point> pointsToAvoid;
+  for(int i = 0; i < PList_size(edges); ++i) 
+  {
+    pGEdge edge = static_cast<pGEdge>(PList_item(edges,i));
+    if(!GEN_numNativeDoubleAttribute(edge, "psi")) 
+      continue; //we are looking for a flux curve
+
+    pPList vertices = GE_vertices(edge);
+
+    pGVertex v0 = GE_vertex(edge, 0);
+    pGVertex v1 = GE_vertex(edge, 1);
+    assert(v0 && v1);
+
+    std::array <double, 3> pos0, pos1;
+    GV_point(v0, pos0.data());
+    GV_point(v1, pos1.data());
+    Point pt1(pos0[0], pos0[1]);
+    Point pt2(pos1[0], pos1[1]);
+    pointsToAvoid.push_back(pt1);
+    pointsToAvoid.push_back(pt2);
+  }
+
+  int nFoundGlobal = 0;
+  //  SimModSuite APIs : non threadsafe
+  for (int i = 0; i < PList_size(edges); ++i) 
+  {
+    pGEdge edge = static_cast<pGEdge>(PList_item(edges,i));
+    if(GEN_numNativeDoubleAttribute(edge, "psiNorm")) 
+      continue; //we are looking for a wall edge
+
+    pPList vertices = GE_vertices(edge);
+
+    pGVertex v0 = GE_vertex(edge, 0);
+    pGVertex v1 = GE_vertex(edge, 1);
+    assert(v0 && v1);
+    std::array <double, 3> pos0, pos1;
+    GV_point(v0, pos0.data());
+    GV_point(v1, pos1.data());
+
+    double dx = pos1[0] - pos0[0];
+    double dy = pos1[1] - pos0[1];
+    double edgeLength = GE_length(edge);
+    double distEdge = sqrt(dx*dx + dy*dy);
+    Point pt1(pos0[0], pos0[1]);
+    Point pt2(pos1[0], pos1[1]);
+    int nSample;
+  
+    distSampling = 1e-5;
+    nSample= 1 + std::max(1, static_cast<int>(edgeLength/distSampling));
+   
+    for(int ipsi = 0; ipsi < psiNormList.size(); ++ipsi) 
+    {
+      double psiNormalized = psiNormList[ipsi];
+      double psi = eqdskData.convertNormToPsi(psiNormalized);
+      
+      bool psiFlux = false;
+      for (int iflx = 0; iflx < psiToAvoid.size(); ++iflx) 
+      {
+        if(fabs(psiToAvoid[iflx] - psiNormalized) <1e-6) 
+        {
+          psiFlux = true;
+          break;
+        }
+      }
+      if(psiFlux) 
+        continue;
+
+      std::vector <Point> ptFoundLocal = findPointBySectioningOnEdge(psi, nSample, edge, eqdskData);   
+      for(int j = 0; j < ptFoundLocal.size(); ++j) 
+      {
+        if(psiFlux) 
+        {  //check if found point is a same with a vertex of a flux curve edge
+          bool foundDuplicated = false;
+          for (int iptAvoid = 0; iptAvoid < pointsToAvoid.size(); ++iptAvoid) 
+          {
+            Point posFound = ptFoundLocal[j];
+            Point posAvoid = pointsToAvoid[iptAvoid];
+            double dx = posFound.x - posAvoid.x;
+            double dy = posFound.y - posAvoid.y;
+            double dist = sqrt(dx*dx + dy*dy);
+            if(dist< 1e-6) 
+            {
+              foundDuplicated = true;
+              break;
+            }
+          }
+          if(foundDuplicated)
+            continue;
+        }
+        PhysicsPoint startPt(ptFoundLocal[j], psiNormalized, PointType::None);
+        startPoints.push_back(startPt);
+      }
+    }
+    PList_delete(vertices);
+  }
+  PList_delete(edges);
+
+  return startPoints;
+}
+
 int findStartPointIndexAtIntersection(const Point& pt1, const Point& pt2, std::vector<Point>& startPoints, int iFilter) 
 {
   // Note that small number may cause some problems here since magnetic field 
@@ -525,6 +647,52 @@ std::vector <Point> findPointBySectioningBtwTwoPts(double targetPsi, int sampleN
     ptVtx1.y = pt1.y+(pt2.y - pt1.y)*jsample/(sampleN-1);
     ptVtx2.x = pt1.x+(pt2.x - pt1.x)*(jsample+1)/(sampleN-1);
     ptVtx2.y = pt1.y+(pt2.y - pt1.y)*(jsample+1)/(sampleN-1);
+    Point vtxFound;
+
+    if(((targetPsi - samplePsi[jsample])*(targetPsi - samplePsi[jsample+1]) <= 0.0)) 
+    {
+      if (eqdsk.findPsiPtOnLine(targetPsi, ptVtx1, ptVtx2, vtxFound)) 
+        pointsFound.push_back(vtxFound); 
+      else 
+      {
+        std::cout << "[CRITICAL] mathematically, the point is inside of the given section, but section search wasn't able to find it.\n";
+        exit(1);
+      }
+    }
+  }
+
+  return pointsFound;
+}
+
+
+std::vector <Point> findPointBySectioningOnEdge(double targetPsi, int sampleN, pGEdge ge, EqdskData& eqdsk) 
+{
+  std::vector <Point> pointsFound;
+  std::vector <double> samplePsi;
+
+  double parR[2];
+  GE_parRange(ge, &parR[0], &parR[1]);
+  double parInterval = (parR[1] - parR[0])/(sampleN-1);
+  for(int jsample=0;  jsample<sampleN; jsample++) 
+  {
+    double par = parR[0] + (jsample*parInterval);
+    double pt[3];
+    GE_point(ge, par, pt);
+    Point sampleX(pt[0], pt[1]);
+    double psi = eqdsk.getPsiAtPoint(sampleX);
+    samplePsi.push_back(psi);
+  } //sampling
+
+  for(int jsample=0; jsample<sampleN-1; jsample++) 
+  {
+    std::array <double, 3> pt_vtx1, pt_vtx2;
+    double par1 = parR[0] + (jsample*parInterval);
+    double par2 = parR[0] + ((jsample+1)*parInterval);
+    GE_point(ge, par1, pt_vtx1.data());
+    GE_point(ge, par2, pt_vtx2.data());
+    Point ptVtx1(pt_vtx1[0], pt_vtx1[1]); 
+    Point ptVtx2(pt_vtx2[0], pt_vtx2[1]);
+
     Point vtxFound;
 
     if(((targetPsi - samplePsi[jsample])*(targetPsi - samplePsi[jsample+1]) <= 0.0)) 

@@ -42,8 +42,7 @@ MagneticGeometryForTokamak::MagneticGeometryForTokamak(const ModelMetaData& mode
   curvesContainer.setCriticalPoints(oPointsVec, xPointsVec);
 
   // Step 8: Generate the model
-  modelEqdsk = ModelEqdsk(planeMetaData, curvesContainer); 
-
+  modelEqdsk = ModelEqdsk(planeMetaData, eqdskData, curvesContainer); 
 }
 
 // Classify psi normalized values into respective types (open, closed etc.)

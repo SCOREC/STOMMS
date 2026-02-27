@@ -17,7 +17,6 @@ class SimmetrixWallCurve{
     std::vector <Point> points;
 };
 
-Model generateModelEqdsk(const PlaneMetaData& planeMetaData, CurveContainer& curvesMetaData);
 pGModel generateSimModel(const PlaneMetaData& planeMetaData, CurveContainer& curvesMetaData);
 pGFace createModelFace(const PhysicsPoint& oPoint, SimmetrixWallCurve& wall, pGModel model);
 pGFace insertClosedCurvesToModelFace(pGModel model, pGFace gf, std::vector <Flux> closedCurves);

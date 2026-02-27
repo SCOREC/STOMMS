@@ -1,36 +1,6 @@
 #include "genFluxCurvesEqdsk.h"
 
-/**
- * in modelingEqdsk.cc 
- * Model genSimModel(const EqdskData& eqdsk, ....any other info)
- * .. genModelFaces
- * .. genModelVertices
- * .. genModelCurves
- * .. genModelEdges ...
- */
-
-/**
- * in modelDataEqdsk()
- * Set Basic properties of whatever ...
- */
-
-/**
- * Top Level function
- * genFluxCurves(const EqdskData& eqdsk)
- * {
- *   genFluxClosed();
- *   genFluxSeparatrix();
- *   genFluxOpen();
- *     genFluxInPrivateRegion ..???
- *
- * }
- */
-
-
-/***********************************************/
-// Class ClosedCurve
-/***********************************************/
-
+// Closed curve generation top-level function
 std::vector <Flux> genClosedFluxCurves(const std::vector <double>& corePsiValues, const PhysicsPoint& oPoint, 
                                        EqdskData& eqdskData, const PlaneMetaData& planeMetaData)
 {
@@ -49,6 +19,49 @@ std::vector <Flux> genClosedFluxCurves(const std::vector <double>& corePsiValues
   return closedFluxCurves;
 }
 
+// Separatrix generation top-level function
+std::vector <Flux> genSeparatrixCurves(const std::vector <PhysicsPoint>& xPts, EqdskData& eqdskData, const WallCurve& wall, const PlaneMetaData& planeMetaData)
+{
+  std::vector <Flux> separatrices;
+  std::map <int, std::vector<Point>> startPointsMap;
+  for (int i = 0; i < xPts.size(); i++)
+  {
+    double psiNormalized = eqdskData.convertPsiToNorm(xPts[i].getPsi());
+    int type = i+2;  //don't know why we even need this. review this later while proper cleanup.
+    std::vector <Point> startPoints = findStartPointOnWall(psiNormalized, type, wall, eqdskData);
+    assert (startPoints.size()%2 == 0);
+    startPointsMap[i] = startPoints;     
+  }
+
+  std::vector <double> psiInputVector = eqdskData.getFluxInputData().fluxInput;
+  for (int i = 0; i < xPts.size(); i++)
+  {
+    double psiNormalized = eqdskData.convertPsiToNorm(xPts[i].getPsi());
+    std::vector <Point> startPoints = startPointsMap.at(i);
+    if(psiInputVector.back() >= psiNormalized && psiInputVector.front() <= psiNormalized)
+    {
+      std::cout << "Generating separatrix curves from X-point # " << i+1 << "\n";
+      SeparatrixCurve separatrixCurve(xPts[i], startPoints, eqdskData, wall, planeMetaData);
+      std::vector <Flux> sepCurvesFromXpt = separatrixCurve.getFluxCurves();
+      separatrices.insert(separatrices.end(), sepCurvesFromXpt.begin(), sepCurvesFromXpt.end());
+    }
+  }  
+  return separatrices;
+}
+
+// Open flux curves top-level function
+std::vector <Flux> genOpenFluxCurves(pGModel& model, EqdskData& eqdskData, const WallCurve& wall, const PlaneMetaData& planeMetaData)
+{
+  std::cout << ".......... Generating Open Curves\n";
+  std::vector <Flux> f;
+
+   
+
+  return f;
+}
+/***********************************************/
+// Class ClosedCurve
+/***********************************************/
 ClosedFluxCurve::ClosedFluxCurve(const PhysicsPoint& startPt, unsigned int& mySeed, const PhysicsPoint& oPoint, EqdskData& eqdskData, 
                                  const PlaneMetaData& planeMetaData):seed(mySeed), eqdsk(eqdskData)
 {
@@ -57,6 +70,7 @@ ClosedFluxCurve::ClosedFluxCurve(const PhysicsPoint& startPt, unsigned int& mySe
   pMetaData = planeMetaData;
   Point startPoint = startPt.getPoint();
   psiNorm = eqdskData.convertPsiToNorm(startPt.getPsi());
+  f.psiNormOnFlux = psiNorm;
   f.fieldPoints.push_back(startPoint);
   curveData.psi = startPt.getPsi();
   curveData.origin = startPoint;  
@@ -195,35 +209,9 @@ Flux& ClosedFluxCurve::getFluxCurve()
   return f;
 }
 
-std::vector <Flux> genSeparatrixCurves(const std::vector <PhysicsPoint>& xPts, EqdskData& eqdskData, const WallCurve& wall, const PlaneMetaData& planeMetaData)
-{
-  std::vector <Flux> separatrices;
-  std::map <int, std::vector<Point>> startPointsMap;
-  for (int i = 0; i < xPts.size(); i++)
-  {
-    double psiNormalized = eqdskData.convertPsiToNorm(xPts[i].getPsi());
-    int type = i+2;  //don't know why we even need this. review this later while proper cleanup.
-    std::vector <Point> startPoints = findStartPointOnWall(psiNormalized, type, wall, eqdskData);
-    assert (startPoints.size()%2 == 0);
-    startPointsMap[i] = startPoints;     
-  }
-
-  std::vector <double> psiInputVector = eqdskData.getFluxInputData().fluxInput;
-  for (int i = 0; i < xPts.size(); i++)
-  {
-    double psiNormalized = eqdskData.convertPsiToNorm(xPts[i].getPsi());
-    std::vector <Point> startPoints = startPointsMap.at(i);
-    if(psiInputVector.back() >= psiNormalized && psiInputVector.front() <= psiNormalized)
-    {
-      std::cout << "Generating separatrix curves from X-point # " << i+1 << "\n";
-      SeparatrixCurve separatrixCurve(xPts[i], startPoints, eqdskData, wall, planeMetaData);
-      std::vector <Flux> sepCurvesFromXpt = separatrixCurve.getFluxCurves();
-      separatrices.insert(separatrices.end(), sepCurvesFromXpt.begin(), sepCurvesFromXpt.end());
-    }
-  }  
-  return separatrices;
-}
-
+/***********************************************/
+// Class: SeparatrixCurve
+/***********************************************/
 SeparatrixCurve::SeparatrixCurve(const PhysicsPoint& xPt, std::vector <Point> startPoints, EqdskData& eqdskData, const WallCurve& wallCurve, 
                                  const PlaneMetaData& planeMetaData):eqdsk(eqdskData), wall(wallCurve)
 {
@@ -256,7 +244,8 @@ SeparatrixCurve::SeparatrixCurve(const PhysicsPoint& xPt, std::vector <Point> st
     // second a point from the starting points container.
     if (!windingNumberPolygonTest(pushedPoints[i], wall.getPoints()))
     {
-      std::cout << "The pushed point is outside the wall curve - Readjust it on the wall\n"; 
+      std::cout << "The pushed point " << pushedPoints[i].x << " , " << pushedPoints[i].y << " is outside\n";
+      std::cout << "the wall curve - Readjusted it on the wall\n"; 
       int intersectIndex = -1;
       intersectIndex = findStartPointIndexAtIntersection(xPoint, pushedPoints[i], startPts);
       assert (intersectIndex != -1);
@@ -402,8 +391,6 @@ std::vector <Flux> SeparatrixCurve::mergeSeparatrixLegs(std::vector <SeparatrixL
       continue;
   }
 
-  std::cout << "Seg Front = " << segFront.size() << "\n";
-  std::cout << "Seg Back = " << segBack.size() << "\n";
   assert (segFront.size() == segBack.size());
   assert (segFront.size() <= 2);
 

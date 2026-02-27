@@ -2,6 +2,7 @@
 #define GENFLUXCURVESEQDSK_H
 
 #include "fluxCurveUtilityEqdsk.h"
+#include "modelDataEqdsk.h"
 
 class ClosedFluxCurve{
   public:
@@ -84,4 +85,5 @@ class SeparatrixCurve{
 
 std::vector <Flux> genClosedFluxCurves(const std::vector <double>& corePsiValues, const PhysicsPoint& oPoint, EqdskData& eqdskData, const PlaneMetaData& planeMetaData);
 std::vector <Flux> genSeparatrixCurves(const std::vector <PhysicsPoint>& xPts, EqdskData& eqdskData, const WallCurve& wall, const PlaneMetaData& planeMetaData);
+std::vector <Flux> genOpenFluxCurves(pGModel& model, EqdskData& eqdskData, const WallCurve& wall, const PlaneMetaData& planeMetaData);
 #endif

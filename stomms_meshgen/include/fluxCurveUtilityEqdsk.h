@@ -115,11 +115,15 @@ bool doesPointHitTheOrigin(Point& pt1, Point& pt2, Point startPt, double goal, d
  */
 std::vector <PhysicsPoint> getStartPointClosed(const std::vector <double>& corePsiValues, EqdskData& eqdskData);
 
+// NOT CLEANED - MOST OF THEM ARE COPIED FROM TOMMS DIRECTLY WITH LITTLE CHNAGES TO MAKE IT WORK HERE
+// THESE FUNCTIONS ARE STILL HUGE AND WITH NO COMMENTS - NEED PROPER CLEANUP
+std::vector <PhysicsPoint> getStartPointsOnSimFace(pGFace face, const std::vector<double>& psiNormList, EqdskData& eqdskData);
 int findStartPointIndexAtIntersection(const Point& pt1, const Point& pt2, std::vector<Point>& startPoints, int iFilter = -1);
 int intersectBetweenTwoLineSegments(const Point& testPt1, const Point& testPt2, const Point& refPt1, const Point& refPt2,
                                     double toleranceMeter, double toleranceSine, Point& intersectPt1, Point& intersectPt2);
 int getNumIntersection(const Point& pt1, const Point& pt2, const WallCurve& wall);
 std::vector <Point> getPushedPoints(const PhysicsPoint& xPoint, double dist, EqdskData& eqdsk);
 std::vector <Point> findPointBySectioningBtwTwoPts(double targetPsi, int sampleN, const Point& pt1, const Point pt2, EqdskData& eqdsk);
+std::vector <Point> findPointBySectioningOnEdge(double targetPsi, int sampleN, pGEdge ge, EqdskData& eqdsk);
 std::vector <Point> findStartPointOnWall(double psiNormalized, int type, const WallCurve& wall, EqdskData& eqdsk);
 #endif
