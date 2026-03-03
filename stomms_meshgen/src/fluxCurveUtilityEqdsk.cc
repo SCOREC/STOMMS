@@ -745,3 +745,55 @@ std::vector <Point> findStartPointOnWall(double psiNormalized, int type, const W
   }
   return startPoints;
 }
+
+bool validOpenCurve(const Flux& f, const std::vector <pGEdge>& edgesOnCurve)
+{
+  int numEdges = edgesOnCurve.size();
+  int numPoints = f.fieldPoints.size();
+
+  for (int i = 0; i < numPoints; i++)
+  {
+    Point pt = f.fieldPoints[i];
+    bool isPointOnCurve = isPtOnCurve(pt, edgesOnCurve);
+    if (!isPointOnCurve)
+      return true;
+  }
+
+  // If all points are on wall curve, then check if they are on the same line
+  // if yes, curve is not valid and return false.
+  // If not, return true.
+  for (int i = 0 ; i < numEdges; i++)
+  {
+    pGEdge ge = edgesOnCurve[i];
+    int numPtsOnModelEdges = 0;
+    for (int j = 0; j < numPoints; j++)
+    {
+      Point pt = f.fieldPoints[j];
+      bool ptOnEdge = isPtOnModelEdge(pt, ge);
+      if (ptOnEdge)
+        numPtsOnModelEdges++;
+    }
+    if (numPtsOnModelEdges == numPoints)
+      return false;
+  }
+ 
+  return true;
+}
+
+void restrictDistanceOfLastEdge(Flux& f, EqdskData& eqdsk)
+{
+  if (eqdsk.getIntraCurveMinLengthLastEdge() <= 0.0)
+    return; 
+
+  int nPts = f.fieldPoints.size();
+  if (nPts <= 2)
+    return;
+
+  double minUserDefined = eqdsk.getIntraCurveMinLengthLastEdge();
+  Point ptLast = f.fieldPoints[nPts-1];
+  Point ptSecondLast = f.fieldPoints[nPts-2];
+
+  double distLastEdge = distance2D(ptLast, ptSecondLast);
+  if (minUserDefined > distLastEdge)
+    f.fieldPoints.erase(f.fieldPoints.begin() + (nPts-2));
+}

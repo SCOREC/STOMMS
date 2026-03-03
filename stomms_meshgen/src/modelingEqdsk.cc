@@ -43,7 +43,7 @@ const std::vector <Point>& SimmetrixWallCurve::getPoints()
 /***********************************************/
 // Model Generation Functions
 /***********************************************/
-pGModel generateSimModel(const PlaneMetaData& planeMetaData, CurveContainer& curvesMetaData)
+pGModel generateSimModel(const PlaneMetaData& planeMetaData, EqdskData& eqdskData, CurveContainer& curvesMetaData)
 {
   std::cout << "\n========== SIMMETRIX MODEL GENERATION  ==========\n";  
 
@@ -60,6 +60,12 @@ pGModel generateSimModel(const PlaneMetaData& planeMetaData, CurveContainer& cur
   pGFace updatedMainFace = insertClosedCurvesToModelFace(model, mainFace, curvesMetaData.getCurvesClosed());
   insertSeparatricesToModelFace(model, updatedMainFace, simWallCurve, curvesMetaData.getCurvesSeparatrix());
 
+  // Step 4: Classify the model faces.
+  // classifyFacesFunction();
+
+  // Step 5: Update the model with open curves.
+  genOpenFluxCurves(model, eqdskData, curvesMetaData.getWallCurve(), planeMetaData);
+  
   return model;
 }
 

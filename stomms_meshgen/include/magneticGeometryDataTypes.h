@@ -289,6 +289,11 @@ class EqdskData{
      * Function to check if the small spacing variation is allowed or not.
      */ 
     const bool& getIntraCurveSpacingSmallVariation() const;
+
+    /*
+     * Function to get minimum spacing between last two points of a flux curve.
+     */ 
+    const double& getIntraCurveMinLengthLastEdge() const;
   private:
   // input data.
   // Write a function to read these values directly from inputs (LATER).
@@ -305,6 +310,7 @@ class EqdskData{
   std::array <double, 4> boundingBox;  // bounding box
   FluxData fluxInputData;
   int intraCurveSpacingOption = -1;
+  double intraCurveMinLengthLastEdge = 0.001;  
 
   // Derived data.
   PhysicsPoint axis;

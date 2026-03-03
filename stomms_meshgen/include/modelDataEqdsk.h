@@ -2,7 +2,6 @@
 #define MODELDATAEQDSK_H
 
 #include "modelingEqdsk.h"
-#include "genFluxCurvesEqdsk.h"
 
 class ModelEqdsk{
   public:

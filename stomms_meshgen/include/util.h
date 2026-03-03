@@ -115,4 +115,6 @@ double distanceLineToPoint(const Point& pt1, const Point& pt2, const Point& pt);
 
 bool curveOrientation(const std::vector <Point>& curvePts);
 std::array <double, 4> getCurveBounds(const std::vector <Point>& curvePts);
+bool isPtOnModelEdge(const Point& checkPt, const pGEdge& ge);
+bool isPtOnCurve(const Point& pt, const std::vector <pGEdge>& edgesOnCurve);
 #endif

@@ -545,3 +545,9 @@ const bool& EqdskData::getIntraCurveSpacingSmallVariation() const
 {
   return intraCurveSpacingSmallVariation;
 }
+
+// Function to get minimum spacing between last two points of a flux curve. 
+const double& EqdskData::getIntraCurveMinLengthLastEdge() const
+{
+  return intraCurveMinLengthLastEdge;
+}

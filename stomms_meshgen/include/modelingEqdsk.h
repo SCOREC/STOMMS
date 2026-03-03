@@ -2,6 +2,7 @@
 #define MODELINGEQDSK_h
 
 #include "magneticGeometry.h"
+#include "genFluxCurvesEqdsk.h"
 
 class SimmetrixWallCurve{
   public:
@@ -17,7 +18,7 @@ class SimmetrixWallCurve{
     std::vector <Point> points;
 };
 
-pGModel generateSimModel(const PlaneMetaData& planeMetaData, CurveContainer& curvesMetaData);
+pGModel generateSimModel(const PlaneMetaData& planeMetaData, EqdskData& eqdskData, CurveContainer& curvesMetaData);
 pGFace createModelFace(const PhysicsPoint& oPoint, SimmetrixWallCurve& wall, pGModel model);
 pGFace insertClosedCurvesToModelFace(pGModel model, pGFace gf, std::vector <Flux> closedCurves);
 void insertSeparatricesToModelFace(pGModel model, pGFace gf, SimmetrixWallCurve& wall, std::vector <Flux> separatrices);

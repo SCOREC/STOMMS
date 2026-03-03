@@ -250,3 +250,43 @@ std::array <double, 4> getCurveBounds(const std::vector <Point>& curvePts)
   std::array <double, 4> bounds = {xMin, yMin, xMax, yMax};
   return bounds;
 }
+
+bool isPtOnModelEdge(const Point& checkPt, const pGEdge& ge)
+{
+  // Step 1: Find the point on the edge that is closest to the 
+  // check point. 
+  std::array <double, 3> pt = {checkPt.x, checkPt.y, checkPt.z};
+  std::array <double, 3> closestPt;
+  double param;
+  GE_closestPoint(ge, pt.data(), closestPt.data(), &param);
+  
+  // Step 2: Find the distance between check pt and closest pt.
+  Point closestPtOnEdge{closestPt[0], closestPt[1], closestPt[2]};
+  double distance = distance2D(checkPt, closestPtOnEdge);  
+
+  // Step 3: If distance is less than tolerance, check point is on
+  // the model edge.
+  double tolerance = 1e-8;
+  if (distance < tolerance)
+    return true;
+
+  return false;
+}
+
+bool isPtOnCurve(const Point& pt, const std::vector <pGEdge>& edgesOnCurve)
+{
+  if (edgesOnCurve.empty())
+    std::cerr << "ERROR: Given curve is empty\n";  
+
+  int n = edgesOnCurve.size(); 
+  bool ptOnCurve = false;
+  for (int i = 0; i < n; i++)
+  {
+    pGEdge ge = edgesOnCurve[i];
+    ptOnCurve = isPtOnModelEdge(pt, ge);
+    if (ptOnCurve)
+      return true;
+  }   
+
+  return false;
+}
