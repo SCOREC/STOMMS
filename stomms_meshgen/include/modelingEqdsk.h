@@ -3,6 +3,8 @@
 
 #include "magneticGeometry.h"
 #include "genFluxCurvesEqdsk.h"
+#include "physicsAttributes.h"
+#include <set>
 
 class SimmetrixWallCurve{
   public:
@@ -35,6 +37,9 @@ std::vector <pGEdge> createSeparatrixEdges(pGModel model, SimmetrixWallCurve& wa
 pPList createWallEdges(pGModel model, const pPList& wallSimCurves, const WallCurve& wallCurve);
 pGFace insertPeriodicEdgeToModelFace(pGFace gf, pGEdge ge);
 void insertLinearEdgeToModel(pGEdge ge, int endToUse);
+
+// Classification Function
+void classifyModelFaces(pGModel model);
 
 // Functions directly copied from TOMMS with minimal or no cleanup (CLEAN THEM UP WHENEVER HAVE TIME)
 void splitWallEdgeAtVertex(pGModel model, SimmetrixWallCurve& wall, pGVertex gv);

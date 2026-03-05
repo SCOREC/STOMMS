@@ -69,6 +69,21 @@ class CurveContainer{
     WallCurve wallCurve;
 };
 
+/*
+ * The set of surfaces can be classified into seven different types depending on the physics
+ * they corresponds to. The physics regions can be increased/decreased as we move forward.
+*/ 
+enum class FaceType {
+  Core,
+  ScrapeOffLayer,
+  LowFieldSideEdge,
+  HighFieldSideEdge,
+  LowFieldSideNearVacuum,  // between last flux curve and wall curve
+  HighFieldSideNearVacuum,
+  Private,
+  None
+};
+
 /**
  * A class to define geometric model on a plane.
  */

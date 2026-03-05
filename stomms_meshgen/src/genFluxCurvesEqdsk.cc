@@ -463,3 +463,23 @@ const std::vector <Flux>& SeparatrixCurve::getFluxCurves() const
 {
   return sepCurves;
 }
+
+/***********************************************/
+// Class: OpenCurve
+/***********************************************/
+OpenFluxCurve::OpenFluxCurve(std::vector <PhysicsPoint> startPoints, int startPtIndex, EqdskData& eqdskData, 
+                             const WallCurve& wallCurve, const PlaneMetaData& planeMetaData): eqdsk(eqdskData)
+{
+  // Step 1: Set general class variables
+  wall = wallCurve;
+  pMetaData = planeMetaData;  
+  startPts = startPoints;
+
+  // Step 2: Set specific flux curve varibales
+  index = startPtIndex;
+  psi = startPoints[0].getPsi();  // All starting points have same psi value.
+  psiNorm = eqdskData.convertPsiToNorm(psi);
+
+  // Step 3: Set curve meta data.
+  curveData.psi = psi;
+}

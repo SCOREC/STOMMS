@@ -61,7 +61,7 @@ pGModel generateSimModel(const PlaneMetaData& planeMetaData, EqdskData& eqdskDat
   insertSeparatricesToModelFace(model, updatedMainFace, simWallCurve, curvesMetaData.getCurvesSeparatrix());
 
   // Step 4: Classify the model faces.
-  // classifyFacesFunction();
+  classifyModelFaces(model);
 
   // Step 5: Update the model with open curves.
   genOpenFluxCurves(model, eqdskData, curvesMetaData.getWallCurve(), planeMetaData);
@@ -96,6 +96,7 @@ pGFace createModelFace(const PhysicsPoint& oPoint, SimmetrixWallCurve& wall, pGM
   Point oPt = oPoint.getPoint();
   std::vector <double> oPtCoord= {oPt.x, oPt.y, 0.0};
   pGVertex axisVertex = GF_createVertex(simFace, oPtCoord.data()); 
+  GEN_setNativeIntAttribute(axisVertex, static_cast<int>(PointType::OPoint), "PointType");
 
   return simFace;
 }
@@ -147,10 +148,13 @@ void insertSeparatricesToModelFace(pGModel model, pGFace gf, SimmetrixWallCurve&
     // if does, use the existing one. Save every new xPt vertex to the vector.
     Flux f = separatrices[i];
     Point xPt = f.xPoint.getPoint();
+    double psiNorm  =f.psiNormOnFlux;
     std::vector <double> vCoord = {xPt.x, xPt.y, xPt.z};
     if (!vertexExist(vCoord, xPtVertices))
     {
       vXpt = GR_createVertex(GIP_outerRegion(GM_rootPart(model)), vCoord.data()); 
+      GEN_setNativeIntAttribute(vXpt, static_cast<int>(PointType::XPoint), "PointType");
+      GEN_setNativeDoubleAttribute(vXpt, psiNorm, "PsiNorm");
       xPtVertices.push_back(vXpt);
     }
 
@@ -439,3 +443,32 @@ double stomms_dist2(double a[3], double b[3])
          (a[2] - b[2])*(a[2] - b[2]);
 }
 
+void classifyModelFaces(pGModel model)
+{
+  std::vector <pGVertex> xPoints = getCriticalPointsOnModel(model, PointType::XPoint);
+  std::vector <pGVertex> oPoints = getCriticalPointsOnModel(model, PointType::OPoint);
+  std::array<double,3> oCoord, xCoord;
+  GV_point(oPoints[0], oCoord.data());
+  for (int i = 0; i < xPoints.size(); i++)
+  {
+    pGVertex gv = xPoints[i];
+    GV_point(gv,xCoord.data());
+    int index = (xCoord[1] < oCoord[1]) ? 0 : 1; 
+    if (i <= 1)  // First two separatrices
+      tagModelFacesAdjacentToXPoint(gv, index);    
+  }
+
+  GFIter faceIter = GM_faceIter(model);
+  while (pGFace gf = GFIter_next(faceIter))
+  {
+    if (GEN_numNativeIntAttribute(gf, "PhysicsRegion"))
+      continue;  // already tagged
+
+    if (isModelFaceOnCore(gf))
+      GEN_setNativeIntAttribute(gf, static_cast<int>(FaceType::Core), "PhysicsRegion");
+    else
+      GEN_setNativeIntAttribute(gf, static_cast<int>(FaceType::None), "PhysicsRegion");  
+  }
+  GFIter_delete(faceIter);
+
+}
