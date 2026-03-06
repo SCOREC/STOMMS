@@ -293,9 +293,10 @@ std::vector <PhysicsPoint> getStartPointClosed(const std::vector <double>& coreP
   return startPoints;
 }
 
-std::vector <PhysicsPoint> getStartPointsOnSimFace(pGFace face, const std::vector<double>& psiNormList, EqdskData& eqdskData) 
+std::vector <std::vector <PhysicsPoint>> getStartPointsOnSimFace(pGFace face, const std::vector<double>& psiNormList, EqdskData& eqdskData) 
 {
-  std::vector <PhysicsPoint> startPoints;
+  std::vector <std::vector <PhysicsPoint>> startPoints;
+  startPoints.resize(psiNormList.size());
 
   // search parameter
   double distSampling = 1e-2; // 1cm
@@ -307,9 +308,9 @@ std::vector <PhysicsPoint> getStartPointsOnSimFace(pGFace face, const std::vecto
   for (int i = 0; i < PList_size(edges); ++i) 
   {
     pGEdge edge = static_cast<pGEdge>(PList_item(edges,i));
-    if(GEN_numNativeDoubleAttribute(edge, "psiNorm")) 
+    if(GEN_numNativeDoubleAttribute(edge, "PsiNorm")) 
     {
-      GEN_nativeDoubleAttribute(edge, "psi", &tempPsi);
+      GEN_nativeDoubleAttribute(edge, "PsiNorm", &tempPsi);
       psiToAvoid.push_back(tempPsi);
     }
   }
@@ -373,7 +374,7 @@ std::vector <PhysicsPoint> getStartPointsOnSimFace(pGFace face, const std::vecto
       bool psiFlux = false;
       for (int iflx = 0; iflx < psiToAvoid.size(); ++iflx) 
       {
-        if(fabs(psiToAvoid[iflx] - psiNormalized) <1e-6) 
+        if(fabs(psiToAvoid[iflx] - psiNormalized) < 1e-6) 
         {
           psiFlux = true;
           break;
@@ -404,8 +405,9 @@ std::vector <PhysicsPoint> getStartPointsOnSimFace(pGFace face, const std::vecto
           if(foundDuplicated)
             continue;
         }
-        PhysicsPoint startPt(ptFoundLocal[j], psiNormalized, PointType::None);
-        startPoints.push_back(startPt);
+        double psi = eqdskData.convertNormToPsi(psiNormalized);
+        PhysicsPoint startPt(ptFoundLocal[j], psi, PointType::None);
+        startPoints[ipsi].push_back(startPt);
       }
     }
     PList_delete(vertices);

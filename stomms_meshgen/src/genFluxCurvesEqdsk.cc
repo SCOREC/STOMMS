@@ -50,14 +50,40 @@ std::vector <Flux> genSeparatrixCurves(const std::vector <PhysicsPoint>& xPts, E
 }
 
 // Open flux curves top-level function
-std::vector <Flux> genOpenFluxCurves(pGModel& model, EqdskData& eqdskData, const WallCurve& wall, const PlaneMetaData& planeMetaData)
+std::vector <Flux> genOpenFluxCurves(pGModel& model, EqdskData& eqdskData, const PhysicsPoint& oPoint,
+                                     const WallCurve& wall, const PlaneMetaData& planeMetaData)
 {
   std::cout << ".......... Generating Open Curves\n";
-  std::vector <Flux> f;
 
-   
+  // Step 1: Get SOL model faces to insert open curves on 
+  // them with psi values for flux curves.
+  std::vector <pGFace> solFaces = getSOLModelFaces(model);
+  std::vector <double> psiValues = planeMetaData.getPlaneFluxValues();
+  std::vector <Flux> openCurves;  // Save all open curves here.
 
-  return f;
+  // Step 2: Generate flux curves on the SOL faces.
+  for (int i = 0; i < solFaces.size(); i++)
+  {
+    pGFace gf = solFaces[i];
+    std::vector <Flux> solCurves = getOpenCurvesOnFace(gf, psiValues, eqdskData, wall, oPoint, planeMetaData);
+    openCurves.insert(openCurves.end(), solCurves.begin(), solCurves.end());
+  } 
+
+  // Step 3: Get the private faces and generate flux curves on them.
+  bool fluxCurvesInPrivate = true;  // Get this parameter for user
+  if (fluxCurvesInPrivate)
+  {
+    std::vector <pGFace> pvtFaces = getPrivateModelFaces(model);
+    for (int i = 0; i < pvtFaces.size(); i++)
+    {
+      pGFace gf = pvtFaces[i];
+      std::vector <double> psiValuesAtPvt = getSpacingOnPrivateRegion(gf, planeMetaData);
+      std::vector <Flux> pvtCurves = getOpenCurvesOnFace(gf, psiValuesAtPvt, eqdskData, wall, oPoint, planeMetaData);
+      openCurves.insert(openCurves.end(), pvtCurves.begin(), pvtCurves.end());
+    }  
+  }
+
+  return openCurves;
 }
 /***********************************************/
 // Class ClosedCurve
@@ -467,19 +493,193 @@ const std::vector <Flux>& SeparatrixCurve::getFluxCurves() const
 /***********************************************/
 // Class: OpenCurve
 /***********************************************/
-OpenFluxCurve::OpenFluxCurve(std::vector <PhysicsPoint> startPoints, int startPtIndex, EqdskData& eqdskData, 
+OpenFluxCurve::OpenFluxCurve(std::vector <PhysicsPoint> startPoints, int startPtIndex, EqdskData& eqdskData, const PhysicsPoint& oPoint,
                              const WallCurve& wallCurve, const PlaneMetaData& planeMetaData): eqdsk(eqdskData)
 {
   // Step 1: Set general class variables
   wall = wallCurve;
-  pMetaData = planeMetaData;  
-  startPts = startPoints;
-
+  pMetaData = planeMetaData;
+  magneticAxis = oPoint; 
+ 
+  for (int i = 0; i < startPoints.size(); i++)
+    startPts.push_back(startPoints[i].getPoint());
+  
   // Step 2: Set specific flux curve varibales
   index = startPtIndex;
-  psi = startPoints[0].getPsi();  // All starting points have same psi value.
+  Point startPoint = startPts[index];
+  psi = startPoints[startPtIndex].getPsi();  // All starting points have same psi value.
   psiNorm = eqdskData.convertPsiToNorm(psi);
+  f.fieldPoints.push_back(startPoint);
 
   // Step 3: Set curve meta data.
   curveData.psi = psi;
+  curveData.origin = startPoint;
+
+  // Step 4: Start Tracing next points from starting point
+  Point nextPoint = startPoint;
+  while (true)
+  {
+    if (eqdsk.getIntraCurveSpacingOption() == -2)
+      intersect = nonFieldFollowingCase(startPoint, nextPoint);
+    else 
+      intersect = fieldFollowingCase(startPoint, nextPoint);
+    
+    assert(!intersect); 
+    mChanged = false;
+    int numIntersections = getNumIntersection(startPoint, nextPoint, wall);
+    int intersectIndex = -1;
+    success = false;
+    if (f.fieldPoints.size() == 1)
+    {
+      intersectIndex = findStartPointIndexAtIntersection(startPoint, nextPoint, startPts, index);
+      if (intersectIndex == -1)
+      {
+        if (!windingNumberPolygonTest(nextPoint, wall.getPoints()))
+          return;
+      }
+      else
+      {
+        Point midPoint(0.5*(startPoint.x + startPts[intersectIndex].x), 0.5*(startPoint.y + startPts[intersectIndex].y));
+        if (!windingNumberPolygonTest(midPoint, wall.getPoints()))
+          return;
+        else
+        {
+          f.fieldPoints.push_back(startPts[intersectIndex]);
+          success = true;
+          true;
+        }
+      }
+    }
+    else if (numIntersections)
+    {
+      intersectIndex = findStartPointIndexAtIntersection(startPoint, nextPoint, startPts);
+      assert(intersectIndex != -1);
+      f.fieldPoints.push_back(startPts[intersectIndex]);
+      success = true;
+      return;
+    }
+    
+    f.fieldPoints.push_back(nextPoint);
+    if (curveData.hitOrigin)
+      assert(0);
+    startPoint = nextPoint;
+  }
+}
+
+bool OpenFluxCurve::nonFieldFollowingCase(Point& startPoint, Point& nextPoint)
+{
+  distance = pMetaData.getNodeSpacingAtFlux(psiNorm);  
+  curveData.hitOrigin = false;
+
+  intersect = !findNextPoint(startPoint, nextPoint, distance, magneticAxis, curveData, eqdsk);  
+  return intersect;
+}
+
+bool OpenFluxCurve::fieldFollowingCase(Point& startPoint, Point& nextPoint)
+{
+  // Step 1: Set properties of m
+  if (m == 0)
+    m = 1;
+  mDecreased = false;
+  mIncreased = false;
+
+  // Step 2: Until termination condition meet, keep finding next points.
+  while (true)
+  {
+    distanceSet = pMetaData.getNodeSpacingAtFlux(psiNorm);
+    distance = distanceSet;
+    curveData.hitOrigin = false;
+
+    intersect = !findNextFieldFollowingPoint(startPoint, nextPoint, distance, m, curveData, eqdsk);
+    distance = distance/distanceSet;
+
+    if(distance < 1.0/(1.0 + eqdsk.getSpacingToleranceAbsolute()) && !intersect && !curveData.hitOrigin)
+      updateM(m, false);
+    else if(distance > (1.0 + eqdsk.getSpacingToleranceAbsolute()) && !intersect) // for now, allow wall hits to be too long
+      updateM(m, true);
+    else if(distance < 1.0/(1.0 + eqdsk.getSpacingToleranceOptimal()) && !intersect && !curveData.hitOrigin
+            && mChanged && (!mDecreased || !mIncreased))
+      updateM(m, false);
+    else if(distance > (1.0 + eqdsk.getSpacingToleranceOptimal()) && !intersect
+            && mChanged && (!mDecreased || !mIncreased))
+      updateM(m,true);
+    else
+      break; // 1. distance acceptable, so use this point, or 2. meet boundary of what?(intersect)
+  }
+ 
+  return intersect;
+}
+
+void OpenFluxCurve::updateM(int& m, bool increase)
+{
+  if (increase)
+  {
+    if(eqdsk.getIntraCurveSpacingSmallVariation())
+      m = m+1;
+    else
+      m = m*2;
+
+    mIncreased = true;
+    mChanged = true;
+  }
+  else
+  {
+    if(eqdsk.getIntraCurveSpacingSmallVariation())
+      m = m-1;
+    else
+      m = m/2;
+    
+    mDecreased = true;
+    mChanged = true;
+  }
+}
+
+const Flux& OpenFluxCurve::getFluxCurve() const
+{
+  return f;
+}
+
+const bool& OpenFluxCurve::useStartPoint() const
+{
+  return success;
+}
+
+/***********************************************/
+// Other Helping Functions
+/***********************************************/
+std::vector <Flux> getOpenCurvesOnFace(pGFace gf, std::vector <double> psiValues, EqdskData& eqdskData, const WallCurve& wall,
+                                       const PhysicsPoint& oPoint, const PlaneMetaData& planeMetaData)
+{
+  std::vector <Flux> openCurves;
+  std::vector <std::vector <PhysicsPoint>> startPoints = getStartPointsOnSimFace(gf, psiValues, eqdskData);
+#pragma omp parallel for schedule(dynamic)
+  for (int i = 0; i < startPoints.size(); i++)
+  {
+    std::vector <PhysicsPoint> startPointsForPsi = startPoints[i];
+    for (int j = 0; j < startPointsForPsi.size(); j++)
+    {
+      OpenFluxCurve openFluxCurve(startPointsForPsi, j, eqdskData, oPoint, wall, planeMetaData);
+      if(!openFluxCurve.useStartPoint())
+        continue;
+      Flux f = openFluxCurve.getFluxCurve();
+      // if (!validOpenCurve() add later
+
+      restrictDistanceOfLastEdge(f, eqdskData);
+#pragma omp critical
+      {
+        openCurves.push_back(f);
+      }
+    }
+  }
+
+  return openCurves;
+}
+
+std::vector<double> getSpacingOnPrivateRegion(pGFace gf, const PlaneMetaData& planeMetaData)
+{
+  // if pvtSpacing on specific face given use it. 
+  // else
+  std::vector <double> spacing = planeMetaData.getPlaneFluxValues();
+  
+  return spacing;
 }

@@ -63,8 +63,9 @@ pGModel generateSimModel(const PlaneMetaData& planeMetaData, EqdskData& eqdskDat
   // Step 4: Classify the model faces.
   classifyModelFaces(model);
 
+  GM_write(model, "debug.smd", 0, 0);
   // Step 5: Update the model with open curves.
-  genOpenFluxCurves(model, eqdskData, curvesMetaData.getWallCurve(), planeMetaData);
+  genOpenFluxCurves(model, eqdskData, curvesMetaData.getOPoints().at(0), curvesMetaData.getWallCurve(), planeMetaData);
   
   return model;
 }

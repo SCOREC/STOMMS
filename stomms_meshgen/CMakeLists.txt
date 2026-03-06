@@ -42,6 +42,7 @@ set(STELLMESH_SRCS
   src/modelingVmec.cc 
   src/modelDataEqdsk.cc
   src/modelDataVmec.cc
+  src/modelPhysicsQueries.cc
   src/stommsModel.cc
   src/meshMetaData.cc
   src/stommsMesh.cc

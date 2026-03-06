@@ -19,19 +19,19 @@ PlaneMetaData::PlaneMetaData(const FluxData& f, double angle):toroidalAngle(angl
 }
 
 // Function to return the toroidal angle of the poloidal plane.
-const double& PlaneMetaData::getPlaneToroidalAngle()
+const double& PlaneMetaData::getPlaneToroidalAngle() const
 {
   return toroidalAngle;
 }
 
 // Function to return the psi values of the desired flux curves on the poloidal plane.
-const std::vector<double>& PlaneMetaData::getPlaneFluxValues()
+const std::vector<double>& PlaneMetaData::getPlaneFluxValues()const
 {
   return fluxValues;
 }
 
 // Function to return a vector of desired node spacing on each flux curve on the poloidal plane.
-const std::vector <double>& PlaneMetaData::getPlaneFluxSizes()
+const std::vector <double>& PlaneMetaData::getPlaneFluxSizes() const
 {
   return fluxMeshSize;
 }

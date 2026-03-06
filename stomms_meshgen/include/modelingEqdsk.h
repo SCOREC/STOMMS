@@ -4,7 +4,6 @@
 #include "magneticGeometry.h"
 #include "genFluxCurvesEqdsk.h"
 #include "physicsAttributes.h"
-#include <set>
 
 class SimmetrixWallCurve{
   public:
