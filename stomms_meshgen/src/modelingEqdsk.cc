@@ -63,9 +63,12 @@ pGModel generateSimModel(const PlaneMetaData& planeMetaData, EqdskData& eqdskDat
   // Step 4: Classify the model faces.
   classifyModelFaces(model);
 
-  GM_write(model, "debug.smd", 0, 0);
   // Step 5: Update the model with open curves.
-  genOpenFluxCurves(model, eqdskData, curvesMetaData.getOPoints().at(0), curvesMetaData.getWallCurve(), planeMetaData);
+  std::vector <Flux> openCurves = genOpenFluxCurves(model, eqdskData, curvesMetaData.getOPoints().at(0), 
+                                                    curvesMetaData.getWallCurve(), planeMetaData);
+
+  // Step 6: Insert open curves to the model
+  insertOpenCurvesToModel(model, simWallCurve, openCurves); 
   
   return model;
 }
@@ -194,6 +197,39 @@ void insertSeparatrixLegsToModel(pGFace gf, const std::map <int, std::vector <pG
   }
 }
 
+void insertOpenCurvesToModel(pGModel model, SimmetrixWallCurve& wall, std::vector <Flux> openCurves)
+{
+  std::cout << ".......... Creating Open Model Edges\n";
+  for (int i = 0; i < openCurves.size(); i++)
+  { 
+    std::cout << "Curve # " << i << " with psi = " << openCurves[i].psiNormOnFlux << "\n";
+    // Step 1: Create a curve from given curve points.
+    Flux f = openCurves[i];
+    std::vector <Point> pointsOnCurve = f.fieldPoints;
+    pCurve simCurve = createOpenCurve(pointsOnCurve);
+
+    // Step 2: Create vertices at both ends (start and end).
+    std::vector <double> vStartCoord = {pointsOnCurve.front().x, pointsOnCurve.front().y, 0.0};
+    std::vector <double> vEndCoord = {pointsOnCurve.back().x, pointsOnCurve.back().y, 0.0};
+    pGVertex vStart = GR_createVertex(GIP_outerRegion(GM_rootPart(model)), vStartCoord.data());
+    pGVertex vEnd = GR_createVertex(GIP_outerRegion(GM_rootPart(model)), vEndCoord.data());
+
+    // Step 3: Create the model edge & split the wall curve at both ends.
+    pGEdge ge = GR_createEdge(GIP_outerRegion(GM_rootPart(model)), vStart, vEnd, simCurve, 1);
+    splitWallEdgeAtVertex(model, wall, vStart);
+    splitWallEdgeAtVertex(model, wall, vEnd);
+
+    // Step 4: Set physics attributes to the edge.
+    double psiNorm = f.psiNormOnFlux; 
+    GEN_setNativeDoubleAttribute(ge, psiNorm, "PsiNorm");
+    GEN_setNativeIntAttribute(ge, static_cast<int>(CurveType::Open), "CurveType");
+
+    GM_write(model, "debug.smd", 0,0);
+    // Step 5: Insert the edges to the model (by inserting into model faces)
+    insertLinearEdgeToModel(ge,0);
+  }
+}
+
 // Return the outer face if it splits face into two
 pGFace insertPeriodicEdgeToModelFace(pGFace gf, pGEdge ge)
 {
@@ -251,20 +287,26 @@ pCurve createClosedCurve(Flux& f)
   return curve;
 }
 
-pCurve createSepLegCurve(SeparatrixLeg& leg)
+pCurve createOpenCurve(std::vector <Point> points)
 {
-  pCurve curve;
-  int numPts = leg.fieldPoints.size();
+  int numPts = points.size();
   std::vector <double> pointsOnCurve;
   for (int i = 0; i < numPts; i++)
   {
-    Point pt = leg.fieldPoints[i];
+    Point pt = points[i];
     pointsOnCurve.push_back(pt.x);
     pointsOnCurve.push_back(pt.y);
     pointsOnCurve.push_back(0.0);
   }
 
-  curve = SCurve_createPiecewiseLinear(numPts, pointsOnCurve.data());
+  pCurve curve = SCurve_createPiecewiseLinear(numPts, pointsOnCurve.data());
+  return curve;
+}
+
+pCurve createSepLegCurve(SeparatrixLeg& leg)
+{
+  std::vector <Point> pointsOnLeg = leg.fieldPoints;
+  pCurve curve = createOpenCurve(pointsOnLeg);
   return curve;
 }
 

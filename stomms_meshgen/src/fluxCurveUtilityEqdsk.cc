@@ -365,7 +365,8 @@ std::vector <std::vector <PhysicsPoint>> getStartPointsOnSimFace(pGFace face, co
   
     distSampling = 1e-5;
     nSample= 1 + std::max(1, static_cast<int>(edgeLength/distSampling));
-   
+
+#pragma omp parallel for schedule(dynamic)
     for(int ipsi = 0; ipsi < psiNormList.size(); ++ipsi) 
     {
       double psiNormalized = psiNormList[ipsi];

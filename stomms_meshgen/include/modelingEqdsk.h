@@ -24,9 +24,11 @@ pGFace createModelFace(const PhysicsPoint& oPoint, SimmetrixWallCurve& wall, pGM
 pGFace insertClosedCurvesToModelFace(pGModel model, pGFace gf, std::vector <Flux> closedCurves);
 void insertSeparatricesToModelFace(pGModel model, pGFace gf, SimmetrixWallCurve& wall, std::vector <Flux> separatrices);
 void insertSeparatrixLegsToModel(pGFace gf, const std::map <int, std::vector <pGEdge>>& separatrices);
+void insertOpenCurvesToModel(pGModel model, SimmetrixWallCurve& wall, std::vector <Flux> openCurves);
 
 // Model Curve Functions
 pCurve createClosedCurve(Flux& f);
+pCurve createOpenCurve(std::vector <Point> points);
 pCurve createSepLegCurve(SeparatrixLeg& leg);
 pPList createWallCurve(const WallCurve& wallCurve);
 
