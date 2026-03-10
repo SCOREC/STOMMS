@@ -202,7 +202,6 @@ void insertOpenCurvesToModel(pGModel model, SimmetrixWallCurve& wall, std::vecto
   std::cout << ".......... Creating Open Model Edges\n";
   for (int i = 0; i < openCurves.size(); i++)
   { 
-    std::cout << "Curve # " << i << " with psi = " << openCurves[i].psiNormOnFlux << "\n";
     // Step 1: Create a curve from given curve points.
     Flux f = openCurves[i];
     std::vector <Point> pointsOnCurve = f.fieldPoints;
@@ -224,7 +223,6 @@ void insertOpenCurvesToModel(pGModel model, SimmetrixWallCurve& wall, std::vecto
     GEN_setNativeDoubleAttribute(ge, psiNorm, "PsiNorm");
     GEN_setNativeIntAttribute(ge, static_cast<int>(CurveType::Open), "CurveType");
 
-    GM_write(model, "debug.smd", 0,0);
     // Step 5: Insert the edges to the model (by inserting into model faces)
     insertLinearEdgeToModel(ge,0);
   }

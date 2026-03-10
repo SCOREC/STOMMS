@@ -27,6 +27,7 @@ set(STELLMESH_SRCS
   src/physicalGeometry.cc
   src/criticalPoints.cc
   src/criticalPointsEqdsk.cc
+  src/eqdskData.cc
   src/magneticGeometryDataTypes.cc
   src/physicsAttributes.cc
   src/fluxCurveUtilityEqdsk.cc 

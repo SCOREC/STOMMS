@@ -547,7 +547,7 @@ OpenFluxCurve::OpenFluxCurve(std::vector <PhysicsPoint> startPoints, int startPt
         {
           f.fieldPoints.push_back(startPts[intersectIndex]);
           success = true;
-          true;
+          return;
         }
       }
     }
@@ -653,27 +653,23 @@ std::vector <Flux> getOpenCurvesOnFace(pGFace gf, std::vector <double> psiValues
 {
   std::vector <Flux> openCurves;
   std::vector <std::vector <PhysicsPoint>> startPoints = getStartPointsOnSimFace(gf, psiValues, eqdskData);
-//#pragma omp parallel for schedule(dynamic)
+
+#pragma omp parallel for schedule(dynamic)
   for (int i = 0; i < startPoints.size(); i++)
   {
     std::vector <PhysicsPoint> startPointsForPsi = startPoints[i];
     for (int j = 0; j < startPointsForPsi.size(); j++)
     {
-      double psi = startPointsForPsi[j].getPsi();
-      if (fabs(eqdskData.convertPsiToNorm(psi) - 1.45) < 1e-5){
-        std::cout << "=================================\n";
-        std::cout << " Start Point To Use = " << startPointsForPsi[j].getPoint().x << " , " << startPointsForPsi[j].getPoint().y << "\n";
-      }
       OpenFluxCurve openFluxCurve(startPointsForPsi, j, eqdskData, oPoint, wall, planeMetaData);
-      if (fabs(eqdskData.convertPsiToNorm(psi)- 1.45) < 1e-5)
-        std::cout << "Use Point = " << openFluxCurve.useStartPoint() << "\n";
+
       if(!openFluxCurve.useStartPoint())
         continue;
+
       Flux f = openFluxCurve.getFluxCurve();
       // if (!validOpenCurve() add later
 
       restrictDistanceOfLastEdge(f, eqdskData);
-//#pragma omp critical
+#pragma omp critical
       {
         openCurves.push_back(f);
       }

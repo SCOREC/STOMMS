@@ -3,6 +3,7 @@
 
 #include <map>
 #include "input.h"
+#include "vmecData.h"
 #include "magneticGeometry.h"
 
 /**

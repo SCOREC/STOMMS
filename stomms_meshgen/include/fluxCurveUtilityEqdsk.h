@@ -2,6 +2,7 @@
 #define FLUXCURVEUTILITYEQDSK_H
 
 #include "magneticGeometry.h"
+#include "eqdskData.h"
 
 /**
  * A struct to hold the curve meta data for curve construction.
