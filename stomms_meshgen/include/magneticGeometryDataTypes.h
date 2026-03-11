@@ -1,16 +1,87 @@
 #ifndef MAGNETICGEOMETRYDATATYPES_H
 #define MAGNETICGEOMETRYDATATYPES_H
 
+#include <modelTopology.h>
+#include <criticalPoints.h>
+#include <input.h>
+#include <array>
+
 // TO-DO: Make members in Flux and Plane private and use set-get functions.
+/**
+ * Curves are divided into four basics types. Three of them (closed, open, separatrix) are purely
+ * defined by physics and wall curve is the only one that is physical curve.
+*/
+enum class CurveType{
+  Closed,
+  Open,
+  Separatrix,
+  Wall,
+  None
+};
+
+enum class CurveSubType{
+  Closed,
+  Open,
+  None
+};
+
+// General struct for any curve coming out of a separatrix.
+struct SeparatrixLeg{
+  std::vector <Point> fieldPoints;
+  int numXPts = 0;  // number of xPts on the curve
+  bool xPtAtStart = false;  // checks if the curve starts with xPt
+  bool xPtAtEnd = false;  // checks if the curve ends with xPt
+  CurveSubType curveSubType = CurveSubType::None;
+};
+
 /**
  * A class to contain the information fo a flux curve.
  */
 class Flux{
   public:
-    int planeNumber;  // plane on which flux curve lies.
+    int planeNumber = 0;  // plane on which flux curve lies.
     double psiNormOnFlux;  // normalized psi value of flux curve
     std::vector <Edge> edgesOnFlux;
     double nodeSpacingOnFlux;  // node spacing on flux curves
+
+    // Tokamak Part Development
+    CurveType curveType = CurveType::None;
+    std::vector <SeparatrixLeg> separatrixLegs;
+    std::vector <Point> fieldPoints;
+    PhysicsPoint xPoint;
+};
+
+class CurveContainer{
+  public:
+    CurveContainer(){};
+    CurveContainer(std::vector <Flux>& closedCurves, std::vector <Flux>& separatrices, WallCurve& wall);
+    void setCriticalPoints(const std::vector <PhysicsPoint>& oPts, const std::vector <PhysicsPoint>& xPts);
+    std::vector <Flux>& getCurvesClosed();
+    std::vector <Flux>& getCurvesSeparatrix();
+    WallCurve& getWallCurve();
+    const std::vector <PhysicsPoint>& getOPoints() const;
+    const std::vector <PhysicsPoint>& getXPoints() const;
+  private:
+    std::vector <Flux> curvesClosed;
+    std::vector <Flux> curvesSeparatrix;
+    std::vector <PhysicsPoint> oPoints;
+    std::vector <PhysicsPoint> xPoints;
+    WallCurve wallCurve;
+};
+
+/*
+ * The set of surfaces can be classified into seven different types depending on the physics
+ * they corresponds to. The physics regions can be increased/decreased as we move forward.
+*/ 
+enum class FaceType {
+  Core,
+  ScrapeOffLayer,
+  LowFieldSideEdge,
+  HighFieldSideEdge,
+  LowFieldSideNearVacuum,  // between last flux curve and wall curve
+  HighFieldSideNearVacuum,
+  Private,
+  None
 };
 
 /**
@@ -22,39 +93,6 @@ class Plane{
     std::vector <Flux> fluxCurves;  // vector of flux curves on the poloidal plane.
     Vertex oPoint;
     int planeNumber;  // plane number starting from 0 to numPlanes-1
-};
-
-/**
- * Struct VmecData contains all the input VmecData.
- */
-struct VmecData{
-  double majorR;  // Major radius of the reactor.
-  double minorR;  // Minor radius of the reactor.
-  int nSurf;  // Number of poloidal flux surfaces.
-  int nMode;  // Number of modes for Fourier series.
-  std::vector <double> R;  // Vector of cosines coeffiecents of R for Fourier series.
-  std::vector <double> Z;  // Vector of sines coeffiecents of Z for Fourier series.
-  std::vector <double> L;  // Vector of sines of lambdas coeffiecents for Fourier series.
-  std::vector <double> iota;  // Vector of iota values corresponding to flux surfaces.
-  std::vector <double> psi;  // Vector of list of psi values of flux surfaces.
-  std::vector <double> xm;   // poloidal modes.
-  std::vector <double> xn;   // Toroidal modes.
-};
-
-/**
- * Struct bmwData contains the data from BMW file.
- */
-struct BmwData{
-  // Populate it as we move forward.
-};
-
-/** 
- * Struct eqdskData contains the magnetic field information from eqdsk file.
- */
-struct EqdskData{
-  // add data here as we move forward.
-  double psiAxis;
-  double psiSep;
 };
 
 #endif

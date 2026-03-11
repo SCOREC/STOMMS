@@ -1,6 +1,28 @@
 #include <util.h>
 
 /***********************************************/
+// UTILITY DATA STRUCTURES
+/***********************************************/
+// 1. DomainBox
+
+DomainBox::DomainBox(const double& xMinumum, const double& yMinumum, 
+                     const double& xMaximum, const double& yMaximum)
+{
+  xMin = xMinumum; 
+  yMin = yMinumum;
+  xMax = xMaximum;
+  yMax = yMaximum;
+}
+
+DomainBox::DomainBox(const std::array <double, 4> box)
+{
+  xMin = box[0];
+  yMin = box[1];
+  xMax = box[2];
+  yMax = box[3];
+}
+
+/***********************************************/
 // UTILITY FUNCTIONS FOR COVERSIONS
 /***********************************************/
 // Convert the normalized psi values to actual psi values for a single given value.
@@ -21,6 +43,13 @@ std::vector <double> convertNormToPsiVector(std::vector <double> normPsi, double
     psiValues.push_back(psi);
   }
   return psiValues;
+}
+
+// Convert the psi value to normalized psi value.
+double convertPsiToNorm(double psi, double psiAxis, double psiCoreBoundary)
+{
+  double psiNorm = (psi - psiAxis)/(psiCoreBoundary - psiAxis); 
+  return psiNorm;
 }
 
 /***********************************************/
@@ -124,3 +153,140 @@ int windingNumberPolygonTest(const Point& pt, const std::vector <Point>& curve)
   return windingNumber;
 }
 
+// Function to calculate 2D distance between two points.
+double distance2D(const Point& pt1, const Point& pt2)
+{
+  double dist = 0.0;
+  double distMagnitude = (pt1.x - pt2.x)*(pt1.x - pt2.x) + (pt1.y - pt2.y)*(pt1.y - pt2.y);
+  dist = sqrt(distMagnitude);
+  return dist;
+}
+
+// Function to get the parametric coordinate of a point on a line segment.
+double getParamatricCoordinate(const Point& pt1, const Point& pt2, const Point& pt)
+{
+  double dx = fabs(pt2.x - pt1.x);
+  double dy = fabs(pt2.y - pt1.y);
+
+  double par;
+
+  if (dx > dy) // x-distance based
+    par = (pt.x - pt1.x)/(pt2.x - pt1.x);
+  else if (dx < dy)  // y-distance based
+    par = (pt.y - pt1.y)/(pt2.y - pt1.y);
+  else
+    assert(0);
+
+  return par;
+}
+
+// Function to get the distance from a point to a line segment.
+double distanceLineToPoint(const Point& pt1, const Point& pt2, const Point& pt)
+{
+  // Step 1: Find length of the line.
+  double dxLine = pt2.x - pt1.x;
+  double dyLine = pt2.y - pt1.y;
+  double length = sqrt(dxLine*dxLine + dyLine*dyLine);
+
+  // Step 2: Find x and y distance from point pt, to one of the points of
+  // the line (either start or end point).
+  double dx = pt.x - pt1.x;
+  double dy = pt.y - pt1.y;
+  
+  // Step 3: Compute the distance from line(pt1-pt2) to point pt.
+  double dist = (dxLine*dy - dyLine*dx)/length;
+
+  return dist;
+}
+
+// Check the orientation of a curve. The method is applicable 
+// to non-convex polygons too. 
+// Returns true if the curve is clockwise, false if counter-clockwise.
+bool curveOrientation(const std::vector <Point>& curvePts)
+{
+  if (curvePts.empty())
+    std::cerr << "ERROR: Given curve is empty\n"; 
+ 
+  int numPts = curvePts.size();
+  double sumEdges = 0.0;
+  for (int i = 1; i < numPts; ++i)
+  {
+    double x1 = curvePts[i-1].x;
+    double y1 = curvePts[i-1].y;
+    double x2 = curvePts[i].x;
+    double y2 = curvePts[i].y;	
+
+    double areaUnderEdge = (x2 - x1)* (y2 + y1);
+    sumEdges = sumEdges + areaUnderEdge; 
+  }
+	
+  if (sumEdges > 0)
+    return true;
+	
+  return false;
+}
+
+std::array <double, 4> getCurveBounds(const std::vector <Point>& curvePts)
+{
+  if (curvePts.empty())
+    std::cerr << "ERROR: Given curve is empty\n";  
+
+  double xMin, yMin, xMax, yMax;
+  xMin = xMax = curvePts[0].x;
+  yMin = yMax = curvePts[0].y;
+
+  for (int i = 0; i < curvePts.size(); i++)
+  {
+    Point pt = curvePts[i];
+    if (pt.x < xMin)
+      xMin = pt.x;
+    if (pt.x > xMax)
+      xMax = pt.x;
+    if (pt.y < yMin)
+      yMin = pt.y;
+    if (pt.y >  yMax)
+      yMax = pt.y;
+  }
+  std::array <double, 4> bounds = {xMin, yMin, xMax, yMax};
+  return bounds;
+}
+
+bool isPtOnModelEdge(const Point& checkPt, const pGEdge& ge)
+{
+  // Step 1: Find the point on the edge that is closest to the 
+  // check point. 
+  std::array <double, 3> pt = {checkPt.x, checkPt.y, checkPt.z};
+  std::array <double, 3> closestPt;
+  double param;
+  GE_closestPoint(ge, pt.data(), closestPt.data(), &param);
+  
+  // Step 2: Find the distance between check pt and closest pt.
+  Point closestPtOnEdge{closestPt[0], closestPt[1], closestPt[2]};
+  double distance = distance2D(checkPt, closestPtOnEdge);  
+
+  // Step 3: If distance is less than tolerance, check point is on
+  // the model edge.
+  double tolerance = 1e-8;
+  if (distance < tolerance)
+    return true;
+
+  return false;
+}
+
+bool isPtOnCurve(const Point& pt, const std::vector <pGEdge>& edgesOnCurve)
+{
+  if (edgesOnCurve.empty())
+    std::cerr << "ERROR: Given curve is empty\n";  
+
+  int n = edgesOnCurve.size(); 
+  bool ptOnCurve = false;
+  for (int i = 0; i < n; i++)
+  {
+    pGEdge ge = edgesOnCurve[i];
+    ptOnCurve = isPtOnModelEdge(pt, ge);
+    if (ptOnCurve)
+      return true;
+  }   
+
+  return false;
+}

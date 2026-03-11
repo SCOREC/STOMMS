@@ -281,7 +281,7 @@ const std::vector <Point>& SimplexMethod::getCandidates()
 CriticalPointsEqdsk::CriticalPointsEqdsk(const WallCurve& wall, const bool& reversePsi):
                                          wallCurve(wall), useReversePsi(reversePsi)
 {
-  std::cout << "==========CRITICAL POINTS SEARCH==========\n";
+  std::cout << "========== CRITICAL POINTS SEARCH ==========\n";
   wallPoints = wallCurve.getPoints();
 
   // Step 1: Execute Simplex Method

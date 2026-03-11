@@ -1,4 +1,5 @@
 #include "physicalGeometry.h"
+#include <algorithm>
 
 /***********************************************/
 // Class: WallCurve
@@ -32,6 +33,16 @@ std::vector <Point> WallCurve::filterPoints(std::vector <Point>& givenPoints)
   // Step 3: If last point is not same as first point, push first point at the end.
   if (!arePointsSame(filteredPoints[0], filteredPoints[filteredPoints.size()-1]))
     filteredPoints.push_back(filteredPoints[0]);
+
+  // Step 4: If wall curve is clockwise, make it counter-clockwise.
+  // Convention in Simmetrix is to have outermost curve of a model face  
+  // counter clock-wise.
+  bool clockwise = curveOrientation(filteredPoints);
+  if (clockwise)
+  {
+    std::cout << "correct to get a counter-clockwise wall curve\n";
+    std::reverse(filteredPoints.begin(), filteredPoints.end()); 
+  }
 
   return filteredPoints;
 }

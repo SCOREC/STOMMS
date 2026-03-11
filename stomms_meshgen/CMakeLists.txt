@@ -26,7 +26,12 @@ set(STELLMESH_SRCS
   src/input.cc
   src/physicalGeometry.cc
   src/criticalPoints.cc
-  src/criticalPointsEqdsk.cc 
+  src/criticalPointsEqdsk.cc
+  src/eqdskData.cc
+  src/magneticGeometryDataTypes.cc
+  src/physicsAttributes.cc
+  src/fluxCurveUtilityEqdsk.cc 
+  src/genFluxCurvesEqdsk.cc
   src/magneticGeometry.cc
   src/magneticGeometryStellarator.cc
   src/magneticGeometryTokamak.cc
@@ -34,8 +39,11 @@ set(STELLMESH_SRCS
   src/stomms.cc
   src/modelTopology.cc
   src/modelMetaData.cc
+  src/modelingEqdsk.cc
   src/modelingVmec.cc 
+  src/modelDataEqdsk.cc
   src/modelDataVmec.cc
+  src/modelPhysicsQueries.cc
   src/stommsModel.cc
   src/meshMetaData.cc
   src/stommsMesh.cc

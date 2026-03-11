@@ -19,6 +19,7 @@ void Inputs::setDefaultValues()
   reactorType = ReactorType::Stellarator;  // Default Stellarator for now.
   reversePsi = false;
   eqdPsiFactor = 1.0;
+  numPlanes = 128;  // default is 64
 }
 
 // This function reads the input parameter from the mesh input file.
@@ -106,9 +107,10 @@ std::map<double, double> Inputs::readMeshSizeOnFlux()
   // Step 4: Make sure there is no flux with normalzied psi lesser than 0 or greater than 1.
   while(meshInput >> psiNorm && meshInput >> vertexSpacing)
   {
-    if (psiNorm < 0.0 || psiNorm > 1.0)
+    if (psiNorm < 0.0 || (psiNorm > 1.0 && reactorType == ReactorType::Stellarator))
     {
-      std::cout << " The normalized psi value  =  " << psiNorm << " from mesh size input file will not be used since it was either lesser than 0.0 (axis) or greater than the 1.0 (last closed flux curve)\n";
+      std::cout << " The normalized psi value  =  " << psiNorm << " from mesh size input file will not be used since it is lesser than 0.0 (axis)\n";
+      std::cout << "Or magnetic input type is VMEC which doesn't allow values greater than 1.0\n";
       continue;
     }
     meshSizeOnCurves[psiNorm] = vertexSpacing;
@@ -151,10 +153,11 @@ std::vector<double> Inputs::readFluxFile()
   for (int i = 0; i < psiNormVec.size(); i++)
   {
     double normPsi = psiNormVec[i];
-    if (normPsi < 0.0 || normPsi > 1.0)
+    if (normPsi < 0.0 || (psiNorm > 1.0 && reactorType == ReactorType::Stellarator))
     {   
         psiNormVec.erase(psiNormVec.begin()+i);
-        std::cout << " The normalized psi value =  " << normPsi << " is removed since it was either lesser than 0.0 (axis) or greater than the 1.0 (last closed flux curve)\n";
+        std::cout << "The normalized psi value =  " << normPsi << " is removed since it is either lesser than 0.0 (axis)\n";
+        std::cout << "Or magnetic input type is VMEC which doesn't allow values greater than 1.0\n";
         i--;  // Makes sure to iterate over the element next to the deleted element.
     }   
   }
@@ -277,7 +280,14 @@ const InputData& Inputs::getInputData() const
   return in;
 }
 
+// Function to check if psi is reverse or not.
 const bool& Inputs::useReversePsi() const
 {
   return reversePsi;
+}
+
+// Returns the number of tokamak planes for magnetic field line tracing.
+const int& Inputs::getNumTokamakPlanes() const
+{
+  return numPlanes;
 }

@@ -10,6 +10,7 @@
  */
 class PlaneMetaData{
   public:
+    PlaneMetaData(){};
     /**
      * Constructor gets the flux data (f)plane toroidal angle to setup metadata on the plane.
      * @param f: the struct FluxData that constains the list of desired flux curves amd
@@ -21,18 +22,18 @@ class PlaneMetaData{
     /**
      * Function to return the psi values of the desired flux curves on the poloidal plane.
      */ 
-    const std::vector<double>& getPlaneFluxValues();
+    const std::vector<double>& getPlaneFluxValues() const;
 
     /**
      * Function to return the toroidal angle of the poloidal plane.
      */ 
-    const double& getPlaneToroidalAngle();
+    const double& getPlaneToroidalAngle() const;
 
     /**
      * Function to return a vector of desired node spacing on each flux curve
      * on the poloidal plane.
      */ 
-    const std::vector <double>& getPlaneFluxSizes();
+    const std::vector <double>& getPlaneFluxSizes() const;
 
     /**
      * Function to get the mesh size spacing on a flux given the psi normalized value of the flux.
@@ -72,7 +73,7 @@ class ModelMetaData{
      *  @param index: Takes the index value of the plane (0 to nPlanes-1) as input.
      *  @return an object of PlaneMetaData.
      */ 
-    const PlaneMetaData& getPlaneMetaDataByIndex(int index);
+    const PlaneMetaData& getPlaneMetaDataByIndex(int index) const;
 
     /**
      *  Function to get toroidal angles of all the planes. Returns a vector of the angles in radians.

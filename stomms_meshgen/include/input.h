@@ -64,7 +64,12 @@ class Inputs{
     /*
      * Function to check if psi is reverse or not.
      */
-    const bool& useReversePsi() const; 
+    const bool& useReversePsi() const;
+
+    /**
+     * Returns the number of tokamak planes for magnetic field line tracing.
+     */
+    const int& getNumTokamakPlanes() const;  
   private:
     // Input parameters
     std::string inputFile;
@@ -78,6 +83,7 @@ class Inputs{
     // Variables and containers for internal use
     bool reversePsi;            // To reverse the given psi values to get minimum psi at axis.
     double eqdPsiFactor;        // A factor to multipy the psi field.
+    int numPlanes;              // Number of planes for the tracing of magnetic field line.
     ReactorType reactorType;
  
    /*

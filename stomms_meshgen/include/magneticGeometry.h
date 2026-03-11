@@ -2,14 +2,13 @@
 #define MAGNETICGEOMETRY_H
 
 #include <memory>
-#include "input.h"
 #include "criticalPointsEqdsk.h"
 #include "physicalGeometry.h"
 #include "modelMetaData.h"
 #include "magneticGeometryDataTypes.h"
 #include "modelingVmec.h"
 
-/**
+/*
  * Abstract Base class for MagneticGeometry. 
  * The derived class will depend on the reactor type.
  * Right now, we plan to have two derived classes.
@@ -61,7 +60,8 @@ class MagneticGeometry{
     virtual const std::vector <Plane>& getPlanes() const = 0;
 };
 
-/**
+
+/*
  * Function to set magnetic geometry. This function makes decision based on type
  * of reactor, and set magnetic geometry accordingly.
  * @param input: class holding all the input data.

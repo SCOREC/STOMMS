@@ -1,0 +1,44 @@
+#include "magneticGeometryDataTypes.h"
+
+/***********************************************/
+// Class: CurveContainer
+/***********************************************/
+CurveContainer::CurveContainer(std::vector <Flux>& closedCurves, std::vector <Flux>& separatrices, WallCurve& wall)
+{
+  // Step 1: Set curves
+  curvesClosed = closedCurves;
+  curvesSeparatrix = separatrices;
+  wallCurve = wall;
+}
+
+void CurveContainer::setCriticalPoints(const std::vector <PhysicsPoint>& oPts, const std::vector <PhysicsPoint>& xPts)
+{
+  oPoints = oPts;
+  xPoints = xPts;
+}
+
+
+std::vector <Flux>& CurveContainer::getCurvesClosed()
+{
+  return curvesClosed;
+}
+
+std::vector <Flux>& CurveContainer::getCurvesSeparatrix() 
+{
+  return curvesSeparatrix;
+}
+
+WallCurve& CurveContainer::getWallCurve()
+{
+  return wallCurve;
+}
+
+const std::vector <PhysicsPoint>& CurveContainer::getOPoints() const
+{
+  return oPoints;
+}
+
+const std::vector <PhysicsPoint>& CurveContainer::getXPoints() const
+{
+  return xPoints;
+}

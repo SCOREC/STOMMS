@@ -5,8 +5,19 @@
 #include "modelTopology.h"
 #include <array>
 #include <math.h>
+#include <cfloat>
 
 // All the utility functions will be written here.
+
+/*************** UTILITY DATA STRUCTURES  ****************************************/
+struct DomainBox{
+  DomainBox(const double& xMinumum, const double& yMinumum, const double& xMaximum, const double& yMaximum);
+  DomainBox(const std::array <double, 4> box);
+  double xMin;
+  double yMin;
+  double xMax;
+  double yMax;
+};
 
 /*************** UTILITY FUNCTIONS FOR COVERSIONS ********************************/
 
@@ -28,6 +39,15 @@ double convertNormToPsi(double normPsi, double psiAxis, double psiCoreBoundary);
  * returns a vector of actual psi values.
 */ 
 std::vector <double> convertNormToPsiVector(std::vector <double> normPsi, double psiAxis, double psiCoreBoundary);
+
+/*
+ * Convert the psi value to normalized psi value.
+ * @param psi: psi value to be converted.
+ * @param psiAxis: actual psi value at the axis (O-point).
+ * @param psiCoreBoundary: actual psi value at the boundary of core region.
+ * @return normalized psi value.
+*/
+double convertPsiToNorm(double psi, double psiAxis, double psiCoreBoundary);
 
 /*************** UTILITY FUNCTIONS FOR GEOMETRY ********************************/
 
@@ -67,4 +87,34 @@ int isLeft(const Point& pt1, const Point& pt2, const Point& testPoint);
  */
 int windingNumberPolygonTest(const Point& pt, const std::vector <Point>& curve);
 
+/**
+ * Function to calculate 2D distance between two points.
+ * @param pt1: first point.
+ * @param pt2: second point.
+ * @return 2D distance.
+ */
+double distance2D(const Point& pt1, const Point& pt2);
+
+/**
+ * Function to get the parametric coordinate of a point on a line segment.
+ * @param pt1: start point of the line segment.
+ * @param pt2: end point of the line segment. 
+ * @param pt: point for which parametric value is needed.
+ * @return parametric value of point pt on line segment(pt1---pt2).
+ */
+double getParamatricCoordinate(const Point& pt1, const Point& pt2, const Point& pt);
+
+/**
+ * Function to get the distance from a point to a line segment.
+ * @param pt1: start point of the line segment.
+ * @param pt2: end point of the line segment. 
+ * @param pt: point for which distance from the line is needed.
+ * @return distance from point pt to line segment(pt1---pt2).
+ */
+double distanceLineToPoint(const Point& pt1, const Point& pt2, const Point& pt);
+
+bool curveOrientation(const std::vector <Point>& curvePts);
+std::array <double, 4> getCurveBounds(const std::vector <Point>& curvePts);
+bool isPtOnModelEdge(const Point& checkPt, const pGEdge& ge);
+bool isPtOnCurve(const Point& pt, const std::vector <pGEdge>& edgesOnCurve);
 #endif
