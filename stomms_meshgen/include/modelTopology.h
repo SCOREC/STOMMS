@@ -156,7 +156,7 @@ class Face{
     /*
      * Fucntion to return Simmetrix model face assoctaed with Face.
      */ 
-    const pGFace& getSimFace();
+    const pGFace& getSimFace() const;
 
     /*
      * Function to return the model edges on the model face.

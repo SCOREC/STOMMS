@@ -50,11 +50,12 @@ std::vector <int> PlaneMeshMetaData::setFaceMeshType(const std::vector <Face> ge
     Face f = geomFaces[i];
 
     // Step 2: Get the physics type of model face.
-    int faceType = getModelFacePhysicsType(f);
+    FaceType faceType = getModelFacePhysicsType(f);
 
     // Step 3: Based on physics type of model face, setup the mesh type.
     int meshType = 0;
-    if (faceType == 1) // Core Region
+    if (faceType == FaceType::Core || faceType == FaceType::ScrapeOffLayer || 
+        faceType == FaceType::LowFieldSideEdge || faceType == FaceType::HighFieldSideEdge) 
       meshType = 1;  // one-element deep
 
     // Step 4: Store the type in the vector.

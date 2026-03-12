@@ -1,6 +1,16 @@
 #include "magneticGeometryDataTypes.h"
 
 /***********************************************/
+// Class: Flux
+/***********************************************/
+void Flux::setSimEdgeToFlux(pGEdge ge)
+{
+  Edge modelEdge;
+  modelEdge.setSimEdge(ge);
+  edgesOnFlux.push_back(modelEdge);
+}
+
+/***********************************************/
 // Class: CurveContainer
 /***********************************************/
 CurveContainer::CurveContainer(std::vector <Flux>& closedCurves, std::vector <Flux>& separatrices, WallCurve& wall)

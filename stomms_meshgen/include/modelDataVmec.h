@@ -2,6 +2,7 @@
 #define MODELDATAVMEC_H 
 
 #include "modelingVmec.h"
+#include "physicsAttributes.h"
 
 /**
  * Class to create a geometry based on model meta data, and vmec info.
@@ -67,6 +68,11 @@ class ModelVmec{
    * @return a vector of flux curves (type Flux).
    */
   std::vector<Flux> setFluxCurvesOnPlanes(Model m, int planeNum, std::vector <PlaneMetaData> md);
+
+  /**
+   * Function to set physics type on model faces.
+   */ 
+  void classifyModelFaces();
 
 };
 

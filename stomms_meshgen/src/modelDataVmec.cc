@@ -15,9 +15,12 @@ ModelVmec::ModelVmec(const ModelMetaData& md, const VmecData& vm): modelMetaData
   // Step 2: Generate the model using planes meta data.
   model = generateCoreSimModelVmec(planesContainer, vmec);
 
-  // Step 3: Steup the poloidal planes with their model enteties using
+  // Step 3: Setup the poloidal planes with their model enteties using
   // the model information.
   setPlanes();
+
+  // Step 4: Classify model faces.
+  classifyModelFaces();
 }
 
 // Setting model entities from Simmetrix Model (pGModel) to respective planes.
@@ -153,6 +156,7 @@ std::vector <Flux> ModelVmec::setFluxCurvesOnPlanes(Model m, int planeNum, std::
     Flux f;
     f.planeNumber = planeNum;
     f.psiNormOnFlux = psiValues[i];
+    f.curveType = CurveType::Closed;
 
     // Step 3.3: Get the actual psi value from normalized psi and then use the value
     // to retrieve model edge associated to it.Save it as type Edge. 
@@ -170,6 +174,24 @@ std::vector <Flux> ModelVmec::setFluxCurvesOnPlanes(Model m, int planeNum, std::
   }
   
   return fluxCurvesOnPlane;
+}
+
+// Classify Model Faces
+void ModelVmec::classifyModelFaces()
+{
+  // Step 1: Get all the faces on the model.
+  std::vector <Face> modelFaces = model.getModelFaces();
+
+  // Step 2: Iterate over the face and check if they belong to core, sol, pvt, or any other physics region.
+  for (int i = 0; i < modelFaces.size(); i++)
+  {
+    Face f = modelFaces[i];
+    pGFace gf = f.getSimFace();
+
+    // Step 2.1: If belongs to core, set the face attribute.
+    if (isModelFaceOnCore(gf))
+      GEN_setNativeIntAttribute(gf, static_cast<int>(FaceType::Core), "PhysicsRegion");
+  }
 }
 
 // Function to get model associated with vmec geometry.

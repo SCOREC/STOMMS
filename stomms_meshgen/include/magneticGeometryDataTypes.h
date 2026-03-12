@@ -39,6 +39,9 @@ struct SeparatrixLeg{
  */
 class Flux{
   public:
+    // Set Functions - Try to move data to private in future
+    void setSimEdgeToFlux(pGEdge ge);
+
     int planeNumber = 0;  // plane on which flux curve lies.
     double psiNormOnFlux;  // normalized psi value of flux curve
     std::vector <Edge> edgesOnFlux;

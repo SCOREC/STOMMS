@@ -96,6 +96,7 @@ pGFace insertClosedCurvesToModelFace(pGModel model, pGFace gf, std::vector <Flux
     std::vector <Point> pointsOnCurve = f.fieldPoints;
     pCurve simCurve = createClosedCurve(f);
     pGEdge ge = createClosedEdge(model, simCurve, pointsOnCurve);
+    f.setSimEdgeToFlux(ge);
     GEN_setNativeDoubleAttribute(ge, psiNorm, "PsiNorm");
     pGFace newFace = insertPeriodicEdgeToModelFace(gf, ge);
     gf = newFace;
@@ -206,6 +207,9 @@ void insertOpenCurvesToModel(pGModel model, SimmetrixWallCurve& wall, std::vecto
 
     // Step 5: Insert the edges to the model (by inserting into model faces)
     insertLinearEdgeToModel(ge,0);
+  
+    // Step 6: Save edge to flux curve
+    f.setSimEdgeToFlux(ge);
   }
 }
 
@@ -357,7 +361,8 @@ std::vector <pGEdge> createSeparatrixEdges(pGModel model, SimmetrixWallCurve& wa
       ge = GR_createEdge(GIP_outerRegion(GM_rootPart(model)), vXpt, vEnd, simCurve, 1);
       splitWallEdgeAtVertex(model, wall, vEnd);
       edgesOnSep.push_back(ge);
-    } 
+    }
+    f.setSimEdgeToFlux(ge); 
     GEN_setNativeIntAttribute(ge, static_cast<int>(CurveType::Separatrix), "CurveType");
     GEN_setNativeDoubleAttribute(ge, psiNorm, "PsiNorm");   
   }

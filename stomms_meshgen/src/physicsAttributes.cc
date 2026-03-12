@@ -7,12 +7,9 @@ bool isModelFaceOnCore(pGFace gf)
   if (numPeriodicEdges == 2)
     return true;
 
-  if (numPeriodicEdges == 1)
-  {
-    std::vector <pGVertex> oPoints = getCriticalPointsOnModelFace(gf, PointType::OPoint);
-    if (oPoints.size() == 1)
+  pPList edgesOnFace = GF_edges(gf);
+  if (PList_size(edgesOnFace) == 1 && numPeriodicEdges == 1)
       return true;
-  }
 
   return false;
 }
