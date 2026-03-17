@@ -87,15 +87,4 @@ enum class FaceType {
   None
 };
 
-/**
- * A class to define geometric model on a plane.
- */
-class Plane{
-  public:
-    std::vector <Face> modelFaces;
-    std::vector <Flux> fluxCurves;  // vector of flux curves on the poloidal plane.
-    Vertex oPoint;
-    int planeNumber;  // plane number starting from 0 to numPlanes-1
-};
-
 #endif

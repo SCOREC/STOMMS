@@ -93,13 +93,13 @@ class StommsMesh{
     int numSpecifiedVert = 0; // initializing the numSpecifiedVert here. It will be used
 			      // in specifying mesh vertices on model entities.
 
-    /*
-     * To specify mesh vertex at O-point (origin/axis of the poloidal plane).
-     * pMesh Mesh (in)(out): Gets the pMesh mesh as input and update the specified entities on it.
-     * pGVertex axis (in): The model vertex at the O-point.
-     * returns the index of the mesh vertex specified at the O-point.
+    /**
+     * To specify mesh vertex at model vertex (origin/axis/other vertices of the poloidal plane).
+     * @param mesh: Gets the pMesh mesh as input and update the specified entities on it.
+     * @param gv: model vertex on which mesh vertex is desired
+     * @return the index of the mesh vertex specified at the O-point.
      */
-     int specifyMeshVertexOnAxis(pMesh mesh, pGVertex axis);
+     int specifyMeshVertexOnModelVertex(pMesh mesh, pGVertex gv);
 
     /* To specify mesh vertices and edges on flux curves (model edges)
      * Assumes periodic edges. Write a new function if edges are open 
@@ -109,8 +109,19 @@ class StommsMesh{
      * const std::vector<double>& parValuesOnFlux (in): a vector holding parametric values of desired points on the flux curve.
      * returns a vector (int) that contains the indices of specified mesh vertices on flux curve f.
      */
-     std::vector <int> specifyMeshEnt(pMesh mesh, Flux f, const std::vector<double>& parValuesOnFlux);
+     void specifyMeshOnClosedCurve(pMesh mesh, Flux f, const FluxParametricPoints& parValuesOnFlux);
 
+     void specifyMeshOnPeriodicModelEdge(pMesh mesh, Edge edge, const std::vector<double>& parValues);
+     /**
+      * Given a plane p, and mesh, set mesh properties on the flux curves on the plane.
+      */
+     void setMeshOnPlaneFluxCurves(pMesh mesh, PlaneMeshMetaData& p); 
+
+     /**
+      * Given a plane, mesh, and mesh case, set mesh properties on model faces of the plane.
+      */ 
+     void setMeshOnPlaneFaces(pMesh mesh, pACase meshCase, PlaneMeshMetaData& p);
+ 
      /*
       * To set up the mesh data on all the poloidal planes in the domain.
       */ 

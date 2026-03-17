@@ -21,6 +21,9 @@ ModelVmec::ModelVmec(const ModelMetaData& md, const VmecData& vm): modelMetaData
 
   // Step 4: Classify model faces.
   classifyModelFaces();
+
+  // Step 5: Set parametric values of mesh vertices on the flux curves.
+  setMeshVerticesOnPlanes();
 }
 
 // Setting model entities from Simmetrix Model (pGModel) to respective planes.
@@ -192,6 +195,47 @@ void ModelVmec::classifyModelFaces()
     if (isModelFaceOnCore(gf))
       GEN_setNativeIntAttribute(gf, static_cast<int>(FaceType::Core), "PhysicsRegion");
   }
+}
+
+void ModelVmec::setMeshVerticesOnPlanes()
+{
+  // Step 1: Set the values on flux curves of plane 0.
+  setMeshVerticesOnPlane(0);
+  
+  // Step 2: Get the points on plane 0 and set them on remaining planes.
+  std::vector <FluxParametricPoints> points = planes[0].getFieldPointsOnFluxCurves();
+  for (int i = 1; i < planes.size(); i++)
+  {
+    std::vector <FluxParametricPoints> fluxPointsOnPlane;
+    std::vector <Flux> fluxCurves = planes[i].fluxCurves;
+
+    for (int i = 0; i < fluxCurves.size(); i++)
+    {
+      Flux f = fluxCurves[i];
+      std::vector <std::vector<double>> parValues = points[i].getParametricValuesOnFlux();
+      FluxParametricPoints parOnFlux(f, parValues);
+      fluxPointsOnPlane.push_back(parOnFlux);
+    }
+    planes[i].setFieldPointsOnFlux(fluxPointsOnPlane);      
+  }
+}
+
+void ModelVmec::setMeshVerticesOnPlane(int planeIndex)
+{
+  std::vector <FluxParametricPoints> fluxPointsOnPlane;
+
+  // Step 1: Iterate over the flux curves on the plane and set field points on them.
+  std::vector <Flux> fluxCurves = planes[planeIndex].fluxCurves;
+  for (int i = 0; i < fluxCurves.size(); i++)
+  {
+    Flux f = fluxCurves[i];
+
+    // Step 1.1: Get the par values of points on the flux curve for field following.
+    int pointsPlacementType = 0;
+    FluxParametricPoints points(f, pointsPlacementType);
+    fluxPointsOnPlane.push_back(points);
+  }
+  planes[planeIndex].setFieldPointsOnFlux(fluxPointsOnPlane); 
 }
 
 // Function to get model associated with vmec geometry.

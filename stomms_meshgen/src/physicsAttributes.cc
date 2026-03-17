@@ -175,3 +175,4 @@ std::vector <pGVertex> getCriticalPointsOnModel(pGModel model, PointType pointTy
    
   return criticalPoints;
 }
+

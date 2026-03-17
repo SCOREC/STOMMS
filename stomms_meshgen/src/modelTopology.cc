@@ -87,7 +87,7 @@ void Edge::setEdgePeriodic()
 }
 
 // Function to return the underlying Simmetrix model edge for the Edge.
-const pGEdge& Edge::getSimEdge()
+const pGEdge& Edge::getSimEdge() const
 {
   return ge;
 }

@@ -7,6 +7,7 @@
 #include "modelMetaData.h"
 #include "magneticGeometryDataTypes.h"
 #include "modelingVmec.h"
+#include "plane.h"
 
 /*
  * Abstract Base class for MagneticGeometry. 

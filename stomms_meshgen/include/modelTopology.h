@@ -61,7 +61,7 @@ class Edge{
     /*
      * Function to return the underlying Simmetrix model edge for the Edge.
      */   
-    const pGEdge& getSimEdge();
+    const pGEdge& getSimEdge() const;
 
     /*
      * Function to return model vertices on the Edge.

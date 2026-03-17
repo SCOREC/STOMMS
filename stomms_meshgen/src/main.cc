@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 
     // Step 7: Setup Mesh Meta Data.
     MeshMetaData meshMetaData(stommsModel);
-
+    
     // Step 8: Mesh the model using mesh meta data.
     StommsMesh stommsMesh(meshMetaData);
 
