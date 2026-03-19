@@ -77,7 +77,6 @@ const std::vector<double>& FluxParametricPoints::getParametricValuesAtFluxEdge(c
 // Helper functions for setting/finding 
 // parametrix values of points on flux curves.
 /***********************************************/
-
 std::vector <std::vector<double>> setVerticesParValuesUsingDistance(Flux f)
 {
   std::vector <std::vector<double>> parValuesOnEdge;
@@ -91,8 +90,9 @@ std::vector <std::vector<double>> setVerticesParValuesUsingDistance(Flux f)
 
 std::vector <std::vector<double>> setVerticesParValuesUsingPoints(Flux f)
 {
-  if (f.curveType == CurveType::Closed)
-    setParOnFluxUsingPoints(f);
+  std::vector <std::vector<double>> parValuesOnEdges;
+  parValuesOnEdges = setParOnFluxUsingPoints(f);
+  return parValuesOnEdges;
 }
 
 // Function to set up the field following points on the closed flux
@@ -173,6 +173,7 @@ std::vector <std::vector<double>> setParOnFluxUsingPoints(Flux f)
     Edge edge = f.edgesOnFlux[i];
     std::vector <double> parR = edge.getEdgeParRange();
     pGEdge ge = edge.getSimEdge();  // get sim edge
+    bool periodicEdge = edge.edgeIsPeriodic();
 
     // Step 2: Always use first point (makes it easier to deal with periodic edges
     // using the algorithm in step 3.
@@ -185,22 +186,29 @@ std::vector <std::vector<double>> setParOnFluxUsingPoints(Flux f)
       std::array <double, 3> pt = {f.fieldPoints[j].x, f.fieldPoints[j].y, 0.0};
       double par;
       GE_closestPoint(ge, pt.data(), nullptr, &par);
-      parValuesOnEdge.push_back(par);
-      std::cout << "Par = " << par << "\n";
-      if (fabs(par - parR[1]) < 1e-8)
+ 
+      // Step 3.1: Check if the par is same as par at the end point of the edge.
+      // Both conditions are needed for periodic edge, where end point can have
+      // par value equal to par0 or par1. 
+      if (fabs(par - parR[1]) < 1e-8 || fabs(par - parR[0]) < 1e-8)
       {
         startPointIndex = j;
         nextEdge = true;
         break;    
       }
+      parValuesOnEdge.push_back(par);
     }
+    if (!periodicEdge)
+      parValuesOnEdge.push_back(parR[1]);
+
+    parametricValuesOnEdge.push_back(parValuesOnEdge);
+
     if (nextEdge)
     {
       nextEdge = false;  // reset it and move to next edge
       continue;
     }
-    parametricValuesOnEdge.push_back(parValuesOnEdge);
   }
   return parametricValuesOnEdge;
-
 }
+

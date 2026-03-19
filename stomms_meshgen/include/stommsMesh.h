@@ -90,6 +90,7 @@ class StommsMesh{
     std::vector <PlaneMeshMetaData> planes;  // a vector of planes holding mesh meta data
     std::vector <PlaneMeshData> planesMeshData;  // a vector of planes holding simmetrix mesh data
     pMesh simMesh;  // Simmetrix mesh
+    std::map <pGVertex, int> specifiedVertices;  // mesh vertices specified on model vertices.
     int numSpecifiedVert = 0; // initializing the numSpecifiedVert here. It will be used
 			      // in specifying mesh vertices on model entities.
 
@@ -109,9 +110,11 @@ class StommsMesh{
      * const std::vector<double>& parValuesOnFlux (in): a vector holding parametric values of desired points on the flux curve.
      * returns a vector (int) that contains the indices of specified mesh vertices on flux curve f.
      */
-     void specifyMeshOnClosedCurve(pMesh mesh, Flux f, const FluxParametricPoints& parValuesOnFlux);
+     void specifyMeshOnFluxCurve(pMesh mesh, Flux f, const FluxParametricPoints& parValuesOnFlux);
 
      void specifyMeshOnPeriodicModelEdge(pMesh mesh, Edge edge, const std::vector<double>& parValues);
+     void specifyMeshOnModelEdge(pMesh mesh, Edge edge, const std::vector<double>& parValues);  // non-periodic
+     int getSpecifiedVertexTag(const pGVertex& gv);
      /**
       * Given a plane p, and mesh, set mesh properties on the flux curves on the plane.
       */

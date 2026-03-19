@@ -176,3 +176,40 @@ std::vector <pGVertex> getCriticalPointsOnModel(pGModel model, PointType pointTy
   return criticalPoints;
 }
 
+// Means atleast two curves with distinct psi values
+bool isFaceBoundedByTwoFluxCurves(pGFace gf)
+{
+  std::vector <double> psiValues;
+
+  pPList edges = GF_edges(gf);
+  for (int i = 0; i < PList_size(edges); i++)
+  {
+    pGEdge ge = static_cast<pGEdge>(PList_item(edges, i));
+    double psi;
+    bool psiFound = false;
+    if (!GEN_numNativeDoubleAttribute(ge, "PsiNorm"))
+      continue;
+    
+    GEN_nativeDoubleAttribute(ge, "PsiNorm", &psi);
+    for (int j = 0; j < psiValues.size(); j++)
+    {
+      if (fabs(psi - psiValues[j]) < 1e-8)
+      {
+        psiFound = true;
+        break;
+      }
+    }
+    if (psiFound)
+      continue;
+
+    std::cout << "Psi = " << psi << "\n";
+    psiValues.push_back(psi);
+  }
+  PList_delete(edges);
+
+  std::cout << "Bounding psi curves on face = " << GEN_tag(gf) << " = " << psiValues.size() << "\n";
+  if (psiValues.size() == 2)
+    return true;
+
+  return false;
+}

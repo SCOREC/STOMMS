@@ -87,9 +87,7 @@ void StommsMesh::setMeshOnPlaneFluxCurves(pMesh mesh, PlaneMeshMetaData& p)
     // Step 1.1: Specify mesh entities (vertices and edges) on flux curves. 
     Flux f = fluxCurves[i];
     FluxParametricPoints parValuesOfVertices = parValuesOnFluxCurves[i];
-
-    // TO-DO: FIRST FIND CURVE TYPE AND THEN CALL CLOSED OR ANY OTHER TYPE
-    specifyMeshOnClosedCurve(mesh, f, parValuesOfVertices);
+    specifyMeshOnFluxCurve(mesh, f, parValuesOfVertices);
   } 
 }
 
@@ -108,7 +106,7 @@ void StommsMesh::setMeshOnPlaneFaces(pMesh mesh, pACase meshCase, PlaneMeshMetaD
     if (meshType == 1)
       setOneElementDeepMeshOnFace(mesh, meshCase, gf);
     else
-      MS_setMeshSize(meshCase, gf, 1, 0.01, 0);  // TO-DO: Get this mesh size directly from user input
+      MS_setMeshSize(meshCase, gf, 1, 0.1, 0);  // TO-DO: Get this mesh size directly from user input
   } 
 }
 
@@ -133,34 +131,41 @@ void StommsMesh::setOneElementDeepMeshOnFace(pMesh mesh, pACase meshCase, pGFace
 // To specify mesh vertex at O-point (origin/axis of the poloidal plane)
 int StommsMesh::specifyMeshVertexOnModelVertex(pMesh mesh, pGVertex gv)
 {
-  // Step 1: Get the index to spcify the mesh vertex.
-  int meshVertexIndex = numSpecifiedVert++;
+  // Step 1: Check if the mesh vertex is already specified on the first model vertex
+  int specifiedVertexTag = getSpecifiedVertexTag(gv);
 
-  // Step 2: Get the location of the O-point.
-  double xyz[3];  // location of O-point
-  GV_point(gv, xyz);
+  // Step 2: If yes, use the already specified vertex tag, else specify it.
+  int meshVertexIndex;
+  if (specifiedVertexTag >= 0)  // already specified and tagged
+    meshVertexIndex = specifiedVertexTag;
+  else
+  {
+    meshVertexIndex = numSpecifiedVert++;
 
-  // Step 3: Specify the mesh vertex on the axis.
-  MS_specifyVertex(mesh, xyz, 0, gv, meshVertexIndex);
+    // Step 2.1: Get the location of the model vertex.
+    double xyz[3];
+    GV_point(gv, xyz);
 
-  // Step 4: return the index.
+    // Step 2.2: Specify the mesh vertex and save 
+    specifiedVertices[gv] = meshVertexIndex;
+    MS_specifyVertex(mesh, xyz, 0, gv, meshVertexIndex);
+  }
+
+  // Step 5: return the index.
   return meshVertexIndex;
 }
 
-// To specify mesh vertices and edges on flux curves (model edges)
-// Assumes periodic edges. Write a new function if edges are open 
-// or have some other behaviour.
-void StommsMesh::specifyMeshOnClosedCurve(pMesh mesh, Flux f, const FluxParametricPoints& parValuesOnFlux)
+void StommsMesh::specifyMeshOnFluxCurve(pMesh mesh, Flux f, const FluxParametricPoints& parValuesOnFlux)
 {
   std::vector <Edge> edges = f.edgesOnFlux;
-  if (edges.size() == 1 && edges[0].edgeIsPeriodic())
+  for (int i = 0; i < edges.size(); i++)
   {
-    std::vector <double> parValuesOnEdge = parValuesOnFlux.getParametricValuesAtFluxEdge(edges[0]);
-    specifyMeshOnPeriodicModelEdge(mesh, edges[0], parValuesOnEdge);
+    std::vector <double> parValuesOnEdge = parValuesOnFlux.getParametricValuesAtFluxEdge(edges[i]);
+    if (edges[i].edgeIsPeriodic())
+      specifyMeshOnPeriodicModelEdge(mesh, edges[i], parValuesOnEdge);
+    else
+      specifyMeshOnModelEdge(mesh, edges[i], parValuesOnEdge);  
   }
-
-  // Otherwise iterate over the edges
-  // Start here tomorrow
 }
 
 void StommsMesh::specifyMeshOnPeriodicModelEdge(pMesh mesh, Edge edge, const std::vector<double>& parValues)
@@ -173,7 +178,6 @@ void StommsMesh::specifyMeshOnPeriodicModelEdge(pMesh mesh, Edge edge, const std
   // Step 2: Start with first parametric value on the edge and  specify mesh vertex on it.
   // Keep updating numSpecifiedVert after every point.
   int indx[2];
-  indx[0] = numSpecifiedVert++;
   double par[2] = {0.0, 0.0};
   par[0] = parValues[0];
 
@@ -181,7 +185,7 @@ void StommsMesh::specifyMeshOnPeriodicModelEdge(pMesh mesh, Edge edge, const std
   if (PList_size(vertices) == 1)
   {
     pGVertex gv = static_cast<pGVertex>(PList_item(vertices,0));
-    MS_specifyVertex(mesh, 0, par, gv, indx[0]);  
+    indx[0] = specifyMeshVertexOnModelVertex(mesh, gv);
   }
   else
     MS_specifyVertex(mesh, 0, par, ge, indx[0]);
@@ -211,7 +215,56 @@ void StommsMesh::specifyMeshOnPeriodicModelEdge(pMesh mesh, Edge edge, const std
   MS_specifyEdge(mesh,indx,ge,-1);  
 }
 
-//void StommsMesh::specifyMeshOnModelEdge()
+
+void StommsMesh::specifyMeshOnModelEdge(pMesh mesh, Edge edge, const std::vector<double>& parValues)  // non-periodic
+{
+  // Step 1: Get the Simmetrix model edge.
+  pGEdge ge = edge.getSimEdge();
+
+  // Step 2: Start with first parametric value on the edge. Use it if a vertex is not specified already.
+  int indx[2];
+  double par[2] = {0.0, 0.0};
+  par[0] = parValues[0];
+
+  // Step 3: Specify the mesh vertex on the first model vertex of the edge.
+  pPList vertices = GE_vertices(ge);
+  pGVertex gv = static_cast<pGVertex>(PList_item(vertices,0));
+  indx[0] = specifyMeshVertexOnModelVertex(mesh, gv);
+
+  // Step 4: Loop over the remaining parametric values after the first one and also specify edges between 
+  // every two specified mesh points. Don't look at the last value yet.
+  for (int i = 1; i < parValues.size() - 1; i++)
+  {
+    indx[1] = numSpecifiedVert++;
+    par[0] = parValues[i];
+
+    // Step 4.1: Specify mesh vertex at each point.
+    MS_specifyVertex(mesh, 0, par, ge, indx[1]);
+
+    // Step 4.2: Specify mesh edges between two consecutive specified points 
+    // and update indx[0] for next iteration in loop. 
+    MS_specifyEdge(mesh, indx, ge, -1);
+    indx[0] = indx[1];
+  }
+  
+  // Step 5: Specify the mesh vertex on the last model vertex of the edge and then specify edge. 
+  gv = static_cast<pGVertex>(PList_item(vertices,1));
+  indx[1] = specifyMeshVertexOnModelVertex(mesh, gv);
+  MS_specifyEdge(mesh, indx, ge, -1);
+  
+  PList_delete(vertices);  
+}
+
+int StommsMesh::getSpecifiedVertexTag(const pGVertex& gv)
+{
+  int specifiedVertexTag = -1;  
+
+  // Step 1: Check if the vertex gv is in the specified vertices map or not.
+  if (auto itr = specifiedVertices.find(gv); itr != specifiedVertices.end())
+    specifiedVertexTag = itr->second;
+
+  return specifiedVertexTag;      
+}
 
 // To set up the mesh data on all the poloidal planes in the domain.
 void StommsMesh::setMeshDataOnPlanes()

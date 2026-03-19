@@ -85,8 +85,7 @@ enum class FaceType {
   ScrapeOffLayer,
   LowFieldSideEdge,
   HighFieldSideEdge,
-  LowFieldSideNearVacuum,  // between last flux curve and wall curve
-  HighFieldSideNearVacuum,
+  NearVacuum,  // between last flux curve and wall curve
   Private,
   None
 };

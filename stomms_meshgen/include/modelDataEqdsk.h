@@ -8,6 +8,7 @@ class ModelEqdsk{
     ModelEqdsk(){};
     ModelEqdsk(const PlaneMetaData& planeMetaData, EqdskData& eqdskData, CurveContainer& curvesMetaData);
     const Model& getModel() const;
+    const std::vector <Plane>& getPlanes() const;
   private:
     Model model;  // Model class. It has underlying Simmetrix model too.
     EqdskData eqdsk;
@@ -17,6 +18,9 @@ class ModelEqdsk{
     std::vector <Flux> setFluxCurvesOnPlane();
     std::vector <Face> setModelFacesOnPlane();
     void setPlane();
+    void setMeshVerticesOnPlanes();
+    void finalModelFaceClassification();
+    void setMeshVerticesOnPlane(int planeIndex);
 };
 
 #endif

@@ -2,6 +2,7 @@
 #define STOMMSMODEL_H
 
 #include "magneticGeometry.h"
+#include "physicsAttributes.h"
 #include <util.h>
 #include <map>
 

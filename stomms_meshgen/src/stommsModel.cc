@@ -26,7 +26,6 @@ const std::vector <Plane>& StommsModel::getPlanes()
   return planes;
 }
 
-
 // Function to get the physics region type of a model face.
 FaceType getModelFacePhysicsType(const Face& face)
 {

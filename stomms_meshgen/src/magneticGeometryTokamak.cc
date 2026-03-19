@@ -138,11 +138,11 @@ double MagneticGeometryForTokamak::getPsiCoreBoundary() const
 // Function to get model associated with tokamak geometry.
 const Model& MagneticGeometryForTokamak::getModel() const
 {
-  return model;
+  return modelEqdsk.getModel();
 }
 
 // Function to get all the geometric information on individual planes.
 const std::vector <Plane>& MagneticGeometryForTokamak::getPlanes() const
 {
-  return planes;
+  return modelEqdsk.getPlanes();
 }

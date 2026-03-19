@@ -13,8 +13,11 @@ ModelEqdsk::ModelEqdsk(const PlaneMetaData& planeMetaData, EqdskData& eqdskData,
   curvesContainer = curvesMetaData;  // a local copy for use in the class.
   setPlane();
   
-  std::cout << "Plane is set\n";
-  // Step 4: 
+  // Step 4: Update Model classification
+  finalModelFaceClassification();
+
+  // Step 5: Set parametric values of mesh vertices on the flux curves.
+  setMeshVerticesOnPlanes();
 }
 
 void ModelEqdsk::setPlane()
@@ -76,7 +79,69 @@ std::vector <Face> ModelEqdsk::setModelFacesOnPlane()
   return modelFaces;
 }
 
+void ModelEqdsk::finalModelFaceClassification()
+{
+  // Step 1: Get all the faces on the model.
+  std::vector <Face> modelFaces = model.getModelFaces();
+
+  // Step 2: Iterate over the face and check if they belong to core, sol, pvt, or any other physics region.
+  for (int i = 0; i < modelFaces.size(); i++)
+  {
+    Face f = modelFaces[i];
+    pGFace gf = f.getSimFace();
+
+    // Step 2.1: Find faces that are on near vacuum (bounded by wall and last SOL).
+    int faceType = -1;
+    GEN_nativeIntAttribute(gf, "PhysicsRegion", &faceType);
+    if (faceType == static_cast<int>(FaceType::Core) || faceType == static_cast<int>(FaceType::Private) ||
+        faceType == static_cast<int>(FaceType::None))
+      continue;
+    else
+    {
+      if (!isFaceBoundedByTwoFluxCurves(gf)) 
+      {
+        GEN_removeNativeIntAttribute(gf, "PhysicsRegion");
+        GEN_setNativeIntAttribute(gf, static_cast<int>(FaceType::NearVacuum), "PhysicsRegion"); 
+      }
+    }
+  }
+}
+
+void ModelEqdsk::setMeshVerticesOnPlanes()
+{
+  // Step 1: Set the values on flux curves of plane 0.
+  // Only one plane for eqdsk. Just added this function
+  // for consistency and easy extension if needed to 
+  // do things differently.
+  setMeshVerticesOnPlane(0);
+}
+
+void ModelEqdsk::setMeshVerticesOnPlane(int planeIndex)
+{
+  std::vector <FluxParametricPoints> fluxPointsOnPlane;
+
+  // Step 1: Iterate over the flux curves on the plane and set field points on them.
+  std::vector <Flux> fluxCurves = planes[planeIndex].fluxCurves;
+  for (int i = 0; i < fluxCurves.size(); i++)
+  {
+    Flux f = fluxCurves[i];
+
+    // Step 1.1: Get the par values of points on the flux curve for field following.
+    int pointsPlacementType = 1;
+    FluxParametricPoints points(f, pointsPlacementType);
+    fluxPointsOnPlane.push_back(points);
+  }
+  planes[planeIndex].setFieldPointsOnFlux(fluxPointsOnPlane); 
+}
+
 const Model& ModelEqdsk::getModel() const
 {
   return model;
 }
+
+// Function to get all the geometric information on individual planes.
+const std::vector <Plane>& ModelEqdsk::getPlanes() const
+{
+  return planes;
+}
+

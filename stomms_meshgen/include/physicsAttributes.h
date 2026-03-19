@@ -12,6 +12,7 @@ std::vector <pGVertex> getCriticalPointsOnModelFace(pGFace gf, PointType pointTy
 void tagModelFacesAdjacentToXPoint(pGVertex gv, int index);
 void setFaceTagsOnInnerSeparatrix(pGVertex gv, int index);
 void setFaceTagsOnOuterSeparatrix(pGVertex gv, int index);
+bool isFaceBoundedByTwoFluxCurves(pGFace gf);
 
 // Model Vertex Functions
 bool compareVertexPsi(pGVertex gv1, pGVertex gv2);
