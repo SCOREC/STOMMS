@@ -24,7 +24,9 @@ class FluxParametricPoints{
 // Functions to set the vertices parameters on flux curve.
 std::vector <std::vector<double>> setVerticesParValuesOnFlux(Flux f, int type);
 std::vector <std::vector<double>> setVerticesParValuesUsingDistance(Flux f);
+std::vector <std::vector<double>> setVerticesParValuesUsingPoints(Flux f);
 std::vector <std::vector<double>> setParOnClosedFluxUsingDistance(Flux f);
+std::vector <std::vector<double>> setParOnFluxUsingPoints(Flux f);
 
 double getNextParamPointForDist(const Edge& ge, double parStart, double parEnd, double targetLength);
 

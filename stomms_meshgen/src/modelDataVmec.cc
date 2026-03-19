@@ -79,6 +79,11 @@ std::map<int, Vertex> ModelVmec::sortOPointsByPlanes(Model m, std::vector <doubl
   {
     pGVertex axis = VmecFlux_opointVertex(vf, zetas[i]);
     Vertex axisV;
+    
+    // Step 2.1: Set the attributes to the vertex.
+    GEN_setNativeIntAttribute(axis, static_cast<int>(PointType::OPoint), "PointType");
+    GEN_setNativeDoubleAttribute(axis, 0.0, "PsiNorm");    
+
     axisV.setSimVertex(axis);
     planesAxisMap[i] = axisV;
   }
@@ -167,12 +172,16 @@ std::vector <Flux> ModelVmec::setFluxCurvesOnPlanes(Model m, int planeNum, std::
     pGEdge ge = VmecFlux_poloidalEdge(vf, psi, zeta);
     Edge modelEdge;
     modelEdge.setSimEdge(ge);    
+  
+    // Step 3.4: Set edge properties in terms of attributes on pGEdge.
+    GEN_setNativeIntAttribute(ge, static_cast<int>(CurveType::Closed), "CurveType");
+    GEN_setNativeDoubleAttribute(ge, psiValues[i], "PsiNorm");
 
-    // Step 3.4: Set the edges in a container and assign remaining member variables of Flux
+    // Step 3.5: Set the edges in a container and assign remaining member variables of Flux
     f.edgesOnFlux.push_back(modelEdge);  // For now, its a single edge. In future, for open edges we will need to store multiple edges in a container.
     f.nodeSpacingOnFlux = nodeSpacingOnFlux[i];
 
-    // Step 3.5: Push the flux curves to a container.
+    // Step 3.6: Push the flux curves to a container.
     fluxCurvesOnPlane.push_back(f);
   }
   

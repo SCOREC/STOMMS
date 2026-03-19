@@ -49,13 +49,16 @@ pGModel generateSimModel(const PlaneMetaData& planeMetaData, EqdskData& eqdskDat
   // Step 4: Classify the model faces.
   classifyModelFaces(model);
 
-  // Step 5: Update the model with open curves.
+  // Step 5: Generate the open flux curves.
   std::vector <Flux> openCurves = genOpenFluxCurves(model, eqdskData, curvesMetaData.getOPoints().at(0), 
                                                     curvesMetaData.getWallCurve(), planeMetaData);
 
-  // Step 6: Insert open curves to the model
+  // Step 6: Insert open curves to the model.
   insertOpenCurvesToModel(model, simWallCurve, openCurves); 
-  
+ 
+  // Step 7: Set open curves in curves container.
+  curvesMetaData.setOpenCurves(openCurves);
+
   return model;
 }
 
@@ -86,12 +89,12 @@ pGFace createModelFace(const PhysicsPoint& oPoint, SimmetrixWallCurve& wall, pGM
   return simFace;
 }
 
-pGFace insertClosedCurvesToModelFace(pGModel model, pGFace gf, std::vector <Flux> closedCurves)
+pGFace insertClosedCurvesToModelFace(pGModel model, pGFace gf, std::vector <Flux>& closedCurves)
 {
   std::cout << ".......... Creating Closed Model Edges\n";
   for (int i = 0; i < closedCurves.size(); i++)
   {
-    Flux f = closedCurves[i];
+    Flux& f = closedCurves[i];
     double psiNorm = f.psiNormOnFlux;
     std::vector <Point> pointsOnCurve = f.fieldPoints;
     pCurve simCurve = createClosedCurve(f);
@@ -120,7 +123,7 @@ bool vertexExist(std::vector <double> xyz, const std::vector <pGVertex>& vertice
   return false;
 }
 
-void insertSeparatricesToModelFace(pGModel model, pGFace gf, SimmetrixWallCurve& wall, std::vector <Flux> separatrices)
+void insertSeparatricesToModelFace(pGModel model, pGFace gf, SimmetrixWallCurve& wall, std::vector <Flux>& separatrices)
 {
   std::cout << ".......... Creating Separatrix Model Edges\n";
   std::map <int, std::vector <pGEdge>> sepEdgesMap;
@@ -132,7 +135,7 @@ void insertSeparatricesToModelFace(pGModel model, pGFace gf, SimmetrixWallCurve&
   {
     // Step 2: If there is no xPt vertex for xpt in flux curve f, create one. 
     // if does, use the existing one. Save every new xPt vertex to the vector.
-    Flux f = separatrices[i];
+    Flux& f = separatrices[i];
     Point xPt = f.xPoint.getPoint();
     double psiNorm  =f.psiNormOnFlux;
     std::vector <double> vCoord = {xPt.x, xPt.y, xPt.z};
@@ -179,13 +182,13 @@ void insertSeparatrixLegsToModel(pGFace gf, const std::map <int, std::vector <pG
   }
 }
 
-void insertOpenCurvesToModel(pGModel model, SimmetrixWallCurve& wall, std::vector <Flux> openCurves)
+void insertOpenCurvesToModel(pGModel model, SimmetrixWallCurve& wall, std::vector <Flux>& openCurves)
 {
   std::cout << ".......... Creating Open Model Edges\n";
   for (int i = 0; i < openCurves.size(); i++)
   { 
     // Step 1: Create a curve from given curve points.
-    Flux f = openCurves[i];
+    Flux& f = openCurves[i];
     std::vector <Point> pointsOnCurve = f.fieldPoints;
     pCurve simCurve = createOpenCurve(pointsOnCurve);
 

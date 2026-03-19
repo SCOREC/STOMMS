@@ -59,14 +59,18 @@ class CurveContainer{
     CurveContainer(){};
     CurveContainer(std::vector <Flux>& closedCurves, std::vector <Flux>& separatrices, WallCurve& wall);
     void setCriticalPoints(const std::vector <PhysicsPoint>& oPts, const std::vector <PhysicsPoint>& xPts);
+    void setOpenCurves(const std::vector <Flux>& openFluxCurves);
+    void setModelVertex(pGVertex gv, PointType pType);
     std::vector <Flux>& getCurvesClosed();
     std::vector <Flux>& getCurvesSeparatrix();
+    std::vector <Flux>& getCurvesOpen();
     WallCurve& getWallCurve();
     const std::vector <PhysicsPoint>& getOPoints() const;
     const std::vector <PhysicsPoint>& getXPoints() const;
   private:
     std::vector <Flux> curvesClosed;
     std::vector <Flux> curvesSeparatrix;
+    std::vector <Flux> openCurves;
     std::vector <PhysicsPoint> oPoints;
     std::vector <PhysicsPoint> xPoints;
     WallCurve wallCurve;

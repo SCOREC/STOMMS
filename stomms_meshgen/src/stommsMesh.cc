@@ -97,26 +97,37 @@ void StommsMesh::setMeshOnPlaneFaces(pMesh mesh, pACase meshCase, PlaneMeshMetaD
 {
   // Step 1: Iterate over the model faces from the respective plane.
   std::vector <Face> modelFaces = p.getModelFacesOnPlane();
+  std::vector <int> faceMeshType = p.getFaceMeshType();
   for (int i = 0; i < modelFaces.size(); i++)
   {
     Face f = modelFaces[i];
     pGFace gf = f.getSimFace();
+    
+    int meshType = faceMeshType[i];
 
-    // Step 2: Ensure there are no mesh vertices on the model face.
-    MS_ensureMeshSpansFace(meshCase, gf);  // ensures no vertex on the model face.
-      
-    // Step 3: Ensure not all mesh vertices of an element are on single model edge.
-    pPList edgesOnFace = GF_edges(gf);  // get list of edges on the face.
-    for (int j = 0; j < PList_size(edgesOnFace); j++)
-    {
-      pPList edgesList = PList_new();  // A list to store edges to pass to function "MS_preventAllFaceVerticesOnGEdges"
-      pGEdge ge = static_cast<pGEdge>(PList_item(edgesOnFace, j)); 
-      PList_append(edgesList, ge);
-      MS_preventAllFaceVerticesOnGEdges(meshCase, gf, edgesList);
-      PList_delete(edgesList);
-    }
-    PList_delete(edgesOnFace);
+    if (meshType == 1)
+      setOneElementDeepMeshOnFace(mesh, meshCase, gf);
+    else
+      MS_setMeshSize(meshCase, gf, 1, 0.01, 0);  // TO-DO: Get this mesh size directly from user input
   } 
+}
+
+void StommsMesh::setOneElementDeepMeshOnFace(pMesh mesh, pACase meshCase, pGFace gf)
+{
+  // Step 1: Ensure there are no mesh vertices on the model face.
+  MS_ensureMeshSpansFace(meshCase, gf);  // ensures no vertex on the model face.
+      
+  // Step 2: Ensure not all mesh vertices of an element are on single model edge.
+  pPList edgesOnFace = GF_edges(gf);  // get list of edges on the face.
+  for (int j = 0; j < PList_size(edgesOnFace); j++)
+  {
+    pPList edgesList = PList_new();  // A list to store edges to pass to function "MS_preventAllFaceVerticesOnGEdges"
+    pGEdge ge = static_cast<pGEdge>(PList_item(edgesOnFace, j)); 
+    PList_append(edgesList, ge);
+    MS_preventAllFaceVerticesOnGEdges(meshCase, gf, edgesList);
+    PList_delete(edgesList);
+  }
+  PList_delete(edgesOnFace);
 }
 
 // To specify mesh vertex at O-point (origin/axis of the poloidal plane)

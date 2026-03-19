@@ -33,8 +33,8 @@ std::vector <std::vector<double>> setVerticesParValuesOnFlux(Flux f, int type)
   std::vector <std::vector<double>> parValuesOnEdge;
   if (type == 0)
     parValuesOnEdge = setVerticesParValuesUsingDistance(f);
-  //else if (type == 1)
-  //  setVerticesParValuesUsingPoints(f);
+  else if (type == 1)
+    parValuesOnEdge = setVerticesParValuesUsingPoints(f);
   
   return parValuesOnEdge;
 }
@@ -88,16 +88,12 @@ std::vector <std::vector<double>> setVerticesParValuesUsingDistance(Flux f)
   return parValuesOnEdge;
 }
 
-/*
-void setVerticesParValuesUsingPoints(Flux f)
+
+std::vector <std::vector<double>> setVerticesParValuesUsingPoints(Flux f)
 {
   if (f.curveType == CurveType::Closed)
-    setParOnClosedFluxUsingPoints(f);
-  else if (f.curveType == CurveType::Separatrix)
-    setParOnSeparatrixUsingPoints(f);
-  else if (f.curveType == CurveType::Open)
-    setParOnOpenFluxUsingPoints(f);
-}*/
+    setParOnFluxUsingPoints(f);
+}
 
 // Function to set up the field following points on the closed flux
 // curve using the distance.
@@ -161,4 +157,50 @@ double getNextParamPointForDist(const Edge& ge, double parStart, double parEnd, 
   }
 
   return parTest;
+}
+
+std::vector <std::vector<double>> setParOnFluxUsingPoints(Flux f)
+{
+  std::vector <std::vector<double>> parametricValuesOnEdge;
+
+  int startPointIndex = 0;
+  bool nextEdge = false;
+  for (int i = 0; i < f.edgesOnFlux.size(); i++)
+  {
+    std::vector <double> parValuesOnEdge;
+
+    // Step 1: Get the model edge on flux curve and parameric bounds of the edge.
+    Edge edge = f.edgesOnFlux[i];
+    std::vector <double> parR = edge.getEdgeParRange();
+    pGEdge ge = edge.getSimEdge();  // get sim edge
+
+    // Step 2: Always use first point (makes it easier to deal with periodic edges
+    // using the algorithm in step 3.
+    parValuesOnEdge.push_back(parR[0]);
+
+    // Step 3: Iterate over the points on flux curves and save their parametric
+    // value until they hit the edge end point.
+    for (int j = startPointIndex+1; j < f.fieldPoints.size(); j++)
+    {
+      std::array <double, 3> pt = {f.fieldPoints[j].x, f.fieldPoints[j].y, 0.0};
+      double par;
+      GE_closestPoint(ge, pt.data(), nullptr, &par);
+      parValuesOnEdge.push_back(par);
+      std::cout << "Par = " << par << "\n";
+      if (fabs(par - parR[1]) < 1e-8)
+      {
+        startPointIndex = j;
+        nextEdge = true;
+        break;    
+      }
+    }
+    if (nextEdge)
+    {
+      nextEdge = false;  // reset it and move to next edge
+      continue;
+    }
+    parametricValuesOnEdge.push_back(parValuesOnEdge);
+  }
+  return parametricValuesOnEdge;
+
 }

@@ -27,6 +27,10 @@ void CurveContainer::setCriticalPoints(const std::vector <PhysicsPoint>& oPts, c
   xPoints = xPts;
 }
 
+void CurveContainer::setOpenCurves(const std::vector <Flux>& openFluxCurves)
+{
+  openCurves = openFluxCurves;
+}
 
 std::vector <Flux>& CurveContainer::getCurvesClosed()
 {
@@ -36,6 +40,11 @@ std::vector <Flux>& CurveContainer::getCurvesClosed()
 std::vector <Flux>& CurveContainer::getCurvesSeparatrix() 
 {
   return curvesSeparatrix;
+}
+
+std::vector <Flux>& CurveContainer::getCurvesOpen()
+{
+  return openCurves;
 }
 
 WallCurve& CurveContainer::getWallCurve()

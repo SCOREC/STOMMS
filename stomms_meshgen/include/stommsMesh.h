@@ -121,7 +121,8 @@ class StommsMesh{
       * Given a plane, mesh, and mesh case, set mesh properties on model faces of the plane.
       */ 
      void setMeshOnPlaneFaces(pMesh mesh, pACase meshCase, PlaneMeshMetaData& p);
- 
+
+     void setOneElementDeepMeshOnFace(pMesh mesh, pACase meshCase, pGFace gf); 
      /*
       * To set up the mesh data on all the poloidal planes in the domain.
       */ 

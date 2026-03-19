@@ -33,6 +33,11 @@ std::vector <int> PlaneMeshMetaData::setFaceMeshType(const std::vector <Face> ge
         faceType == FaceType::LowFieldSideEdge || faceType == FaceType::HighFieldSideEdge) 
       meshType = 1;  // one-element deep
 
+    // Step 4: Setup on the private regions (TO-DO)
+    int fluxCurvesOnPrivateRegion = 1;  // Get this from user
+    if (fluxCurvesOnPrivateRegion && faceType == FaceType::Private)
+      meshType = 1;
+
     // Step 4: Store the type in the vector.
     meshTypeOnFace.push_back(meshType);
   }
