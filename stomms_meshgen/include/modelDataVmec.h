@@ -71,7 +71,7 @@ class ModelVmec{
   std::vector<Flux> setFluxCurvesOnPlanes(Model m, int planeNum, std::vector <PlaneMetaData> md);
 
   /**
-   * Given set of planes, set the mesh vertices on the flux curves on all plane.
+   * For a set of planes, set the mesh vertices on the flux curves on all plane.
    */
   void setMeshVerticesOnPlanes();  
 

@@ -28,8 +28,9 @@ class PlaneMeshMetaData{
     const std::vector <Flux>& getFluxCurvesOnPlane();
 
     /**
-     * Function to get a vector of set of points for the field following 
-     * point placement on each flux curve of the plane.
+     * Function to get a vector of set of the class FluxParametricPoints. This vector is
+     * equal to the number of the flux curves. Each member contains the details of the 
+     * field following points parametric values.
      */ 
     const std::vector <FluxParametricPoints>& getMeshVerticesOnFlux() const;
  
@@ -46,7 +47,7 @@ class PlaneMeshMetaData{
   private:
     Plane modelPlane;  // Plane information from StommsModel.
     std::vector <int> faceMeshType;  // 0: No mesh type specified,  1: oneElementDeepMesh, extend accordingly.
-    std::vector <FluxParametricPoints> meshVerticesParametricLocation;      
+    std::vector <FluxParametricPoints> meshVerticesParametricLocation;  // parametric values of vertices      
 
     /*
      * Function to set up the mesh types for individual faces.

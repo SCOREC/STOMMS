@@ -206,6 +206,7 @@ void ModelVmec::classifyModelFaces()
   }
 }
 
+// For a set of planes, set the mesh vertices on the flux curves on all plane.
 void ModelVmec::setMeshVerticesOnPlanes()
 {
   // Step 1: Set the values on flux curves of plane 0.
@@ -218,6 +219,7 @@ void ModelVmec::setMeshVerticesOnPlanes()
     std::vector <FluxParametricPoints> fluxPointsOnPlane;
     std::vector <Flux> fluxCurves = planes[i].fluxCurves;
 
+    // Step 2.1: Iterate over flux curves of the plane 
     for (int i = 0; i < fluxCurves.size(); i++)
     {
       Flux f = fluxCurves[i];
@@ -225,10 +227,13 @@ void ModelVmec::setMeshVerticesOnPlanes()
       FluxParametricPoints parOnFlux(f, parValues);
       fluxPointsOnPlane.push_back(parOnFlux);
     }
+
+    // Step 2.2: Set values back in the plane.
     planes[i].setFieldPointsOnFlux(fluxPointsOnPlane);      
   }
 }
 
+// Given a single plane, set mesh vertices on the flux curves that belong to the plane.
 void ModelVmec::setMeshVerticesOnPlane(int planeIndex)
 {
   std::vector <FluxParametricPoints> fluxPointsOnPlane;

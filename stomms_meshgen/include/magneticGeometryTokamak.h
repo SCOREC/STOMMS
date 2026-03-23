@@ -22,6 +22,7 @@ class MagneticGeometryForTokamak: public MagneticGeometry{
 
     /**
      * A function to return psi value of the axis in the tokamak domain.
+     * @return psi value of the axis.
      */
     double getPsiAxis() const override;
 

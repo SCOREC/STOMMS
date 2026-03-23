@@ -34,8 +34,8 @@ class StommsModel{
 
 /**
  * Function to get model face physics type.
- * @param face: face on physics type is required.
- * @return the physics type.
+ * @param face: face on which physics type is required.
+ * @return the physics type of the face.
  */ 
 FaceType getModelFacePhysicsType(const Face &face);
 

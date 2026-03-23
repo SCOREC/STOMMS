@@ -62,7 +62,7 @@ class MagneticGeometry{
 };
 
 
-/*
+/**
  * Function to set magnetic geometry. This function makes decision based on type
  * of reactor, and set magnetic geometry accordingly.
  * @param input: class holding all the input data.

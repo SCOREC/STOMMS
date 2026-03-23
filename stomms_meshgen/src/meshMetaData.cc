@@ -1,5 +1,9 @@
 #include "meshMetaData.h"
 
+/***********************************************/
+// Class: PlaneMeshMetaData
+/***********************************************/
+
 // Function to set the model plane in plane mesh meta data.
 void PlaneMeshMetaData::setModelPlane(const Plane& p)
 {
@@ -68,7 +72,9 @@ const std::vector <Flux>& PlaneMeshMetaData::getFluxCurvesOnPlane()
   return modelPlane.fluxCurves;
 }
 
-// Function to get a vector of set of points for the field following 
+// Function to get a vector of set of the class FluxParametricPoints. This vector is equal 
+// to the number of the flux curves. Each member contains the details of the field following 
+// points parametric values.
 const std::vector <FluxParametricPoints>& PlaneMeshMetaData::getMeshVerticesOnFlux() const
 {
   return meshVerticesParametricLocation;
@@ -86,7 +92,9 @@ const int& PlaneMeshMetaData::getPlaneNumber()
   return modelPlane.planeNumber;
 }
 
-// MeshMetaData class functions.
+/***********************************************/
+// Class:: MeshMetaData
+/***********************************************/
 MeshMetaData::MeshMetaData(const StommsModel& m):stommsModel(m)
 {
   // Step 1: Get all the model planes from model.

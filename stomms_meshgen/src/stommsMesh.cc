@@ -75,6 +75,7 @@ StommsMesh::StommsMesh(const MeshMetaData& m):meshMetaData(m)
   setMeshDataOnPlanes();
 }
 
+// Given a plane p, and mesh, set mesh properties on the flux curves on the plane.
 void StommsMesh::setMeshOnPlaneFluxCurves(pMesh mesh, PlaneMeshMetaData& p)
 {
   // Step 1: Iterate over the flux curves from the respective plane
@@ -91,6 +92,7 @@ void StommsMesh::setMeshOnPlaneFluxCurves(pMesh mesh, PlaneMeshMetaData& p)
   } 
 }
 
+// Given a plane, mesh, and mesh case, set mesh properties on model faces of the plane.
 void StommsMesh::setMeshOnPlaneFaces(pMesh mesh, pACase meshCase, PlaneMeshMetaData& p)
 {
   // Step 1: Iterate over the model faces from the respective plane.
@@ -101,8 +103,10 @@ void StommsMesh::setMeshOnPlaneFaces(pMesh mesh, pACase meshCase, PlaneMeshMetaD
     Face f = modelFaces[i];
     pGFace gf = f.getSimFace();
     
+    // Step 2: Set the mesh type.
     int meshType = faceMeshType[i];
 
+    // Step 3: If one element deep, set it on the face, otherwise do unstructured meshing on the face.
     if (meshType == 1)
       setOneElementDeepMeshOnFace(mesh, meshCase, gf);
     else
@@ -110,6 +114,7 @@ void StommsMesh::setMeshOnPlaneFaces(pMesh mesh, pACase meshCase, PlaneMeshMetaD
   } 
 }
 
+// Function to set one element deep mesh on a model face.
 void StommsMesh::setOneElementDeepMeshOnFace(pMesh mesh, pACase meshCase, pGFace gf)
 {
   // Step 1: Ensure there are no mesh vertices on the model face.
@@ -128,7 +133,7 @@ void StommsMesh::setOneElementDeepMeshOnFace(pMesh mesh, pACase meshCase, pGFace
   PList_delete(edgesOnFace);
 }
 
-// To specify mesh vertex at O-point (origin/axis of the poloidal plane)
+// To specify mesh vertex at model vertex (origin/axis/other vertices of the poloidal plane).
 int StommsMesh::specifyMeshVertexOnModelVertex(pMesh mesh, pGVertex gv)
 {
   // Step 1: Check if the mesh vertex is already specified on the first model vertex
@@ -155,11 +160,15 @@ int StommsMesh::specifyMeshVertexOnModelVertex(pMesh mesh, pGVertex gv)
   return meshVertexIndex;
 }
 
+// To specify mesh vertices and edges on flux curves (model edges).
 void StommsMesh::specifyMeshOnFluxCurve(pMesh mesh, Flux f, const FluxParametricPoints& parValuesOnFlux)
 {
+  // Step 1: Iterate over the model edges on the flux curve.
   std::vector <Edge> edges = f.edgesOnFlux;
   for (int i = 0; i < edges.size(); i++)
   {
+    // Step 2: Get the parametric values on each model edge, and specify vertices and edges based
+    // on the model edge type.
     std::vector <double> parValuesOnEdge = parValuesOnFlux.getParametricValuesAtFluxEdge(edges[i]);
     if (edges[i].edgeIsPeriodic())
       specifyMeshOnPeriodicModelEdge(mesh, edges[i], parValuesOnEdge);
@@ -168,6 +177,7 @@ void StommsMesh::specifyMeshOnFluxCurve(pMesh mesh, Flux f, const FluxParametric
   }
 }
 
+// To specify mesh vertices and edges on a periodic model edge.
 void StommsMesh::specifyMeshOnPeriodicModelEdge(pMesh mesh, Edge edge, const std::vector<double>& parValues)
 {
   int indxStart;
@@ -181,6 +191,9 @@ void StommsMesh::specifyMeshOnPeriodicModelEdge(pMesh mesh, Edge edge, const std
   double par[2] = {0.0, 0.0};
   par[0] = parValues[0];
 
+  // Step 3: Check if the periodic model edge has a model vertex or not. In VMEC modeling,
+  // we don't have model vertices for periodic edges. If has vertex, specify mesh vertex
+  // on the model vertex, else specify a mesh vertex on the edge (at starting par).
   pPList vertices = GE_vertices(ge);
   if (PList_size(vertices) == 1)
   {
@@ -193,29 +206,29 @@ void StommsMesh::specifyMeshOnPeriodicModelEdge(pMesh mesh, Edge edge, const std
   PList_delete(vertices);
   indxStart = indx[0];  // save it for last specified edge.
 
-  // Step 3: Loop over the remaining parametric values after the first one and also specify edges between 
+  // Step 4: Loop over the remaining parametric values after the first one and also specify edges between 
   // every two specified mesh points.
   for (int i = 1; i < parValues.size(); i++)
   {
     indx[1] = numSpecifiedVert++;
     par[0] = parValues[i];
 
-    // Step 3.1: Specify mesh vertex at each point.
+    // Step 4.1: Specify mesh vertex at each point.
     MS_specifyVertex(mesh,0,par,ge,indx[1]);
 
-    // Step 3.2: Specify mesh edges between two consecutive specified points 
+    // Step 4.2: Specify mesh edges between two consecutive specified points 
     // and update indx[0] for next iteration in loop. 
     MS_specifyEdge(mesh,indx,ge,-1);
     indx[0] = indx[1];
   }
   
-  // Step 4: For the periodic model edges, the last mesh edge is between
+  // Step 5: For the periodic model edges, the last mesh edge is between
   // last specified point (indx[0]) and starting point of the flux curve (indxOnFlux[0]).
   indx[1] = indxStart;
   MS_specifyEdge(mesh,indx,ge,-1);  
 }
 
-
+// To specify mesh vertices and edges on a regular (non-periodic) model edge.
 void StommsMesh::specifyMeshOnModelEdge(pMesh mesh, Edge edge, const std::vector<double>& parValues)  // non-periodic
 {
   // Step 1: Get the Simmetrix model edge.
@@ -255,6 +268,7 @@ void StommsMesh::specifyMeshOnModelEdge(pMesh mesh, Edge edge, const std::vector
   PList_delete(vertices);  
 }
 
+// Function to return already specified vertex tag. If not specified yet, returns -1.
 int StommsMesh::getSpecifiedVertexTag(const pGVertex& gv)
 {
   int specifiedVertexTag = -1;  
