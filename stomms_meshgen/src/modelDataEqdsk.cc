@@ -4,7 +4,6 @@ ModelEqdsk::ModelEqdsk(const PlaneMetaData& planeMetaData, EqdskData& eqdskData,
 {
   // Step 1: Generate Model (with underlying simmetrix model)
   pGModel simModel = generateSimModel(planeMetaData, eqdskData, curvesMetaData);
-  GM_write(simModel, "eqdsk.smd", 0, 0);  
   
   // Step 2: Save it as type Model.
   model.setSimModel(simModel);
@@ -13,8 +12,10 @@ ModelEqdsk::ModelEqdsk(const PlaneMetaData& planeMetaData, EqdskData& eqdskData,
   curvesContainer = curvesMetaData;  // a local copy for use in the class.
   setPlane();
   
-  // Step 4: Update Model classification
+  // Step 4: Update Model classification & write smd model since we will
+  // no more changes in model.
   finalModelFaceClassification();
+  GM_write(simModel, "eqdsk.smd", 0, 0);
 
   // Step 5: Set parametric values of mesh vertices on the flux curves.
   setMeshVerticesOnPlanes();
