@@ -1,44 +1,65 @@
 /** \page meshgen STOMMS Mesh Generation APIs
 
 - \ref include/input.h "Inputs"
-- \ref include/gfileUtil.h "PSPLINE GEQDSK Utility"
-- \ref include/modelTopology.h "Model Topological Definitions"
-- \ref include/physicalGeometry.h "Physical Geometry"
-- \ref critical_points "Critical Points"
-- \ref magnetic_geometry "Magnetic Geometry"
+- \ref eqdsk_modeling "EQDSK Geometric Modeling"
+- \ref vmec_modeling "VMEC Geometric Modeling"
+- \ref geometry "Physics and Physical Geometry"
 - \ref modeling_apis "Geometric Modeling"
 - \ref meshing_apis "Meshing"
-- \ref include/output.h "Output"
+- \ref outputs "Output"
 - \ref include/util.h "Other Utility Functions"
 */
 
 
-// Page for Critical Points
-/** \page critical_points Critical Points APIs
-- \ref include/criticalPointsEqdsk.h "Critical Points from EQDSK file"
-- \ref include/criticalPoints.h "Critical Points"
+// Page for EQDSK Modeling
+/** \page eqdsk_modeling EQDSK Modeling APIs
+- \ref include/criticalPointsEqdsk.h "Critical Points for EQDSK"
+- \ref include/eqdskData.h "EQDSK Data Class"
+- \ref include/fluxCurveUtilityEqdsk.h "Flux Curve Generation Utilities"
+- \ref include/genFluxCurvesEqdsk.h "Flux Curve Generation"
+- \ref include/magneticGeometryTokamak.h "Magnetic Geometry for Tokamaks"
+- \ref include/modelDataEqdsk.h "Modeling Data for EQDSK Geometries"
+- \ref include/modelingEqdsk.h  "Geometric Modeling for EQDSK"
 */
- 
+
+// Page for VMEC Modeling
+/** \page vmec_modeling VMEC Modeling APIs
+- \ref include/vmecData.h "VMEC Data Class"
+- \ref include/modelDataVmec.h "Modeling Data for VMEC Geometries"
+- \ref include/modelingVmec.h  "Geometric Modeling for VMEC"
+- \ref include/magneticGeometryStellarator.h "Magnetic Geometry for Stellarators"
+*/
+
+
+// Page for Geometric APIs 
+/** \page geometry Goemetric Modeling APIs
+- \ref include/criticalPoints.h  "Critical Points"
+- \ref include/fieldPointsOnFlux.h "Field Following Points on a Flux Curve"
+- \ref include/magneticGeometry.h "Magnetic Geometry"
+- \ref include/magneticGeometryDataTypes.h "Magnetic Geometry Data Types"
+- \ref include/modelPhysicsQueries.h "Physics Queries from Model Entities"
+- \ref include/physicalGeometry.h "Physical Geometry"
+- \ref include/physicsAttributes.h "Physics Attributes"
+- \ref include/plane.h "Plane"
+*/
+
 
 // Page for Modeling Headers
 /** \page modeling_apis Modeling APIs
 - \ref include/modelMetaData.h "Model Metadata"
-- \ref include/modelingVmec.h "Geometric Modeling for VMEC"
-- \ref include/modelDataVmec.h "Modeling Data for VMEC Geometries"
+- \ref include/modelTopology.h "Model Topological Definitions"
 - \ref include/stommsModel.h "STOMMS Model"
 */
 
-
-// Page for headers related to magnetic geometry
-/** \page magnetic_geometry Magnetic Geometry APIs
-- \ref include/magneticGeometryDataTypes.h "Magnetic Geometry Data Types"
-- \ref include/magneticGeometry.h "Magnetic Geometry"
-- \ref include/magneticGeometryStellarator.h "Magnetic Geometry for Stellarators"
-- \ref include/magneticGeometryTokamak.h "Magnetic Geometry for Tokamaks"
-*/
 
 // Page for meshing APIs
 /** \page meshing_apis Meshing APIs
 - \ref include/meshMetaData.h "Mesh Metadata"
 - \ref include/stommsMesh.h "Meshing"
+*/
+
+
+// Page for output APIs
+/** \page outputs Output APIs
+- \ref include/output.h "Output"
 */
