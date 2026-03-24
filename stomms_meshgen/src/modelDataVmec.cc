@@ -15,9 +15,15 @@ ModelVmec::ModelVmec(const ModelMetaData& md, const VmecData& vm): modelMetaData
   // Step 2: Generate the model using planes meta data.
   model = generateCoreSimModelVmec(planesContainer, vmec);
 
-  // Step 3: Steup the poloidal planes with their model enteties using
+  // Step 3: Setup the poloidal planes with their model enteties using
   // the model information.
   setPlanes();
+
+  // Step 4: Classify model faces.
+  classifyModelFaces();
+
+  // Step 5: Set parametric values of mesh vertices on the flux curves.
+  setMeshVerticesOnPlanes();
 }
 
 // Setting model entities from Simmetrix Model (pGModel) to respective planes.
@@ -73,6 +79,11 @@ std::map<int, Vertex> ModelVmec::sortOPointsByPlanes(Model m, std::vector <doubl
   {
     pGVertex axis = VmecFlux_opointVertex(vf, zetas[i]);
     Vertex axisV;
+    
+    // Step 2.1: Set the attributes to the vertex.
+    GEN_setNativeIntAttribute(axis, static_cast<int>(PointType::OPoint), "PointType");
+    GEN_setNativeDoubleAttribute(axis, 0.0, "PsiNorm");    
+
     axisV.setSimVertex(axis);
     planesAxisMap[i] = axisV;
   }
@@ -153,6 +164,7 @@ std::vector <Flux> ModelVmec::setFluxCurvesOnPlanes(Model m, int planeNum, std::
     Flux f;
     f.planeNumber = planeNum;
     f.psiNormOnFlux = psiValues[i];
+    f.curveType = CurveType::Closed;
 
     // Step 3.3: Get the actual psi value from normalized psi and then use the value
     // to retrieve model edge associated to it.Save it as type Edge. 
@@ -160,16 +172,84 @@ std::vector <Flux> ModelVmec::setFluxCurvesOnPlanes(Model m, int planeNum, std::
     pGEdge ge = VmecFlux_poloidalEdge(vf, psi, zeta);
     Edge modelEdge;
     modelEdge.setSimEdge(ge);    
+  
+    // Step 3.4: Set edge properties in terms of attributes on pGEdge.
+    GEN_setNativeIntAttribute(ge, static_cast<int>(CurveType::Closed), "CurveType");
+    GEN_setNativeDoubleAttribute(ge, psiValues[i], "PsiNorm");
 
-    // Step 3.4: Set the edges in a container and assign remaining member variables of Flux
+    // Step 3.5: Set the edges in a container and assign remaining member variables of Flux
     f.edgesOnFlux.push_back(modelEdge);  // For now, its a single edge. In future, for open edges we will need to store multiple edges in a container.
     f.nodeSpacingOnFlux = nodeSpacingOnFlux[i];
 
-    // Step 3.5: Push the flux curves to a container.
+    // Step 3.6: Push the flux curves to a container.
     fluxCurvesOnPlane.push_back(f);
   }
   
   return fluxCurvesOnPlane;
+}
+
+// Classify Model Faces
+void ModelVmec::classifyModelFaces()
+{
+  // Step 1: Get all the faces on the model.
+  std::vector <Face> modelFaces = model.getModelFaces();
+
+  // Step 2: Iterate over the face and check if they belong to core, sol, pvt, or any other physics region.
+  for (int i = 0; i < modelFaces.size(); i++)
+  {
+    Face f = modelFaces[i];
+    pGFace gf = f.getSimFace();
+
+    // Step 2.1: If belongs to core, set the face attribute.
+    if (isModelFaceOnCore(gf))
+      GEN_setNativeIntAttribute(gf, static_cast<int>(FaceType::Core), "PhysicsRegion");
+  }
+}
+
+// For a set of planes, set the mesh vertices on the flux curves on all plane.
+void ModelVmec::setMeshVerticesOnPlanes()
+{
+  // Step 1: Set the values on flux curves of plane 0.
+  setMeshVerticesOnPlane(0);
+  
+  // Step 2: Get the points on plane 0 and set them on remaining planes.
+  std::vector <FluxParametricPoints> points = planes[0].getFieldPointsOnFluxCurves();
+  for (int i = 1; i < planes.size(); i++)
+  {
+    std::vector <FluxParametricPoints> fluxPointsOnPlane;
+    std::vector <Flux> fluxCurves = planes[i].fluxCurves;
+
+    // Step 2.1: Iterate over flux curves of the plane 
+    for (int i = 0; i < fluxCurves.size(); i++)
+    {
+      Flux f = fluxCurves[i];
+      std::vector <std::vector<double>> parValues = points[i].getParametricValuesOnFlux();
+      FluxParametricPoints parOnFlux(f, parValues);
+      fluxPointsOnPlane.push_back(parOnFlux);
+    }
+
+    // Step 2.2: Set values back in the plane.
+    planes[i].setFieldPointsOnFlux(fluxPointsOnPlane);      
+  }
+}
+
+// Given a single plane, set mesh vertices on the flux curves that belong to the plane.
+void ModelVmec::setMeshVerticesOnPlane(int planeIndex)
+{
+  std::vector <FluxParametricPoints> fluxPointsOnPlane;
+
+  // Step 1: Iterate over the flux curves on the plane and set field points on them.
+  std::vector <Flux> fluxCurves = planes[planeIndex].fluxCurves;
+  for (int i = 0; i < fluxCurves.size(); i++)
+  {
+    Flux f = fluxCurves[i];
+
+    // Step 1.1: Get the par values of points on the flux curve for field following.
+    int pointsPlacementType = 0;
+    FluxParametricPoints points(f, pointsPlacementType);
+    fluxPointsOnPlane.push_back(points);
+  }
+  planes[planeIndex].setFieldPointsOnFlux(fluxPointsOnPlane); 
 }
 
 // Function to get model associated with vmec geometry.

@@ -11,26 +11,12 @@ SimmetrixWallCurve::SimmetrixWallCurve(const WallCurve& wall, pGModel model)
   simEdges = createWallEdges(model, simCurves, wall);  
 }
 
-SimmetrixWallCurve::~SimmetrixWallCurve()
+void SimmetrixWallCurve::updateSimEdges(std::vector <pGEdge> updatedEdgesVector)
 {
-  if (PList_size(simCurves) > 0)
-  {
-    PList_clear(simCurves);
-    PList_delete(simCurves);
-  }
-  if (PList_size(simEdges) > 0)
-  {
-    PList_clear(simEdges);
-    PList_delete(simEdges);
-  }
+  simEdges = updatedEdgesVector;
 }
 
-void SimmetrixWallCurve::updateSimEdges(pPList updatedList)
-{
-  simEdges = updatedList;
-}
-
-pPList SimmetrixWallCurve::getSimEdges()
+std::vector <pGEdge> SimmetrixWallCurve::getSimEdges()
 {
   return simEdges;
 }
@@ -63,13 +49,16 @@ pGModel generateSimModel(const PlaneMetaData& planeMetaData, EqdskData& eqdskDat
   // Step 4: Classify the model faces.
   classifyModelFaces(model);
 
-  // Step 5: Update the model with open curves.
+  // Step 5: Generate the open flux curves.
   std::vector <Flux> openCurves = genOpenFluxCurves(model, eqdskData, curvesMetaData.getOPoints().at(0), 
                                                     curvesMetaData.getWallCurve(), planeMetaData);
 
-  // Step 6: Insert open curves to the model
+  // Step 6: Insert open curves to the model.
   insertOpenCurvesToModel(model, simWallCurve, openCurves); 
-  
+ 
+  // Step 7: Set open curves in curves container.
+  curvesMetaData.setOpenCurves(openCurves);
+
   return model;
 }
 
@@ -78,16 +67,11 @@ pGFace createModelFace(const PhysicsPoint& oPoint, SimmetrixWallCurve& wall, pGM
   std::cout << ".......... Creating Primary Model Face\n\t   between Wall & oPoint\n";
 
   // Step 1: Get the wallEdges
-  pPList wallEdges = wall.getSimEdges();
-
-  int nEdges = PList_size(wallEdges);
-  std::vector <pGEdge> edges;
+  std::vector <pGEdge> edges = wall.getSimEdges();
   std::vector <int> dirs;
-  for (int i = 0; i < nEdges; i++) 
-  {
-    edges.push_back(static_cast<pGEdge>(PList_item(wallEdges, i)));
-    dirs.push_back(1);  
-  }
+  int nEdges = edges.size();
+  for (int i = 0; i < nEdges; i++)
+    dirs.push_back(1);
 
   std::array <double, 4> bounds = getCurveBounds(wall.getPoints());
   std::vector <double> corner = {bounds[0], bounds[1], 0.0};
@@ -105,16 +89,17 @@ pGFace createModelFace(const PhysicsPoint& oPoint, SimmetrixWallCurve& wall, pGM
   return simFace;
 }
 
-pGFace insertClosedCurvesToModelFace(pGModel model, pGFace gf, std::vector <Flux> closedCurves)
+pGFace insertClosedCurvesToModelFace(pGModel model, pGFace gf, std::vector <Flux>& closedCurves)
 {
   std::cout << ".......... Creating Closed Model Edges\n";
   for (int i = 0; i < closedCurves.size(); i++)
   {
-    Flux f = closedCurves[i];
+    Flux& f = closedCurves[i];
     double psiNorm = f.psiNormOnFlux;
     std::vector <Point> pointsOnCurve = f.fieldPoints;
     pCurve simCurve = createClosedCurve(f);
     pGEdge ge = createClosedEdge(model, simCurve, pointsOnCurve);
+    f.setSimEdgeToFlux(ge);
     GEN_setNativeDoubleAttribute(ge, psiNorm, "PsiNorm");
     pGFace newFace = insertPeriodicEdgeToModelFace(gf, ge);
     gf = newFace;
@@ -138,7 +123,7 @@ bool vertexExist(std::vector <double> xyz, const std::vector <pGVertex>& vertice
   return false;
 }
 
-void insertSeparatricesToModelFace(pGModel model, pGFace gf, SimmetrixWallCurve& wall, std::vector <Flux> separatrices)
+void insertSeparatricesToModelFace(pGModel model, pGFace gf, SimmetrixWallCurve& wall, std::vector <Flux>& separatrices)
 {
   std::cout << ".......... Creating Separatrix Model Edges\n";
   std::map <int, std::vector <pGEdge>> sepEdgesMap;
@@ -150,7 +135,7 @@ void insertSeparatricesToModelFace(pGModel model, pGFace gf, SimmetrixWallCurve&
   {
     // Step 2: If there is no xPt vertex for xpt in flux curve f, create one. 
     // if does, use the existing one. Save every new xPt vertex to the vector.
-    Flux f = separatrices[i];
+    Flux& f = separatrices[i];
     Point xPt = f.xPoint.getPoint();
     double psiNorm  =f.psiNormOnFlux;
     std::vector <double> vCoord = {xPt.x, xPt.y, xPt.z};
@@ -197,13 +182,13 @@ void insertSeparatrixLegsToModel(pGFace gf, const std::map <int, std::vector <pG
   }
 }
 
-void insertOpenCurvesToModel(pGModel model, SimmetrixWallCurve& wall, std::vector <Flux> openCurves)
+void insertOpenCurvesToModel(pGModel model, SimmetrixWallCurve& wall, std::vector <Flux>& openCurves)
 {
   std::cout << ".......... Creating Open Model Edges\n";
   for (int i = 0; i < openCurves.size(); i++)
   { 
     // Step 1: Create a curve from given curve points.
-    Flux f = openCurves[i];
+    Flux& f = openCurves[i];
     std::vector <Point> pointsOnCurve = f.fieldPoints;
     pCurve simCurve = createOpenCurve(pointsOnCurve);
 
@@ -225,6 +210,9 @@ void insertOpenCurvesToModel(pGModel model, SimmetrixWallCurve& wall, std::vecto
 
     // Step 5: Insert the edges to the model (by inserting into model faces)
     insertLinearEdgeToModel(ge,0);
+  
+    // Step 6: Save edge to flux curve
+    f.setSimEdgeToFlux(ge);
   }
 }
 
@@ -308,9 +296,9 @@ pCurve createSepLegCurve(SeparatrixLeg& leg)
   return curve;
 }
 
-pPList createWallCurve(const WallCurve& wallCurve)
+std::vector <pCurve> createWallCurve(const WallCurve& wallCurve)
 {
-  pPList simWallCurves = PList_new();
+  std::vector <pCurve> simWallCurves;
   std::vector <Point> wallPoints = wallCurve.getPoints();
   bool wallSplineOn = false;  // get it from input later
 
@@ -323,7 +311,7 @@ pPList createWallCurve(const WallCurve& wallCurve)
     {
       std::vector <double> pt1 = {wallPoints[i].x, wallPoints[i].y, 0.0};
       std::vector <double> pt2 = {wallPoints[i+1].x, wallPoints[i+1].y, 0.0};
-      PList_append(simWallCurves, SCurve_createLine(pt1.data(), pt2.data()));
+      simWallCurves.push_back(SCurve_createLine(pt1.data(), pt2.data()));
     }
   }
 
@@ -376,28 +364,29 @@ std::vector <pGEdge> createSeparatrixEdges(pGModel model, SimmetrixWallCurve& wa
       ge = GR_createEdge(GIP_outerRegion(GM_rootPart(model)), vXpt, vEnd, simCurve, 1);
       splitWallEdgeAtVertex(model, wall, vEnd);
       edgesOnSep.push_back(ge);
-    } 
+    }
+    f.setSimEdgeToFlux(ge); 
     GEN_setNativeIntAttribute(ge, static_cast<int>(CurveType::Separatrix), "CurveType");
     GEN_setNativeDoubleAttribute(ge, psiNorm, "PsiNorm");   
   }
   return edgesOnSep; 
 }
 
-pPList createWallEdges(pGModel model, const pPList& wallSimCurves, const WallCurve& wallCurve)
+std::vector<pGEdge> createWallEdges(pGModel model, std::vector <pCurve>& wallSimCurves, const WallCurve& wallCurve)
 {
-  pPList wallEdges = PList_new();
+  std::vector <pGEdge> wallEdges;
   std::array <pGVertex, 2> gv;
   pGVertex fv;
   std::vector <Point> wallPoints = wallCurve.getPoints();
-  for (int i = 0; i < PList_size(wallSimCurves); i++)
+  for (int i = 0; i < wallSimCurves.size(); i++)
   {
-    pCurve sCurve = static_cast<pCurve>(PList_item(wallSimCurves, i));
+    pCurve sCurve = wallSimCurves[i];
     std::array <double, 3> v1, v2;
     v1[2] = v2[2] = 0.0;
     if (i)
     {
       gv[0] = gv[1];
-      if (i == PList_size(wallSimCurves) - 1)
+      if (i == wallSimCurves.size() - 1)
         gv[1] = fv;
       else
       {
@@ -417,7 +406,7 @@ pPList createWallEdges(pGModel model, const pPList& wallSimCurves, const WallCur
     }
     pGEdge ge = GR_createEdge(GIP_outerRegion(GM_rootPart(model)), gv[0], gv[1], sCurve, 1);
     GEN_setNativeIntAttribute(ge, static_cast<int>(CurveType::Wall), "CurveType");
-    PList_append(wallEdges, ge);
+    wallEdges.push_back(ge);
   }
 
   return wallEdges;
@@ -428,7 +417,7 @@ void splitWallEdgeAtVertex(pGModel model, SimmetrixWallCurve& wall, pGVertex gv)
 {
   pGEdge ge, splitEdge = 0;
   pGVertex newVertex;
-  pPList SimEdges = wall.getSimEdges();
+  std::vector <pGEdge> SimEdges = wall.getSimEdges();
 
   // Find the line segment that is closest to the vertex point
   double xyz[3];
@@ -437,9 +426,9 @@ void splitWallEdgeAtVertex(pGModel model, SimmetrixWallCurve& wall, pGVertex gv)
   double par;
   int idx;
 
-  for (int i = 0; i < PList_size(SimEdges); i++) 
+  for (int i = 0; i < SimEdges.size(); i++) 
   {
-    ge = static_cast<pGEdge>(PList_item(SimEdges, i));
+    ge = SimEdges[i];
     double outPt[3], outPar;
     GE_closestPoint(ge, xyz, outPt, &outPar);
     double dist = stomms_dist2(outPt, xyz);
@@ -464,16 +453,18 @@ void splitWallEdgeAtVertex(pGModel model, SimmetrixWallCurve& wall, pGVertex gv)
 
       GM_mergeVertices(gv, newVertex);
 
-      pPList newList = PList_new();
+      std::vector <pGEdge> updatedEdges;
+
       for(int i = 0; i<idx; i++)
-        PList_append(newList, PList_item(SimEdges, i));
-      PList_append(newList, PList_item(newEdges, 0));
-      PList_append(newList, PList_item(newEdges, 1));
+        updatedEdges.push_back(SimEdges[i]);
+
+      updatedEdges.push_back(static_cast<pGEdge>(PList_item(newEdges, 0)));
+      updatedEdges.push_back(static_cast<pGEdge>(PList_item(newEdges, 1)));
       PList_delete(newEdges);
-      for(int i = idx+1; i<PList_size(SimEdges); i++)
-        PList_append(newList, PList_item(SimEdges, i));
-      PList_delete(SimEdges);
-      wall.updateSimEdges(newList);
+
+      for(int i = idx+1; i<SimEdges.size(); i++)
+        updatedEdges.push_back(SimEdges[i]);
+      wall.updateSimEdges(updatedEdges);
     }
   }
 }

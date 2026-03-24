@@ -61,7 +61,7 @@ class Edge{
     /*
      * Function to return the underlying Simmetrix model edge for the Edge.
      */   
-    const pGEdge& getSimEdge();
+    const pGEdge& getSimEdge() const;
 
     /*
      * Function to return model vertices on the Edge.
@@ -156,7 +156,7 @@ class Face{
     /*
      * Fucntion to return Simmetrix model face assoctaed with Face.
      */ 
-    const pGFace& getSimFace();
+    const pGFace& getSimFace() const;
 
     /*
      * Function to return the model edges on the model face.

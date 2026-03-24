@@ -448,8 +448,8 @@ std::vector <Flux> SeparatrixCurve::mergeSeparatrixLegs(std::vector <SeparatrixL
       SeparatrixLeg endLeg = separatrixLegs[segBack[i]];
       flux.separatrixLegs.push_back(startLeg);
       flux.separatrixLegs.push_back(endLeg);
-      flux.fieldPoints.assign(startLeg.fieldPoints.begin(), startLeg.fieldPoints.end() - 1);
-      flux.fieldPoints.assign(endLeg.fieldPoints.begin(), endLeg.fieldPoints.end());
+      flux.fieldPoints.insert(flux.fieldPoints.end(), startLeg.fieldPoints.begin(), startLeg.fieldPoints.end() - 1);
+      flux.fieldPoints.insert(flux.fieldPoints.end(), endLeg.fieldPoints.begin(), endLeg.fieldPoints.end());
       flux.curveType = CurveType::Separatrix;
       PhysicsPoint pt(xPoint, psi, PointType::XPoint);
       flux.xPoint = pt;
@@ -462,26 +462,26 @@ std::vector <Flux> SeparatrixCurve::mergeSeparatrixLegs(std::vector <SeparatrixL
     Flux flux;
     SeparatrixLeg startLeg = separatrixLegs[segFront[0]];
     flux.separatrixLegs.push_back(startLeg);
-    flux.fieldPoints.assign(startLeg.fieldPoints.begin(), startLeg.fieldPoints.end() - 1);
+    flux.fieldPoints.insert(flux.fieldPoints.end(), startLeg.fieldPoints.begin(), startLeg.fieldPoints.end() - 1);
     for (int i = 0; i < separatrixLegs.size(); i++)
     {
       if (separatrixLegs[i].curveSubType == CurveSubType::Closed)
       {
         SeparatrixLeg closed = separatrixLegs[i];
         flux.separatrixLegs.push_back(separatrixLegs[i]);
-        flux.fieldPoints.assign(closed.fieldPoints.begin(), closed.fieldPoints.end()); 
+        flux.fieldPoints.insert(flux.fieldPoints.end(), closed.fieldPoints.begin(), closed.fieldPoints.end());
       }
     }
     SeparatrixLeg endLeg = separatrixLegs[segBack[0]];
     flux.separatrixLegs.push_back(endLeg);
-    flux.fieldPoints.assign(endLeg.fieldPoints.begin() + 1, endLeg.fieldPoints.end());
+    flux.fieldPoints.insert(flux.fieldPoints.end(), endLeg.fieldPoints.begin() + 1, endLeg.fieldPoints.end());
     flux.curveType = CurveType::Separatrix;
     PhysicsPoint pt(xPoint, psi, PointType::XPoint);
     flux.xPoint = pt;
     flux.psiNormOnFlux = psiNorm;
     fluxCurves.push_back(flux);    
   }
-  
+ 
   return fluxCurves;
 }
 
@@ -511,6 +511,7 @@ OpenFluxCurve::OpenFluxCurve(std::vector <PhysicsPoint> startPoints, int startPt
   psiNorm = eqdskData.convertPsiToNorm(psi);
   f.psiNormOnFlux = psiNorm;
   f.fieldPoints.push_back(startPoint);
+  f.curveType = CurveType::Open;
 
   // Step 3: Set curve meta data.
   curveData.psi = psi;

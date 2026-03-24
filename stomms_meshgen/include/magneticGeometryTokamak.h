@@ -22,6 +22,7 @@ class MagneticGeometryForTokamak: public MagneticGeometry{
 
     /**
      * A function to return psi value of the axis in the tokamak domain.
+     * @return psi value of the axis.
      */
     double getPsiAxis() const override;
 
@@ -79,8 +80,6 @@ class MagneticGeometryForTokamak: public MagneticGeometry{
     PlaneMetaData planeMetaData;
 
     ModelEqdsk modelEqdsk;
-    Model model; // place holder. delete it when modelEqdsk is done.
-    std::vector <Plane> planes;
     
     // Internal functions:
     void classifyPsiValues();

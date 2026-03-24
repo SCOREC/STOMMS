@@ -8,34 +8,33 @@
 class SimmetrixWallCurve{
   public:
     SimmetrixWallCurve(){};
-    ~SimmetrixWallCurve();
     SimmetrixWallCurve(const WallCurve& wall, pGModel model);
-    void updateSimEdges(pPList updatedList);
-    pPList getSimEdges();
+    void updateSimEdges(std::vector <pGEdge> updatedEdgesVector);
+    std::vector <pGEdge> getSimEdges();
     const std::vector <Point>& getPoints();
   private:
-    pPList simCurves; 
-    pPList simEdges;
+    std::vector <pCurve> simCurves; 
+    std::vector <pGEdge> simEdges;
     std::vector <Point> points;
 };
 
 pGModel generateSimModel(const PlaneMetaData& planeMetaData, EqdskData& eqdskData, CurveContainer& curvesMetaData);
 pGFace createModelFace(const PhysicsPoint& oPoint, SimmetrixWallCurve& wall, pGModel model);
-pGFace insertClosedCurvesToModelFace(pGModel model, pGFace gf, std::vector <Flux> closedCurves);
-void insertSeparatricesToModelFace(pGModel model, pGFace gf, SimmetrixWallCurve& wall, std::vector <Flux> separatrices);
+pGFace insertClosedCurvesToModelFace(pGModel model, pGFace gf, std::vector <Flux>& closedCurves);
+void insertSeparatricesToModelFace(pGModel model, pGFace gf, SimmetrixWallCurve& wall, std::vector <Flux>& separatrices);
 void insertSeparatrixLegsToModel(pGFace gf, const std::map <int, std::vector <pGEdge>>& separatrices);
-void insertOpenCurvesToModel(pGModel model, SimmetrixWallCurve& wall, std::vector <Flux> openCurves);
+void insertOpenCurvesToModel(pGModel model, SimmetrixWallCurve& wall, std::vector <Flux>& openCurves);
 
 // Model Curve Functions
 pCurve createClosedCurve(Flux& f);
 pCurve createOpenCurve(std::vector <Point> points);
 pCurve createSepLegCurve(SeparatrixLeg& leg);
-pPList createWallCurve(const WallCurve& wallCurve);
+std::vector <pCurve> createWallCurve(const WallCurve& wallCurve);
 
 // Model Edge Functions
 pGEdge createClosedEdge(pGModel model, pCurve simCurve, std::vector <Point> curvePoints);
 std::vector <pGEdge> createSeparatrixEdges(pGModel model, SimmetrixWallCurve& wall, Flux& f, pGVertex vXpt);
-pPList createWallEdges(pGModel model, const pPList& wallSimCurves, const WallCurve& wallCurve);
+std::vector<pGEdge> createWallEdges(pGModel model, std::vector <pCurve>& wallSimCurves, const WallCurve& wallCurve);
 pGFace insertPeriodicEdgeToModelFace(pGFace gf, pGEdge ge);
 void insertLinearEdgeToModel(pGEdge ge, int endToUse);
 

@@ -39,6 +39,13 @@ struct SeparatrixLeg{
  */
 class Flux{
   public:
+    // Set Functions - Try to move data to private in future
+    /**
+     * To set a model edge to the flux curve.
+     * @param ge: model edge.
+     */ 
+    void setSimEdgeToFlux(pGEdge ge);
+
     int planeNumber = 0;  // plane on which flux curve lies.
     double psiNormOnFlux;  // normalized psi value of flux curve
     std::vector <Edge> edgesOnFlux;
@@ -53,20 +60,68 @@ class Flux{
 
 class CurveContainer{
   public:
+    /**
+     * Default constructor.
+     */ 
     CurveContainer(){};
+
+    /**
+     * Constructor to set flux curves already been generated. Takes in set of closed flux curves, separatrices and wall curve.
+     * @param closedCurves: a vector of closed flux curves.
+     * @param separatrices: a vector of separatrix curves.
+     * @param wall: wall curve.
+     */ 
     CurveContainer(std::vector <Flux>& closedCurves, std::vector <Flux>& separatrices, WallCurve& wall);
+
+    /**
+     * Function to set critical points in the container.
+     * @param oPts: vector of O-points.
+     * @param xPts: vector of X-points.
+     */ 
     void setCriticalPoints(const std::vector <PhysicsPoint>& oPts, const std::vector <PhysicsPoint>& xPts);
+
+    /**
+     * Function to set open flux curves in the container.
+     * @param openFluxCurves: a vector of open flux curves.
+     */ 
+    void setOpenCurves(const std::vector <Flux>& openFluxCurves);
+
+    /**
+     * @return a vector of closed flux curves in the container.
+     */ 
     std::vector <Flux>& getCurvesClosed();
+
+    /**
+     * @return a vector of separatrix curves in the container.
+     */ 
     std::vector <Flux>& getCurvesSeparatrix();
+
+    /**
+     * @return a vector of open curves in the container. 
+     */ 
+    std::vector <Flux>& getCurvesOpen();
+
+    /**
+     * @return wall curve.
+     */  
     WallCurve& getWallCurve();
+
+    /**
+     * @return a vector of O-points.
+     */ 
     const std::vector <PhysicsPoint>& getOPoints() const;
+
+    /**
+     * @return a vector of X-points.
+     */ 
     const std::vector <PhysicsPoint>& getXPoints() const;
   private:
-    std::vector <Flux> curvesClosed;
-    std::vector <Flux> curvesSeparatrix;
-    std::vector <PhysicsPoint> oPoints;
-    std::vector <PhysicsPoint> xPoints;
-    WallCurve wallCurve;
+    std::vector <Flux> curvesClosed;  // closed flux curves
+    std::vector <Flux> curvesSeparatrix;  // separatrices
+    std::vector <Flux> openCurves;  // open flux curves
+    std::vector <PhysicsPoint> oPoints;  // O-points
+    std::vector <PhysicsPoint> xPoints;  // X-points
+    WallCurve wallCurve;  // wall curve
 };
 
 /*
@@ -78,21 +133,9 @@ enum class FaceType {
   ScrapeOffLayer,
   LowFieldSideEdge,
   HighFieldSideEdge,
-  LowFieldSideNearVacuum,  // between last flux curve and wall curve
-  HighFieldSideNearVacuum,
+  NearVacuum,  // between last flux curve and wall curve
   Private,
   None
-};
-
-/**
- * A class to define geometric model on a plane.
- */
-class Plane{
-  public:
-    std::vector <Face> modelFaces;
-    std::vector <Flux> fluxCurves;  // vector of flux curves on the poloidal plane.
-    Vertex oPoint;
-    int planeNumber;  // plane number starting from 0 to numPlanes-1
 };
 
 #endif

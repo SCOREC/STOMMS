@@ -1,22 +1,20 @@
 #include "physicsAttributes.h"
 
-// Model Face Functions
+// Function to check if a model face is on the core region or not.
 bool isModelFaceOnCore(pGFace gf)
 {
   int numPeriodicEdges = getNumPeriodicEdgesOnModelFace(gf);
   if (numPeriodicEdges == 2)
     return true;
 
-  if (numPeriodicEdges == 1)
-  {
-    std::vector <pGVertex> oPoints = getCriticalPointsOnModelFace(gf, PointType::OPoint);
-    if (oPoints.size() == 1)
+  pPList edgesOnFace = GF_edges(gf);
+  if (PList_size(edgesOnFace) == 1 && numPeriodicEdges == 1)
       return true;
-  }
 
   return false;
 }
 
+// Function to get number of periodic model edges bounding the model face.
 int getNumPeriodicEdgesOnModelFace(pGFace gf)
 {
   pPList edges = GF_edges(gf);
@@ -32,6 +30,7 @@ int getNumPeriodicEdgesOnModelFace(pGFace gf)
   return numPeriodicEdges;  
 }
 
+// Function to get a vector of model vertices classified on the model face.
 std::vector <pGVertex> getCriticalPointsOnModelFace(pGFace gf, PointType pointType)
 {
   std::vector <pGVertex> criticalPoints;
@@ -52,6 +51,8 @@ std::vector <pGVertex> getCriticalPointsOnModelFace(pGFace gf, PointType pointTy
   return criticalPoints;
 }
 
+// Function to set classification on model faces adjacent to X-point.
+// Its top level function. Next two functions are implementation functions.
 void tagModelFacesAdjacentToXPoint(pGVertex gv, int index)
 {
   pPList edges = GV_edges(gv);
@@ -63,6 +64,7 @@ void tagModelFacesAdjacentToXPoint(pGVertex gv, int index)
   PList_delete(edges);
 }
 
+// Function to set classification on model faces adjacent to Inner X-point (primary).
 void setFaceTagsOnInnerSeparatrix(pGVertex gv, int index)
 {
   pPList faces = GV_faces(gv);
@@ -85,7 +87,7 @@ void setFaceTagsOnInnerSeparatrix(pGVertex gv, int index)
   PList_delete(faces);
 }
 
-
+// Function to set classification on model faces adjacent to outer separatrix.
 void setFaceTagsOnOuterSeparatrix(pGVertex gv, int index)
 {
   double max = DBL_MAX;
@@ -144,7 +146,7 @@ void setFaceTagsOnOuterSeparatrix(pGVertex gv, int index)
   GEN_setNativeIntAttribute(highFieldSide, static_cast<int>(FaceType::HighFieldSideEdge), "PhysicsRegion");
 }
 
-// Model Vertex Functions
+// Function to compare psi values of two model vertices.
 bool compareVertexPsi(pGVertex gv1, pGVertex gv2)
 {
   double psi1, psi2;
@@ -156,7 +158,7 @@ bool compareVertexPsi(pGVertex gv1, pGVertex gv2)
   return psi1 <= psi2;
 }
 
-// Model Functions
+// Functon to return model vertices of critical points on the model.
 std::vector <pGVertex> getCriticalPointsOnModel(pGModel model, PointType pointType)
 {
   std::vector <pGVertex> criticalPoints;
@@ -177,4 +179,40 @@ std::vector <pGVertex> getCriticalPointsOnModel(pGModel model, PointType pointTy
   std::sort(criticalPoints.begin(), criticalPoints.end(), compareVertexPsi);
    
   return criticalPoints;
+}
+
+// Function to check if a model face is bounded by edges with two different psi values.
+bool isFaceBoundedByTwoFluxCurves(pGFace gf)
+{
+  std::vector <double> psiValues; 
+
+  pPList edges = GF_edges(gf);
+  for (int i = 0; i < PList_size(edges); i++)
+  {
+    pGEdge ge = static_cast<pGEdge>(PList_item(edges, i));
+    double psi;
+    bool psiFound = false;
+    if (!GEN_numNativeDoubleAttribute(ge, "PsiNorm"))
+      continue;
+    
+    GEN_nativeDoubleAttribute(ge, "PsiNorm", &psi);
+    for (int j = 0; j < psiValues.size(); j++)
+    {
+      if (fabs(psi - psiValues[j]) < 1e-8)
+      {
+        psiFound = true;
+        break;
+      }
+    }
+    if (psiFound)
+      continue;
+
+    psiValues.push_back(psi);
+  }
+  PList_delete(edges);
+
+  if (psiValues.size() == 2)
+    return true;
+
+  return false;
 }

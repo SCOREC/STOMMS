@@ -23,31 +23,50 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/include/stommsVersion.h.in" "${CMAKE
 
 # set sources files in STELLMESH_SRCS
 set(STELLMESH_SRCS
+  # Workflow
+  src/stomms.cc
+
+  # Inputs
   src/input.cc
-  src/physicalGeometry.cc
-  src/criticalPoints.cc
-  src/criticalPointsEqdsk.cc
+
+  # EQDSK
+  src/criticalPointsEqdsk.cc 
   src/eqdskData.cc
-  src/magneticGeometryDataTypes.cc
-  src/physicsAttributes.cc
   src/fluxCurveUtilityEqdsk.cc 
   src/genFluxCurvesEqdsk.cc
-  src/magneticGeometry.cc
-  src/magneticGeometryStellarator.cc
   src/magneticGeometryTokamak.cc
-  src/util.cc 
-  src/stomms.cc
-  src/modelTopology.cc
-  src/modelMetaData.cc
-  src/modelingEqdsk.cc
-  src/modelingVmec.cc 
   src/modelDataEqdsk.cc
+  src/modelingEqdsk.cc
+
+  # VMEC
   src/modelDataVmec.cc
+  src/modelingVmec.cc
+  src/magneticGeometryStellarator.cc
+
+  # Geometry(Physics & Physical) 
+  src/criticalPoints.cc
+  src/fieldPointsOnFlux.cc
+  src/magneticGeometry.cc  
+  src/magneticGeometryDataTypes.cc
   src/modelPhysicsQueries.cc
+  src/physicalGeometry.cc
+  src/physicsAttributes.cc
+  src/plane.cc
+
+  # General Modeling (not specific to input type)
+  src/modelMetaData.cc
+  src/modelTopology.cc
   src/stommsModel.cc
+  
+  # Meshing
   src/meshMetaData.cc
   src/stommsMesh.cc
-  src/output.cc
+
+  # Output
+  src/output.cc  
+
+  # Utilitis
+  src/util.cc 
   src/ezfit.F90
 )
 

@@ -87,7 +87,7 @@ void Edge::setEdgePeriodic()
 }
 
 // Function to return the underlying Simmetrix model edge for the Edge.
-const pGEdge& Edge::getSimEdge()
+const pGEdge& Edge::getSimEdge() const
 {
   return ge;
 }
@@ -197,7 +197,7 @@ void Face::setLoopsOnFace()
 }
 
 // Fucntion to return Simmetrix model face assoctaed with Face.
-const pGFace& Face::getSimFace()
+const pGFace& Face::getSimFace() const
 {
   return gf;
 }
@@ -288,3 +288,4 @@ const std::vector <Face>& Model::getModelFaces()
 {
   return faces;
 }
+
