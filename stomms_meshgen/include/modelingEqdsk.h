@@ -11,6 +11,7 @@ class SimmetrixWallCurve{
     SimmetrixWallCurve(const WallCurve& wall, pGModel model);
     void updateSimEdges(std::vector <pGEdge> updatedEdgesVector);
     std::vector <pGEdge> getSimEdges();
+    std::vector <Edge> getEdges();
     const std::vector <Point>& getPoints();
   private:
     std::vector <pCurve> simCurves; 

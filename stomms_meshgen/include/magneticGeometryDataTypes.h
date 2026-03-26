@@ -87,6 +87,12 @@ class CurveContainer{
     void setOpenCurves(const std::vector <Flux>& openFluxCurves);
 
     /**
+     * Function to set wall curve edges in the container.
+     * @param edgesOnWall: model edges on the wall curve.
+     */ 
+    void setWallEdges(const std::vector <Edge>& edgesOnWall);
+     
+    /**
      * @return a vector of closed flux curves in the container.
      */ 
     std::vector <Flux>& getCurvesClosed();
@@ -107,6 +113,11 @@ class CurveContainer{
     WallCurve& getWallCurve();
 
     /**
+     * @return a vector of model edges on the wall curve.
+     */ 
+    const std::vector <Edge>& getWallEdges();
+
+    /**
      * @return a vector of O-points.
      */ 
     const std::vector <PhysicsPoint>& getOPoints() const;
@@ -122,6 +133,7 @@ class CurveContainer{
     std::vector <PhysicsPoint> oPoints;  // O-points
     std::vector <PhysicsPoint> xPoints;  // X-points
     WallCurve wallCurve;  // wall curve
+    std::vector <Edge> wallEdges;  // model edges on wall curve
 };
 
 /*

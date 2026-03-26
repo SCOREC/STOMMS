@@ -163,8 +163,23 @@ void Face::setSimFace(pGFace simFace)
 // This includes setting up both model edges and loops on the Face.
 void Face::setFace()
 {
+  setVerticesOnFace();
   setEdgesOnFace();
   setLoopsOnFace();
+}
+
+// Function to set the model vertices on the model face.
+void Face::setVerticesOnFace()
+{
+  pPList verticesOnFace = GF_vertices(gf);
+  for (int i = 0; i < PList_size(verticesOnFace); i++)
+  {
+    pGVertex gv = static_cast<pGVertex>(PList_item(verticesOnFace,i));
+    Vertex v;
+    v.setSimVertex(gv);
+    verticesOnF.push_back(v);
+  }
+  PList_delete(verticesOnFace);
 }
 
 // Function to set the model edges on the model face.
@@ -200,6 +215,12 @@ void Face::setLoopsOnFace()
 const pGFace& Face::getSimFace() const
 {
   return gf;
+}
+
+//Function to return the model vertices on the model face.
+const std::vector <Vertex>& Face::getVerticesOnFace()
+{
+  return verticesOnF;
 }
 
 // Function to return the model edges on the model face.
@@ -287,5 +308,20 @@ const std::vector <Edge>& Model::getModelEdges()
 const std::vector <Face>& Model::getModelFaces()
 {
   return faces;
+}
+
+bool CompEntity::operator()(Vertex v1, Vertex v2) const
+{ 
+  return GEN_tag(v1.getSimVertex()) < GEN_tag(v2.getSimVertex());
+}
+
+bool CompEntity::operator()(Edge e1, Edge e2) const
+{ 
+  return GEN_tag(e1.getSimEdge()) < GEN_tag(e2.getSimEdge());
+}
+
+bool CompEntity::operator()(Face f1, Face f2) const
+{ 
+  return GEN_tag(f1.getSimFace()) < GEN_tag(f2.getSimFace());
 }
 

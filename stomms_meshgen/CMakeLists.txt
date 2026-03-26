@@ -64,6 +64,7 @@ set(STELLMESH_SRCS
 
   # Output
   src/output.cc  
+  src/meshOutput.cc
 
   # Utilitis
   src/util.cc 

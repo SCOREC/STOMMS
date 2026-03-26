@@ -14,9 +14,10 @@ StommsOutput::StommsOutput(const StommsMesh& m):mesh(m)
   simMesh = mesh.getSimMesh();
   meshDim = mesh.getMeshDim();
 
-  // Step 3: Get the planes data.
+  // Step 3: Get the mesh planes data and geometric planes data.
+  geometricPlanes = stommsModel.getPlanes();
   planes = mesh.getMeshDataOnPlanes();
-
+ 
   // Step 4: Write Simmetrix meshes to OmegaH meshes.
   writeOmegahMeshes(); 
 
@@ -164,9 +165,13 @@ void StommsOutput::writeAdiosFile()
   // See namespace adios in omegah for more details.
   for (int i = 0; i < omegahMeshes.size(); i++)
   {
-    std::string meshName = "mesh/planes/" + std::to_string(i)+"/";
+    std::string meshName = "stommsMesh/planes/" + std::to_string(i)+"/";
     Omega_h::Mesh* meshPlane = &omegahMeshes[i];
     Omega_h::adios::write_mesh(io, writer, meshPlane, meshName);
+
+    // Step 5.1: Write physics classification information in adios2 file.
+    writePhysicsClassification(io, writer, i);
+    
   }
 
   // Step 6: End the writer engine.
@@ -206,7 +211,7 @@ void StommsOutput::readAdiosFile()
   std::vector <Omega_h::Mesh> meshFromAdiosFile;
   for (int i = 0; i < omegahMeshes.size(); i++)
   {
-    std::string meshName = "mesh/planes/" + std::to_string(i)+"/";
+    std::string meshName = "stommsMesh/planes/" + std::to_string(i)+"/";
     Omega_h::Mesh meshFromFile = Omega_h::adios::read(adiosOutFileName, &lib, meshName);
     meshFromAdiosFile.push_back(meshFromFile);
     std::cout << "========== Reading Mesh: " << meshName << " ========== \n";
@@ -271,6 +276,64 @@ void writeGmshFromOmegah(const std::vector <Omega_h::Mesh>& omegahMeshPlanes)
       Omega_h::Mesh m = omegahMeshPlanes[i];
       std::string meshName = "meshPlane_" + std::to_string(i) + ".msh";
       Omega_h::gmsh::write(meshName, &m);
+    }
+  }
+}
+
+// Function to write physics classification in given adios2 file.
+void StommsOutput::writePhysicsClassification(adios2::IO& io, adios2::Engine& writer, int planeIndex)
+{
+  // Step 1: Set the mesh as pre-name for variables.
+  std::string name = "stommsMesh/planes/" + std::to_string(planeIndex) + "/physicsClassification/";
+
+  // Step 2: Get a map of model faces with physics type as a key,
+  // and then write the array of model faces corresponding to that 
+  // key.
+  std::vector <Face> modelFaces = geometricPlanes[planeIndex].modelFaces;
+  gfPhysics = modelFaceClassification(modelFaces);
+  for (auto& faceMap: gfPhysics)
+  {
+    std::string physicsType = getFaceType(faceMap.first);
+    std::string varName = name + "face/" + physicsType;
+    writeAdios2Array(io, writer, faceMap.second, 1, varName);
+  }
+
+  // Step 3: First index the curves as needed in XGC. and then get a map 
+  // of model curves with physics type as a key,and then write the array 
+  // of model curves corresponding to that key.
+  std::vector <Flux> allFluxCurves = geometricPlanes[planeIndex].fluxCurves;
+  curvesSortedByPsi = curveIndexing(allFluxCurves);
+  std::vector <Edge> wallEdges = geometricPlanes[planeIndex].wallEdges; 
+
+  std::map<std::string, CurvesGroup> curveTypes = curveClassification(curvesSortedByPsi, wallEdges);
+  for (auto& curveMap: curveTypes)
+  {
+    CurvesGroup curveGroup = curveMap.second; // closed, open, separatrix, wall
+    std::string groupName = name + "edge/" + curveMap.first;
+    std::string varName = groupName + "/fluxIds";
+    writeAdios2Array(io, writer, curveGroup.flxId, 1, varName);
+    varName = groupName + "/psi";
+    writeAdios2Array(io, writer, curveGroup.psi, 1, varName); 
+    varName = groupName + "/modelEdges/range";
+    writeAdios2Array(io, writer, curveGroup.modelEdgesRange, 1, varName);
+    varName = groupName + "/modelEdges/data";
+    writeAdios2Array(io, writer, curveGroup.modelEdgesVector, 1, varName); 
+  }
+   
+  // Step 4: Get a map of model vertices with physics type as a key,
+  // and then write the model vertex corresponding to that key.
+  Vertex oPoint = geometricPlanes[planeIndex].oPoint;
+  std::vector <Vertex> xPoints = geometricPlanes[planeIndex].getXPointsOnPlane();
+  gvPhysics = modelVertexClassification(oPoint, xPoints);
+  for (auto& vertexMap: gvPhysics)
+  {
+    std::string physicsType = getVertexType(vertexMap.first);
+    std::string varName = name + "vertex/criticalPoints/" + physicsType;
+    std::vector <int> vMap = vertexMap.second;
+    for (int i = 0; i < vMap.size(); i++)
+    {
+      std::string vName = varName + "/" + std::to_string(i+1);
+      writeAdios2Value(io, writer, vMap[i], vName);
     }
   }
 }

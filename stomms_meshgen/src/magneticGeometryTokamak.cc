@@ -146,3 +146,5 @@ const std::vector <Plane>& MagneticGeometryForTokamak::getPlanes() const
 {
   return modelEqdsk.getPlanes();
 }
+
+

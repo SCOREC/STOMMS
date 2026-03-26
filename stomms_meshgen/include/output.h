@@ -1,12 +1,7 @@
 #ifndef OUTPUT_H
 #define OUTPUT_H
 
-#include "stommsMesh.h"
-#include <adios2.h>
-#include "Omega_h_build.hpp"
-#include "Omega_h_mesh.hpp"
-#include "Omega_h_file.hpp"
-#include "Omega_h_adios2.hpp"
+#include "meshOutput.h"
 #include "stommsVersion.h"  //  for project version and details
 
 class StommsOutput{
@@ -18,6 +13,7 @@ class StommsOutput{
     pMesh simMesh;  // Simmetrix mesh
     pGModel simModel;  // Simmetrix model
     std::vector <PlaneMeshData> planes;  // Mesh data set on individual planes
+    std::vector <Plane> geometricPlanes; // model data on planes
     std::vector <Omega_h::Mesh> omegahMeshes;  // vector of omegah 2D planer meshes
     int meshDim = 2;  // Default = 2, but read the dimension of mesh in constructor
  
@@ -28,6 +24,13 @@ class StommsOutput{
     int outputVtk = 0;
     int outputGmsh = 0;
 
+    // Maps between entity physics type and vector of tags of corresponding entities.
+    std::map <int, std::vector <int>> gfPhysics; 
+    std::map <int, std::vector <int>> gePhysics;  
+    std::map <int, std::vector <int>> gvPhysics;
+
+    // Curves
+    std::vector <Flux> curvesSortedByPsi;
     /*
      * Function to adjust mesh verter indices to make sure vertex indices 
      * start from 0 to nVertices-1.
@@ -66,6 +69,11 @@ class StommsOutput{
      */
     void writeAdiosFile();
 
+    /**
+     * Write physics classification.
+     */ 
+    void writePhysicsClassification(adios2::IO& io, adios2::Engine& writer, int planeIndex);
+    
     /*
      * Function to read adios2 file. For verification of the data.
      */ 
