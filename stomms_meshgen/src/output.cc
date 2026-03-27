@@ -1,5 +1,8 @@
 #include "output.h"
 
+/***********************************************/
+// Class: StommsOutput
+/***********************************************/
 StommsOutput::StommsOutput(const StommsMesh& m):mesh(m)
 {
   std::cout << "============ Output Writing Starts ============\n";
@@ -33,9 +36,10 @@ StommsOutput::StommsOutput(const StommsMesh& m):mesh(m)
 
   // Step 7: Read adios2 file for verification of data.
   // Don't need it unless we are debugging.
-  //readAdiosFile();
+  // readAdiosFile();
 }
 
+// Destructor
 StommsOutput::~StommsOutput()
 {
   M_release(simMesh);
@@ -289,9 +293,8 @@ void StommsOutput::writePhysicsClassification(adios2::IO& io, adios2::Engine& wr
   // Step 1: Set the mesh as pre-name for variables.
   std::string name = "stommsMesh/planes/" + std::to_string(planeIndex) + "/physicsClassification/";
 
-  // Step 2: Get a map of model faces with physics type as a key,
-  // and then write the array of model faces corresponding to that 
-  // key.
+  // Step 2: Get a map of model faces with physics type as a key,and 
+  // then write the array of model faces corresponding to that key.
   std::vector <Face> modelFaces = geometricPlanes[planeIndex].modelFaces;
   gfPhysics = modelFaceClassification(modelFaces);
   for (auto& faceMap: gfPhysics)
@@ -341,6 +344,7 @@ void StommsOutput::writePhysicsClassification(adios2::IO& io, adios2::Engine& wr
   }
 }
 
+// Function to write all the model adjacencies in given adios2 file.
 void StommsOutput::writeModelAdjacency(adios2::IO& io, adios2::Engine& writer, int planeIndex)
 {
   const Plane& plane = geometricPlanes[planeIndex];

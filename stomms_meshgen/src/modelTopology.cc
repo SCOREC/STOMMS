@@ -310,16 +310,19 @@ const std::vector <Face>& Model::getModelFaces()
   return faces;
 }
 
+// Compares the tags of model vertices.
 bool CompEntity::operator()(Vertex v1, Vertex v2) const
 { 
   return GEN_tag(v1.getSimVertex()) < GEN_tag(v2.getSimVertex());
 }
 
+// Compares the tags of model edges.
 bool CompEntity::operator()(Edge e1, Edge e2) const
 { 
   return GEN_tag(e1.getSimEdge()) < GEN_tag(e2.getSimEdge());
 }
 
+// Compares the tags of model faces.
 bool CompEntity::operator()(Face f1, Face f2) const
 { 
   return GEN_tag(f1.getSimFace()) < GEN_tag(f2.getSimFace());

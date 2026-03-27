@@ -31,6 +31,7 @@ class StommsOutput{
 
     // Curves
     std::vector <Flux> curvesSortedByPsi;
+
     /*
      * Function to adjust mesh verter indices to make sure vertex indices 
      * start from 0 to nVertices-1.
@@ -57,25 +58,34 @@ class StommsOutput{
      */ 
     Omega_h::Mesh simMesh2Omegah2D(const PlaneMeshData& plane);
 
-    /*
+    /**
      * Function to create 3D omegah mesh from 3D Simmetrix mesh.
-     * returns Omegah mesh (Omega_h::Mesh).
+     * @return Omegah mesh (Omega_h::Mesh).
      */ 
     Omega_h::Mesh simMesh2Omegah3D();
 
-    /*
+    /**
      * Function to write ADIOS2 file from omegah meshes and other input information.
-     * ************ Under Development *****************
      */
     void writeAdiosFile();
-
-    /**
-     * Write physics classification.
+    
+    /*
+     * Function to write physics classification in given adios2 file.
+     * @param io: adios2 IO.
+     * @param writer: adios2 write engine.
+     * @param planeIndex: index of the poloidal plane.
      */ 
     void writePhysicsClassification(adios2::IO& io, adios2::Engine& writer, int planeIndex);
+
+    /*
+     * Function to write all the model adjacencies in given adios2 file.
+     * @param io: adios2 IO.
+     * @param writer: adios2 write engine.
+     * @param planeIndex: index of the poloidal plane.
+     */ 
     void writeModelAdjacency(adios2::IO& io, adios2::Engine& writer, int planeIndex);   
  
-    /*
+    /**
      * Function to read adios2 file. For verification of the data.
      */ 
     void readAdiosFile();

@@ -39,6 +39,7 @@ void CurveContainer::setOpenCurves(const std::vector <Flux>& openFluxCurves)
   openCurves = openFluxCurves;
 }
 
+// Function to set wall curve edges in the container.
 void CurveContainer::setWallEdges(const std::vector <Edge>& edgesOnWall)
 {
   wallEdges = edgesOnWall;

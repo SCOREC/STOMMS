@@ -41,7 +41,8 @@ void ModelEqdsk::setPlane()
   // Step 4: Set the flux curves on the plane.
   p.fluxCurves = setFluxCurvesOnPlane();
 
-  // Step 5: Set the model faces on the plane.
+  // Step 5: Set the model faces on the plane. Set model 
+  // edges and vertices from those model faces.
   p.modelFaces = setModelFacesOnPlane();
   p.setModelEntitiesFromModelFaces(p.modelFaces);
 

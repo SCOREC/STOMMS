@@ -6,7 +6,7 @@ std::map <int, std::vector <int>> modelFaceClassification(const std::vector <Fac
 {
   std::map <int, std::vector <int>> physicsFaces; 
   
-  // Iterate over model faces, and read the attribute "region" set on those faces
+  // Step 1: Iterate over model faces, and read the attribute "region" set on those faces
   // to get physics region type.
   for (int i = 0; i < modelFaces.size(); i++)
   {
@@ -31,20 +31,20 @@ std::vector<Flux> curveIndexing(const std::vector<Flux>& fluxCurves)
     curvesSet.insert(flux);
   }
 
-  // Step 3: Once curves are sorted in the set, set them in the return container
+  // Step 2: Once curves are sorted in the set, set them in the return container
   std::vector <Flux> curves; // return vector
   curves.insert(curves.end(), curvesSet.begin(), curvesSet.end());
   return curves;
 }
 
-// Function to return a map with type of curve as key (closed, open, separatrix, wall) and vectors of curves
-// with its properties.
+// Function to return a map with type of curve as key (closed, open, separatrix, wall) and 
+// list of curves in that particular group (stored in class CurveGroup).
 std::map <std::string, CurvesGroup> curveClassification(const std::vector <Flux>& fluxCurves, const std::vector<Edge>& wallCurve)
 {
   std::map<std::string, CurvesGroup> curves;
   int curveNum = 1;  
  
-  // Iterate over all the curves, read their curve type, and return the string
+  // Step 1: Iterate over all the curves, read their curve type, and return the string
   // with type/indexNumberof curve.
   for(int i = 0; i < fluxCurves.size(); i++)
   {
@@ -61,8 +61,9 @@ std::map <std::string, CurvesGroup> curveClassification(const std::vector <Flux>
     std::vector <int> modelEdgesTags;
     modelEdgesTags = getModelEdgesTagsOnCurve(curve);
 
-    // Legs of separatrices can be in different curves in raw curve container.
+    // Step 2: Legs of separatrices can be in different curves in raw curve container.
     // Make sure they they all in one separatrix before writing it to adios2 file.
+    // To make sure all 3 or 4 legs of a separatrix are in same curve in adios2.
     if (curve.curveType == CurveType::Separatrix)  // Separatrix
     {
       double psiSep = curve.psiNormOnFlux;
@@ -76,9 +77,12 @@ std::map <std::string, CurvesGroup> curveClassification(const std::vector <Flux>
       }
     }
 
+    // Step 3: If the model edge range vector is empty, set the first element to 0.
+    // Since the range will start from 0 to a number.
     if (curves[curveGroup].modelEdgesRange.size() == 0)
       curves[curveGroup].modelEdgesRange.push_back(0); 
    
+    // Step 4: Set the properties of the curves in CurveGroup.
     curves[curveGroup].flxId.push_back(curveNum);
     curves[curveGroup].psi.push_back(curve.psiNormOnFlux);
     curves[curveGroup].modelEdgesVector.insert(curves[curveGroup].modelEdgesVector.end(), modelEdgesTags.begin(), modelEdgesTags.end());
@@ -87,17 +91,18 @@ std::map <std::string, CurvesGroup> curveClassification(const std::vector <Flux>
     curveNum++;
   }
 
-  // Add wall curves now
+  // Step 5: Once flux curves are done, set the physical curves in map.
   if (wallCurve.size() > 0)  // only if wall exists
   {
+    std::string curveGroup = "wall";
     std::vector <int> modelEdgesTags;
     for (int i = 0; i < wallCurve.size(); i++)
       modelEdgesTags.push_back(GEN_tag(wallCurve[i].getSimEdge())); 
-    curves["wall"].modelEdgesRange.push_back(0);
-    curves["wall"].flxId.push_back(curveNum);
-    curves["wall"].psi.push_back(-1.0);
-    curves["wall"].modelEdgesVector.insert(curves["wall"].modelEdgesVector.end(), modelEdgesTags.begin(), modelEdgesTags.end());
-    curves["wall"].modelEdgesRange.push_back(curves["wall"].modelEdgesVector.size());
+    curves[curveGroup].modelEdgesRange.push_back(0);
+    curves[curveGroup].flxId.push_back(curveNum);
+    curves[curveGroup].psi.push_back(-1.0);
+    curves[curveGroup].modelEdgesVector.insert(curves[curveGroup].modelEdgesVector.end(), modelEdgesTags.begin(), modelEdgesTags.end());
+    curves[curveGroup].modelEdgesRange.push_back(curves[curveGroup].modelEdgesVector.size());
   }
   return curves;
 }
@@ -173,7 +178,7 @@ std::vector <int> getModelEdgesTagsOnCurve(const Flux& curve)
 }
 
 // Given the dimension of entity (0,1,2), return Adj of all the model entities with
-// that dimension on model.
+// that dimension on the geometric plane.
 Adj getAdjacency(int inDim, const Plane& plane)
 {
   Adj adj;
@@ -196,7 +201,8 @@ Adj getAdjacency(int inDim, const Plane& plane)
   return adj;
 }
 
-// Given a model, return both edge and face adjacencies on all the model vertices.
+// Given a vector of model vertices, return both edge and 
+// face adjacencies on all the model vertices.
 Adj getVertexAdj(const std::vector <Vertex>& vertices)
 {
   // Step 1: Declare variables to be populated.
@@ -234,7 +240,8 @@ Adj getVertexAdj(const std::vector <Vertex>& vertices)
   return vAdj;
 }
 
-// Given a model, return both vertex and face adjacencies on all the model edges.
+// Given a vector of model edges, return both vertex and 
+// face adjacencies on all the model edges.
 Adj getEdgeAdj(const std::vector <Edge>& edges)
 {
   // Step 1: Declare variables to be populated.
@@ -273,7 +280,8 @@ Adj getEdgeAdj(const std::vector <Edge>& edges)
   return eAdj;
 }
 
-// Given a model, return both vertex and face adjacencies on all the model faces.
+// Given a vector of model faces, return both vertex and 
+// face adjacencies on all the model faces.
 Adj getFaceAdj(const std::vector <Face>& faces)
 {
   // Step 1: Declare variables to be populated.
