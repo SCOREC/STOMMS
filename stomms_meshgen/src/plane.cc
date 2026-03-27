@@ -49,17 +49,17 @@ const std::vector <FluxParametricPoints>& Plane::getFieldPointsOnFluxCurves() co
   return fieldPointsOnFluxCurves;
 }
 
-const std::vector <Edge>& Plane::getModelEdgesOnPlane()
+const std::vector <Edge>& Plane::getModelEdgesOnPlane() const
 {
   return modelEdges;
 }
 
-const std::vector <Vertex>& Plane::getModelVerticesOnPlane()
+const std::vector <Vertex>& Plane::getModelVerticesOnPlane() const
 {
   return modelVertices;
 }
 
-const std::vector <Vertex>& Plane::getXPointsOnPlane()
+const std::vector <Vertex>& Plane::getXPointsOnPlane() const
 {
   return xPoints;
 }

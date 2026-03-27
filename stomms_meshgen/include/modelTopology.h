@@ -33,12 +33,12 @@ class Vertex{
     /*
      * Function to return the physical coordinates of the Vertex in terms of Point.
      */ 
-    const Point& getPointAtVertex();
+    const Point& getPointAtVertex() const;
 
     /*
      * Fucntion to return the underlying Simmetrix vertex for the Vertex.
      */ 
-    const pGVertex& getSimVertex();
+    const pGVertex& getSimVertex() const;
   private:
     /*
      * Function to set the physical coordinates of the Vertex.

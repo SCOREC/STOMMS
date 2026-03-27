@@ -58,6 +58,45 @@ void writeAdios2Value(adios2::IO& io, adios2::Engine& writer,
 }
 #endif
 
+struct Adj {
+  std::vector <int> entId;  // ids of model entities
+  std::vector <int> adjVector_1;  // all adjacent model entities of first of two dimensions.
+  std::vector <int> rangeVector_1;  // range of entities in above vector
+  std::vector <int> adjVector_2; // all adjacent model entities of second of two dimensions.
+  std::vector <int> rangeVector_2;  // range for above vector
+};
+
+/*
+ * Given the dimension of entity (0,1,2), return Adj of all the model entities with
+ * that dimension on model.
+ * int inDim (in): The input dimension. Forexample inDim = 0 means to return adjacencies
+ *                 on all the model vertices in the model.
+ * pGModel& model (in): Simmetrix model.
+ * returns Adj (see details above)
+ */ 
+Adj getAdjacency(int inDim, const Plane& plane);
+
+/*
+ * Given a model, return both edge and face adjacencies on all the model vertices.
+ * pGModel& model (in): Simmetrix model.
+ * returns Adj (see details above)
+ */
+Adj getVertexAdj(const std::vector <Vertex>& vertices);
+
+/*
+ * Given a model, return both vertex and face adjacencies on all the model edges.
+ * pGModel& model (in): Simmetrix model.
+ * returns Adj (see details above)
+ */
+Adj getEdgeAdj(const std::vector <Edge>& edges);
+
+/*
+ * Given a model, return both vertex and face adjacencies on all the model faces.
+ * pGModel& model (in): Simmetrix model.
+ * returns Adj (see details above)
+ */
+Adj getFaceAdj(const std::vector <Face>& faces);
+
 struct FluxCompare {
   bool operator()(const Flux& flux1, const Flux& flux2) const
   {

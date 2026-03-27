@@ -27,13 +27,13 @@ Point Vertex::setPointFromVertex()
 }
 
 // Fucntion to return the underlying Simmetrix vertex for the Vertex.
-const pGVertex& Vertex::getSimVertex()
+const pGVertex& Vertex::getSimVertex() const
 {
   return gv;
 }
 
 // Function to return the physical coordinates of the Vertex in terms of Point.
-const Point& Vertex::getPointAtVertex()
+const Point& Vertex::getPointAtVertex() const
 {
   return pt;
 }

@@ -171,3 +171,143 @@ std::vector <int> getModelEdgesTagsOnCurve(const Flux& curve)
 
   return edgesTags;
 }
+
+// Given the dimension of entity (0,1,2), return Adj of all the model entities with
+// that dimension on model.
+Adj getAdjacency(int inDim, const Plane& plane)
+{
+  Adj adj;
+  if (inDim == 0)
+  {
+    std::vector <Vertex> vertices = plane.getModelVerticesOnPlane();
+    adj = getVertexAdj(vertices);
+  }
+  if (inDim == 1)
+  {
+    std::vector <Edge> edges = plane.getModelEdgesOnPlane();
+    adj = getEdgeAdj(edges);
+  }
+  if (inDim == 2)
+  {
+    std::vector <Face> faces = plane.modelFaces;
+    adj = getFaceAdj(faces);
+  }
+
+  return adj;
+}
+
+// Given a model, return both edge and face adjacencies on all the model vertices.
+Adj getVertexAdj(const std::vector <Vertex>& vertices)
+{
+  // Step 1: Declare variables to be populated.
+  Adj vAdj;
+  vAdj.rangeVector_1.push_back(vAdj.adjVector_1.size());  // should be 0 at this point
+  vAdj.rangeVector_2.push_back(vAdj.adjVector_2.size());
+
+  // Step 2: Iterate over the model vertices
+  for (int i = 0; i < vertices.size(); i++)
+  {
+    pGVertex gv = vertices[i].getSimVertex();
+    vAdj.entId.push_back(GEN_tag(gv));
+ 
+    // Step 3: First read the adjacent edges on the vertex
+    pPList edges = GV_edges(gv);
+    for (int i = 0; i < PList_size(edges); ++i)
+    {
+      pGEdge ge = static_cast<pGEdge>(PList_item(edges, i));
+      vAdj.adjVector_1.push_back(GEN_tag(ge));
+    }
+    PList_delete(edges);
+    vAdj.rangeVector_1.push_back(vAdj.adjVector_1.size());
+
+    // Step 4: Now read the adjacent faces on the vertex
+    pPList faces = GV_faces(gv);
+    for (int i = 0; i < PList_size(faces); ++i)
+    {
+      pGFace gf = static_cast<pGFace>(PList_item(faces, i));
+      vAdj.adjVector_2.push_back(GEN_tag(gf));
+    }
+    PList_delete(faces);
+    vAdj.rangeVector_2.push_back(vAdj.adjVector_2.size());
+  }
+
+  return vAdj;
+}
+
+// Given a model, return both vertex and face adjacencies on all the model edges.
+Adj getEdgeAdj(const std::vector <Edge>& edges)
+{
+  // Step 1: Declare variables to be populated.
+  Adj eAdj;
+  eAdj.rangeVector_1.push_back(eAdj.adjVector_1.size());  // should be 0 at this point
+  eAdj.rangeVector_2.push_back(eAdj.adjVector_2.size());
+
+  // Step 2: Iterate over the model edges
+  for (int i = 0; i < edges.size(); i++)
+  {
+    pGEdge ge = edges[i].getSimEdge();
+    eAdj.entId.push_back(GEN_tag(ge));
+ 
+    // Step 3: First read the adjacent vertices on the edge
+    pPList vertices = GE_vertices(ge);
+    for (int i = 0; i < PList_size(vertices); ++i)
+    {
+      pGVertex gv = static_cast<pGVertex>(PList_item(vertices, i));
+      eAdj.adjVector_1.push_back(GEN_tag(gv));
+    }
+    PList_delete(vertices);
+    eAdj.rangeVector_1.push_back(eAdj.adjVector_1.size());
+
+    // Step 4: Now read the adjacent faces on the edge
+    pPList faces = GE_faces(ge);
+    for (int i = 0; i < PList_size(faces); ++i)
+    {
+      pGFace gf = static_cast<pGFace>(PList_item(faces, i));
+      eAdj.adjVector_2.push_back(GEN_tag(gf));
+    }
+    PList_delete(faces);
+    eAdj.rangeVector_2.push_back(eAdj.adjVector_2.size());
+    
+  }
+
+  return eAdj;
+}
+
+// Given a model, return both vertex and face adjacencies on all the model faces.
+Adj getFaceAdj(const std::vector <Face>& faces)
+{
+  // Step 1: Declare variables to be populated.
+  Adj fAdj;
+  fAdj.rangeVector_1.push_back(fAdj.adjVector_1.size());  // should be 0 at this point
+  fAdj.rangeVector_2.push_back(fAdj.adjVector_2.size());
+ 
+  // Step 2: Iterate over the model faces
+  for (int i = 0; i < faces.size(); i++)
+  {
+    pGFace gf = faces[i].getSimFace();
+    fAdj.entId.push_back(GEN_tag(gf));
+ 
+    // Step 3: First read the adjacent vertices on the face
+    pPList vertices = GF_vertices(gf);
+    for (int i = 0; i < PList_size(vertices); ++i)
+    {
+      pGVertex gv = static_cast<pGVertex>(PList_item(vertices, i));
+      fAdj.adjVector_1.push_back(GEN_tag(gv));
+    }
+    PList_delete(vertices);
+    fAdj.rangeVector_1.push_back(fAdj.adjVector_1.size());
+
+    // Step 4: Now read the adjacent edges on the face
+    pPList edges = GF_edges(gf);
+    for (int i = 0; i < PList_size(edges); ++i)
+    {
+      pGEdge ge = static_cast<pGEdge>(PList_item(edges, i));
+      fAdj.adjVector_2.push_back(GEN_tag(ge));
+    }
+    PList_delete(edges);
+    fAdj.rangeVector_2.push_back(fAdj.adjVector_2.size());
+  }
+
+  return fAdj;
+}
+

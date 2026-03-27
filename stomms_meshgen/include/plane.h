@@ -31,9 +31,9 @@ class Plane{
      */   
     const std::vector <FluxParametricPoints>& getFieldPointsOnFluxCurves() const;
 
-    const std::vector <Edge>& getModelEdgesOnPlane();
-    const std::vector <Vertex>& getModelVerticesOnPlane();
-    const std::vector <Vertex>& getXPointsOnPlane();
+    const std::vector <Edge>& getModelEdgesOnPlane() const;
+    const std::vector <Vertex>& getModelVerticesOnPlane() const;
+    const std::vector <Vertex>& getXPointsOnPlane() const;
   private:
     std::vector <FluxParametricPoints> fieldPointsOnFluxCurves;
     std::vector <Edge> modelEdges;

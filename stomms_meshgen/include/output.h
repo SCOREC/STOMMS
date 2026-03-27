@@ -73,7 +73,8 @@ class StommsOutput{
      * Write physics classification.
      */ 
     void writePhysicsClassification(adios2::IO& io, adios2::Engine& writer, int planeIndex);
-    
+    void writeModelAdjacency(adios2::IO& io, adios2::Engine& writer, int planeIndex);   
+ 
     /*
      * Function to read adios2 file. For verification of the data.
      */ 
@@ -101,9 +102,5 @@ void writeVtkFromOmegah(const std::vector <Omega_h::Mesh>& omegahMeshPlanes);
  *  const std::vector <Omega_h::Mesh>& omegahMeshPlanes (in): a vector of omegah meshes.
  */
 void writeGmshFromOmegah(const std::vector <Omega_h::Mesh>& omegahMeshPlanes);
-
-// Debug Functions
-void debugMesh(std::vector <pVertex> v, std::vector <pEdge> e,  
-          std::vector <pFace> f, std::vector <pRegion> r);
 
 #endif
