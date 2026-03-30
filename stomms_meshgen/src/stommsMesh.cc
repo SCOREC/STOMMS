@@ -201,8 +201,10 @@ void StommsMesh::specifyMeshOnPeriodicModelEdge(pMesh mesh, Edge edge, const std
     indx[0] = specifyMeshVertexOnModelVertex(mesh, gv);
   }
   else
+  {
+    indx[0] = numSpecifiedVert++;
     MS_specifyVertex(mesh, 0, par, ge, indx[0]);
-
+  }
   PList_delete(vertices);
   indxStart = indx[0];  // save it for last specified edge.
 

@@ -56,8 +56,9 @@ void ModelVmec::setPlanes()
     std::vector <Flux> fluxCurves = setFluxCurvesOnPlanes(model, p.planeNumber, planesContainer);
     p.fluxCurves = fluxCurves;  // Set flux curves on the plane.
 
-    // Step 4.4: Set the faces on each plane.
+    // Step 4.4: Set the faces on each plane. Also use these faces to set model edges and vertices.
     p.modelFaces = itr->second;  // Set the model faces on the plane.
+    p.setModelEntitiesFromModelFaces(itr->second);
 
     // Step 4.5: Save the plane in planes container.
     planes.push_back(p);

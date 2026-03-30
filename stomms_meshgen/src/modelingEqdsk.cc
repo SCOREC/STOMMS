@@ -21,6 +21,18 @@ std::vector <pGEdge> SimmetrixWallCurve::getSimEdges()
   return simEdges;
 }
 
+std::vector <Edge> SimmetrixWallCurve::getEdges()
+{
+  std::vector <Edge> wallEdges;
+  for (int i = 0; i < simEdges.size(); i++) 
+  {
+    Edge ge;
+    ge.setSimEdge(simEdges[i]);
+    wallEdges.push_back(ge);
+  }
+  return wallEdges;
+}
+
 const std::vector <Point>& SimmetrixWallCurve::getPoints()
 {
   return points;
@@ -56,8 +68,9 @@ pGModel generateSimModel(const PlaneMetaData& planeMetaData, EqdskData& eqdskDat
   // Step 6: Insert open curves to the model.
   insertOpenCurvesToModel(model, simWallCurve, openCurves); 
  
-  // Step 7: Set open curves in curves container.
+  // Step 7: Set open curves and wall edges in curves container.
   curvesMetaData.setOpenCurves(openCurves);
+  curvesMetaData.setWallEdges(simWallCurve.getEdges());
 
   return model;
 }

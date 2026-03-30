@@ -1,5 +1,8 @@
 #include "output.h"
 
+/***********************************************/
+// Class: StommsOutput
+/***********************************************/
 StommsOutput::StommsOutput(const StommsMesh& m):mesh(m)
 {
   std::cout << "============ Output Writing Starts ============\n";
@@ -14,9 +17,10 @@ StommsOutput::StommsOutput(const StommsMesh& m):mesh(m)
   simMesh = mesh.getSimMesh();
   meshDim = mesh.getMeshDim();
 
-  // Step 3: Get the planes data.
+  // Step 3: Get the mesh planes data and geometric planes data.
+  geometricPlanes = stommsModel.getPlanes();
   planes = mesh.getMeshDataOnPlanes();
-
+ 
   // Step 4: Write Simmetrix meshes to OmegaH meshes.
   writeOmegahMeshes(); 
 
@@ -30,10 +34,12 @@ StommsOutput::StommsOutput(const StommsMesh& m):mesh(m)
   // Step 6: Write data into adios2 file.
   writeAdiosFile();
 
-  // Step 7: Read adios2 file for verification of data
-  readAdiosFile();
+  // Step 7: Read adios2 file for verification of data.
+  // Don't need it unless we are debugging.
+  // readAdiosFile();
 }
 
+// Destructor
 StommsOutput::~StommsOutput()
 {
   M_release(simMesh);
@@ -164,9 +170,15 @@ void StommsOutput::writeAdiosFile()
   // See namespace adios in omegah for more details.
   for (int i = 0; i < omegahMeshes.size(); i++)
   {
-    std::string meshName = "mesh/planes/" + std::to_string(i)+"/";
+    std::string meshName = "stommsMesh/planes/" + std::to_string(i)+"/";
     Omega_h::Mesh* meshPlane = &omegahMeshes[i];
     Omega_h::adios::write_mesh(io, writer, meshPlane, meshName);
+
+    // Step 5.1: Write physics classification information in adios2 file.
+    writePhysicsClassification(io, writer, i);
+  
+    // Step 5.2: Write Model Adjacency Information.
+    writeModelAdjacency(io, writer, i);  
   }
 
   // Step 6: End the writer engine.
@@ -206,7 +218,7 @@ void StommsOutput::readAdiosFile()
   std::vector <Omega_h::Mesh> meshFromAdiosFile;
   for (int i = 0; i < omegahMeshes.size(); i++)
   {
-    std::string meshName = "mesh/planes/" + std::to_string(i)+"/";
+    std::string meshName = "stommsMesh/planes/" + std::to_string(i)+"/";
     Omega_h::Mesh meshFromFile = Omega_h::adios::read(adiosOutFileName, &lib, meshName);
     meshFromAdiosFile.push_back(meshFromFile);
     std::cout << "========== Reading Mesh: " << meshName << " ========== \n";
@@ -275,47 +287,130 @@ void writeGmshFromOmegah(const std::vector <Omega_h::Mesh>& omegahMeshPlanes)
   }
 }
 
-// To debug the routines for output writing - Once development is done, we 
-// can get rid of these debug functions.
-void debugMesh(std::vector <pVertex> v, std::vector <pEdge> e, 
-          std::vector <pFace> f, std::vector <pRegion> r) {
-  
-  FILE* fp =fopen("meshInfo.txt","w");
+// Function to write physics classification in given adios2 file.
+void StommsOutput::writePhysicsClassification(adios2::IO& io, adios2::Engine& writer, int planeIndex)
+{
+  // Step 1: Set the mesh as pre-name for variables.
+  std::string name = "stommsMesh/planes/" + std::to_string(planeIndex) + "/physicsClassification/";
 
-  fprintf(fp, "Number of Mesh Vertices = %d\n", v.size());
-  double xyz[3];
-  // Iterate over vertices
-  for (int i = 0; i < v.size(); i++)
+  // Step 2: Get a map of model faces with physics type as a key,and 
+  // then write the array of model faces corresponding to that key.
+  std::vector <Face> modelFaces = geometricPlanes[planeIndex].modelFaces;
+  gfPhysics = modelFaceClassification(modelFaces);
+  for (auto& faceMap: gfPhysics)
   {
-    V_coord(v[i], xyz);
-    EN_setID(v[i],i);
-    fprintf(fp, "%d %lf %lf %lf \n", EN_id(v[i]), xyz[0], xyz[1], xyz[2]);
+    std::string physicsType = getFaceType(faceMap.first);
+    std::string varName = name + "face/" + physicsType;
+    writeAdios2Array(io, writer, faceMap.second, 1, varName);
   }
-  fprintf(fp, "=======================================\n");
-  fprintf(fp, "Number of Mesh Edges = %d\n", e.size());
-  for (int i = 0; i < e.size(); i++)
+
+  // Step 3: First index the curves as needed in XGC. and then get a map 
+  // of model curves with physics type as a key,and then write the array 
+  // of model curves corresponding to that key.
+  std::vector <Flux> allFluxCurves = geometricPlanes[planeIndex].fluxCurves;
+  curvesSortedByPsi = curveIndexing(allFluxCurves);
+  std::vector <Edge> wallEdges = geometricPlanes[planeIndex].wallEdges; 
+
+  std::map<std::string, CurvesGroup> curveTypes = curveClassification(curvesSortedByPsi, wallEdges);
+  for (auto& curveMap: curveTypes)
   {
-    pVertex v0 = E_vertex(e[i], 0);
-    pVertex v1 = E_vertex(e[i], 1);
-    int v_0 = EN_id(v0);
-    int v_1 = EN_id(v1);
-    fprintf(fp, "%d %d %d \n", EN_id(e[i]), v_0, v_1);
+    CurvesGroup curveGroup = curveMap.second; // closed, open, separatrix, wall
+    std::string groupName = name + "edge/" + curveMap.first;
+    std::string varName = groupName + "/fluxIds";
+    writeAdios2Array(io, writer, curveGroup.flxId, 1, varName);
+    varName = groupName + "/psi";
+    writeAdios2Array(io, writer, curveGroup.psi, 1, varName); 
+    varName = groupName + "/modelEdges/range";
+    writeAdios2Array(io, writer, curveGroup.modelEdgesRange, 1, varName);
+    varName = groupName + "/modelEdges/data";
+    writeAdios2Array(io, writer, curveGroup.modelEdgesVector, 1, varName); 
   }
-  fprintf(fp, "=======================================\n");
-  fprintf(fp, "Number of Mesh Faces = %d\n", f.size());
-  for (int i = 0; i < f.size(); i++)
+   
+  // Step 4: Get a map of model vertices with physics type as a key,
+  // and then write the model vertex corresponding to that key.
+  Vertex oPoint = geometricPlanes[planeIndex].oPoint;
+  std::vector <Vertex> xPoints = geometricPlanes[planeIndex].getXPointsOnPlane();
+  gvPhysics = modelVertexClassification(oPoint, xPoints);
+  for (auto& vertexMap: gvPhysics)
   {
-    pPList vOnF = F_vertices(f[i], 1);
-    pVertex v0 = static_cast<pVertex>(PList_item(vOnF, 0));
-    pVertex v1 = static_cast<pVertex>(PList_item(vOnF, 1));
-    pVertex v2 = static_cast<pVertex>(PList_item(vOnF, 2));
-    int v_0 = EN_id(v0);
-    int v_1 = EN_id(v1);
-    int v_2 = EN_id(v2);
-    fprintf(fp, "%d %d %d %d \n", EN_id(f[i]), v_0, v_1, v_2);
+    std::string physicsType = getVertexType(vertexMap.first);
+    std::string varName = name + "vertex/criticalPoints/" + physicsType;
+    std::vector <int> vMap = vertexMap.second;
+    for (int i = 0; i < vMap.size(); i++)
+    {
+      std::string vName = varName + "/" + std::to_string(i+1);
+      writeAdios2Value(io, writer, vMap[i], vName);
+    }
   }
-  fprintf(fp, "=======================================\n");
-  fprintf(fp, "Number of Mesh Regions = %d\n", r.size());
-  
-  fclose(fp);
+}
+
+// Function to write all the model adjacencies in given adios2 file.
+void StommsOutput::writeModelAdjacency(adios2::IO& io, adios2::Engine& writer, int planeIndex)
+{
+  const Plane& plane = geometricPlanes[planeIndex];
+  std::string name, groupName, varName;
+  Adj adj;
+
+  // Step 1: Write adjacencies on vertices (edges & faces)
+  // Step 1.1: Set variable pre name and write vertex ids 
+  name = "stommsMesh/planes/0/modelAdj/0/";
+  adj = getAdjacency(0, plane); // Vertex adjacencies
+  varName = name + "vertexIds";
+  writeAdios2Array(io, writer, adj.entId, 1, varName);
+
+  // Step 1.2: Write vertex to edge adjacencies for all model vertices.
+  groupName = name + "toEdge/";
+  varName = groupName + "range";
+  writeAdios2Array(io, writer, adj.rangeVector_1, 1, varName);
+  varName = groupName + "data";
+  writeAdios2Array(io, writer, adj.adjVector_1, 1, varName);
+
+  // Step 1.3: Write vertex to face adjacencies for all model vertices.
+  groupName = name + "toFace/";
+  varName = groupName + "range";
+  writeAdios2Array(io, writer, adj.rangeVector_2, 1, varName);
+  varName = groupName + "data";
+  writeAdios2Array(io, writer, adj.adjVector_2, 1, varName);
+
+  // Step 2: Write adjacencies on edges (vertices & faces)
+  // Step 2.1: Set variable pre name and write edge ids
+  name = "stommsMesh/planes/0/modelAdj/1/";
+  adj = getAdjacency(1, plane); // edge adjacencies
+  varName = name + "edgeIds";
+  writeAdios2Array(io, writer, adj.entId, 1, varName);
+
+  // Step 2.2: Write edge to vertex adjacencies for all model edges.
+  groupName = name + "toVertex/";
+  varName = groupName + "range";
+  writeAdios2Array(io, writer, adj.rangeVector_1, 1, varName);
+  varName = groupName + "data";
+  writeAdios2Array(io, writer, adj.adjVector_1, 1, varName);
+
+  // Step 2.3: Write edge to face adjacencies for all model edges.
+  groupName = name + "toFace/";
+  varName = groupName + "range";
+  writeAdios2Array(io, writer, adj.rangeVector_2, 1, varName);
+  varName = groupName + "data";
+  writeAdios2Array(io, writer, adj.adjVector_2, 1, varName);
+
+  // Step 3: Write adjacencies on faces (vertices & edges)
+  // Step 3.1: Set variable pre name and write face ids
+  name = "stommsMesh/planes/0/modelAdj/2/";
+  adj = getAdjacency(2, plane); // edge adjacencies
+  varName = name + "faceIds";
+  writeAdios2Array(io, writer, adj.entId, 1, varName);
+
+  // Step 3.2: Write face to vertex adjacencies for all model faces.
+  groupName = name + "toVertex/";
+  varName = groupName + "range";
+  writeAdios2Array(io, writer, adj.rangeVector_1, 1, varName);
+  varName = groupName + "data";
+  writeAdios2Array(io, writer, adj.adjVector_1, 1, varName);
+
+  // Step 3.3: Write face to edge adjacencies for all model faces.
+  groupName = name + "toEdge/";
+  varName = groupName + "range";
+  writeAdios2Array(io, writer, adj.rangeVector_2, 1, varName);
+  varName = groupName + "data";
+  writeAdios2Array(io, writer, adj.adjVector_2, 1, varName);
 }

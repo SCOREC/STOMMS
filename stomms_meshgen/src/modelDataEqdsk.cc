@@ -27,19 +27,29 @@ void ModelEqdsk::setPlane()
   Plane p;
   p.planeNumber = 0;
 
-  // step 2: Get the primary O-point on the plane.
+  // Step 2: Get the primary O-point on the plane.
   std::vector <pGVertex> oPoints = getCriticalPointsOnModel(model.getSimModel(), PointType::OPoint);
   Vertex axis;
   axis.setSimVertex(oPoints[0]);
   p.oPoint = axis;
 
-  // Step 3: Set the flux curves on the plane.
+  // Step 3: Set x-points on the plane.
+  std::vector <pGVertex> xPoints = getCriticalPointsOnModel(model.getSimModel(), PointType::XPoint);
+  for (int i = 0; i < xPoints.size(); i++)
+    p.setXPoint(xPoints[i]);
+
+  // Step 4: Set the flux curves on the plane.
   p.fluxCurves = setFluxCurvesOnPlane();
 
-  // Step 4: Set the model faces on the plane.
+  // Step 5: Set the model faces on the plane. Set model 
+  // edges and vertices from those model faces.
   p.modelFaces = setModelFacesOnPlane();
+  p.setModelEntitiesFromModelFaces(p.modelFaces);
 
-  // Step 5: Push it back to the vector of planes.
+  // Step 6: Set the wall edges on the plane.
+  p.wallEdges = curvesContainer.getWallEdges();
+
+  // Step 7: Push it back to the vector of planes.
   planes.push_back(p);
 }
 

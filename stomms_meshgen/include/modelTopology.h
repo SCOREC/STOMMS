@@ -33,12 +33,12 @@ class Vertex{
     /*
      * Function to return the physical coordinates of the Vertex in terms of Point.
      */ 
-    const Point& getPointAtVertex();
+    const Point& getPointAtVertex() const;
 
     /*
      * Fucntion to return the underlying Simmetrix vertex for the Vertex.
      */ 
-    const pGVertex& getSimVertex();
+    const pGVertex& getSimVertex() const;
   private:
     /*
      * Function to set the physical coordinates of the Vertex.
@@ -159,6 +159,11 @@ class Face{
     const pGFace& getSimFace() const;
 
     /*
+     * Function to return the model vertices on the model face.
+     */
+    const std::vector <Vertex>& getVerticesOnFace();
+ 
+    /*
      * Function to return the model edges on the model face.
      */ 
     const std::vector <Edge>& getEdgesOnFace();
@@ -174,6 +179,11 @@ class Face{
     void setFace();
 
     /*
+     * Function to set the model vertices on the model face.
+     */
+    void setVerticesOnFace();
+ 
+    /*
      * Function to set the model edges on the model face.
      */ 
     void setEdgesOnFace();
@@ -183,6 +193,7 @@ class Face{
      */ 
     void setLoopsOnFace();
     pGFace gf;  // geometric face
+    std::vector <Vertex> verticesOnF;  // a vector of vertices on the face.
     std::vector <Edge> edgesOnF;  // a vector of edges on the face.
     std::vector <Loop> loopsOnF;  // a vector of loops on the face.
 };
@@ -238,6 +249,37 @@ class Model{
      * Function to set model faces from pGModel on Model.
      */  
     void setModelFaces();
+};
+
+/**
+ * An operator to compare the tags of model entities.
+ * uses underlying simmetrix entity tags.
+ */
+class CompEntity {
+public:
+  /**
+   * Compares the tags of model vertices.
+   * @param v1: first vertex.
+   * @param v2: second vertex.
+   * @return true if tag of v1 is smaller than v2.
+   */ 
+  bool operator()(Vertex v1, Vertex v2) const;
+
+  /**
+   * Compares the tags of model edges.
+   * @param e1: first edge.
+   * @param e2: second edge.
+   * @return true if tag of e1 is smaller than e2.
+   */ 
+  bool operator()(Edge e1, Edge e2) const;
+
+  /**
+   * Compares the tags of model faces.
+   * @param f1: first face.
+   * @param f2: second face.
+   * @return true if tag of f1 is smaller than f2.
+   */ 
+  bool operator()(Face f1, Face f2) const;
 };
 
 #endif
