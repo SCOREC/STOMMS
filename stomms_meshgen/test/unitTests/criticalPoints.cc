@@ -2,6 +2,7 @@
 #include "magneticGeometry.h"
 #include "physicalGeometry.h"
 #include "input.h"
+#include "stomms.h"
 
 // Structs and Helper Functions
 struct Input{
@@ -27,23 +28,31 @@ int main(int argc, char** argv)
 
   // Step 2: Read the input file (mesh_input) for the input parameters.
   Inputs input;
-
+  
   // Step 3: Setup the physical geometry (wall curve for now).
   PhysicalGeometry physicalGeometry(input);
 
   // Step 4: Setup the model metadata by setting up the meta data on poloidal planes.
   ModelMetaData modelMetaData(input);
 
-  // Step 5: Setup the magnetic field information. 
-  std::shared_ptr <MagneticGeometry> mg = setMagneticGeometry(input, physicalGeometry, modelMetaData);
+  // Step 5: Get the oPoints and xPoints.
+  WallCurve wall = physicalGeometry.getWallCurveAtPlane(0);
+  bool reversePsi = input.useReversePsi();
+  CriticalPointsEqdsk criticalPoints(wall, reversePsi);
+  std::vector <PhysicsPoint> oPointsVec = criticalPoints.getOPoints();
+  std::vector <PhysicsPoint> xPointsVec = criticalPoints.getXPoints();
+  std::sort(oPointsVec.begin(), oPointsVec.end(), comparePhysicsPoints);
+  std::sort(xPointsVec.begin(), xPointsVec.end(), comparePhysicsPoints);
+    
+  // Step 6: Setup  them in terms of planes map (only one for now)
+  std::map<int, std::vector<PhysicsPoint>> oPoints, xPoints;
+  oPoints[0] = oPointsVec;
+  xPoints[0] = xPointsVec; 
 
-  std::map<int, std::vector<PhysicsPoint>> oPoints = mg->getOPoints();
-  std::map<int, std::vector<PhysicsPoint>> xPoints = mg->getXPoints();
-
-  // Step 6: Get validation data
+  // Step 7: Get validation data
   ValidationData data = getValidationData(in.testName);
 
-  // Step 7: Compare validation data with the critical points data.
+  // Step 8: Compare validation data with the critical points data.
   if (!validateData(data, oPoints, xPoints))
     return 1;  
 
@@ -70,6 +79,7 @@ Input verifyInputs(int argc, char** argv)
 
 bool arePhysicsPointsSame(const PhysicsPoint& pt1, const PhysicsPoint& pt2)
 {
+  std::cout << "Pt1 = " << pt1.getPoint().x << " , " << pt1.getPoint().y << " , ps = " << pt1.getPsi() << "\n";
   double diffXCoord = fabs(pt1.getPoint().x - pt2.getPoint().x);
   double diffYCoord = fabs(pt1.getPoint().y - pt2.getPoint().y);
   double diffPsi = fabs(pt1.getPsi() - pt2.getPsi());

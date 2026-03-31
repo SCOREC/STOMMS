@@ -45,18 +45,5 @@ if(ENABLE_TESTING)
   message(STATUS "TEST_DIR: ${TEST_DIR}")
 
   enable_testing()
-  add_subdirectory(stomms_meshgen/test)
-endif() 
-
-# Add Testing for stomms_meshgen
-# Enable testing if its set to ON in config file
-option(ENABLE_TESTING "Build for CTest" OFF)
-message(STATUS "ENABLE_TESTING: ${ENABLE_TESTING}")
-
-if(ENABLE_TESTING)
-  set(TEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/stomms_meshgen/testCases" CACHE STRING "Directory of test cases")
-  message(STATUS "TEST_DIR: ${TEST_DIR}")
-
-  enable_testing()
-  add_subdirectory(stomms_meshgen/test)
+  add_subdirectory(stomms_meshgen/test/unitTests)
 endif() 
