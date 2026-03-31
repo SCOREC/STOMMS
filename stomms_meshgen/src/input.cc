@@ -17,9 +17,24 @@ Inputs::Inputs()
 void Inputs::setDefaultValues()
 {
   reactorType = ReactorType::Stellarator;  // Default Stellarator for now.
+
+  // Input parameters - EQDSK
   reversePsi = false;
   eqdPsiFactor = 1.0;
-  numPlanes = 128;  // default is 64
+  numPlanes = 64;
+  inboardStart = false;
+  fluxRandomStart = true;
+  stepRadians = 0.00125;
+  psiTolerance = 1e-8;
+  spacingToleranceOptimal = 0.5;
+  spacingToleranceAbsolute = 0.61803398874989484820;
+  intraCurveSpacingSmallVariation = false;
+  zeroXptWall = false; 
+  intraCurveSpacingOption = -1;
+  intraCurveMinLengthLastEdge = 0.001;
+  
+  // Input parameters - Meshing
+  meshSizeUnstructured = 1.0; 
 }
 
 // This function reads the input parameter from the mesh input file.
@@ -58,6 +73,30 @@ void Inputs::setValuesFromInputFile()
       input >> reversePsi;
     else if (token == "eqdPsiFactor")
       input >> eqdPsiFactor;
+    else if (token == "numPlanes")
+      input >> numPlanes;
+    else if (token == "inboardStart")
+      input >> inboardStart;
+    else if (token == "fluxRandomStart")
+      input >> fluxRandomStart;
+    else if (token == "stepRadians")
+      input >> stepRadians;
+    else if (token == "psiTolerance")
+      input >> psiTolerance;
+    else if (token == "spacingToleranceOptimal")
+      input >> spacingToleranceOptimal;
+    else if (token == "spacingToleranceAbsolute")
+      input >> spacingToleranceAbsolute;
+    else if (token == "intraCurveSpacingSmallVariation")
+      input >> intraCurveSpacingSmallVariation;
+    else if (token == "zeroXptWall")
+      input >> zeroXptWall;
+    else if (token == "intraCurveSpacingOption")
+      input >> intraCurveSpacingOption;
+    else if (token == "intraCurveMinLengthLastEdge")
+      input >> intraCurveMinLengthLastEdge;
+    else if (token == "meshSizeUnstructured")
+      input >> meshSizeUnstructured;    
   }
   input.close();
 }
@@ -290,4 +329,70 @@ const bool& Inputs::useReversePsi() const
 const int& Inputs::getNumTokamakPlanes() const
 {
   return numPlanes;
+}
+
+// Function to check if to use inboard flux start or not.
+const bool& Inputs::useInboardStart() const
+{
+  return inboardStart;
+}
+
+// Function to check if to use random flux start or not.
+const bool& Inputs::useFluxRandomStart() const
+{
+  return fluxRandomStart;
+}
+
+// Function to get step size in radians.
+const double& Inputs::getStepRadians() const
+{
+  return stepRadians;
+}
+
+// Function to get psi tolerance.
+const double& Inputs::getPsiTolerance() const
+{
+  return psiTolerance;
+}
+
+// Function to psi spacing tolerance optimal.
+const double& Inputs::getSpacingToleranceOptimal() const
+{
+  return spacingToleranceOptimal;
+}
+
+// Function to psi spacing tolerance absolute.
+const double& Inputs::getSpacingToleranceAbsolute() const
+{
+  return spacingToleranceAbsolute;
+}
+
+// Function to check if to use small variation intra curve spacing or not.
+const bool& Inputs::useIntraCurveSpacingSmallVariation() const
+{
+  return intraCurveSpacingSmallVariation;
+}
+
+// Function to check if to use wall curve in zero Xpt cases or not.
+const bool& Inputs::useZeroXptWall() const
+{
+  return zeroXptWall;
+}
+
+// Function to get intra curve spacing options.
+const int& Inputs::getIntraCurveSpacingOption() const
+{
+  return intraCurveSpacingOption;
+}
+
+// Function to get length of smallest last mesh edge on a curve.
+const double& Inputs::getIntraCurveMinLengthLastEdge() const
+{
+  return intraCurveMinLengthLastEdge;
+}
+
+// Function to get mesh size on unstructured mesh faces.
+const double& Inputs::getMeshSizeUnstructured() const
+{
+  return meshSizeUnstructured;
 }

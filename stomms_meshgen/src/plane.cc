@@ -48,6 +48,12 @@ void Plane::setXPoint(const pGVertex& gv)
   xPoints.push_back(v);
 }
 
+// Function to set desired mesh size on unstructured mesh faces.
+void Plane::setUnstructuredMeshSizeOnPlane(double meshSize)
+{
+  meshSizeUnstructured = meshSize;
+}
+
 // Function to set x-point using vertex of type Vertex( STOMMS).
 void Plane::setXPoint(const Vertex& v)
 {
@@ -76,5 +82,11 @@ const std::vector <Vertex>& Plane::getModelVerticesOnPlane() const
 const std::vector <Vertex>& Plane::getXPointsOnPlane() const
 {
   return xPoints;
+}
+
+// Function to return desired mesh size of unstructured mesh faces.
+const double& Plane::getUnstructuredMeshSizeOnPlane() const
+{
+  return meshSizeUnstructured;
 }
 

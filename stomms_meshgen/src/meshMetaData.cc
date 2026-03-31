@@ -16,6 +16,9 @@ void PlaneMeshMetaData::setModelPlane(const Plane& p)
 
   // Step 3: Set up the mesh vertices on each plane.
   meshVerticesParametricLocation = modelPlane.getFieldPointsOnFluxCurves();
+
+  // Step 4: Set mesh size on the model plane.
+  meshSizeUnstructured = modelPlane.getUnstructuredMeshSizeOnPlane();
 }
 
 // Function to set up the mesh types for individual faces.
@@ -90,6 +93,12 @@ const Vertex& PlaneMeshMetaData::getOPointOnPlane()
 const int& PlaneMeshMetaData::getPlaneNumber()
 {
   return modelPlane.planeNumber;
+}
+
+// Function to get unstructured mesh size on the plane.
+const double& PlaneMeshMetaData::getUnstructuredMeshSizeOnPlane() const
+{
+  return meshSizeUnstructured;
 }
 
 /***********************************************/

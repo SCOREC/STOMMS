@@ -20,6 +20,12 @@ class PlaneMetaData{
     PlaneMetaData(const FluxData& f, double angle);
 
     /**
+     * Function to set mesh size on the model faces with unstructured mesh.
+     * @param meshSize: desired mesh size.
+     */ 
+    void setSizeForUnstructuredMesh(double meshSize);
+
+    /**
      * Function to return the psi values of the desired flux curves on the poloidal plane.
      */ 
     const std::vector<double>& getPlaneFluxValues() const;
@@ -41,10 +47,16 @@ class PlaneMetaData{
      * @return mesh spacing on the flux curve with psi normalized value.
      */ 
     double getNodeSpacingAtFlux(double psiNorm);
+
+    /**
+     * Get mesh size on the model faces with unstructured mesh.
+     */ 
+     const double& getSizeForUnstructuredMesh() const;
   private:
     std::vector <double> fluxValues;  // vector of psi values of desired flux curves on the plane. 
     double toroidalAngle;  // Toroidal angle of the plane.
-    std::vector <double> fluxMeshSize;  // Desired node spacing on each flux curve. fluxMeshSize.size() == fluxValues.size(). 
+    std::vector <double> fluxMeshSize;  // Desired node spacing on each flux curve. fluxMeshSize.size() == fluxValues.size().
+    double meshSizeUnstructured; 
 };
 
 /** 

@@ -18,6 +18,12 @@ PlaneMetaData::PlaneMetaData(const FluxData& f, double angle):toroidalAngle(angl
     fluxMeshSize.push_back(itr.second);
 }
 
+// Function to set mesh size on the model faces with unstructured mesh.
+void PlaneMetaData::setSizeForUnstructuredMesh(double meshSize)
+{
+  meshSizeUnstructured = meshSize;
+}
+
 // Function to return the toroidal angle of the poloidal plane.
 const double& PlaneMetaData::getPlaneToroidalAngle() const
 {
@@ -74,6 +80,12 @@ double PlaneMetaData::getNodeSpacingAtFlux(double psiNorm)
   return meshSize;
 }
 
+// Get mesh size on the model faces with unstructured mesh.
+const double& PlaneMetaData::getSizeForUnstructuredMesh() const
+{
+  return meshSizeUnstructured;
+}
+
 /***********************************************/
 // Class ModelMetaData
 // sets metadata for the model (all the planes)
@@ -87,6 +99,7 @@ ModelMetaData::ModelMetaData(const Inputs& inputs)
   {
     double toroidalAngle = inputs.getInputData().pd.planeInput[i];
     PlaneMetaData pg(inputs.getInputData().fd, toroidalAngle);
+    pg.setSizeForUnstructuredMesh(inputs.getMeshSizeUnstructured());
     planesContainer.push_back(pg);
     planesToroidalAngles.push_back(toroidalAngle);
   }

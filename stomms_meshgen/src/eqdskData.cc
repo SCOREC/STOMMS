@@ -6,8 +6,7 @@
 EqdskData::EqdskData(const Inputs& input, const PhysicsPoint& oPoint, const double& psiCoreBoundary)
 {
   // Step 1: Read properties of eqdsk file from the inputs
-  reversePsi = input.useReversePsi();
-  numPlanes = input.getNumTokamakPlanes();
+  setParameters(input);  // for input parameters
   InputData inputData = input.getInputData();
   fluxInputData = inputData.fd; 
 
@@ -447,6 +446,22 @@ bool EqdskData::insideBox(const std::array <double,3>& pt)
 {
   Point point(pt[0], pt[1], pt[2]);
   return insideBox(point);
+}
+
+void EqdskData::setParameters(const Inputs& in)
+{
+  reversePsi = in.useReversePsi();
+  inboardStart = in.useInboardStart();
+  fluxRandomStart = in.useFluxRandomStart();
+  numPlanes = in.getNumTokamakPlanes();
+  stepRadians = in.getStepRadians();
+  psiTolerance = in.getPsiTolerance();
+  spacingToleranceOptimal = in.getSpacingToleranceOptimal();
+  spacingToleranceAbsolute = in.getSpacingToleranceAbsolute();
+  intraCurveSpacingSmallVariation = in.useIntraCurveSpacingSmallVariation();
+  zeroXptWall = in.useZeroXptWall();
+  intraCurveSpacingOption = in.getIntraCurveSpacingOption();
+  intraCurveMinLengthLastEdge = in.getIntraCurveMinLengthLastEdge();
 }
 
 // Returns the number of poloidal planes (user input).

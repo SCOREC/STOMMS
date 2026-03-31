@@ -69,7 +69,64 @@ class Inputs{
     /**
      * Returns the number of tokamak planes for magnetic field line tracing.
      */
-    const int& getNumTokamakPlanes() const;  
+    const int& getNumTokamakPlanes() const;
+
+    /**
+     * Function to check if to use inboard flux start or not. 
+     * Default is outboard plane.
+     */ 
+    const bool& useInboardStart() const;
+
+    /**
+     * Function to check if to use random flux start or not.
+     * Default is random for closed flux curves.
+     */
+    const bool& useFluxRandomStart() const;
+
+    /**
+     * Function to get step size in radians.
+     */
+    const double& getStepRadians() const;
+
+    /**
+     * Function to get psi tolerance.
+     */
+    const double& getPsiTolerance() const;
+
+    /**
+     * Function to psi spacing tolerance optimal.
+     */
+    const double& getSpacingToleranceOptimal() const;
+
+    /**
+     * Function to psi spacing tolerance absolute.
+     */
+    const double& getSpacingToleranceAbsolute() const;
+
+    /**
+     * Function to check if to use small variation intra curve spacing or not.
+     */
+    const bool& useIntraCurveSpacingSmallVariation() const;
+
+    /**
+     * Function to check if to use wall curve in zero Xpt cases or not.
+     */
+    const bool& useZeroXptWall() const;
+
+    /**
+     * Function to get intra curve spacing options.
+     */
+    const int& getIntraCurveSpacingOption() const;
+
+    /**
+     * Function to get length of smallest last mesh edge on a curve.
+     */
+    const double& getIntraCurveMinLengthLastEdge() const;
+
+    /**
+     * Function to get mesh size on unstructured mesh faces.
+     */
+    const double& getMeshSizeUnstructured() const;   
   private:
     // Input parameters
     std::string inputFile;
@@ -80,10 +137,25 @@ class Inputs{
     std::string meshSizeFile;	// Input file to define the mesh size on each flux curve in terms of number of desired points on flux curves.
     std::string limiterFile;    // Input file for the wall curve (limiter). Optional
     
-    // Variables and containers for internal use
+    // Input parameters - EQDSK
     bool reversePsi;            // To reverse the given psi values to get minimum psi at axis.
     double eqdPsiFactor;        // A factor to multipy the psi field.
     int numPlanes;              // Number of planes for the tracing of magnetic field line.
+    bool inboardStart;
+    bool fluxRandomStart;
+    double stepRadians;
+    double psiTolerance;
+    double spacingToleranceOptimal;
+    double spacingToleranceAbsolute;
+    bool intraCurveSpacingSmallVariation;
+    bool zeroXptWall; 
+    int intraCurveSpacingOption;
+    double intraCurveMinLengthLastEdge;
+
+    // Input parameters - Meshing
+    double meshSizeUnstructured;
+
+    // Variables for internal use
     ReactorType reactorType;
  
    /*

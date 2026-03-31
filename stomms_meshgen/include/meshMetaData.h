@@ -43,11 +43,16 @@ class PlaneMeshMetaData{
      * Function to get poloidal plane number.
      */ 
     const int& getPlaneNumber();
-     
+    
+    /**
+     * Function to get unstructured mesh size on the plane.
+     */
+    const double& getUnstructuredMeshSizeOnPlane() const;  
   private:
     Plane modelPlane;  // Plane information from StommsModel.
     std::vector <int> faceMeshType;  // 0: No mesh type specified,  1: oneElementDeepMesh, extend accordingly.
     std::vector <FluxParametricPoints> meshVerticesParametricLocation;  // parametric values of vertices      
+    double meshSizeUnstructured;    
 
     /*
      * Function to set up the mesh types for individual faces.

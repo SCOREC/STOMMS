@@ -41,6 +41,12 @@ class Plane{
     void setXPoint(const Vertex& v);
 
     /**
+     * Function to set desired mesh size on unstructured mesh faces.
+     * @paran meshSize: desired mesh size on the model faces.
+     */ 
+    void setUnstructuredMeshSizeOnPlane(double meshSize);
+ 
+    /**
      * Function to get a vector of class that holds field following points info.
      * @return a vector of class FluxParametricPoints.
      */   
@@ -63,11 +69,17 @@ class Plane{
      * @return a vector of model vertices on the plane classified as xpoints. 
      */ 
     const std::vector <Vertex>& getXPointsOnPlane() const;
+
+    /**
+     * Function to return desired mesh size of unstructured mesh faces.
+     */ 
+    const double& getUnstructuredMeshSizeOnPlane() const;
   private:
     std::vector <FluxParametricPoints> fieldPointsOnFluxCurves;
     std::vector <Edge> modelEdges;
     std::vector <Vertex> modelVertices;
     std::vector <Vertex> xPoints;
+    double meshSizeUnstructured; 
 };
 
 #endif

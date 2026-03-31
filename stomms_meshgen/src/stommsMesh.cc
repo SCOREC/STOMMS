@@ -98,6 +98,7 @@ void StommsMesh::setMeshOnPlaneFaces(pMesh mesh, pACase meshCase, PlaneMeshMetaD
   // Step 1: Iterate over the model faces from the respective plane.
   std::vector <Face> modelFaces = p.getModelFacesOnPlane();
   std::vector <int> faceMeshType = p.getFaceMeshType();
+  double meshSize =  p.getUnstructuredMeshSizeOnPlane();
   for (int i = 0; i < modelFaces.size(); i++)
   {
     Face f = modelFaces[i];
@@ -110,7 +111,7 @@ void StommsMesh::setMeshOnPlaneFaces(pMesh mesh, pACase meshCase, PlaneMeshMetaD
     if (meshType == 1)
       setOneElementDeepMeshOnFace(mesh, meshCase, gf);
     else
-      MS_setMeshSize(meshCase, gf, 1, 0.1, 0);  // TO-DO: Get this mesh size directly from user input
+      MS_setMeshSize(meshCase, gf, 1, 0.01*meshSize, 0);  // TO-DO: Get this mesh size directly from user input
   } 
 }
 

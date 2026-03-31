@@ -19,6 +19,9 @@ ModelEqdsk::ModelEqdsk(const PlaneMetaData& planeMetaData, EqdskData& eqdskData,
 
   // Step 5: Set parametric values of mesh vertices on the flux curves.
   setMeshVerticesOnPlanes();
+
+  // Step 6: Set other properties on the plane.
+  planes[0].setUnstructuredMeshSizeOnPlane(planeMetaData.getSizeForUnstructuredMesh());
 }
 
 void ModelEqdsk::setPlane()
@@ -155,4 +158,3 @@ const std::vector <Plane>& ModelEqdsk::getPlanes() const
 {
   return planes;
 }
-

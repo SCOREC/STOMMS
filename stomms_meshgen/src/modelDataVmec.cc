@@ -60,7 +60,10 @@ void ModelVmec::setPlanes()
     p.modelFaces = itr->second;  // Set the model faces on the plane.
     p.setModelEntitiesFromModelFaces(itr->second);
 
-    // Step 4.5: Save the plane in planes container.
+    // Step 4.5: Set the unstructured mesh size on the plane.
+    p.setUnstructuredMeshSizeOnPlane(planesContainer[itr->first].getSizeForUnstructuredMesh());
+
+    // Step 4.6: Save the plane in planes container.
     planes.push_back(p);
   }
 }

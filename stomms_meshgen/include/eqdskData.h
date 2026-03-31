@@ -146,6 +146,11 @@ class EqdskData{
     bool insideBox(const std::array <double,3>& pt);
 
     /**
+     * Function to set eqdsk parameters from inputs.
+     */ 
+    void setParameters(const Inputs& in);
+
+    /**
      * Returns the number of poloidal planes (user input).
      */
     const int getNumPlanes() const;
@@ -196,21 +201,20 @@ class EqdskData{
     const double& getIntraCurveMinLengthLastEdge() const;
   private:
   // input data.
-  // Write a function to read these values directly from inputs (LATER).
-  bool reversePsi = false;
-  bool inboardStart = false;
-  bool fluxRandomStart = false;
-  int numPlanes = 128;
-  double stepRadians = 0.00125;
-  double psiTolerance = 1e-8;
-  double spacingToleranceOptimal = 0.5;
-  double spacingToleranceAbsolute = 0.61803398874989484820;
-  bool intraCurveSpacingSmallVariation = false;
-  bool zeroXptWall = false; 
+  bool reversePsi;
+  bool inboardStart;
+  bool fluxRandomStart;
+  int numPlanes;
+  double stepRadians;
+  double psiTolerance;
+  double spacingToleranceOptimal;
+  double spacingToleranceAbsolute;
+  bool intraCurveSpacingSmallVariation;
+  bool zeroXptWall; 
   std::array <double, 4> boundingBox;  // bounding box
   FluxData fluxInputData;
-  int intraCurveSpacingOption = -1;
-  double intraCurveMinLengthLastEdge = 0.001;  
+  int intraCurveSpacingOption;
+  double intraCurveMinLengthLastEdge;  
 
   // Derived data.
   PhysicsPoint axis;
