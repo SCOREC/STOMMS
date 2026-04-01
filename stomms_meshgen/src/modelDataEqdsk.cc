@@ -15,7 +15,7 @@ ModelEqdsk::ModelEqdsk(const PlaneMetaData& planeMetaData, EqdskData& eqdskData,
   // Step 4: Update Model classification & write smd model since we will
   // no more changes in model.
   finalModelFaceClassification();
-  GM_write(simModel, "eqdsk.smd", 0, 0);
+  GM_write(simModel, "simModel.smd", 0, 0);
 
   // Step 5: Set parametric values of mesh vertices on the flux curves.
   setMeshVerticesOnPlanes();

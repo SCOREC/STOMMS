@@ -46,4 +46,5 @@ if(ENABLE_TESTING)
 
   enable_testing()
   add_subdirectory(stomms_meshgen/test/unitTests)
+  add_subdirectory(stomms_meshgen/test/test)
 endif() 
