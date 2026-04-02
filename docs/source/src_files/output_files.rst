@@ -29,6 +29,7 @@ The hierarchy in this file is:
                     * Physics property associated with the model entity  
 
 .. code-block:: text
+
   string   StommsVersion                                                             scalar
   int32_t  stommsMesh/planes/0/comm_size                                             {1}
   int32_t  stommsMesh/planes/0/dim                                                   {1}
