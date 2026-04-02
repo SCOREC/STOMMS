@@ -14,11 +14,19 @@ function (reg_test exeName srcMagneticField testCase)
 endfunction(reg_test)
 
 # Critical Points Search Method
-set(exeName test_exe)
-add_executable(${exeName} test.cc)
+set(exeName regressionTest)
+add_executable(${exeName} regTest.cc)
 do_linking(${exeName})
+
+# Tokamak Cases
 reg_test(${exeName} EQDSK DIIID-g096333.03337)
 #reg_test(${exeName} EQDSK ITER-10MA.geqdsk-xgca)
 #reg_test(${exeName} EQDSK KSTAR-g018451.002790_kin_1)
 reg_test(${exeName} EQDSK MASTU-g_p45152_t0.80000)
 #reg_test(${exeName} EQDSK NSTX-g132588.00650)
+
+# Stellarator Cases
+reg_test(${exeName} VMEC HSX)
+reg_test(${exeName} VMEC NCSX-wout_ncsx_c09r00_free.nc)
+reg_test(${exeName} VMEC W7-X)
+

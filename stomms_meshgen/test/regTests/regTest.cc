@@ -158,6 +158,8 @@ bool checkFileName(std::string s, std::string fileName)
 std::array<int,6> getEntityValidationData(const std::string& testCase)
 {
   std::array<int,6> data;
+
+  // Tokamak Cases
   if (checkFileName(testCase, "DIIID-g096333.03337"))
     data = std::array<int,6>{66, 72, 21, 2367, 6969, 4603};
   if (checkFileName(testCase, "KSTAR-g018451.002790_kin_1"))
@@ -166,7 +168,14 @@ std::array<int,6> getEntityValidationData(const std::string& testCase)
     data = std::array<int,6>{322, 426, 126, 10406, 30620, 20215};
   if (checkFileName(testCase, "NSTX-g132588.00650"))
      data = std::array<int,6>{154, 184, 89, 127712, 382128, 254417}; 
-  // Data for production scale meshes
+
+  // Stellarator Cases
+  if (checkFileName(testCase, "W7-X"))
+    data = std::array<int,6>{7, 91, 91, 25732, 75166, 49441};
+  if (checkFileName(testCase, "NCSX-wout_ncsx_c09r00_free.nc"))
+    data = std::array<int,6>{16, 224, 224, 33440, 97520, 64096};
+  if (checkFileName(testCase, "HSX"))
+    data = std::array<int,6>{15, 255, 255, 16275, 48000, 31740};
 
   return data;
 }
