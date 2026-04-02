@@ -72,5 +72,5 @@ follow these steps:
 
 .. code-block:: bash
 
-  - set DENABLE_TESTING=OFF in config files.
+  - set DENABLE_TESTING=ON in config files.
   - In STOMMS/build, run ctest
