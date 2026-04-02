@@ -353,7 +353,7 @@ void StommsOutput::writeModelAdjacency(adios2::IO& io, adios2::Engine& writer, i
 
   // Step 1: Write adjacencies on vertices (edges & faces)
   // Step 1.1: Set variable pre name and write vertex ids 
-  name = "stommsMesh/planes/0/modelAdj/0/";
+  name = "stommsMesh/planes/" + std::to_string(planeIndex) + "/modelAdj/0/";
   adj = getAdjacency(0, plane); // Vertex adjacencies
   varName = name + "vertexIds";
   writeAdios2Array(io, writer, adj.entId, 1, varName);
@@ -374,7 +374,7 @@ void StommsOutput::writeModelAdjacency(adios2::IO& io, adios2::Engine& writer, i
 
   // Step 2: Write adjacencies on edges (vertices & faces)
   // Step 2.1: Set variable pre name and write edge ids
-  name = "stommsMesh/planes/0/modelAdj/1/";
+  name = "stommsMesh/planes/" + std::to_string(planeIndex) + "/modelAdj/1/";
   adj = getAdjacency(1, plane); // edge adjacencies
   varName = name + "edgeIds";
   writeAdios2Array(io, writer, adj.entId, 1, varName);
@@ -395,7 +395,7 @@ void StommsOutput::writeModelAdjacency(adios2::IO& io, adios2::Engine& writer, i
 
   // Step 3: Write adjacencies on faces (vertices & edges)
   // Step 3.1: Set variable pre name and write face ids
-  name = "stommsMesh/planes/0/modelAdj/2/";
+  name = "stommsMesh/planes/" + std::to_string(planeIndex) + "/modelAdj/2/";
   adj = getAdjacency(2, plane); // edge adjacencies
   varName = name + "faceIds";
   writeAdios2Array(io, writer, adj.entId, 1, varName);
