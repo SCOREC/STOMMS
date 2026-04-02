@@ -17,8 +17,28 @@ reversePsi 0
 !Factor to rescale psi (default 1.0)
 eqdPsiFactor 1.3
 
-!Desired number of planes for the field line tracing
+!Number of 2D planes around the torus, used in spacing points on a curve.
 numPlanes 64
+
+!Random curve start for closed flux curve instead fo strictly in a line.
+fluxRandomStart 1
+
+!This is the change in phi of each rk4 step taken when moving a point along a psi curve.
+stepRadians 0.00125
+
+!All points on a psi surface are guaranteed to be within this range of the target psi value.
+psiTolerance 1E-8
+
+!If possible, point spacing on a curve will fall within this fraction of the desired value.
+spacingToleranceOptimal 0.5
+
+!Point spacing on a curve will always be within this fraction of the desired value.
+!The acceptable range is calculated as 1/(1+tol) to (1+tol) so a value of 1.0 gives a range 
+!of .5 to 2.0 times the desired spacing.
+spacingToleranceAbsolute 0.61803398874989484820
+
+!spacing between vertices option (-1: field following, -2: non-field following)
+intraCurveSpacingOption -1
 
 !***********************************************************************************
 !******************PHYSICAL COMPONENTS SOURCES (WALL CURVE FOR NOW)*****************
@@ -39,3 +59,5 @@ planeFile plane.txt
 !Set the mesh size from the input file
 meshSizeFile mesh_size.txt
 
+!Defines the mesh size at the boundary wall.(0.01*meshSizeUnstructured meters)
+meshSizeUnstructured 16.0

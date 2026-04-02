@@ -162,7 +162,10 @@ std::array<int,6> getEntityValidationData(const std::string& testCase)
     data = std::array<int,6>{66, 72, 21, 2367, 6969, 4603};
   if (checkFileName(testCase, "KSTAR-g018451.002790_kin_1"))
     data = std::array<int,6>{317, 406, 203, 214792, 643014, 428223}; 
- 
+  if (checkFileName(testCase, "MASTU-g_p45152_t0.80000"))
+    data = std::array<int,6>{322, 426, 126, 10406, 30620, 20215};
+  if (checkFileName(testCase, "NSTX-g132588.00650"))
+     data = std::array<int,6>{154, 184, 89, 127712, 382128, 254417}; 
   // Data for production scale meshes
 
   return data;
