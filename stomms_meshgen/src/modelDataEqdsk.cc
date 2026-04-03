@@ -1,4 +1,5 @@
 #include "modelDataEqdsk.h"
+#include <chrono>
 
 ModelEqdsk::ModelEqdsk(const PlaneMetaData& planeMetaData, EqdskData& eqdskData, CurveContainer& curvesMetaData)
 {
@@ -18,7 +19,12 @@ ModelEqdsk::ModelEqdsk(const PlaneMetaData& planeMetaData, EqdskData& eqdskData,
   GM_write(simModel, "eqdsk.smd", 0, 0);
 
   // Step 5: Set parametric values of mesh vertices on the flux curves.
+  std::cout << "Setting points starts ...........\n";
+  auto start = std::chrono::high_resolution_clock::now();
   setMeshVerticesOnPlanes();
+  auto end = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> diff = end - start;
+  std::cout << "Setting vertices took " << diff.count() << " seconds\n";
 
   // Step 6: Set other properties on the plane.
   planes[0].setUnstructuredMeshSizeOnPlane(planeMetaData.getSizeForUnstructuredMesh());
@@ -135,7 +141,7 @@ void ModelEqdsk::setMeshVerticesOnPlane(int planeIndex)
   std::vector <FluxParametricPoints> fluxPointsOnPlane;
 
   // Step 1: Iterate over the flux curves on the plane and set field points on them.
-  std::vector <Flux> fluxCurves = planes[planeIndex].fluxCurves;
+  std::vector <Flux>& fluxCurves = planes[planeIndex].fluxCurves;
   for (int i = 0; i < fluxCurves.size(); i++)
   {
     Flux f = fluxCurves[i];
