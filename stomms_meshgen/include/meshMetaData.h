@@ -47,12 +47,18 @@ class PlaneMeshMetaData{
     /**
      * Function to get unstructured mesh size on the plane.
      */
-    const double& getUnstructuredMeshSizeOnPlane() const;  
+    const double& getUnstructuredMeshSizeOnPlane() const;
+
+    /**
+     * Function to get mesh size on the model face of the plane.
+     */  
+     double getMeshSizeOnModelFace(const Face& f);
   private:
     Plane modelPlane;  // Plane information from StommsModel.
     std::vector <int> faceMeshType;  // 0: No mesh type specified,  1: oneElementDeepMesh, extend accordingly.
     std::vector <FluxParametricPoints> meshVerticesParametricLocation;  // parametric values of vertices      
     double meshSizeUnstructured;    
+    std::unordered_map <int , double> meshSizesOnModelFace;   
 
     /*
      * Function to set up the mesh types for individual faces.

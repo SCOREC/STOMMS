@@ -154,10 +154,11 @@ class StommsMesh{
      /**
       * Function to set one element deep mesh on a model face.
       * @param mesh: Simmetrix mesh.
+      * @param: general mesh size on the model face.
       * @param meshCase: Simmetrix mesh case.
       * @param gf: model face on which one element deep mesh is derired.
       */ 
-     void setOneElementDeepMeshOnFace(pMesh mesh, pACase meshCase, pGFace gf); 
+     void setOneElementDeepMeshOnFace(pMesh mesh, double meshSize, pACase meshCase, pGFace gf); 
 
      /**
       * To set up the mesh data on all the poloidal planes in the domain.

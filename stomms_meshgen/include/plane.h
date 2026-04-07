@@ -3,6 +3,7 @@
 
 #include "fieldPointsOnFlux.h"
 #include <set>
+#include <unordered_map>
 
 /**
  * A class to define geometric model on a plane.
@@ -42,10 +43,15 @@ class Plane{
 
     /**
      * Function to set desired mesh size on unstructured mesh faces.
-     * @paran meshSize: desired mesh size on the model faces.
+     * @param meshSize: desired mesh size on the model faces.
      */ 
     void setUnstructuredMeshSizeOnPlane(double meshSize);
- 
+
+    /**
+     * Function to set model sizes on the model faces of the plane.
+     */
+     void setMeshSizeOnModelFaces(const std::unordered_map <int, double>& meshSizeOnF);
+  
     /**
      * Function to get a vector of class that holds field following points info.
      * @return a vector of class FluxParametricPoints.
@@ -74,8 +80,14 @@ class Plane{
      * Function to return desired mesh size of unstructured mesh faces.
      */ 
     const double& getUnstructuredMeshSizeOnPlane() const;
+
+    /**
+     * Function to get unstructured mesh size on each model face.
+     */
+    const std::unordered_map <int , double>& getMeshSizesOnModelFaces(); 
   private:
     std::vector <FluxParametricPoints> fieldPointsOnFluxCurves;
+    std::unordered_map <int, double> meshSizeOnFaces;
     std::vector <Edge> modelEdges;
     std::vector <Vertex> modelVertices;
     std::vector <Vertex> xPoints;

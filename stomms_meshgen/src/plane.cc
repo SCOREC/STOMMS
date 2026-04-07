@@ -54,6 +54,12 @@ void Plane::setUnstructuredMeshSizeOnPlane(double meshSize)
   meshSizeUnstructured = meshSize;
 }
 
+// Function to set model sizes on the model faces of the plane.
+void Plane::setMeshSizeOnModelFaces(const std::unordered_map <int, double>& meshSizeOnF)
+{
+  meshSizeOnFaces = meshSizeOnF;
+}
+
 // Function to set x-point using vertex of type Vertex( STOMMS).
 void Plane::setXPoint(const Vertex& v)
 {
@@ -90,3 +96,7 @@ const double& Plane::getUnstructuredMeshSizeOnPlane() const
   return meshSizeUnstructured;
 }
 
+const std::unordered_map <int , double>& Plane::getMeshSizesOnModelFaces()
+{
+  return meshSizeOnFaces;
+}

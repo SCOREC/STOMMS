@@ -19,6 +19,7 @@ void PlaneMeshMetaData::setModelPlane(const Plane& p)
 
   // Step 4: Set mesh size on the model plane.
   meshSizeUnstructured = modelPlane.getUnstructuredMeshSizeOnPlane();
+  meshSizesOnModelFace = modelPlane.getMeshSizesOnModelFaces();
 }
 
 // Function to set up the mesh types for individual faces.
@@ -99,6 +100,20 @@ const int& PlaneMeshMetaData::getPlaneNumber()
 const double& PlaneMeshMetaData::getUnstructuredMeshSizeOnPlane() const
 {
   return meshSizeUnstructured;
+}
+
+double PlaneMeshMetaData::getMeshSizeOnModelFace(const Face& f)
+{
+  int faceId = GEN_tag(f.getSimFace());
+  double meshSize = meshSizeUnstructured;
+  if (meshSizesOnModelFace.find(faceId) != meshSizesOnModelFace.end())
+    meshSize = meshSizesOnModelFace[faceId];
+  else
+  {
+    std::cout << "WARNING: The model face # " << faceId << " doesn't exist on this plane\n";
+    std::cout << "Returning general unstructured mesh size on the face\n";
+  } 
+  return meshSize;  
 }
 
 /***********************************************/

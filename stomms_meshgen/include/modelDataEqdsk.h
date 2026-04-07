@@ -2,6 +2,7 @@
 #define MODELDATAEQDSK_H
 
 #include "modelingEqdsk.h"
+#include <unordered_map>
 
 class ModelEqdsk{
   public:
@@ -21,6 +22,8 @@ class ModelEqdsk{
     void setMeshVerticesOnPlanes();
     void finalModelFaceClassification();
     void setMeshVerticesOnPlane(int planeIndex);
+    std::unordered_map <int, double>setMeshSizesOnModelFaces(const std::vector <Face>& modelFaces,
+    							     EqdskData& eqdsk, double meshSize);
 };
 
 #endif

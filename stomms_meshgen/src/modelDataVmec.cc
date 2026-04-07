@@ -256,6 +256,26 @@ void ModelVmec::setMeshVerticesOnPlane(int planeIndex)
   planes[planeIndex].setFieldPointsOnFlux(fluxPointsOnPlane); 
 }
 
+void ModelVmec::setFaceMeshSizeOnPlanes()
+{
+  for (int i = 1; i < planes.size(); i++)
+    setMeshSizeOnModelFaces(i);
+}
+
+void ModelVmec::setMeshSizeOnModelFaces(int planeIndex)
+{
+  const std::vector <Face>& modelFaces = planes[planeIndex].modelFaces;
+  std::unordered_map <int, double> meshSizes;
+  double meshSize = planesContainer[planeIndex].getSizeForUnstructuredMesh();
+  for (int i = 0; i < modelFaces.size(); i++)
+  {
+    Face f = modelFaces[i];
+    meshSizes[GEN_tag(f.getSimFace())] = 0.01*meshSize;
+  }
+
+  planes[planeIndex].setMeshSizeOnModelFaces(meshSizes);
+}
+
 // Function to get model associated with vmec geometry.
 const Model& ModelVmec::getModel() const
 {

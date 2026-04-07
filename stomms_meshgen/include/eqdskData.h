@@ -127,6 +127,13 @@ class EqdskData{
     Point convertPsiToPoint(double psi);
 
     /**
+     * Function to get spacing between the two psi values bounding the psiNorm.
+     * @param psiNorm: normalized psi value.
+     * @return spacing between two psi values bounding psiNorm.
+     */
+    double getInterCurveSpacingLinear(double psiNorm);
+ 
+    /**
      * Function to get domain bounding box.
      */
     DomainBox getDomainBox(); 

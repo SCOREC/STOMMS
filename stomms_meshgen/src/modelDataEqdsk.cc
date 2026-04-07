@@ -21,6 +21,8 @@ ModelEqdsk::ModelEqdsk(const PlaneMetaData& planeMetaData, EqdskData& eqdskData,
   setMeshVerticesOnPlanes();
 
   // Step 6: Set other properties on the plane.
+  std::unordered_map<int, double> meshSizesOnFace = setMeshSizesOnModelFaces(planes[0].modelFaces, eqdskData, planeMetaData.getSizeForUnstructuredMesh());
+  planes[0].setMeshSizeOnModelFaces(meshSizesOnFace);
   planes[0].setUnstructuredMeshSizeOnPlane(planeMetaData.getSizeForUnstructuredMesh());
 }
 
@@ -146,6 +148,42 @@ void ModelEqdsk::setMeshVerticesOnPlane(int planeIndex)
     fluxPointsOnPlane.push_back(points);
   }
   planes[planeIndex].setFieldPointsOnFlux(fluxPointsOnPlane); 
+}
+
+std::unordered_map <int, double> ModelEqdsk::setMeshSizesOnModelFaces(const std::vector <Face>& modelFaces, 
+                                                                      EqdskData& eqdsk, double meshSize)
+{
+  std::unordered_map <int, double> meshSizes;
+
+  double count = 0;
+  double psiNormAvg = 0.0;
+  for (int i = 0; i < modelFaces.size(); i++)
+  {
+    Face f = modelFaces[i];
+    const std::vector <Edge>& edges = f.getEdgesOnFace();
+    double count = 0;
+    double psiNormAvg = 0.0;
+    for (int j = 0; j < edges.size(); j++)
+    {
+      const pGEdge& ge  = edges[j].getSimEdge();
+      double psi;
+      if (GEN_numNativeDoubleAttribute(ge, "PsiNorm") != 0)
+      {
+        GEN_nativeDoubleAttribute(ge,"PsiNorm", &psi);
+        psiNormAvg += psi;
+        ++count;
+      }
+      psiNormAvg /= count;
+      if (count < 2)
+      {
+        double length = eqdsk.getInterCurveSpacingLinear(psiNormAvg);
+        meshSizes[GEN_tag(f.getSimFace())] = std::max(length, 0.01*meshSize);
+      }
+      else
+        meshSizes[GEN_tag(f.getSimFace())] = meshSize;
+    }
+  }
+  return meshSizes;  
 }
 
 const Model& ModelEqdsk::getModel() const

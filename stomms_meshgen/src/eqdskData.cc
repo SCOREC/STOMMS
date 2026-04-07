@@ -422,6 +422,35 @@ Point EqdskData::convertPsiToPoint(double psi)
   return returnPt;
 }
 
+// Function to get spacing between the two psi values bounding the psiNorm.
+// Not a good way to set mesh size on faces. It was in legacy TOMMS code.
+// Needed this to match some tests during development. Should discard/come
+// up with better method in future.
+double EqdskData::getInterCurveSpacingLinear(double psiNorm)
+{
+  std::vector <double>& psiInputVector = fluxInputData.fluxInput;
+  double psiNormMin = psiInputVector.front();
+  double psiNormMax = psiInputVector.back();
+  int nGrid = psiInputVector.size();
+  assert (nGrid > 1);
+  
+  int lowBound = nGrid - 2;
+  for (int i = 0; i < nGrid - 1; i++)
+  {
+    if (psiNorm <= psiInputVector[i])
+    {
+      lowBound = i;
+      break;
+    }
+  }
+
+  Point lowBoundPt = convertPsiToPoint(convertNormToPsi(psiInputVector[lowBound]));
+  Point upBoundPt = convertPsiToPoint(convertNormToPsi(psiInputVector[lowBound+1]));
+  double spacing = fabs(lowBoundPt.x - upBoundPt.x);
+  assert (spacing > 0.0);
+  return spacing;
+}
+
 // Function to get domain bounding box.
 DomainBox EqdskData::getDomainBox()
 {
@@ -523,3 +552,4 @@ const double& EqdskData::getIntraCurveMinLengthLastEdge() const
 {
   return intraCurveMinLengthLastEdge;
 }
+
