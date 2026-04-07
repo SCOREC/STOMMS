@@ -3,6 +3,7 @@
 
 #include "meshMetaData.h"
 #include <assert.h>
+#include <unordered_map>
 
 /* 
  * Once Simmetrix mesh is generated, this class will hold the planer mesh data.
@@ -90,7 +91,7 @@ class StommsMesh{
     std::vector <PlaneMeshMetaData> planes;  // a vector of planes holding mesh meta data
     std::vector <PlaneMeshData> planesMeshData;  // a vector of planes holding simmetrix mesh data
     pMesh simMesh;  // Simmetrix mesh
-    std::map <pGVertex, int> specifiedVertices;  // mesh vertices specified on model vertices.
+    std::unordered_map<pGVertex, int> specifiedVertices;  // mesh vertices specified on model vertices.
     int numSpecifiedVert = 0; // initializing the numSpecifiedVert here. It will be used
 			      // in specifying mesh vertices on model entities.
 
@@ -111,7 +112,7 @@ class StommsMesh{
      *                         on the flux curve.
      * returns a vector (int) that contains the indices of specified mesh vertices on flux curve f.
      */
-     void specifyMeshOnFluxCurve(pMesh mesh, Flux f, const FluxParametricPoints& parValuesOnFlux);
+     void specifyMeshOnFluxCurve(pMesh mesh, const Flux& f, const FluxParametricPoints& parValuesOnFlux);
   
      /**
       * To specify mesh vertices and edges on a periodic model edge.

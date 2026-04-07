@@ -72,7 +72,7 @@ class Edge{
      * Function to get the parametric range of the edge.
      * returns a vector of size 2, with starting and ending parametric bounds.
      */ 
-    const std::vector <double>& getEdgeParRange();
+    const std::vector <double>& getEdgeParRange() const;
 
     /*
      * Function to check if the edge is periodic or not.

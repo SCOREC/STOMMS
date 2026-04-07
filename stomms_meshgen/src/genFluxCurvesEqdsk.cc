@@ -15,7 +15,6 @@ std::vector <Flux> genClosedFluxCurves(const std::vector <double>& corePsiValues
     Flux fluxCurve = closedFluxCurve.getFluxCurve();
     fluxCurve.curveType = CurveType::Closed;
     closedFluxCurves[i] = fluxCurve;
-    //closedFluxCurves.push_back(fluxCurve);
   }
 
   return closedFluxCurves;
@@ -672,8 +671,8 @@ std::vector <Flux> getOpenCurvesOnFace(pGFace gf, std::vector <double> psiValues
       // if (!validOpenCurve() add later
 
       restrictDistanceOfLastEdge(f, eqdskData);
-      //#pragma omp critical
-      openCurves.push_back(f);
+      #pragma omp critical
+        openCurves.push_back(f);
     }
   }
   return openCurves;
