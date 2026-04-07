@@ -377,7 +377,7 @@ std::vector <std::vector <PhysicsPoint>> getStartPointsOnSimFace(pGFace face, co
       }
       if(psiFlux) 
         continue;
-       
+  
       std::vector <Point> ptFoundLocal = findPointBySectioningOnEdge(psi, edge, eqdskData);
       for(int j = 0; j < ptFoundLocal.size(); ++j) 
       {

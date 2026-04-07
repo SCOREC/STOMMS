@@ -31,11 +31,7 @@ StommsMesh::StommsMesh(const MeshMetaData& m):meshMetaData(m)
     int axisIndex = specifyMeshVertexOnModelVertex(mesh, oPoint);
 
     // Step 3.3: Set mesh properties on the flux curves.
-    auto start = std::chrono::high_resolution_clock::now();
     setMeshOnPlaneFluxCurves(mesh, p);
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> diff = end - start;
-    std::cout << "Setting flux curve vertices " << diff.count() << " seconds\n";
 
     // Step 3.5: Set mesh properties on the model faces.
     setMeshOnPlaneFaces(mesh, meshCase, p);
@@ -55,13 +51,9 @@ StommsMesh::StommsMesh(const MeshMetaData& m):meshMetaData(m)
  
   // Step 4: Execute the Simmetrix mesher 
   // Surface Mesher
-  auto start = std::chrono::high_resolution_clock::now();
   pSurfaceMesher surfMesh = SurfaceMesher_new(meshCase,mesh);
   SurfaceMesher_execute(surfMesh,prog);
   SurfaceMesher_delete(surfMesh);
-  auto end = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<double> diff = end - start;
-  std::cout << "Meshing took " << diff.count() << " seconds\n";
 
   // Volume Mesher
   if (modelDim == 3)
@@ -181,21 +173,9 @@ void StommsMesh::specifyMeshOnFluxCurve(pMesh mesh, const Flux& f, const FluxPar
     const std::vector <double>& parValuesOnEdge = parValuesOnFlux.getParametricValuesAtFluxEdge(edges[i]);
     std::cout << "# of Point = " << parValuesOnEdge.size() << "\n";
     if (edges[i].edgeIsPeriodic())
-    {
-      auto start = std::chrono::high_resolution_clock::now();
       specifyMeshOnPeriodicModelEdge(mesh, edges[i], parValuesOnEdge);
-      auto end = std::chrono::high_resolution_clock::now();
-      std::chrono::duration<double> diff = end - start;
-      std::cout << "Closed Curves took " << diff.count() << " seconds\n";
-    }
     else
-    { 
-      auto start = std::chrono::high_resolution_clock::now();
       specifyMeshOnModelEdge(mesh, edges[i], parValuesOnEdge);  
-      auto end = std::chrono::high_resolution_clock::now();
-      std::chrono::duration<double> diff = end - start;
-      std::cout << "Regular Edges took " << diff.count() << " seconds\n";
-    }
   }
 }
 

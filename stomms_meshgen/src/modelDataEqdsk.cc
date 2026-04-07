@@ -19,12 +19,7 @@ ModelEqdsk::ModelEqdsk(const PlaneMetaData& planeMetaData, EqdskData& eqdskData,
   GM_write(simModel, "eqdsk.smd", 0, 0);
 
   // Step 5: Set parametric values of mesh vertices on the flux curves.
-  std::cout << "Setting points starts ...........\n";
-  auto start = std::chrono::high_resolution_clock::now();
   setMeshVerticesOnPlanes();
-  auto end = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<double> diff = end - start;
-  std::cout << "Setting vertices took " << diff.count() << " seconds\n";
 
   // Step 6: Set other properties on the plane.
   planes[0].setUnstructuredMeshSizeOnPlane(planeMetaData.getSizeForUnstructuredMesh());

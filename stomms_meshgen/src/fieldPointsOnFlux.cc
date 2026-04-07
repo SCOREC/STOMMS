@@ -1,5 +1,4 @@
 #include "fieldPointsOnFlux.h"
-#include <chrono>
 
 /***********************************************/
 // Class: FluxParametricPoints
@@ -200,8 +199,6 @@ std::vector <std::vector<double>> setParOnFluxUsingPoints(const Flux& f)
 
     // Step 4: Iterate over the points on flux curves and save their parametric
     // value until they hit the edge end point.
-    //std::cout << "Num Points = " << f.fieldPoints.size() << "\n";
-    //auto start = std::chrono::high_resolution_clock::now();
     for (int j = startPointIndex+1; j < f.fieldPoints.size(); j++)
     {
       std::array <double, 3> pt = {f.fieldPoints[j].x, f.fieldPoints[j].y, 0.0};
@@ -219,9 +216,6 @@ std::vector <std::vector<double>> setParOnFluxUsingPoints(const Flux& f)
       }
       parValuesOnEdge.push_back(par);
     }
-    //auto end = std::chrono::high_resolution_clock::now();
-    //std::chrono::duration<double> diff = end - start;
-    //std::cout << "Model edge took " << diff.count() << " seconds\n";
     // Step 5: If edge is not periodic, push last point too. 
     if (!periodicEdge)
       parValuesOnEdge.push_back(parR[1]);
