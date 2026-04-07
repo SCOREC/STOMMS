@@ -1,5 +1,4 @@
 #include "stommsMesh.h"
-#include <chrono>
 
 // Given the simmetrix model and planes data, this function generates
 // and return a simmetrix mesh.

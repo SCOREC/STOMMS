@@ -1,5 +1,4 @@
 #include "modelDataEqdsk.h"
-#include <chrono>
 
 ModelEqdsk::ModelEqdsk(const PlaneMetaData& planeMetaData, EqdskData& eqdskData, CurveContainer& curvesMetaData)
 {
