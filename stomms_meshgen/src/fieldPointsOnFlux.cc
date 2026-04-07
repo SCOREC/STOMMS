@@ -8,19 +8,17 @@
 FluxParametricPoints::FluxParametricPoints(const Flux& flux, int pointPlacementType)
 {
   // Step 1: Set the properties of the class.
-  f = flux;
   fluxEdges = flux.edgesOnFlux;
   placementType = pointPlacementType;
 
   // Step 2: Iterate over the model edges and set parametric values
-  parametricValues = setVerticesParValuesOnFlux(f, placementType);
+  parametricValues = setVerticesParValuesOnFlux(flux, placementType);
 }
 
 // Constructor to set parametric points on flux based on fixed parametric values one edges. 
-FluxParametricPoints::FluxParametricPoints(const Flux& flux, std::vector <std::vector<double>> parValuesOnEdges)
+FluxParametricPoints::FluxParametricPoints(const Flux& flux, const std::vector <std::vector<double>>& parValuesOnEdges)
 {
   // Step 1: Set the properties of the class.
-  f = flux;
   fluxEdges = flux.edgesOnFlux;
 
   // Step 2: Iterate over the model edges and set parametric values
@@ -70,22 +68,23 @@ const std::vector<double>& FluxParametricPoints::getParametricValuesAtFluxEdge(c
 /***********************************************/
 
 // Top level function to set the parametric values on a flux curve.
-std::vector <std::vector<double>> setVerticesParValuesOnFlux(Flux f, int type)
+std::vector <std::vector<double>> setVerticesParValuesOnFlux(const Flux& f, int type)
 {
   std::vector <std::vector<double>> parValuesOnEdge;
 
   // Step 1: Based on the type of point placement type, find the parametric
   // values on the flux curve.
+  auto start = std::chrono::high_resolution_clock::now();
   if (type == 0)
     parValuesOnEdge = setVerticesParValuesUsingDistance(f);
   else if (type == 1)
     parValuesOnEdge = setVerticesParValuesUsingPoints(f);
-  
+
   return parValuesOnEdge;
 }
 
 // Function to set parametric values on a flux based on a given fixed distance (spacing between points).
-std::vector <std::vector<double>> setVerticesParValuesUsingDistance(Flux f)
+std::vector <std::vector<double>> setVerticesParValuesUsingDistance(const Flux& f)
 {
   std::vector <std::vector<double>> parValuesOnEdge;
 
@@ -98,7 +97,7 @@ std::vector <std::vector<double>> setVerticesParValuesUsingDistance(Flux f)
 }
 
 // Function to set parametric values on a flux based on a set of points(coordinates) already in the flux.
-std::vector <std::vector<double>> setVerticesParValuesUsingPoints(Flux f)
+std::vector <std::vector<double>> setVerticesParValuesUsingPoints(const Flux& f)
 {
   // Not dependent on flux type. One algorithm works for all curves type.
   std::vector <std::vector<double>> parValuesOnEdges;
@@ -108,7 +107,7 @@ std::vector <std::vector<double>> setVerticesParValuesUsingPoints(Flux f)
 
 // Function to set up the field following points on the closed flux
 // curve using the distance.
-std::vector <std::vector<double>> setParOnClosedFluxUsingDistance(Flux f)
+std::vector <std::vector<double>> setParOnClosedFluxUsingDistance(const Flux& f)
 {
   std::vector <std::vector<double>> parametricValuesOnEdge;
 
@@ -176,7 +175,7 @@ double getNextParamPointForDist(const Edge& ge, double parStart, double parEnd, 
 }
 
 // Function to set parametric values on a flux based on a set of points.
-std::vector <std::vector<double>> setParOnFluxUsingPoints(Flux f)
+std::vector <std::vector<double>> setParOnFluxUsingPoints(const Flux& f)
 {
   std::vector <std::vector<double>> parametricValuesOnEdge;
 
@@ -190,7 +189,7 @@ std::vector <std::vector<double>> setParOnFluxUsingPoints(Flux f)
 
     // Step 2: Get the model edge on flux curve and parameric bounds of the edge.
     Edge edge = f.edgesOnFlux[i];
-    std::vector <double> parR = edge.getEdgeParRange();
+    const std::vector <double>& parR = edge.getEdgeParRange();
     pGEdge ge = edge.getSimEdge();  // get sim edge
     bool periodicEdge = edge.edgeIsPeriodic();
 
@@ -217,7 +216,6 @@ std::vector <std::vector<double>> setParOnFluxUsingPoints(Flux f)
       }
       parValuesOnEdge.push_back(par);
     }
-    
     // Step 5: If edge is not periodic, push last point too. 
     if (!periodicEdge)
       parValuesOnEdge.push_back(parR[1]);

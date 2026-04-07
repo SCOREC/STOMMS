@@ -30,7 +30,7 @@ class FluxParametricPoints{
      * @param parValuesOnEdges: parametric values on edges that need to be set on the corresponding
      *                          edges on different planes.
      */ 
-    FluxParametricPoints(const Flux& flux, std::vector <std::vector<double>> parValuesOnEdges);
+    FluxParametricPoints(const Flux& flux, const std::vector <std::vector<double>>& parValuesOnEdges);
 
     /*
      * Function to get the set of model edges on the flux curve.
@@ -52,7 +52,6 @@ class FluxParametricPoints{
     const std::vector<double>& getParametricValuesAtFluxEdge(const Edge& ge) const;
   private:
     int placementType = 0; // 0 = spacing between nodes, 1 = field points
-    Flux f;  // input flux curve. contains all the info needed for parametric values calculations.
     std::vector <Edge> fluxEdges;  // vector of model edges on the flux.
     std::vector <std::vector<double>> parametricValues;  // calculated parametric values.
 };
@@ -65,7 +64,7 @@ class FluxParametricPoints{
  * @return a double vector where dimension 1 is equal to the number of model edges, and 
  * with a vector of corresponding parametric values.        
  */
-std::vector <std::vector<double>> setVerticesParValuesOnFlux(Flux f, int type);
+std::vector <std::vector<double>> setVerticesParValuesOnFlux(const Flux& f, int type);
 
 /**
  * Function to set parametric values on a flux based on a given fixed distance (spacing between points).
@@ -74,7 +73,7 @@ std::vector <std::vector<double>> setVerticesParValuesOnFlux(Flux f, int type);
  * @return a double vector where dimension 1 is equal to the number of model edges, and 
  * with a vector of corresponding parametric values.        
  */
-std::vector <std::vector<double>> setVerticesParValuesUsingDistance(Flux f);
+std::vector <std::vector<double>> setVerticesParValuesUsingDistance(const Flux& f);
 
 /**
  * Function to set parametric values on a flux based on a set of points(coordinates) already in the flux.
@@ -83,7 +82,7 @@ std::vector <std::vector<double>> setVerticesParValuesUsingDistance(Flux f);
  * @return a double vector where dimension 1 is equal to the number of model edges, and 
  * with a vector of corresponding parametric values.        
  */
-std::vector <std::vector<double>> setVerticesParValuesUsingPoints(Flux f);
+std::vector <std::vector<double>> setVerticesParValuesUsingPoints(const Flux& f);
 
 /**
  * Function to set parametric values on a closd flux based on a given fixed distance (spacing between points).
@@ -92,7 +91,7 @@ std::vector <std::vector<double>> setVerticesParValuesUsingPoints(Flux f);
  * @return a double vector where dimension 1 is equal to the number of model edges, and
  * with a vector of corresponding parametric values.
  */
-std::vector <std::vector<double>> setParOnClosedFluxUsingDistance(Flux f);
+std::vector <std::vector<double>> setParOnClosedFluxUsingDistance(const Flux& f);
 
 /**
  * Function to set parametric values on a flux based on a set of points.
@@ -101,7 +100,7 @@ std::vector <std::vector<double>> setParOnClosedFluxUsingDistance(Flux f);
  * @return a double vector where dimension 1 is equal to the number of model edges, and
  * with a vector of corresponding parametric values.
  */
-std::vector <std::vector<double>> setParOnFluxUsingPoints(Flux f);
+std::vector <std::vector<double>> setParOnFluxUsingPoints(const Flux& f);
 
 /**
  * Gets the next parametric value on a flux curve based on starting point on the model edge and target length.

@@ -99,7 +99,7 @@ const std::vector <Vertex>& Edge::getVerticesOnEdge()
 }
 
 // Function to region the vector of parametric bounds of edge.
-const std::vector <double>& Edge::getEdgeParRange()
+const std::vector <double>& Edge::getEdgeParRange() const
 {
   return edgeParRange; 
 }

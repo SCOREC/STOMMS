@@ -125,7 +125,7 @@ int intersectBetweenTwoLineSegments(const Point& testPt1, const Point& testPt2, 
 int getNumIntersection(const Point& pt1, const Point& pt2, const WallCurve& wall);
 std::vector <Point> getPushedPoints(const PhysicsPoint& xPoint, double dist, EqdskData& eqdsk);
 std::vector <Point> findPointBySectioningBtwTwoPts(double targetPsi, int sampleN, const Point& pt1, const Point pt2, EqdskData& eqdsk);
-std::vector <Point> findPointBySectioningOnEdge(double targetPsi, int sampleN, pGEdge ge, EqdskData& eqdsk);
+std::vector <Point> findPointBySectioningOnEdge(double targetPsi, pGEdge ge, EqdskData& eqdsk);
 std::vector <Point> findStartPointOnWall(double psiNormalized, int type, const WallCurve& wall, EqdskData& eqdsk);
 bool validOpenCurve(const Flux& f, const std::vector <pGEdge>& edgesOnCurve);
 void restrictDistanceOfLastEdge(Flux& f, EqdskData& eqdsk);

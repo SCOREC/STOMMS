@@ -135,7 +135,7 @@ void ModelEqdsk::setMeshVerticesOnPlane(int planeIndex)
   std::vector <FluxParametricPoints> fluxPointsOnPlane;
 
   // Step 1: Iterate over the flux curves on the plane and set field points on them.
-  std::vector <Flux> fluxCurves = planes[planeIndex].fluxCurves;
+  std::vector <Flux>& fluxCurves = planes[planeIndex].fluxCurves;
   for (int i = 0; i < fluxCurves.size(); i++)
   {
     Flux f = fluxCurves[i];

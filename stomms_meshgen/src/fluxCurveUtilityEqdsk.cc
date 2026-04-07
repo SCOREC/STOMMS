@@ -298,9 +298,6 @@ std::vector <std::vector <PhysicsPoint>> getStartPointsOnSimFace(pGFace face, co
   std::vector <std::vector <PhysicsPoint>> startPoints;
   startPoints.resize(psiNormList.size());
 
-  // search parameter
-  double distSampling = 1e-2; // 1cm
-
   pPList edges = GF_edges(face);
   std::vector<double> psiToAvoid;
 
@@ -362,11 +359,8 @@ std::vector <std::vector <PhysicsPoint>> getStartPointsOnSimFace(pGFace face, co
     Point pt1(pos0[0], pos0[1]);
     Point pt2(pos1[0], pos1[1]);
     int nSample;
-  
-    distSampling = 1e-5;
-    nSample= 1 + std::max(1, static_cast<int>(edgeLength/distSampling));
-
-#pragma omp parallel for schedule(dynamic)
+ 
+    #pragma omp parallel for schedule(dynamic)
     for(int ipsi = 0; ipsi < psiNormList.size(); ++ipsi) 
     {
       double psiNormalized = psiNormList[ipsi];
@@ -383,8 +377,8 @@ std::vector <std::vector <PhysicsPoint>> getStartPointsOnSimFace(pGFace face, co
       }
       if(psiFlux) 
         continue;
-
-      std::vector <Point> ptFoundLocal = findPointBySectioningOnEdge(psi, nSample, edge, eqdskData);   
+  
+      std::vector <Point> ptFoundLocal = findPointBySectioningOnEdge(psi, edge, eqdskData);
       for(int j = 0; j < ptFoundLocal.size(); ++j) 
       {
         if(psiFlux) 
@@ -667,12 +661,19 @@ std::vector <Point> findPointBySectioningBtwTwoPts(double targetPsi, int sampleN
   return pointsFound;
 }
 
-
-std::vector <Point> findPointBySectioningOnEdge(double targetPsi, int sampleN, pGEdge ge, EqdskData& eqdsk) 
+std::vector <Point> findPointBySectioningOnEdge(double targetPsi, pGEdge ge, EqdskData& eqdsk) 
 {
   std::vector <Point> pointsFound;
-  std::vector <double> samplePsi;
 
+  double stepSize = 1e-5;
+  int minSamples = 10;
+  int maxSamples = 10000;
+
+  int sampleN = static_cast<int>(GE_length(ge)/ stepSize) + 1;
+  sampleN = std::max(sampleN, minSamples);
+  sampleN = std::min(sampleN, maxSamples);
+  
+  std::vector <double> samplePsi;
   double parR[2];
   GE_parRange(ge, &parR[0], &parR[1]);
   double parInterval = (parR[1] - parR[0])/(sampleN-1);

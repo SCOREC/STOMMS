@@ -5,7 +5,8 @@ std::vector <Flux> genClosedFluxCurves(const std::vector <double>& corePsiValues
                                        EqdskData& eqdskData, const PlaneMetaData& planeMetaData)
 {
   std::vector <PhysicsPoint> startPoints = getStartPointClosed(corePsiValues, eqdskData);
-  std::vector <Flux> closedFluxCurves;
+  std::vector <Flux> closedFluxCurves(startPoints.size());
+  #pragma omp parallel for schedule(static)
   for (int i = 0; i < startPoints.size(); i++)
   {
     unsigned int mySeed = 1024 + i +1; // for random start
@@ -13,7 +14,7 @@ std::vector <Flux> genClosedFluxCurves(const std::vector <double>& corePsiValues
     ClosedFluxCurve closedFluxCurve(startPoint, mySeed, oPoint, eqdskData, planeMetaData);
     Flux fluxCurve = closedFluxCurve.getFluxCurve();
     fluxCurve.curveType = CurveType::Closed;
-    closedFluxCurves.push_back(fluxCurve);
+    closedFluxCurves[i] = fluxCurve;
   }
 
   return closedFluxCurves;
@@ -80,7 +81,7 @@ std::vector <Flux> genOpenFluxCurves(pGModel& model, EqdskData& eqdskData, const
       std::vector <double> psiValuesAtPvt = getSpacingOnPrivateRegion(gf, planeMetaData);
       std::vector <Flux> pvtCurves = getOpenCurvesOnFace(gf, psiValuesAtPvt, eqdskData, wall, oPoint, planeMetaData);
       openCurves.insert(openCurves.end(), pvtCurves.begin(), pvtCurves.end());
-    }  
+    } 
   }
 
   return openCurves;
@@ -655,10 +656,10 @@ std::vector <Flux> getOpenCurvesOnFace(pGFace gf, std::vector <double> psiValues
   std::vector <Flux> openCurves;
   std::vector <std::vector <PhysicsPoint>> startPoints = getStartPointsOnSimFace(gf, psiValues, eqdskData);
 
-#pragma omp parallel for schedule(dynamic)
+  #pragma omp parallel for schedule(dynamic)
   for (int i = 0; i < startPoints.size(); i++)
   {
-    std::vector <PhysicsPoint> startPointsForPsi = startPoints[i];
+    std::vector <PhysicsPoint>& startPointsForPsi = startPoints[i];
     for (int j = 0; j < startPointsForPsi.size(); j++)
     {
       OpenFluxCurve openFluxCurve(startPointsForPsi, j, eqdskData, oPoint, wall, planeMetaData);
@@ -670,13 +671,10 @@ std::vector <Flux> getOpenCurvesOnFace(pGFace gf, std::vector <double> psiValues
       // if (!validOpenCurve() add later
 
       restrictDistanceOfLastEdge(f, eqdskData);
-#pragma omp critical
-      {
+      #pragma omp critical
         openCurves.push_back(f);
-      }
     }
   }
-
   return openCurves;
 }
 

@@ -81,14 +81,13 @@ void StommsMesh::setMeshOnPlaneFluxCurves(pMesh mesh, PlaneMeshMetaData& p)
   // Step 1: Iterate over the flux curves from the respective plane
   // and set the meshes. For first flux curve (j == 0), save the 
   // indices on flux curve f for specifying edges on model face.
-  std::vector <Flux> fluxCurves = p.getFluxCurvesOnPlane();
-  std::vector <FluxParametricPoints> parValuesOnFluxCurves = p.getMeshVerticesOnFlux();
+  const std::vector <Flux>& fluxCurves = p.getFluxCurvesOnPlane();
+  const std::vector <FluxParametricPoints>& parValuesOnFluxCurves = p.getMeshVerticesOnFlux();
   for (int i = 0; i < fluxCurves.size(); i++)
   {
     // Step 1.1: Specify mesh entities (vertices and edges) on flux curves. 
-    Flux f = fluxCurves[i];
-    FluxParametricPoints parValuesOfVertices = parValuesOnFluxCurves[i];
-    specifyMeshOnFluxCurve(mesh, f, parValuesOfVertices);
+    const FluxParametricPoints& parValuesOfVertices = parValuesOnFluxCurves[i];
+    specifyMeshOnFluxCurve(mesh, fluxCurves[i], parValuesOfVertices);
   } 
 }
 
@@ -96,12 +95,12 @@ void StommsMesh::setMeshOnPlaneFluxCurves(pMesh mesh, PlaneMeshMetaData& p)
 void StommsMesh::setMeshOnPlaneFaces(pMesh mesh, pACase meshCase, PlaneMeshMetaData& p)
 {
   // Step 1: Iterate over the model faces from the respective plane.
-  std::vector <Face> modelFaces = p.getModelFacesOnPlane();
+  const std::vector <Face>& modelFaces = p.getModelFacesOnPlane();
   std::vector <int> faceMeshType = p.getFaceMeshType();
   double meshSize =  p.getUnstructuredMeshSizeOnPlane();
   for (int i = 0; i < modelFaces.size(); i++)
   {
-    Face f = modelFaces[i];
+    const Face& f = modelFaces[i];
     pGFace gf = f.getSimFace();
     
     // Step 2: Set the mesh type.
@@ -162,7 +161,7 @@ int StommsMesh::specifyMeshVertexOnModelVertex(pMesh mesh, pGVertex gv)
 }
 
 // To specify mesh vertices and edges on flux curves (model edges).
-void StommsMesh::specifyMeshOnFluxCurve(pMesh mesh, Flux f, const FluxParametricPoints& parValuesOnFlux)
+void StommsMesh::specifyMeshOnFluxCurve(pMesh mesh, const Flux& f, const FluxParametricPoints& parValuesOnFlux)
 {
   // Step 1: Iterate over the model edges on the flux curve.
   std::vector <Edge> edges = f.edgesOnFlux;
@@ -170,7 +169,8 @@ void StommsMesh::specifyMeshOnFluxCurve(pMesh mesh, Flux f, const FluxParametric
   {
     // Step 2: Get the parametric values on each model edge, and specify vertices and edges based
     // on the model edge type.
-    std::vector <double> parValuesOnEdge = parValuesOnFlux.getParametricValuesAtFluxEdge(edges[i]);
+    const std::vector <double>& parValuesOnEdge = parValuesOnFlux.getParametricValuesAtFluxEdge(edges[i]);
+    std::cout << "# of Point = " << parValuesOnEdge.size() << "\n";
     if (edges[i].edgeIsPeriodic())
       specifyMeshOnPeriodicModelEdge(mesh, edges[i], parValuesOnEdge);
     else
