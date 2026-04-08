@@ -80,6 +80,8 @@ double PlaneMetaData::getNodeSpacingAtFlux(double psiNorm)
   return meshSize;
 }
 
+// Function to get a vector of mesh node spacing (map directly with
+// the flux curve vector).
 const std::vector <double>& PlaneMetaData::getNodeSpacingVector() const
 {
   return fluxMeshSize;

@@ -151,22 +151,27 @@ void ModelEqdsk::setMeshVerticesOnPlane(int planeIndex)
   planes[planeIndex].setFieldPointsOnFlux(fluxPointsOnPlane); 
 }
 
+// Function to set a map between model face Ids and desired mesh size on them.
 std::unordered_map <int, double> ModelEqdsk::setMeshSizesOnModelFaces(const std::vector <Face>& modelFaces, 
                                                                       EqdskData& eqdsk, double meshSize)
 {
   std::unordered_map <int, double> meshSizes;
 
-  double count = 0;
-  double psiNormAvg = 0.0;
+  // Step 1: Iterate over the model faces.
   for (int i = 0; i < modelFaces.size(); i++)
   {
     Face f = modelFaces[i];
-    const std::vector <Edge>& edges = f.getEdgesOnFace();
     double count = 0;
     double psiNormAvg = 0.0;
+
+    // Step 2: get the edges on face and iterate over them.
+    const std::vector <Edge>& edges = f.getEdgesOnFace();
     for (int j = 0; j < edges.size(); j++)
     {
       const pGEdge& ge  = edges[j].getSimEdge();
+
+      // Step 3: Get the psi value (normalized) on the model edges
+      // and add them for average calculation
       double psi;
       if (GEN_numNativeDoubleAttribute(ge, "PsiNorm") != 0)
       {
@@ -174,7 +179,12 @@ std::unordered_map <int, double> ModelEqdsk::setMeshSizesOnModelFaces(const std:
         psiNormAvg += psi;
         ++count;
       }
+
+      // Step 4: Calculate average.
       psiNormAvg /= count;
+
+      // Step 4: If model face has single edge with valid psi value, set
+      // the general unstructured mesh size to the face.
       if (count < 2)
       {
         double length = eqdsk.getInterCurveSpacingLinear(psiNormAvg);

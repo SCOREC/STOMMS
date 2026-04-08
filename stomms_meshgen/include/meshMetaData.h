@@ -51,6 +51,8 @@ class PlaneMeshMetaData{
 
     /**
      * Function to get mesh size on the model face of the plane.
+     * @param f: model face on which mesh size is desired.
+     * @return mesh size desired on the model face.
      */  
      double getMeshSizeOnModelFace(const Face& f);
   private:
@@ -58,7 +60,7 @@ class PlaneMeshMetaData{
     std::vector <int> faceMeshType;  // 0: No mesh type specified,  1: oneElementDeepMesh, extend accordingly.
     std::vector <FluxParametricPoints> meshVerticesParametricLocation;  // parametric values of vertices      
     double meshSizeUnstructured;    
-    std::unordered_map <int , double> meshSizesOnModelFace;   
+    std::unordered_map <int , double> meshSizesOnModelFace;  // map between model face tag (int) and mesh size   
 
     /*
      * Function to set up the mesh types for individual faces.

@@ -96,6 +96,7 @@ const double& Plane::getUnstructuredMeshSizeOnPlane() const
   return meshSizeUnstructured;
 }
 
+// Function to get a map between model face ids and respective mesh sizes on them.
 const std::unordered_map <int , double>& Plane::getMeshSizesOnModelFaces()
 {
   return meshSizeOnFaces;

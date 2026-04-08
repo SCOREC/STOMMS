@@ -24,6 +24,9 @@ ModelVmec::ModelVmec(const ModelMetaData& md, const VmecData& vm): modelMetaData
 
   // Step 5: Set parametric values of mesh vertices on the flux curves.
   setMeshVerticesOnPlanes();
+
+  // Step 6: Set map between face Ids and mesh sizes on each plane.
+  setFaceMeshSizeOnPlanes();
 }
 
 // Setting model entities from Simmetrix Model (pGModel) to respective planes.
@@ -256,17 +259,22 @@ void ModelVmec::setMeshVerticesOnPlane(int planeIndex)
   planes[planeIndex].setFieldPointsOnFlux(fluxPointsOnPlane); 
 }
 
+// Function to set mesh sizes map for all the planes.
 void ModelVmec::setFaceMeshSizeOnPlanes()
 {
-  for (int i = 1; i < planes.size(); i++)
+  for (int i = 0; i < planes.size(); i++)
     setMeshSizeOnModelFaces(i);
 }
 
+// Function to set mesh size map on an individual face.
 void ModelVmec::setMeshSizeOnModelFaces(int planeIndex)
 {
   const std::vector <Face>& modelFaces = planes[planeIndex].modelFaces;
   std::unordered_map <int, double> meshSizes;
   double meshSize = planesContainer[planeIndex].getSizeForUnstructuredMesh();
+
+  // Step 1: Iterate over the model faces and set general unstructured mesh 
+  // size to the map.
   for (int i = 0; i < modelFaces.size(); i++)
   {
     Face f = modelFaces[i];

@@ -154,7 +154,7 @@ class StommsMesh{
      /**
       * Function to set one element deep mesh on a model face.
       * @param mesh: Simmetrix mesh.
-      * @param: general mesh size on the model face.
+      * @param meshSize: general mesh size on the model face.
       * @param meshCase: Simmetrix mesh case.
       * @param gf: model face on which one element deep mesh is derired.
       */ 

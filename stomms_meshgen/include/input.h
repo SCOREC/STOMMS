@@ -126,7 +126,17 @@ class Inputs{
     /**
      * Function to get mesh size on unstructured mesh faces.
      */
-    const double& getMeshSizeUnstructured() const;   
+    const double& getMeshSizeUnstructured() const;  
+
+    /**
+     * Function to get intra curve spacing proportional factor (max)
+     */ 
+    const double& getIntraCurveSpacingPropFacMax() const;
+
+    /**
+     * Function to get intra curve spacing proportional factor (min)
+     */
+    const double& getIntraCurveSpacingPropFacMin() const;     
   private:
     // Input parameters
     std::string inputFile;
@@ -151,6 +161,8 @@ class Inputs{
     bool zeroXptWall; 
     int intraCurveSpacingOption;
     double intraCurveMinLengthLastEdge;
+    double intraCurveSpacingPropFacMax;  // A factor (max) to set intra curve spacing for non-field following case
+    double intraCurveSpacingPropFacMin;  // A factor (min) to set intra curve spacing for non-field following case
 
     // Input parameters - Meshing
     double meshSizeUnstructured;

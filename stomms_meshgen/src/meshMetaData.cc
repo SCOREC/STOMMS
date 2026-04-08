@@ -102,13 +102,18 @@ const double& PlaneMeshMetaData::getUnstructuredMeshSizeOnPlane() const
   return meshSizeUnstructured;
 }
 
+// Function to get mesh size on the model face of the plane.
 double PlaneMeshMetaData::getMeshSizeOnModelFace(const Face& f)
 {
+  // Step 1: Get the id of the model face.
   int faceId = GEN_tag(f.getSimFace());
+
+  // Step 2: If Id exists in the map, set the meshSize from the respective key (key == faceId).
+  // If not issue a warning, and return the general unstructured mesh size on the plane.
   double meshSize = meshSizeUnstructured;
   if (meshSizesOnModelFace.find(faceId) != meshSizesOnModelFace.end())
     meshSize = meshSizesOnModelFace[faceId];
-  else
+  else 
   {
     std::cout << "WARNING: The model face # " << faceId << " doesn't exist on this plane\n";
     std::cout << "Returning general unstructured mesh size on the face\n";

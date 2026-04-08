@@ -18,13 +18,14 @@ class EqdskData{
     /**
      * Eqdsk Constructor.
      * @param input: class holding all the input data.
+     * @param planeData: planer meta data
      * @param oPoint: primary oPoint.
-     * @param xPoint: primary xPoint.
+     * @param psiCoreBoundary: psi value of last closed flux curve or innermost separatrix (primary)
      */ 
     EqdskData(const Inputs& input, const PlaneMetaData& planeData, const PhysicsPoint& oPoint, const double& psiCoreBoundary);
 
     /**
-     * Set the intra curve grad spacing.
+     * Set the intra curve gradient spacing.
      */
     void setintraCurveSpacingGradPsi();    
  
@@ -126,6 +127,7 @@ class EqdskData{
      */ 
     int findPsiPt(double targetPsi, Point startPoint, std::array<double,2> dir, Point& finalPoint);
     int findPsiPtOnLine(double targetPsi, const Point& pt1, const Point pt2, Point& finalPoint);
+
     /**
      * Given the psi value, this function finds the coordinates of the point on a 
      * horizontal line from axis to the box (either inward or outward).
@@ -139,6 +141,12 @@ class EqdskData{
      */
     double getInterCurveSpacingLinear(double psiNorm);
 
+    /**
+     * Function to get intra curve spacing for the given psi and a starting point.
+     * @pt: A starting point (needed in non-field following case). TO-DO: Make it optional in future.
+     * @param psiNorm: normalized psi value.
+     * @return returns desired node spacing.
+     */ 
     double getNodeSpacing(const Point& pt, double psiNorm);
  
     /**
@@ -230,8 +238,8 @@ class EqdskData{
   FluxData fluxInputData;
   int intraCurveSpacingOption;
   double intraCurveMinLengthLastEdge; 
-  double intraCurveSpacingPropFacMax = 4.0;
-  double intraCurveSpacingPropFacMin = 0.95; 
+  double intraCurveSpacingPropFacMax;  // internal use for class
+  double intraCurveSpacingPropFacMin;  // internal use for class 
 
   // Derived data.
   PhysicsPoint axis;

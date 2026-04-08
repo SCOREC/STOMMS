@@ -49,6 +49,7 @@ class Plane{
 
     /**
      * Function to set model sizes on the model faces of the plane.
+     * @param meshSizeOnF: a map between model face tag (int) and mesh sizes.
      */
      void setMeshSizeOnModelFaces(const std::unordered_map <int, double>& meshSizeOnF);
   
@@ -83,6 +84,7 @@ class Plane{
 
     /**
      * Function to get unstructured mesh size on each model face.
+     * @return a map between model face tag (int) and mesh sizes.
      */
     const std::unordered_map <int , double>& getMeshSizesOnModelFaces(); 
   private:

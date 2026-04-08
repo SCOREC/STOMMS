@@ -170,12 +170,12 @@ double getStepToroidalUnit(const PhysicsPoint& oPoint, double goal)
 {
   // Set up variables needed in the calculation.
   double subStepMaxBound = 100.00;
-  int numPlanes = 64;  // hard coded in TOMMS. So just matching to get same results
+  int numPlanes = 64;  // hard coded in TOMMS. So just matching to get same results.
 
   // toridalMaxBound = (2*pi*R_axis)/(# of poloidal planes*subStepMaxBound)
   double pi = 3.14159265359;
   Point axis = oPoint.getPoint();
-  double toridalMaxBound = (2.0*pi*axis.x)/(64*subStepMaxBound);
+  double toridalMaxBound = (2.0*pi*axis.x)/(numPlanes*subStepMaxBound);
   double stepToroidalUnit = std::min(goal, toridalMaxBound);
 
   return stepToroidalUnit;

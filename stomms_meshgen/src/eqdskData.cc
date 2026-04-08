@@ -27,13 +27,23 @@ EqdskData::EqdskData(const Inputs& input, const PlaneMetaData& planeData, const 
 // Set intraCurveSpacingGradPsi vector in the class
 void EqdskData::setintraCurveSpacingGradPsi()
 {
+ // Step 1: Get the normalized psi vector from input.
  fluxValues = fluxInputData.fluxInput;
+
+ // Step 2: Iterate over the psi values and corresponding mesh
+ // sizes (don't need mesh sizes here. Just making sure we are
+ // iterating over correct container) 
  for( const auto &itr : fluxInputData.fluxMeshSize)
  {
+   // Step 3: Get a point from the normalized psi value.
    double psiNorm = itr.first;
    double psi = convertNormToPsi(psiNorm);
    Point pt = convertPsiToPoint(psi);
+
+   // Step 4: Set y coordinate of the pt to y of magnetic axis.
    pt.y = axis.getPoint().y;
+
+   // Step4: Find absolute grad value and save it to the vector.
    std::array<double, 3> gradPsi = getPsiGradAtPoint(pt); 
    double gradPsiAbs = sqrt(gradPsi[0]*gradPsi[0] + gradPsi[1]*gradPsi[1]);
    intraCurveSpacingGradPsi.push_back(gradPsiAbs); 
@@ -450,12 +460,15 @@ Point EqdskData::convertPsiToPoint(double psi)
 // up with better method in future.
 double EqdskData::getInterCurveSpacingLinear(double psiNorm)
 {
+  // Step 1: Get the normalized psi vector and get its low and high 
+  // bounds and size.
   std::vector <double>& psiInputVector = fluxInputData.fluxInput;
   double psiNormMin = psiInputVector.front();
   double psiNormMax = psiInputVector.back();
   int nGrid = psiInputVector.size();
   assert (nGrid > 1);
   
+  // Step 2: Find the index of nearest psi value from the vector. 
   int lowBound = nGrid - 2;
   for (int i = 0; i < nGrid - 1; i++)
   {
@@ -466,8 +479,11 @@ double EqdskData::getInterCurveSpacingLinear(double psiNorm)
     }
   }
 
+  // Step 3: Get the point on outboard or inboard midplane for lower and upper bound psi values.
   Point lowBoundPt = convertPsiToPoint(convertNormToPsi(psiInputVector[lowBound]));
   Point upBoundPt = convertPsiToPoint(convertNormToPsi(psiInputVector[lowBound+1]));
+
+  // Step 3: Get the spacing between horizontal coordinates of two points.
   double spacing = fabs(lowBoundPt.x - upBoundPt.x);
   assert (spacing > 0.0);
   return spacing;
@@ -503,9 +519,11 @@ double EqdskData::getNodeSpacing(const Point& pt, double psiNorm)
 {
   // Step 1: Get node spacing from psi value.
   double meshSize = planeMetaData.getNodeSpacingAtFlux(psiNorm);
+
+  // Step 2: For the non-field following option, readjust the size.
   if (intraCurveSpacingOption == -2)
   {
-    // Step 2: Check bounds
+    // Step 2.1: Check bounds
     double tolerance = 1e-8;
     if (psiNorm < (fluxValues.front() - tolerance) || psiNorm > (fluxValues.back() + tolerance))
     {
@@ -514,7 +532,7 @@ double EqdskData::getNodeSpacing(const Point& pt, double psiNorm)
       exit(1);
     }
 
-    // Step 2: Get the index of the flux curve in the vector
+    // Step 2.2: Get the index of the flux curve in the vector
     int indx = 0;
     while (fluxValues[indx] < psiNorm)
     {
@@ -523,7 +541,7 @@ double EqdskData::getNodeSpacing(const Point& pt, double psiNorm)
         break;
     }
 
-    // Step 4: If not out of bounds, find the index of first value in the fluxValues 
+    // Step 2.3: If not out of bounds, find the index of first value in the fluxValues 
     // vector that is equal or greater than given psiNorm. First check if its on the
     // starting point of the vector, if yes return corresponding mesh size value
     double gradAbs;
@@ -533,7 +551,7 @@ double EqdskData::getNodeSpacing(const Point& pt, double psiNorm)
       gradAbs = intraCurveSpacingGradPsi.back();
     else 
     {
-      // Step 4: Linear Interpolation (y = (y2 - y1)/(x2 - x1)*(x - x1) + y1)
+      // Step 2.4: Linear Interpolation (y = (y2 - y1)/(x2 - x1)*(x - x1) + y1)
       double y1 = intraCurveSpacingGradPsi[indx - 1];
       double y2 = intraCurveSpacingGradPsi[indx];
       double x1 = fluxValues[indx - 1];;
@@ -541,6 +559,7 @@ double EqdskData::getNodeSpacing(const Point& pt, double psiNorm)
       gradAbs = (y2 - y1)/(x2 - x1)*(psiNorm - x1) + y1;
     }
 
+    // Step 2.5: Update the distance based on intraCurveSpacingPropFactors.
     std::array<double, 3> gradPsi = getPsiGradAtPoint(pt);
     double gradPsiAbs = sqrt(gradPsi[0]*gradPsi[0] + gradPsi[1]*gradPsi[1]);
     meshSize = meshSize*std::min(intraCurveSpacingPropFacMax, std::max(intraCurveSpacingPropFacMin, gradAbs/gradPsiAbs));
@@ -562,6 +581,8 @@ void EqdskData::setParameters(const Inputs& in)
   zeroXptWall = in.useZeroXptWall();
   intraCurveSpacingOption = in.getIntraCurveSpacingOption();
   intraCurveMinLengthLastEdge = in.getIntraCurveMinLengthLastEdge();
+  intraCurveSpacingPropFacMax = in.getIntraCurveSpacingPropFacMax();
+  intraCurveSpacingPropFacMin = in.getIntraCurveSpacingPropFacMin();
 }
 
 // Returns the number of poloidal planes (user input).

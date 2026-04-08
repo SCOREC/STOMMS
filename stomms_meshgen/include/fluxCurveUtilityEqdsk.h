@@ -64,7 +64,7 @@ double getStepToroidalAngle(int numPlanes, int m, int& steps, double stepRadians
  * To find normalized toroidal step for rk4 method.
  * @param oPoint: magnetic axis (oPoint).
  * @param goal: local 2D distance from start point to the next finding point.
- * @return 
+ * @return toroidal unit step size. 
  */
 double getStepToroidalUnit(const PhysicsPoint& oPoint, double goal);
 
