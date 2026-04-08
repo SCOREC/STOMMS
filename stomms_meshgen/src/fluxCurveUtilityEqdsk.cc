@@ -5,7 +5,7 @@
 bool findNextPoint(Point& startPoint, Point& nextPoint, double& lengthPoloidalGoal, const PhysicsPoint& oPoint, 
                    CurveMetaData& curveData, EqdskData eqdsk)
 {
-  double stepToroidalUnit = getStepToroidalUnit(oPoint, lengthPoloidalGoal, eqdsk.getNumPlanes());
+  double stepToroidalUnit = getStepToroidalUnit(oPoint, lengthPoloidalGoal);
   double distNewToStartLast = 0.0;
   double lengthPoloidal = 0.0; // actual curve length in a poloidal plane obtained by sum
   double lengthTolerance = 1e-6;  // tracing tolerance
@@ -38,7 +38,7 @@ bool findNextPoint(Point& startPoint, Point& nextPoint, double& lengthPoloidalGo
 
     // Step : Check if the psi is correct
     double dpsi = eqdsk.getPsiAtPoint(point2) - curveData.psi;
-    if (fabs(dpsi) < eqdsk.getPsiTolerance())
+    if (fabs(dpsi) > eqdsk.getPsiTolerance())
     {
       bool adjustedPointToPsi = eqdsk.snapToPsi(point2, curveData.psi);
       assert(adjustedPointToPsi);
@@ -166,15 +166,16 @@ double getStepToroidalAngle(int numPlanes, int m, int& steps, double stepRadians
 }
 
 // To find normalized toroidal step for rk4 method.
-double getStepToroidalUnit(const PhysicsPoint& oPoint, double goal, int numPlanes)
+double getStepToroidalUnit(const PhysicsPoint& oPoint, double goal)
 {
   // Set up variables needed in the calculation.
   double subStepMaxBound = 100.00;
+  int numPlanes = 64;  // hard coded in TOMMS. So just matching to get same results
 
   // toridalMaxBound = (2*pi*R_axis)/(# of poloidal planes*subStepMaxBound)
   double pi = 3.14159265359;
   Point axis = oPoint.getPoint();
-  double toridalMaxBound = (2.0*pi*axis.x)/(numPlanes*subStepMaxBound);
+  double toridalMaxBound = (2.0*pi*axis.x)/(64*subStepMaxBound);
   double stepToroidalUnit = std::min(goal, toridalMaxBound);
 
   return stepToroidalUnit;

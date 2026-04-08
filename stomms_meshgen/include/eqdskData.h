@@ -2,7 +2,8 @@
 #define EQDSKDATA_H
 
 #include "input.h"
-#include <criticalPoints.h>
+#include "criticalPoints.h"
+#include "modelMetaData.h"
 
 /** 
  * Class eqdskData contains the magnetic field information from eqdsk file.
@@ -20,8 +21,13 @@ class EqdskData{
      * @param oPoint: primary oPoint.
      * @param xPoint: primary xPoint.
      */ 
-    EqdskData(const Inputs& input, const PhysicsPoint& oPoint, const double& psiCoreBoundary);
+    EqdskData(const Inputs& input, const PlaneMetaData& planeData, const PhysicsPoint& oPoint, const double& psiCoreBoundary);
 
+    /**
+     * Set the intra curve grad spacing.
+     */
+    void setintraCurveSpacingGradPsi();    
+ 
     /**
      * Returns the values of psi at a physical location defined by pt.
      * @param pt: physical location on the domain defined by struct Point.
@@ -132,6 +138,8 @@ class EqdskData{
      * @return spacing between two psi values bounding psiNorm.
      */
     double getInterCurveSpacingLinear(double psiNorm);
+
+    double getNodeSpacing(const Point& pt, double psiNorm);
  
     /**
      * Function to get domain bounding box.
@@ -221,11 +229,16 @@ class EqdskData{
   std::array <double, 4> boundingBox;  // bounding box
   FluxData fluxInputData;
   int intraCurveSpacingOption;
-  double intraCurveMinLengthLastEdge;  
+  double intraCurveMinLengthLastEdge; 
+  double intraCurveSpacingPropFacMax = 4.0;
+  double intraCurveSpacingPropFacMin = 0.95; 
 
   // Derived data.
   PhysicsPoint axis;
   double psiCoreEdge;  // last curve of core
+  PlaneMetaData planeMetaData;
+  std::vector <double> fluxValues;
+  std::vector <double> intraCurveSpacingGradPsi;
 };
 
 #endif

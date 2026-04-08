@@ -3,12 +3,13 @@
 /***********************************************/
 // Class: EqdskData
 /***********************************************/
-EqdskData::EqdskData(const Inputs& input, const PhysicsPoint& oPoint, const double& psiCoreBoundary)
+EqdskData::EqdskData(const Inputs& input, const PlaneMetaData& planeData, const PhysicsPoint& oPoint, const double& psiCoreBoundary)
 {
   // Step 1: Read properties of eqdsk file from the inputs
   setParameters(input);  // for input parameters
   InputData inputData = input.getInputData();
-  fluxInputData = inputData.fd; 
+  fluxInputData = inputData.fd;
+  planeMetaData = planeData; 
 
   // Step 2: Domain box bounds
   double bbox[4]; // min r, min z, max r, max z
@@ -18,6 +19,25 @@ EqdskData::EqdskData(const Inputs& input, const PhysicsPoint& oPoint, const doub
   // Step 3: Domain definition needs primary o and x points.
   axis = oPoint;
   psiCoreEdge = psiCoreBoundary;
+
+  // Step 4: Set intra curve grad spacing for non-field following case.
+  setintraCurveSpacingGradPsi();
+}
+
+// Set intraCurveSpacingGradPsi vector in the class
+void EqdskData::setintraCurveSpacingGradPsi()
+{
+ fluxValues = fluxInputData.fluxInput;
+ for( const auto &itr : fluxInputData.fluxMeshSize)
+ {
+   double psiNorm = itr.first;
+   double psi = convertNormToPsi(psiNorm);
+   Point pt = convertPsiToPoint(psi);
+   pt.y = axis.getPoint().y;
+   std::array<double, 3> gradPsi = getPsiGradAtPoint(pt); 
+   double gradPsiAbs = sqrt(gradPsi[0]*gradPsi[0] + gradPsi[1]*gradPsi[1]);
+   intraCurveSpacingGradPsi.push_back(gradPsiAbs); 
+ }
 }
 
 // Returns the values of psi at a physical location defined by pt.
@@ -164,15 +184,16 @@ int EqdskData::magneticField(std::array <double,3> ptArray, std::vector <double>
   double psi = getPsiAtPoint(pt);
   std::array<double,3> psiGrad = getPsiGradAtPoint(pt);
   double poloidalCurrent = getCurrentAtPsi(psi);
-  
+ 
   // Step 4: Define magnetic field (B) components based on current and gradients of psi.
   // Br= - (1/R) dpsi/dZ , Bz = (1/R) dpsi/dR, Bphi = I/R
-  dpsi.push_back(-psiGrad[1]/poloidalCurrent);
-  dpsi.push_back(psiGrad[0]/poloidalCurrent);
+  dpsi.resize(dimension);
+  dpsi[0] = -psiGrad[1]/poloidalCurrent;
+  dpsi[1] = psiGrad[0]/poloidalCurrent;
 
   // Step 5: For 3D, normalize the third direction.
   if (dimension == 3)
-    dpsi.push_back(1.0);
+    dpsi[2] = 1.0;
 
   return 0;
 }
@@ -190,7 +211,7 @@ bool EqdskData::rk4(Point& point0, Point& point1, double dt, int dimension)
 
   // Step 2: Setup points in terms of arrays (easy to update in a loop)
   std::array <double, 3> pt0 = {point0.x , point0.y, point0.z};
-  std::array <double, 3> pt1 = {point1.x , point1.y, point1.z};
+  std::array <double, 3> pt1;
 
   // Step 3: Define k coefficients for Runge-Kutta method and based on them
   // update the pt1. Make sure to update as Point too not just array.
@@ -199,7 +220,7 @@ bool EqdskData::rk4(Point& point0, Point& point1, double dt, int dimension)
   // Step 3.1: Evaluate k1 and update based on k1.
   if(magneticField(pt0, k1, dimension))
     return true;
-
+  
   for(int i = 0; i < dimension; i++)
     pt1[i] = pt0[i] + k1[i]*dt/2.0;
   point1 = Point(pt1[0], pt1[1], pt1[2]);  // Point update
@@ -226,6 +247,7 @@ bool EqdskData::rk4(Point& point0, Point& point1, double dt, int dimension)
 
   for(int i = 0; i < dimension; i++)
     pt1[i] = pt0[i] + (k1[i] + 2*k2[i] + 2*k3[i] + k4[i])*dt/6.0;
+
   point1 = Point(pt1[0], pt1[1], pt1[2]);  // Point update
 
   // Step 3: Confirm if it is just a valid point within domain
@@ -475,6 +497,55 @@ bool EqdskData::insideBox(const std::array <double,3>& pt)
 {
   Point point(pt[0], pt[1], pt[2]);
   return insideBox(point);
+}
+
+double EqdskData::getNodeSpacing(const Point& pt, double psiNorm)
+{
+  // Step 1: Get node spacing from psi value.
+  double meshSize = planeMetaData.getNodeSpacingAtFlux(psiNorm);
+  if (intraCurveSpacingOption == -2)
+  {
+    // Step 2: Check bounds
+    double tolerance = 1e-8;
+    if (psiNorm < (fluxValues.front() - tolerance) || psiNorm > (fluxValues.back() + tolerance))
+    {
+      std::cerr << "ERROR: Given psi normalized value = " << psiNorm << " is out of bounds\n";
+      std::cout << "The value should be in the following range: " << fluxValues.front() << " , " << fluxValues.back() << "\n";
+      exit(1);
+    }
+
+    // Step 2: Get the index of the flux curve in the vector
+    int indx = 0;
+    while (fluxValues[indx] < psiNorm)
+    {
+      indx++;
+      if (indx == intraCurveSpacingGradPsi.size())
+        break;
+    }
+
+    // Step 4: If not out of bounds, find the index of first value in the fluxValues 
+    // vector that is equal or greater than given psiNorm. First check if its on the
+    // starting point of the vector, if yes return corresponding mesh size value
+    double gradAbs;
+    if (indx == 0)
+      gradAbs = intraCurveSpacingGradPsi[0];
+    else if (indx == intraCurveSpacingGradPsi.size())
+      gradAbs = intraCurveSpacingGradPsi.back();
+    else 
+    {
+      // Step 4: Linear Interpolation (y = (y2 - y1)/(x2 - x1)*(x - x1) + y1)
+      double y1 = intraCurveSpacingGradPsi[indx - 1];
+      double y2 = intraCurveSpacingGradPsi[indx];
+      double x1 = fluxValues[indx - 1];;
+      double x2 = fluxValues[indx];;
+      gradAbs = (y2 - y1)/(x2 - x1)*(psiNorm - x1) + y1;
+    }
+
+    std::array<double, 3> gradPsi = getPsiGradAtPoint(pt);
+    double gradPsiAbs = sqrt(gradPsi[0]*gradPsi[0] + gradPsi[1]*gradPsi[1]);
+    meshSize = meshSize*std::min(intraCurveSpacingPropFacMax, std::max(intraCurveSpacingPropFacMin, gradAbs/gradPsiAbs));
+  }
+  return meshSize;
 }
 
 void EqdskData::setParameters(const Inputs& in)

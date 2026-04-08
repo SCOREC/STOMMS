@@ -47,7 +47,6 @@ StommsMesh::StommsMesh(const MeshMetaData& m):meshMetaData(m)
   } 
   GRIter_delete(regions);  
   std::cout << " ============ Meshing Starts ============\n";
- 
   // Step 4: Execute the Simmetrix mesher 
   // Surface Mesher
   pSurfaceMesher surfMesh = SurfaceMesher_new(meshCase,mesh);
@@ -171,7 +170,6 @@ void StommsMesh::specifyMeshOnFluxCurve(pMesh mesh, const Flux& f, const FluxPar
     // Step 2: Get the parametric values on each model edge, and specify vertices and edges based
     // on the model edge type.
     const std::vector <double>& parValuesOnEdge = parValuesOnFlux.getParametricValuesAtFluxEdge(edges[i]);
-    std::cout << "# of Point = " << parValuesOnEdge.size() << "\n";
     if (edges[i].edgeIsPeriodic())
       specifyMeshOnPeriodicModelEdge(mesh, edges[i], parValuesOnEdge);
     else

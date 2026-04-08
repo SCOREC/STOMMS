@@ -121,6 +121,7 @@ double PlaneMeshMetaData::getMeshSizeOnModelFace(const Face& f)
 /***********************************************/
 MeshMetaData::MeshMetaData(const StommsModel& m):stommsModel(m)
 {
+  std::cout << ".......... Setting Mesh Metadata\n";
   // Step 1: Get all the model planes from model.
   std::vector <Plane> modelPlanes = stommsModel.getPlanes();
 
