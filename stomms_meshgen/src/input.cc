@@ -32,7 +32,9 @@ void Inputs::setDefaultValues()
   zeroXptWall = false; 
   intraCurveSpacingOption = -1;
   intraCurveMinLengthLastEdge = 0.001;
-  
+  intraCurveSpacingPropFacMax = 1.0;
+  intraCurveSpacingPropFacMin = 1.0;
+
   // Input parameters - Meshing
   meshSizeUnstructured = 1.0; 
 }
@@ -96,7 +98,11 @@ void Inputs::setValuesFromInputFile()
     else if (token == "intraCurveMinLengthLastEdge")
       input >> intraCurveMinLengthLastEdge;
     else if (token == "meshSizeUnstructured")
-      input >> meshSizeUnstructured;    
+      input >> meshSizeUnstructured;
+    else if (token == "intraCurveSpacingPropFacMax")
+      input >> intraCurveSpacingPropFacMax;
+    else if (token == "intraCurveSpacingPropFacMin")
+      input >> intraCurveSpacingPropFacMin;
   }
   input.close();
 }
@@ -395,4 +401,16 @@ const double& Inputs::getIntraCurveMinLengthLastEdge() const
 const double& Inputs::getMeshSizeUnstructured() const
 {
   return meshSizeUnstructured;
+}
+
+// Function to get intra curve spacing proportional factor (max)
+const double& Inputs::getIntraCurveSpacingPropFacMax() const
+{
+  return intraCurveSpacingPropFacMax;
+}
+
+// Function to get intra curve spacing proportional factor (min)
+const double& Inputs::getIntraCurveSpacingPropFacMin() const
+{
+  return intraCurveSpacingPropFacMin;
 }

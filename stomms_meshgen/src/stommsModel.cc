@@ -7,6 +7,7 @@
 // Constructor gets the model meta data and uses it to setup StommsModel.
 StommsModel::StommsModel(std::shared_ptr<MagneticGeometry> mg):magneticGeometry(mg)
 {
+  std::cout << ".......... Setting STOMMS Model\n";
   // Step 1: Read the model file from magnetic geometry
   model = magneticGeometry->getModel();
 

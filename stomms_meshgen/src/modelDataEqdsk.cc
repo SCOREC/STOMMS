@@ -21,6 +21,8 @@ ModelEqdsk::ModelEqdsk(const PlaneMetaData& planeMetaData, EqdskData& eqdskData,
   setMeshVerticesOnPlanes();
 
   // Step 6: Set other properties on the plane.
+  std::unordered_map<int, double> meshSizesOnFace = setMeshSizesOnModelFaces(planes[0].modelFaces, eqdskData, planeMetaData.getSizeForUnstructuredMesh());
+  planes[0].setMeshSizeOnModelFaces(meshSizesOnFace);
   planes[0].setUnstructuredMeshSizeOnPlane(planeMetaData.getSizeForUnstructuredMesh());
 }
 
@@ -136,6 +138,7 @@ void ModelEqdsk::setMeshVerticesOnPlane(int planeIndex)
 
   // Step 1: Iterate over the flux curves on the plane and set field points on them.
   std::vector <Flux>& fluxCurves = planes[planeIndex].fluxCurves;
+  int numPoints = 0;
   for (int i = 0; i < fluxCurves.size(); i++)
   {
     Flux f = fluxCurves[i];
@@ -146,6 +149,52 @@ void ModelEqdsk::setMeshVerticesOnPlane(int planeIndex)
     fluxPointsOnPlane.push_back(points);
   }
   planes[planeIndex].setFieldPointsOnFlux(fluxPointsOnPlane); 
+}
+
+// Function to set a map between model face Ids and desired mesh size on them.
+std::unordered_map <int, double> ModelEqdsk::setMeshSizesOnModelFaces(const std::vector <Face>& modelFaces, 
+                                                                      EqdskData& eqdsk, double meshSize)
+{
+  std::unordered_map <int, double> meshSizes;
+
+  // Step 1: Iterate over the model faces.
+  for (int i = 0; i < modelFaces.size(); i++)
+  {
+    Face f = modelFaces[i];
+    double count = 0;
+    double psiNormAvg = 0.0;
+
+    // Step 2: get the edges on face and iterate over them.
+    const std::vector <Edge>& edges = f.getEdgesOnFace();
+    for (int j = 0; j < edges.size(); j++)
+    {
+      const pGEdge& ge  = edges[j].getSimEdge();
+
+      // Step 3: Get the psi value (normalized) on the model edges
+      // and add them for average calculation
+      double psi;
+      if (GEN_numNativeDoubleAttribute(ge, "PsiNorm") != 0)
+      {
+        GEN_nativeDoubleAttribute(ge,"PsiNorm", &psi);
+        psiNormAvg += psi;
+        ++count;
+      }
+
+      // Step 4: Calculate average.
+      psiNormAvg /= count;
+
+      // Step 4: If model face has single edge with valid psi value, set
+      // the general unstructured mesh size to the face.
+      if (count < 2)
+      {
+        double length = eqdsk.getInterCurveSpacingLinear(psiNormAvg);
+        meshSizes[GEN_tag(f.getSimFace())] = std::max(length, 0.01*meshSize);
+      }
+      else
+        meshSizes[GEN_tag(f.getSimFace())] = meshSize;
+    }
+  }
+  return meshSizes;  
 }
 
 const Model& ModelEqdsk::getModel() const

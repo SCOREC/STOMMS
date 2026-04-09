@@ -47,6 +47,11 @@ class PlaneMetaData{
      * @return mesh spacing on the flux curve with psi normalized value.
      */ 
     double getNodeSpacingAtFlux(double psiNorm);
+    
+    /**
+     * Function to get full vector of spacings for all the flux curves.
+     */ 
+    const std::vector <double>& getNodeSpacingVector() const;
 
     /**
      * Get mesh size on the model faces with unstructured mesh.

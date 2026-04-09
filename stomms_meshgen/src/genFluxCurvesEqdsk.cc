@@ -146,9 +146,9 @@ ClosedFluxCurve::ClosedFluxCurve(const PhysicsPoint& startPt, unsigned int& mySe
 bool ClosedFluxCurve::nonFieldFollowingCase(Point& startPoint, Point& nextPoint)
 {
   randomFactor = 1.0;
-  distanceSet = pMetaData.getNodeSpacingAtFlux(psiNorm);  
+  distanceSet = eqdsk.getNodeSpacing(startPoint, psiNorm);
 
-  if (eqdsk.randomStart() && !randomGen)
+  if (eqdsk.randomStart() && tagStartingPoint && !randomGen)
   {
     randomFactor = double(rand_r(&seed)%100000 + 1)/100000;
     randomGen = true;
@@ -158,7 +158,7 @@ bool ClosedFluxCurve::nonFieldFollowingCase(Point& startPoint, Point& nextPoint)
   distance = distanceSet;
 
   curveData.hitOrigin = false;
-  intersect = !findNextPoint(startPoint, nextPoint, distance, magneticAxis, curveData, eqdsk);  
+  intersect = !findNextPoint(startPoint, nextPoint, distance, magneticAxis, curveData, eqdsk);
   return intersect;
 }
 
@@ -174,7 +174,7 @@ bool ClosedFluxCurve::fieldFollowingCase(Point& startPoint, Point& nextPoint)
   randomFactor = 1;
   while (true)
   {
-    distanceSet = pMetaData.getNodeSpacingAtFlux(psiNorm);
+    distanceSet = eqdsk.getNodeSpacing(startPoint, psiNorm);
     // Step 2.1: If randomStart, adjust the factor for random start
     if (eqdsk.randomStart() && tagStartingPoint &&!randomGen)
     {
@@ -254,7 +254,7 @@ SeparatrixCurve::SeparatrixCurve(const PhysicsPoint& xPt, std::vector <Point> st
   std::vector <SeparatrixLeg> separatrixLegs;
 
   // Step 1: Get pushed points out of the x-points.
-  double pushDistance = pMetaData.getNodeSpacingAtFlux(psiNorm);
+  double pushDistance = eqdsk.getNodeSpacing(xPoint, psiNorm);
   pushedPoints = getPushedPoints(xPt, pushDistance, eqdsk);
 
   // Step 2: Generate curve from pushed points
@@ -317,9 +317,9 @@ void SeparatrixCurve::getSeparatrixLeg(const Point& point, SeparatrixLeg& leg)
     Point nextPoint;
     while(true)
     {
-      distance = pMetaData.getNodeSpacingAtFlux(psiNorm);
+      distance = eqdsk.getNodeSpacing(currentPoint, psiNorm);
       intersect = !findNextFieldFollowingPoint(currentPoint, nextPoint, distance, m, curveData, eqdsk);
-      distance = distance/pMetaData.getNodeSpacingAtFlux(psiNorm);
+      distance = distance/eqdsk.getNodeSpacing(currentPoint, psiNorm);
       if(distance < 1.0/(1.0 + eqdsk.getSpacingToleranceAbsolute()) && !intersect && !curveData.hitOrigin)
         updateM(m, false);
       else if(distance > (1.0 + eqdsk.getSpacingToleranceAbsolute()) && !intersect) // for now, allow wall hits to be too long
@@ -362,7 +362,7 @@ void SeparatrixCurve::getSeparatrixLeg(const Point& point, SeparatrixLeg& leg)
     } 
     else if (curveData.hitOrigin)
     {
-      double distPrev = pMetaData.getNodeSpacingAtFlux(psiNorm);
+      double distPrev = eqdsk.getNodeSpacing(currentPoint, psiNorm);
       if (distance2D(nextPoint, xPoint) > distPrev*0.5)
         leg.fieldPoints.push_back(nextPoint);
 
@@ -571,7 +571,7 @@ OpenFluxCurve::OpenFluxCurve(std::vector <PhysicsPoint> startPoints, int startPt
 
 bool OpenFluxCurve::nonFieldFollowingCase(Point& startPoint, Point& nextPoint)
 {
-  distance = pMetaData.getNodeSpacingAtFlux(psiNorm);  
+  distance = eqdsk.getNodeSpacing(startPoint, psiNorm);
   curveData.hitOrigin = false;
 
   intersect = !findNextPoint(startPoint, nextPoint, distance, magneticAxis, curveData, eqdsk);  
@@ -589,7 +589,7 @@ bool OpenFluxCurve::fieldFollowingCase(Point& startPoint, Point& nextPoint)
   // Step 2: Until termination condition meet, keep finding next points.
   while (true)
   {
-    distanceSet = pMetaData.getNodeSpacingAtFlux(psiNorm);
+    distanceSet = eqdsk.getNodeSpacing(startPoint, psiNorm);
     distance = distanceSet;
     curveData.hitOrigin = false;
 

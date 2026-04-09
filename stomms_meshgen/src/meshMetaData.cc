@@ -19,6 +19,7 @@ void PlaneMeshMetaData::setModelPlane(const Plane& p)
 
   // Step 4: Set mesh size on the model plane.
   meshSizeUnstructured = modelPlane.getUnstructuredMeshSizeOnPlane();
+  meshSizesOnModelFace = modelPlane.getMeshSizesOnModelFaces();
 }
 
 // Function to set up the mesh types for individual faces.
@@ -101,11 +102,31 @@ const double& PlaneMeshMetaData::getUnstructuredMeshSizeOnPlane() const
   return meshSizeUnstructured;
 }
 
+// Function to get mesh size on the model face of the plane.
+double PlaneMeshMetaData::getMeshSizeOnModelFace(const Face& f)
+{
+  // Step 1: Get the id of the model face.
+  int faceId = GEN_tag(f.getSimFace());
+
+  // Step 2: If Id exists in the map, set the meshSize from the respective key (key == faceId).
+  // If not issue a warning, and return the general unstructured mesh size on the plane.
+  double meshSize = meshSizeUnstructured;
+  if (meshSizesOnModelFace.find(faceId) != meshSizesOnModelFace.end())
+    meshSize = meshSizesOnModelFace[faceId];
+  else 
+  {
+    std::cout << "WARNING: The model face # " << faceId << " doesn't exist on this plane\n";
+    std::cout << "Returning general unstructured mesh size on the face\n";
+  } 
+  return meshSize;  
+}
+
 /***********************************************/
 // Class:: MeshMetaData
 /***********************************************/
 MeshMetaData::MeshMetaData(const StommsModel& m):stommsModel(m)
 {
+  std::cout << ".......... Setting Mesh Metadata\n";
   // Step 1: Get all the model planes from model.
   std::vector <Plane> modelPlanes = stommsModel.getPlanes();
 

@@ -2,7 +2,8 @@
 #define EQDSKDATA_H
 
 #include "input.h"
-#include <criticalPoints.h>
+#include "criticalPoints.h"
+#include "modelMetaData.h"
 
 /** 
  * Class eqdskData contains the magnetic field information from eqdsk file.
@@ -17,11 +18,17 @@ class EqdskData{
     /**
      * Eqdsk Constructor.
      * @param input: class holding all the input data.
+     * @param planeData: planer meta data
      * @param oPoint: primary oPoint.
-     * @param xPoint: primary xPoint.
+     * @param psiCoreBoundary: psi value of last closed flux curve or innermost separatrix (primary)
      */ 
-    EqdskData(const Inputs& input, const PhysicsPoint& oPoint, const double& psiCoreBoundary);
+    EqdskData(const Inputs& input, const PlaneMetaData& planeData, const PhysicsPoint& oPoint, const double& psiCoreBoundary);
 
+    /**
+     * Set the intra curve gradient spacing.
+     */
+    void setintraCurveSpacingGradPsi();    
+ 
     /**
      * Returns the values of psi at a physical location defined by pt.
      * @param pt: physical location on the domain defined by struct Point.
@@ -120,12 +127,28 @@ class EqdskData{
      */ 
     int findPsiPt(double targetPsi, Point startPoint, std::array<double,2> dir, Point& finalPoint);
     int findPsiPtOnLine(double targetPsi, const Point& pt1, const Point pt2, Point& finalPoint);
+
     /**
      * Given the psi value, this function finds the coordinates of the point on a 
      * horizontal line from axis to the box (either inward or outward).
      */ 
     Point convertPsiToPoint(double psi);
 
+    /**
+     * Function to get spacing between the two psi values bounding the psiNorm.
+     * @param psiNorm: normalized psi value.
+     * @return spacing between two psi values bounding psiNorm.
+     */
+    double getInterCurveSpacingLinear(double psiNorm);
+
+    /**
+     * Function to get intra curve spacing for the given psi and a starting point.
+     * @pt: A starting point (needed in non-field following case). TO-DO: Make it optional in future.
+     * @param psiNorm: normalized psi value.
+     * @return returns desired node spacing.
+     */ 
+    double getNodeSpacing(const Point& pt, double psiNorm);
+ 
     /**
      * Function to get domain bounding box.
      */
@@ -214,11 +237,16 @@ class EqdskData{
   std::array <double, 4> boundingBox;  // bounding box
   FluxData fluxInputData;
   int intraCurveSpacingOption;
-  double intraCurveMinLengthLastEdge;  
+  double intraCurveMinLengthLastEdge; 
+  double intraCurveSpacingPropFacMax;  // internal use for class
+  double intraCurveSpacingPropFacMin;  // internal use for class 
 
   // Derived data.
   PhysicsPoint axis;
   double psiCoreEdge;  // last curve of core
+  PlaneMetaData planeMetaData;
+  std::vector <double> fluxValues;
+  std::vector <double> intraCurveSpacingGradPsi;
 };
 
 #endif

@@ -74,7 +74,6 @@ std::vector <std::vector<double>> setVerticesParValuesOnFlux(const Flux& f, int 
 
   // Step 1: Based on the type of point placement type, find the parametric
   // values on the flux curve.
-  auto start = std::chrono::high_resolution_clock::now();
   if (type == 0)
     parValuesOnEdge = setVerticesParValuesUsingDistance(f);
   else if (type == 1)

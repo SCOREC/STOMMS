@@ -34,7 +34,7 @@ MagneticGeometryForTokamak::MagneticGeometryForTokamak(const ModelMetaData& mode
   classifyPsiValues();
   
   // Step 6: Set up Eqdsk Data class for curve generation.
-  EqdskData eqdskData(input, oPointsVec[0], psiCoreBoundary);
+  EqdskData eqdskData(input, planeMetaData, oPointsVec[0], psiCoreBoundary);
   genFluxCurves(planeMetaData, eqdskData, wallCurve);
 
   // Step 7: Populate CurveContainer with flux curves info

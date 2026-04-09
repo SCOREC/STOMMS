@@ -13,7 +13,7 @@ PlaneMetaData::PlaneMetaData(const FluxData& f, double angle):toroidalAngle(angl
   // Step 1: Setup the flux values on the plane.
   fluxValues = f.fluxInput;
 
-  // Step 2:Setup the vector for number of desired mesh spacing on each flux curve.
+  // Step 2: Setup the vector for number of desired mesh spacing on each flux curve.
   for( const auto &itr : f.fluxMeshSize)
     fluxMeshSize.push_back(itr.second);
 }
@@ -71,13 +71,20 @@ double PlaneMetaData::getNodeSpacingAtFlux(double psiNorm)
     }
   }
 
-  // Step 4: Linear Interpolation (y = y1 +((x - x1)*(y2 - y1))/(x2 -x1))
+  // Step 4: Linear Interpolation (y = (y2 - y1)/(x2 - x1)*(x - x1) + y1)
   double y1 = fluxMeshSize[indx - 1];
   double y2 = fluxMeshSize[indx];
   double x1 = fluxValues[indx - 1];
   double x2 = fluxValues[indx];
-  double meshSize = y1 + ((psiNorm - x1)*(y2 - y1))/(x2 - x1);
+  double meshSize = (y2 - y1)/(x2 - x1)*(psiNorm - x1) + y1;
   return meshSize;
+}
+
+// Function to get a vector of mesh node spacing (map directly with
+// the flux curve vector).
+const std::vector <double>& PlaneMetaData::getNodeSpacingVector() const
+{
+  return fluxMeshSize;
 }
 
 // Get mesh size on the model faces with unstructured mesh.

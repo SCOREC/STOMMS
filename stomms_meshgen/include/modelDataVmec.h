@@ -86,6 +86,16 @@ class ModelVmec{
    */ 
   void classifyModelFaces();
 
+  /**
+   * Function to set mesh sizes on the model faces on all the plane.
+   */ 
+   void setFaceMeshSizeOnPlanes();
+
+  /**
+   * Function to set mesh size of model faces on individual plane.
+   * @param planeIndex: index of the plane in the vector of planes.
+   */ 
+   void setMeshSizeOnModelFaces(int planeIndex);
 };
 
 #endif

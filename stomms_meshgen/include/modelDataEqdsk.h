@@ -2,6 +2,7 @@
 #define MODELDATAEQDSK_H
 
 #include "modelingEqdsk.h"
+#include <unordered_map>
 
 class ModelEqdsk{
   public:
@@ -21,6 +22,16 @@ class ModelEqdsk{
     void setMeshVerticesOnPlanes();
     void finalModelFaceClassification();
     void setMeshVerticesOnPlane(int planeIndex);
+
+    /**
+     * Function to set a map between model tags (int) and mesh size on that model face.
+     * @param modelFaces: a vector of all the model faces.
+     * @param eqdsk: EqdskData object to have access to eqdsk and pspline function calls.
+     * @param meshSize: General unstrucutred mesh size for the plane.
+     * @return a map between model tags (int) and mesh size on that model face
+     */ 
+    std::unordered_map <int, double>setMeshSizesOnModelFaces(const std::vector <Face>& modelFaces,
+    							     EqdskData& eqdsk, double meshSize);
 };
 
 #endif
