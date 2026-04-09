@@ -162,12 +162,14 @@ std::array<int,6> getEntityValidationData(const std::string& testCase)
   // Tokamak Cases
   if (checkFileName(testCase, "DIIID-g096333.03337"))
     data = std::array<int,6>{66, 72, 21, 2367, 6969, 4603};
+  if (checkFileName(testCase, "ITER-10MA.geqdsk-xgca"))
+    data = std::array<int,6>{524, 659, 336, 272345, 816003, 543659};
   if (checkFileName(testCase, "KSTAR-g018451.002790_kin_1"))
-    data = std::array<int,6>{317, 406, 203, 214792, 643014, 428223}; 
+    data = std::array<int,6>{317, 406, 203, 214788, 643006, 428219};
   if (checkFileName(testCase, "MASTU-g_p45152_t0.80000"))
-    data = std::array<int,6>{322, 426, 126, 10406, 30620, 20215};
+    data = std::array<int,6>{322, 426, 126, 10425, 30677, 20253};
   if (checkFileName(testCase, "NSTX-g132588.00650"))
-     data = std::array<int,6>{154, 184, 89, 127712, 382128, 254417}; 
+     data = std::array<int,6>{149, 179, 89, 129637, 387833, 258197};
 
   // Stellarator Cases
   if (checkFileName(testCase, "W7-X"))

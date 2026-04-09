@@ -18,7 +18,7 @@ reversePsi 0
 eqdPsiFactor 1.0
 
 !Number of 2D planes around the torus, used in spacing points on a curve.
-numPlanes 64
+numPlanes 256
 
 !Random curve start for closed flux curve instead fo strictly in a line.
 fluxRandomStart 1
@@ -44,7 +44,7 @@ intraCurveSpacingOption -1
 !******************PHYSICAL COMPONENTS SOURCES (WALL CURVE FOR NOW)*****************
 !***********************************************************************************
 
-!limiterFile lim_adj_PT2.txt
+limiterFile wallcurve_mod.txt
 
 !***********************************************************************************
 !*******************************RESOLUTION SETTINGS*********************************
@@ -60,4 +60,4 @@ planeFile plane.txt
 meshSizeFile mesh_size.txt
 
 !Defines the mesh size at the boundary wall.(0.01*meshSizeUnstructured meters)
-meshSizeUnstructured 3.0
+meshSizeUnstructured 2.0

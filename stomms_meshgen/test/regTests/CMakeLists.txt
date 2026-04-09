@@ -20,10 +20,10 @@ do_linking(${exeName})
 
 # Tokamak Cases
 reg_test(${exeName} EQDSK DIIID-g096333.03337)
-#reg_test(${exeName} EQDSK ITER-10MA.geqdsk-xgca)
-#reg_test(${exeName} EQDSK KSTAR-g018451.002790_kin_1)
+reg_test(${exeName} EQDSK ITER-10MA.geqdsk-xgca)
+reg_test(${exeName} EQDSK KSTAR-g018451.002790_kin_1)
 reg_test(${exeName} EQDSK MASTU-g_p45152_t0.80000)
-#reg_test(${exeName} EQDSK NSTX-g132588.00650)
+reg_test(${exeName} EQDSK NSTX-g132588.00650)
 
 # Stellarator Cases
 reg_test(${exeName} VMEC HSX)

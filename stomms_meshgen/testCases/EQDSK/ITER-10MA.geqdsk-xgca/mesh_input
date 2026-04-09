@@ -39,6 +39,8 @@ spacingToleranceAbsolute 0.61803398874989484820
 
 !spacing between vertices option (-1: field following, -2: non-field following)
 intraCurveSpacingOption -2
+intraCurveSpacingPropFacMin 0.95
+intraCurveSpacingPropFacMax 4.0
 
 !***********************************************************************************
 !******************PHYSICAL COMPONENTS SOURCES (WALL CURVE FOR NOW)*****************
