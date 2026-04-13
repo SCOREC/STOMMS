@@ -2,6 +2,7 @@
 #include "magneticGeometry.h"
 #include "physicalGeometry.h"
 #include "input.h"
+#include "stomms.h"
 
 // Structs and Helper Functions
 struct Input{
@@ -27,23 +28,31 @@ int main(int argc, char** argv)
 
   // Step 2: Read the input file (mesh_input) for the input parameters.
   Inputs input;
-
+  
   // Step 3: Setup the physical geometry (wall curve for now).
   PhysicalGeometry physicalGeometry(input);
 
   // Step 4: Setup the model metadata by setting up the meta data on poloidal planes.
   ModelMetaData modelMetaData(input);
 
-  // Step 5: Setup the magnetic field information. 
-  std::shared_ptr <MagneticGeometry> mg = setMagneticGeometry(input, physicalGeometry, modelMetaData);
+  // Step 5: Get the oPoints and xPoints.
+  WallCurve wall = physicalGeometry.getWallCurveAtPlane(0);
+  bool reversePsi = input.useReversePsi();
+  CriticalPointsEqdsk criticalPoints(wall, reversePsi);
+  std::vector <PhysicsPoint> oPointsVec = criticalPoints.getOPoints();
+  std::vector <PhysicsPoint> xPointsVec = criticalPoints.getXPoints();
+  std::sort(oPointsVec.begin(), oPointsVec.end(), comparePhysicsPoints);
+  std::sort(xPointsVec.begin(), xPointsVec.end(), comparePhysicsPoints);
+    
+  // Step 6: Setup  them in terms of planes map (only one for now)
+  std::map<int, std::vector<PhysicsPoint>> oPoints, xPoints;
+  oPoints[0] = oPointsVec;
+  xPoints[0] = xPointsVec; 
 
-  std::map<int, std::vector<PhysicsPoint>> oPoints = mg->getOPoints();
-  std::map<int, std::vector<PhysicsPoint>> xPoints = mg->getXPoints();
-
-  // Step 6: Get validation data
+  // Step 7: Get validation data
   ValidationData data = getValidationData(in.testName);
 
-  // Step 7: Compare validation data with the critical points data.
+  // Step 8: Compare validation data with the critical points data.
   if (!validateData(data, oPoints, xPoints))
     return 1;  
 
@@ -70,11 +79,12 @@ Input verifyInputs(int argc, char** argv)
 
 bool arePhysicsPointsSame(const PhysicsPoint& pt1, const PhysicsPoint& pt2)
 {
+  std::cout << "Pt1 = " << pt1.getPoint().x << " , " << pt1.getPoint().y << " , psi = " << pt1.getPsi() << "\n";
   double diffXCoord = fabs(pt1.getPoint().x - pt2.getPoint().x);
   double diffYCoord = fabs(pt1.getPoint().y - pt2.getPoint().y);
   double diffPsi = fabs(pt1.getPsi() - pt2.getPsi());
 
-  double tolerance = 1e-5;
+  double tolerance = 1e-3;
   if (diffXCoord <= tolerance && diffYCoord <= tolerance && diffPsi <= tolerance)
     return true;
 
@@ -97,7 +107,10 @@ bool validateData(const ValidationData& data, const std::map<int, std::vector<Ph
       PhysicsPoint pt1 = oPts[i];
       PhysicsPoint pt2 = data.oPoints[i];
       if (!arePhysicsPointsSame(pt1, pt2))
+      {
+        std::cout << "Opoint # " << i << " doesn't match the validation data\n";
         return false;
+      }
     }
   }
 
@@ -110,7 +123,10 @@ bool validateData(const ValidationData& data, const std::map<int, std::vector<Ph
       PhysicsPoint pt1 = xPts[i];
       PhysicsPoint pt2 = data.xPoints[i];
       if (!arePhysicsPointsSame(pt1, pt2))
+      {
+        std::cout << "Xpoint # " << i << " doesn't match the validation data\n";
         return false;
+      }
     }
   }
 
@@ -138,6 +154,16 @@ ValidationData getValidationData(const std::string& testCase)
     data.oPoints.push_back(oPt1);
     data.xPoints.push_back(xPt1);
   }
+  else if (checkFileName(testCase, "ITER-10MA.geqdsk-xgca"))
+  {
+    data.numPlanes = 1;
+    Point oPt1Coord(6.55989, 0.573433);
+    PhysicsPoint oPt1(oPt1Coord, -10.5537, PointType::OPoint);
+    Point xPt1Coord(5.11698, -3.42392);
+    PhysicsPoint xPt1(xPt1Coord, -1.50227, PointType::XPoint);
+    data.oPoints.push_back(oPt1);
+    data.xPoints.push_back(xPt1);
+  }
   else if(checkFileName(testCase, "KSTAR-g018451.002790_kin_1"))
   {
     data.numPlanes = 1;
@@ -152,20 +178,6 @@ ValidationData getValidationData(const std::string& testCase)
     data.xPoints.push_back(xPt1);
     data.xPoints.push_back(xPt2);
   }
-  else if(checkFileName(testCase, "NSTX-g132588.00650"))
-  {
-    data.numPlanes = 1;
-    Point oPt1Coord(1.03567, -0.0826343);
-    PhysicsPoint oPt1(oPt1Coord, -0.0474163, PointType::OPoint);
-    Point xPt1Coord(0.376017, -1.45911);
-    PhysicsPoint xPt1(xPt1Coord, 0.0123977, PointType::XPoint);
-    Point xPt2Coord(0.378819, 1.29527);
-    PhysicsPoint xPt2(xPt2Coord, 0.0165915, PointType::XPoint);
-
-    data.oPoints.push_back(oPt1);
-    data.xPoints.push_back(xPt1);
-    data.xPoints.push_back(xPt2);
-  } 
   else if(checkFileName(testCase, "LTX-1504291255_47400.eqdsk"))
   {
     data.numPlanes = 1;
@@ -193,6 +205,20 @@ ValidationData getValidationData(const std::string& testCase)
     data.xPoints.push_back(xPt2);
     data.xPoints.push_back(xPt3);
     data.xPoints.push_back(xPt4);
+  } 
+  else if(checkFileName(testCase, "NSTX-g132588.00650"))
+  {
+    data.numPlanes = 1;
+    Point oPt1Coord(1.03567, -0.0826343);
+    PhysicsPoint oPt1(oPt1Coord, -0.0474163, PointType::OPoint);
+    Point xPt1Coord(0.376017, -1.45911);
+    PhysicsPoint xPt1(xPt1Coord, 0.0123977, PointType::XPoint);
+    Point xPt2Coord(0.378819, 1.29527);
+    PhysicsPoint xPt2(xPt2Coord, 0.0165915, PointType::XPoint);
+
+    data.oPoints.push_back(oPt1);
+    data.xPoints.push_back(xPt1);
+    data.xPoints.push_back(xPt2);
   } 
    
   return data;

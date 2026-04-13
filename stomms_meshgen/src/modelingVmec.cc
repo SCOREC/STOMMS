@@ -55,7 +55,7 @@ Model generateCoreSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& v
   pGModel simModel = simModelFromVmec(vf, npsi, nzeta, psiVec.data(), zetas.data());
 
   // Step 7: Write the model (.smd) on disk for visualization.
-  GM_write(simModel, "vmec.smd", 0, 0);
+  GM_write(simModel, "simModel.smd", 0, 0);
 
   // Step 8: Save it as type Model
   Model model;

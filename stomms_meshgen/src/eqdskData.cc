@@ -21,7 +21,8 @@ EqdskData::EqdskData(const Inputs& input, const PlaneMetaData& planeData, const 
   psiCoreEdge = psiCoreBoundary;
 
   // Step 4: Set intra curve grad spacing for non-field following case.
-  setintraCurveSpacingGradPsi();
+  if (intraCurveSpacingOption == -2)
+    setintraCurveSpacingGradPsi();
 }
 
 // Set intraCurveSpacingGradPsi vector in the class
@@ -359,7 +360,10 @@ int EqdskData::findPsiPt(double targetPsi, Point startPoint, std::array<double,2
     startPoint.y += lengthToMove*dir[1];
     psi = getPsiAtPoint(startPoint);
     if (!insideBox(startPoint))
+    {
+      std::cout << "The point for the psi = " << targetPsi << " on the inboard/outboard midPlane is outside the domain box\n";
       return 0;
+    }
   }
 
   // Step 4: Update the point
@@ -370,7 +374,13 @@ int EqdskData::findPsiPt(double targetPsi, Point startPoint, std::array<double,2
   if (fabs(targetPsi - psi) < psiTolerance)
     return 1;
   else
+  {
+    std::cout << "========== ERROR FINDING POINT FOR PSI ==========\n";
+    std::cout << "The point for the psi = " << targetPsi << " on the inboard/outboard midPlane is outside the domain box.\n";
+    std::cout << "Normalized psi value = " << convertPsiToNorm(targetPsi) << " is too large for the domain.\n";
+    std::cout << "Try to get rid of this normalized psi value from the flux input file.\n";
     return 0;
+  }
 }
 
 int EqdskData::findPsiPtOnLine(double targetPsi, const Point& pt1, const Point pt2, Point& finalPoint)

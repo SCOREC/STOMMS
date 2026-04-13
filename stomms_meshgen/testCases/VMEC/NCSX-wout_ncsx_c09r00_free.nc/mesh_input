@@ -4,33 +4,33 @@
 
 !****************** STELLARATOR VMEC *************** 
 !The name of the vmec file for the core region
-!vmecFile wout.nc
+vmecFile wout_ncsx_c09r00_free.nc
 
  !****************** TOKAMAK EQDSK ***************
 !The name of eqdsk file for the tokamak cases
-eqdskFile g132588.00650 
+!eqdskFile g096333.03337 
 
 !If set to 1, this reverses the sign of Psi in eqdsk file, 
 !allowing minimum at axis.(default 0)
 reversePsi 0
 
 !Factor to rescale psi (default 1.0)
-eqdPsiFactor 1.0
+eqdPsiFactor 1.3
 
 !Number of 2D planes around the torus, used in spacing points on a curve.
-numPlanes 256
+numPlanes 128
 
 !Random curve start for closed flux curve instead fo strictly in a line.
 fluxRandomStart 1
 
 !This is the change in phi of each rk4 step taken when moving a point along a psi curve.
-stepRadians 0.00059817477
+stepRadians 0.00125
 
 !All points on a psi surface are guaranteed to be within this range of the target psi value.
 psiTolerance 1E-8
 
 !If possible, point spacing on a curve will fall within this fraction of the desired value.
-spacingToleranceOptimal 0.6180339887498948482
+spacingToleranceOptimal 0.5
 
 !Point spacing on a curve will always be within this fraction of the desired value.
 !The acceptable range is calculated as 1/(1+tol) to (1+tol) so a value of 1.0 gives a range 
@@ -44,7 +44,7 @@ intraCurveSpacingOption -1
 !******************PHYSICAL COMPONENTS SOURCES (WALL CURVE FOR NOW)*****************
 !***********************************************************************************
 
-limiterFile wallcurve_mod.txt
+!limiterFile lim_adj_PT2.txt
 
 !***********************************************************************************
 !*******************************RESOLUTION SETTINGS*********************************
@@ -60,4 +60,4 @@ planeFile plane.txt
 meshSizeFile mesh_size.txt
 
 !Defines the mesh size at the boundary wall.(0.01*meshSizeUnstructured meters)
-meshSizeUnstructured 2.0
+meshSizeUnstructured 16.0

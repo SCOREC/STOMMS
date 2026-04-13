@@ -69,7 +69,7 @@ bool isPointOnCorner(const Point& pt1, const Point& pt2, const Point& pt3)
   // Compare the cross product with tolerance, and if its relatively close to zero, its
   // on straight line, else its a corner.
   // Sinθ = (vector1 x vector2)/(|length1||length2|)
-  double tolerance = 1e-3;
+  double tolerance = 1e-5;
   if(fabs((vec1[0]*vec2[1]-vec1[1]*vec2[0])/(len1*len2)) > tolerance)
     return true;
 
