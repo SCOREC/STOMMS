@@ -593,6 +593,7 @@ void EqdskData::setParameters(const Inputs& in)
   intraCurveMinLengthLastEdge = in.getIntraCurveMinLengthLastEdge();
   intraCurveSpacingPropFacMax = in.getIntraCurveSpacingPropFacMax();
   intraCurveSpacingPropFacMin = in.getIntraCurveSpacingPropFacMin();
+  useWall = in.useWallCurve();
 }
 
 // Returns the number of poloidal planes (user input).
@@ -655,3 +656,8 @@ const double& EqdskData::getIntraCurveMinLengthLastEdge() const
   return intraCurveMinLengthLastEdge;
 }
 
+// Function to check if model needs to be bounded by wall curve or last closed flux curve.
+const bool& EqdskData::useWallCurve() const
+{
+  return useWall;
+}

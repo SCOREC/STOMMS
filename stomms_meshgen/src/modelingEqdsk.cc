@@ -11,6 +11,27 @@ SimmetrixWallCurve::SimmetrixWallCurve(const WallCurve& wall, pGModel model)
   simEdges = createWallEdges(model, simCurves, wall);  
 }
 
+// Function to set last closed flux curve as wall curve. 
+SimmetrixWallCurve::SimmetrixWallCurve(Flux& lastClosedFluxCurve, pGModel model)
+{
+  // Step 1: Get the points and psi value on the last closed curve. 
+  double psiNorm = lastClosedFluxCurve.psiNormOnFlux;
+  std::vector <Point> pointsOnCurve = lastClosedFluxCurve.fieldPoints;
+
+  // Step 2: Create SimCurve and SimEdge
+  pCurve simCurve = createClosedCurve(lastClosedFluxCurve);
+  pGEdge ge = createClosedEdge(model, simCurve, pointsOnCurve);
+
+  // Step 3: Set the properties of edge and assign model edges to native flux curve.
+  GEN_setNativeDoubleAttribute(ge, psiNorm, "PsiNorm");
+  lastClosedFluxCurve.setSimEdgeToFlux(ge);
+
+  // Step 4: Create the wall curve
+  points = pointsOnCurve;
+  simCurves.push_back(simCurve);
+  simEdges.push_back(ge);
+}
+
 void SimmetrixWallCurve::updateSimEdges(std::vector <pGEdge> updatedEdgesVector)
 {
   simEdges = updatedEdgesVector;
@@ -48,27 +69,41 @@ pGModel generateSimModel(const PlaneMetaData& planeMetaData, EqdskData& eqdskDat
   // Step 1: Create a new Simmetrix model(pGModel)
   pGModel model = GM_new(1);
  
-  // Step 2: Create the primary model face (defined by wall curve and magnetic axis).
+  // Step 2: Get oPoint and wall curve information for the primary model face.
   PhysicsPoint oPoint = curvesMetaData.getOPoints().at(0);
   WallCurve wall = curvesMetaData.getWallCurve();
-  SimmetrixWallCurve simWallCurve(wall, model);
+
+  // Step 3: Create wallcurve. If no wall is desired, use last closed flux curve
+  // as wall curve. 
+  bool noWall = false;
+  SimmetrixWallCurve simWallCurve;
+  if (curvesMetaData.getCurvesSeparatrix().size() == 0 && !eqdskData.useWallCurve())
+  {
+    simWallCurve = SimmetrixWallCurve(curvesMetaData.getCurvesClosed().back(), model);
+    noWall = true;
+  }
+  else
+    simWallCurve = SimmetrixWallCurve(wall, model);
+
+  // Step 4: Create the primary model face (defined by wall curve and magnetic axis).
+  // If no wall curve is set, use last closed flux curve.
   pGFace mainFace = createModelFace(oPoint, simWallCurve, model);
 
-  // Step 3: Insert closed curve to the primary model face & update the primary face (outerface).
-  pGFace updatedMainFace = insertClosedCurvesToModelFace(model, mainFace, curvesMetaData.getCurvesClosed());
+  // Step 5: Insert closed curve to the primary model face & update the primary face (outerface).
+  pGFace updatedMainFace = insertClosedCurvesToModelFace(model, mainFace, curvesMetaData.getCurvesClosed(), noWall);
   insertSeparatricesToModelFace(model, updatedMainFace, simWallCurve, curvesMetaData.getCurvesSeparatrix());
 
-  // Step 4: Classify the model faces.
+  // Step 6: Classify the model faces.
   classifyModelFaces(model);
 
-  // Step 5: Generate the open flux curves.
+  // Step 7: Generate the open flux curves.
   std::vector <Flux> openCurves = genOpenFluxCurves(model, eqdskData, curvesMetaData.getOPoints().at(0), 
                                                     curvesMetaData.getWallCurve(), planeMetaData);
 
-  // Step 6: Insert open curves to the model.
+  // Step 8: Insert open curves to the model.
   insertOpenCurvesToModel(model, simWallCurve, openCurves); 
  
-  // Step 7: Set open curves and wall edges in curves container.
+  // Step 9: Set open curves and wall edges in curves container.
   curvesMetaData.setOpenCurves(openCurves);
   curvesMetaData.setWallEdges(simWallCurve.getEdges());
 
@@ -102,10 +137,19 @@ pGFace createModelFace(const PhysicsPoint& oPoint, SimmetrixWallCurve& wall, pGM
   return simFace;
 }
 
-pGFace insertClosedCurvesToModelFace(pGModel model, pGFace gf, std::vector <Flux>& closedCurves)
+pGFace insertClosedCurvesToModelFace(pGModel model, pGFace gf, std::vector <Flux>& closedCurves, bool noWall)
 {
   std::cout << ".......... Creating Closed Model Edges\n";
-  for (int i = 0; i < closedCurves.size(); i++)
+
+  // Step 1: If regular case, use all the closed curves.If zero xpt case with no wall curve, 
+  // we have already used last closed flux curve to create the main domain face. Don't use 
+  // it again.
+  int numClosedCurves = closedCurves.size();
+  if (noWall)
+    numClosedCurves = closedCurves.size() - 1;
+
+  // Step 2: Iterate over the closed flux curves and create model curves and edges for them.
+  for (int i = 0; i < numClosedCurves; i++)
   {
     Flux& f = closedCurves[i];
     double psiNorm = f.psiNormOnFlux;
@@ -138,7 +182,8 @@ bool vertexExist(std::vector <double> xyz, const std::vector <pGVertex>& vertice
 
 void insertSeparatricesToModelFace(pGModel model, pGFace gf, SimmetrixWallCurve& wall, std::vector <Flux>& separatrices)
 {
-  std::cout << ".......... Creating Separatrix Model Edges\n";
+  if (separatrices.size() > 0)
+    std::cout << ".......... Creating Separatrix Model Edges\n";
   std::map <int, std::vector <pGEdge>> sepEdgesMap;
   std::vector <pGVertex> xPtVertices;  // to store xpt vertices to avoid repitition
   pGVertex vXpt; 

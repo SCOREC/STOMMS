@@ -9,6 +9,7 @@ class SimmetrixWallCurve{
   public:
     SimmetrixWallCurve(){};
     SimmetrixWallCurve(const WallCurve& wall, pGModel model);
+    SimmetrixWallCurve(Flux& lastClosedFluxCurve, pGModel model);
     void updateSimEdges(std::vector <pGEdge> updatedEdgesVector);
     std::vector <pGEdge> getSimEdges();
     std::vector <Edge> getEdges();
@@ -21,7 +22,8 @@ class SimmetrixWallCurve{
 
 pGModel generateSimModel(const PlaneMetaData& planeMetaData, EqdskData& eqdskData, CurveContainer& curvesMetaData);
 pGFace createModelFace(const PhysicsPoint& oPoint, SimmetrixWallCurve& wall, pGModel model);
-pGFace insertClosedCurvesToModelFace(pGModel model, pGFace gf, std::vector <Flux>& closedCurves);
+pGFace createModelFace(const PhysicsPoint& oPoint, Flux& lastClosedFluxCurve, pGModel model);
+pGFace insertClosedCurvesToModelFace(pGModel model, pGFace gf, std::vector <Flux>& closedCurves, bool noWall);
 void insertSeparatricesToModelFace(pGModel model, pGFace gf, SimmetrixWallCurve& wall, std::vector <Flux>& separatrices);
 void insertSeparatrixLegsToModel(pGFace gf, const std::map <int, std::vector <pGEdge>>& separatrices);
 void insertOpenCurvesToModel(pGModel model, SimmetrixWallCurve& wall, std::vector <Flux>& openCurves);
