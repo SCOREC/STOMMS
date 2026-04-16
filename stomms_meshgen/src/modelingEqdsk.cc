@@ -556,9 +556,10 @@ void classifyModelFaces(pGModel model)
 
     if (isModelFaceOnCore(gf))
       GEN_setNativeIntAttribute(gf, static_cast<int>(FaceType::Core), "PhysicsRegion");
+    else if (!isModelFaceOnCore(gf) && !xPoints.size())  // If no xPoints, tag the outer one as SOL for open curves
+      GEN_setNativeIntAttribute(gf, static_cast<int>(FaceType::ScrapeOffLayer), "PhysicsRegion");
     else
       GEN_setNativeIntAttribute(gf, static_cast<int>(FaceType::None), "PhysicsRegion");  
   }
   GFIter_delete(faceIter);
-
 }
