@@ -162,10 +162,22 @@ std::array<int,6> getEntityValidationData(const std::string& testCase)
   // Tokamak Cases
   if (checkFileName(testCase, "DIIID-g096333.03337"))
     data = std::array<int,6>{66, 72, 21, 2367, 6969, 4603};
+  if (checkFileName(testCase, "C-concirc_a10_flatq_1mm"))
+    data = std::array<int,6>{101, 100, 100, 110450, 329811, 219362};
+  if (checkFileName(testCase, "C-flow7a-shafranov-shift"))
+    data = std::array<int,6>{9, 8, 8, 1025, 2867, 1843};
+  if (checkFileName(testCase, "C-gts_circ.eqd"))
+    data = std::array<int,6>{21, 20, 20, 3412, 9981, 6570};
   if (checkFileName(testCase, "ITER-10MA.geqdsk-xgca"))
     data = std::array<int,6>{524, 659, 336, 272345, 816003, 543659};
   if (checkFileName(testCase, "KSTAR-g018451.002790_kin_1"))
     data = std::array<int,6>{317, 406, 203, 214788, 643006, 428219};
+  if (checkFileName(testCase, "LTX-1504291255_47400.eqdsk"))
+    data = std::array<int,6>{44, 43, 43, 6861, 20187, 13327};
+  if (checkFileName(testCase, "LTX-1504291255_47400_xgc1"))
+    data = std::array<int,6>{278, 277, 86, 33440, 99684, 66245};
+  if (checkFileName(testCase, "LTX-1504291255_47400_xgca"))
+    data = std::array<int,6>{260, 271, 56, 15797, 46901, 31105};
   if (checkFileName(testCase, "MASTU-g_p45152_t0.80000"))
     data = std::array<int,6>{322, 426, 126, 10425, 30677, 20253};
   if (checkFileName(testCase, "NSTX-g132588.00650"))

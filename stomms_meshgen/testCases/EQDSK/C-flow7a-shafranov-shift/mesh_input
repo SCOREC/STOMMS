@@ -2,17 +2,17 @@
 !******************MAGNETIC FIELD SOURCE FILES (VMEC, EQDSK for now)****************
 !***********************************************************************************
 
-5!****************** STELLARATOR VMEC *************** 
+!****************** STELLARATOR VMEC *************** 
 !The name of the vmec file for the core region
 !vmecFile wout.nc
 
  !****************** TOKAMAK EQDSK ***************
 !The name of eqdsk file for the tokamak cases
-eqdskFile LTX_1504291255_47400.eqdsk 
+eqdskFile geqdsk_flow7a.txt 
 
 !If set to 1, this reverses the sign of Psi in eqdsk file, 
 !allowing minimum at axis.(default 0)
-reversePsi 1
+reversePsi 0
 
 !Factor to rescale psi (default 1.0)
 eqdPsiFactor 1.0
@@ -38,13 +38,11 @@ spacingToleranceOptimal 0.6180339887498948482
 spacingToleranceAbsolute 0.61803398874989484820
 
 !spacing between vertices option (-1: field following, -2: non-field following)
-intraCurveSpacingOption -2
-intraCurveSpacingPropFacMin 0.95
-intraCurveSpacingPropFacMax 2.0
-intraCurveSpacingSmallVariation 0
+intraCurveSpacingOption -1
+intraCurveSpacingSmallVariation 1
 
 !Parameters needed and only valid for Zero X-point cases.
-lastClosedPsi 0.004438 !Required
+lastClosedPsi 0.245996 !Required
 useWall 0 !Optional. By default wall be used. Set 0 if don't want it. 
 
 !***********************************************************************************
@@ -67,4 +65,4 @@ planeFile plane.txt
 meshSizeFile mesh_size.txt
 
 !Defines the mesh size at the boundary wall.(0.01*meshSizeUnstructured meters)
-meshSizeUnstructured 3.0
+meshSizeUnstructured 4.0
