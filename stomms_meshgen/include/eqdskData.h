@@ -222,6 +222,12 @@ class EqdskData{
      * Function to get minimum spacing between last two points of a flux curve.
      */ 
     const double& getIntraCurveMinLengthLastEdge() const;
+
+    /**
+     * Function to check if model needs to be bounded by wall curve or last closed flux curve.
+     * Default is to use the wall curve. Only valid for zero Xpt cases.
+     */ 
+    const bool& useWallCurve() const;
   private:
   // input data.
   bool reversePsi;
@@ -239,7 +245,8 @@ class EqdskData{
   int intraCurveSpacingOption;
   double intraCurveMinLengthLastEdge; 
   double intraCurveSpacingPropFacMax;  // internal use for class
-  double intraCurveSpacingPropFacMin;  // internal use for class 
+  double intraCurveSpacingPropFacMin;  // internal use for class
+  bool useWall; 
 
   // Derived data.
   PhysicsPoint axis;

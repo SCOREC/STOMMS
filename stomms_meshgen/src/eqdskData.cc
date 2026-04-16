@@ -362,6 +362,8 @@ int EqdskData::findPsiPt(double targetPsi, Point startPoint, std::array<double,2
     if (!insideBox(startPoint))
     {
       std::cout << "The point for the psi = " << targetPsi << " on the inboard/outboard midPlane is outside the domain box\n";
+      std::cout << "If working with zero Xpoint case, set a smaller value of lastClosedPsi\n";
+      std::cout << "If see this error message again, the point is still outside the domain. so, set even smaller value\n";
       return 0;
     }
   }
@@ -593,6 +595,7 @@ void EqdskData::setParameters(const Inputs& in)
   intraCurveMinLengthLastEdge = in.getIntraCurveMinLengthLastEdge();
   intraCurveSpacingPropFacMax = in.getIntraCurveSpacingPropFacMax();
   intraCurveSpacingPropFacMin = in.getIntraCurveSpacingPropFacMin();
+  useWall = in.useWallCurve();
 }
 
 // Returns the number of poloidal planes (user input).
@@ -655,3 +658,8 @@ const double& EqdskData::getIntraCurveMinLengthLastEdge() const
   return intraCurveMinLengthLastEdge;
 }
 
+// Function to check if model needs to be bounded by wall curve or last closed flux curve.
+const bool& EqdskData::useWallCurve() const
+{
+  return useWall;
+}

@@ -136,7 +136,18 @@ class Inputs{
     /**
      * Function to get intra curve spacing proportional factor (min)
      */
-    const double& getIntraCurveSpacingPropFacMin() const;     
+    const double& getIntraCurveSpacingPropFacMin() const;
+
+    /**
+     * Function to get last closed psi value for zero x-point case.
+     */
+    const double& getLastClosedPsi() const;
+
+    /**
+     * Function to check if model needs to be bounded by wall curve or last closed flux curve.
+     * Default is to use the wall curve. Only valid for zero Xpt cases. 
+     */
+    const bool& useWallCurve() const;       
   private:
     // Input parameters
     std::string inputFile;
@@ -163,6 +174,8 @@ class Inputs{
     double intraCurveMinLengthLastEdge;
     double intraCurveSpacingPropFacMax;  // A factor (max) to set intra curve spacing for non-field following case
     double intraCurveSpacingPropFacMin;  // A factor (min) to set intra curve spacing for non-field following case
+    double lastClosedPsi;  // Last closed psi used in zero X-point cases. Not needed in other cases.
+    bool useWall;  // Set false if  want to bound domain but last closed curve. Valid only for zero xpt cases.
 
     // Input parameters - Meshing
     double meshSizeUnstructured;

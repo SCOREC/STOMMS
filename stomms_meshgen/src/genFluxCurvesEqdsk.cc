@@ -136,7 +136,10 @@ ClosedFluxCurve::ClosedFluxCurve(const PhysicsPoint& startPt, unsigned int& mySe
     }
     if(intersect) 
     {
-      std::cout << "This core curves hit box boundary, which is not ready to be used. exit." << "\n";
+      std::cout << "This core curves hit box boundary, which is not ready to be used." << "\n";
+      std::cout << "The core flux curve with psi = " << curveData.psi << " hits the box boundary.\n";
+      std::cout << "If working with zero Xpoint case, set a smaller value of lastClosedPsi. Ideally less than " << curveData.psi << ".\n";
+      std::cout << "If see this error message again, the curve still hits the box. so, set even smaller value.\n";
       assert(0);
       break;
     } // intersect = true

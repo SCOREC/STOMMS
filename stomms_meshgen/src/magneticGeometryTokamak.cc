@@ -31,7 +31,7 @@ MagneticGeometryForTokamak::MagneticGeometryForTokamak(const ModelMetaData& mode
   // Step 5: Setup psi values into types (open, closed, separatrix etc.)
   std::vector<PlaneMetaData> planesContainer = modelMetaData.getPlanesContainer();
   psiNormList = planesContainer[0].getPlaneFluxValues();
-  classifyPsiValues();
+  classifyPsiValues(input);
   
   // Step 6: Set up Eqdsk Data class for curve generation.
   EqdskData eqdskData(input, planeMetaData, oPointsVec[0], psiCoreBoundary);
@@ -46,7 +46,7 @@ MagneticGeometryForTokamak::MagneticGeometryForTokamak(const ModelMetaData& mode
 }
 
 // Classify psi normalized values into respective types (open, closed etc.)
-void MagneticGeometryForTokamak::classifyPsiValues()
+void MagneticGeometryForTokamak::classifyPsiValues(const Inputs& in)
 {
   std::cout << "\n========== FLUX CURVES CLASSIFICATION ==========\n";
   // Step 1: Setup psi of axis point. Since Tokamak has one plane so opoints
@@ -62,6 +62,10 @@ void MagneticGeometryForTokamak::classifyPsiValues()
 
   if (xPts.size())
     psiCoreBoundary = psiValuesSeparatrix[0];
+  else // Zero xPoint case
+    psiCoreBoundary = in.getLastClosedPsi();
+ 
+  std::cout << "Psi Boundary = " << psiCoreBoundary << "\n";
 
   // First value = 0.0 belongs to psiAxis so starts from second member of vector.
   bool psiSep = false;

@@ -20,8 +20,14 @@ do_linking(${exeName})
 
 # Tokamak Cases
 reg_test(${exeName} EQDSK DIIID-g096333.03337)
+reg_test(${exeName} EQDSK C-concirc_a10_flatq_1mm)
+reg_test(${exeName} EQDSK C-flow7a-shafranov-shift)
+reg_test(${exeName} EQDSK C-gts_circ.eqd)
 reg_test(${exeName} EQDSK ITER-10MA.geqdsk-xgca)
 reg_test(${exeName} EQDSK KSTAR-g018451.002790_kin_1)
+reg_test(${exeName} EQDSK LTX-1504291255_47400.eqdsk)
+reg_test(${exeName} EQDSK LTX-1504291255_47400_xgc1)
+reg_test(${exeName} EQDSK LTX-1504291255_47400_xgca)
 reg_test(${exeName} EQDSK MASTU-g_p45152_t0.80000)
 reg_test(${exeName} EQDSK NSTX-g132588.00650)
 

@@ -34,6 +34,8 @@ void Inputs::setDefaultValues()
   intraCurveMinLengthLastEdge = 0.001;
   intraCurveSpacingPropFacMax = 1.0;
   intraCurveSpacingPropFacMin = 1.0;
+  lastClosedPsi = 1e30;  // just a large number 
+  useWall = true;  // use wall as default. When false, wall will be ignored.
 
   // Input parameters - Meshing
   meshSizeUnstructured = 1.0; 
@@ -103,6 +105,10 @@ void Inputs::setValuesFromInputFile()
       input >> intraCurveSpacingPropFacMax;
     else if (token == "intraCurveSpacingPropFacMin")
       input >> intraCurveSpacingPropFacMin;
+    else if (token == "lastClosedPsi")
+      input >> lastClosedPsi;
+    else if (token == "useWall")
+      input >> useWall;
   }
   input.close();
 }
@@ -413,4 +419,17 @@ const double& Inputs::getIntraCurveSpacingPropFacMax() const
 const double& Inputs::getIntraCurveSpacingPropFacMin() const
 {
   return intraCurveSpacingPropFacMin;
+}
+
+// Function to get last closed psi value for zero x-point case.
+const double& Inputs::getLastClosedPsi() const
+{
+  return lastClosedPsi;
+}
+
+// Function to check if to use the wall curve or not. Only valid
+// for zero xpt cases.
+const bool& Inputs::useWallCurve() const
+{
+  return useWall;
 }

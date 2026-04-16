@@ -18,7 +18,7 @@ reversePsi 1
 eqdPsiFactor 1.0
 
 !Number of 2D planes around the torus, used in spacing points on a curve.
-numPlanes 64
+numPlanes 128
 
 !Random curve start for closed flux curve instead fo strictly in a line.
 fluxRandomStart 1
@@ -38,14 +38,14 @@ spacingToleranceOptimal 0.6180339887498948482
 spacingToleranceAbsolute 0.61803398874989484820
 
 !spacing between vertices option (-1: field following, -2: non-field following)
-intraCurveSpacingOption -2
+intraCurveSpacingOption -1
 intraCurveSpacingPropFacMin 0.95
-intraCurveSpacingPropFacMax 2.0
+intraCurveSpacingPropFacMax 2.5
 intraCurveSpacingSmallVariation 0
 
 !Parameters needed and only valid for Zero X-point cases.
-lastClosedPsi 0.004438 !Required
-useWall 0 !Optional. By default wall be used. Set 0 if don't want it. 
+lastClosedPsi 0.003100 !Required
+useWall 1 !Optional. By default wall be used. Set 0 if don't want it. 
 
 !***********************************************************************************
 !******************PHYSICAL COMPONENTS SOURCES (WALL CURVE FOR NOW)*****************
@@ -67,4 +67,4 @@ planeFile plane.txt
 meshSizeFile mesh_size.txt
 
 !Defines the mesh size at the boundary wall.(0.01*meshSizeUnstructured meters)
-meshSizeUnstructured 3.0
+meshSizeUnstructured 0.4
