@@ -1,7 +1,7 @@
 Input Parameters
 ================
 
-To run ``stomms_meshgen`` to create a mesh from magnetic field information, all the inputs need to be provided in a file called "mesh_input". An example "mesh_input" is presented at the end of the page for the reference. See :ref:`Sample Input File`. The input parameters are briefly discussed in this section.
+To run ``stomms_meshgen`` to create a mesh from magnetic field information, all the inputs need to be provided in a file called ``mesh_input``. An example ``mesh_input`` is presented at the end of the page for the reference. See :ref:`Sample Input File`. The input parameters are briefly discussed in this section.
 
 Parameters
 ----------
@@ -20,8 +20,61 @@ Tokamaks
    * The name of the EQDSK file that is used to generate a model of the Tokamak cross-section. If not specified, limiter (wall curve) is read and used from this equilibrium file.
 
 * ``reversePsi``
-   * 0 (default) : Use psi value from eqdskFile as it is.
-   * 1 : Multiply -1 to psi value so that psi at minor axis (O-point) gets minimum value of psi in outboard midplane.
+   * 0 (default): Use psi value from eqdskFile as it is.
+   * 1: Multiply -1 to psi value so that psi at minor axis (O-point) gets minimum value of psi in outboard midplane.
+
+* ``eqdPsiFactor``
+   * Multiplication factor to psi values from the given eqd/eqdsk file.
+   * default = 1.0
+
+* ``numPlanes``
+   * Number of poloidal planes (to be set in XGC). A parameter related to the field-following feature.
+   * default = 64
+
+* ``fluxRandomStart``
+   * There are two options available to set the starting position of the curves on the outboard/inboard plane for curve generation.
+   * 1 (default): Starting points of the curve generation for closed flux surfaces are randomly shifted along the corresponding flux surfaces.
+   * 0: Starting points of closed flux surfaces are aligned on a straight line on either the outboard or inboard midplane.
+
+* ``stepRadians``
+   * Step size in radian for searching next point for tracing a given flux curve.
+   * default = 0.00125
+
+* ``psiTolerance``
+   * A tolerance value to guarantee any psi query in the code is within a targeted tolerance value.
+   * default = 1E-8
+
+* ``spacingToleranceOptimal``
+   * An optimal tolerance value to ensure the target distance between vertices on the curve is acheived or not.
+   * default = 0.5
+
+* ``spacingToleranceAbsolute``
+   * A strict tolerance value to ensure the target distance between vertices on the curve is acheived or not.
+   * default = 0.61803398874989484820
+
+* ``intraCurveSpacingOption``
+   * -1 (default): spacing option for the field following nodes on the flux curve.
+   * -2: spacing option for the non field following placement of nodes on the flux curves. Uses ``intraCurveSpacingPropFacMax`` and ``intraCurveSpacingPropFacMin``.
+
+* ``intraCurveSpacingPropFacMax``
+   * Maximum limit of a proportional factor in the intra-curve spacing function.
+   * Used only when ``intraCurveSpacingOption = -2``.
+   * default = 1.0
+
+* ``intraCurveSpacingPropFacMin``
+   * Minimum limit of a proportional factor in the intra-curve spacing function.
+   * Used only when ``intraCurveSpacingOption = -2``.
+   * default = 1.0
+
+* ``lastClosedPsi``
+   * Only applicable for cases with number of Xpoints = 0. Code doesn't call it if the number of Xpoints are greater than 0.
+   * The bounding flux curve of the core region. This is the outermost closed flux curve that will be created in the domain. If the flux curve with ``lastClosedPsi`` intersects with the wall curve (or domain box if there is no wall curve), the code throws an error. The error message indicates that this psi value is too large for closed flux curve, so user can adjust it. 
+  
+* ``useWall``
+   * Only applicable for cases with number of Xpoints = 0. Code doesn't call it if the number of Xpoints are greater than 0.
+   * A parameter to set the outer bounds of the domain. In zero Xpoint cases, domain can either be bounded by the flux curve defined by ``lastClosedPsi`` or the wall curve.
+   * 1 (default): Domain is bounded by the wall curve in default settings.
+   * 0: If wall curve is not desired, and the last closed flux curve is needed as outer bounds, set this option to 0.
 
 -----
 
@@ -105,7 +158,10 @@ Meshing Parameters
   0.9  0.015
   1.0  0.020
 
-
+* ``meshSizeUnstructured``
+   * This parameter is used to adjust the size of the elements on the model faces where unstructured triangular mesh is desired.
+   * The unit used for it is centimeters. The code uses the size = 0.01*meshSizeUnstructured meters.
+   * default = 1.0.
 
 .. _sample-input:
 
@@ -114,23 +170,67 @@ Sample Input File
 
 .. code-block:: text
 
-  !******************MAGNETIC FIELD SOURCE FILES (VMEC, EQDSK for now)***************
+  !***********************************************************************************
+  !******************MAGNETIC FIELD SOURCE FILES (VMEC, EQDSK for now)****************
+  !***********************************************************************************
 
-  !STELLARATORS 
+  !****************** STELLARATOR VMEC *************** 
   !The name of the vmec file for the core region
-  vmecFile wout.nc
+  !vmecFile wout.nc
 
-  !TOKAMAKS
+  !****************** TOKAMAK EQDSK ***************
   !The name of eqdsk file for the tokamak cases
-  !eqdskFile g096333.03337 
+  eqdskFile LTX_1504291255_47400.eqdsk 
 
-  !If set to 1, this reverses the sign of Psi in eqdsk file, allowing minimum at axis.
-  reversePsi 0
+  !If set to 1, this reverses the sign of Psi in eqdsk file, 
+  !allowing minimum at axis.(default 0)
+  reversePsi 1
 
+  !Factor to rescale psi (default 1.0)
+  eqdPsiFactor 1.0
+
+  !Number of 2D planes around the torus, used in spacing points on a curve.
+  numPlanes 128
+
+  !Random curve start for closed flux curve instead fo strictly in a line.
+  fluxRandomStart 1
+
+  !This is the change in phi of each rk4 step taken when moving a point along a psi curve.
+  stepRadians 0.00059817477
+
+  !All points on a psi surface are guaranteed to be within this range of the target psi value.
+  psiTolerance 1E-8
+
+  !If possible, point spacing on a curve will fall within this fraction of the desired value.
+  spacingToleranceOptimal 0.6180339887498948482
+
+  !Point spacing on a curve will always be within this fraction of the desired value.
+  !The acceptable range is calculated as 1/(1+tol) to (1+tol) so a value of 1.0 gives a range 
+  !of .5 to 2.0 times the desired spacing.
+  spacingToleranceAbsolute 0.61803398874989484820
+
+  !spacing between vertices option (-1: field following, -2: non-field following)
+  intraCurveSpacingOption -1
+
+  !Factors only needed when intraCurveSpacingOption is -2. If not given, default values will be used.
+  intraCurveSpacingPropFacMin 0.95
+  intraCurveSpacingPropFacMax 2.5
+
+  intraCurveSpacingSmallVariation 0
+
+  !Parameters needed and only valid for Zero X-point cases.
+  lastClosedPsi 0.003100 !Required
+  useWall 1 !Optional. By default wall be used. Set 0 if don't want it. 
+
+  !***********************************************************************************
   !******************PHYSICAL COMPONENTS SOURCES (WALL CURVE FOR NOW)*****************
-  !limiterFile limiter.txt
+  !***********************************************************************************
 
+  !limiterFile lim_adj_PT2.txt
+
+  !***********************************************************************************
   !*******************************RESOLUTION SETTINGS*********************************
+  !***********************************************************************************
   !The file containing the number and normalized psi values of flux curves
   fluxFile flux.txt 
 
@@ -139,3 +239,6 @@ Sample Input File
 
   !Set the mesh size from the input file
   meshSizeFile mesh_size.txt
+
+  !Defines the mesh size at the boundary wall.(0.01*meshSizeUnstructured meters)
+  meshSizeUnstructured 0.4
