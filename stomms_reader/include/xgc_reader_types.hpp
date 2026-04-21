@@ -29,8 +29,7 @@ enum class SurfaceType {
   ScrapeOffLayer,
   LowFieldSideEdge,
   HighFieldSideEdge,
-  LowFieldSideNearVacuum,  // between last flux curve and wall curve
-  HighFieldSideNearVacuum,
+  NearVacuum,  // between last flux curve and wall curve
   Private,
   None
 };

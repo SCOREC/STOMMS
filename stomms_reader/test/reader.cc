@@ -44,11 +44,13 @@ int main(int argc, char** argv)
 
     for (int i = 0; i < xgcMesh.getNumPlanes(); i++)
     {
+      std::cout << "=============================== Plane # " << i << "======================================\n";
+
       // Verify the query functions:
       SurfaceIdType sId = 5;
       std::cout << "Model face Type for Surface Id " << sId << " = " << static_cast<int>(xgcMesh.getPhysicsRegionType(sId, i)) << "\n";
 
-      CurveIdType cId = 19;
+      CurveIdType cId = 8;
       std::cout << "Model curve type for curve id " << cId << " = " << static_cast<int>(xgcMesh.getCurveType(cId, i)) << "\n";
 
       std::vector <EdgeIdType> edgesOnCurve = xgcMesh.getCurveGeometricEdges(cId, i);
@@ -121,7 +123,7 @@ int main(int argc, char** argv)
 
       // Test Model Topology
       std::cout << " ==================== Testing Model Topology Data ============== \n";
-      int entId = 270;
+      int entId = 3;
       TopoType inTopo = TopoType::Face;
       TopoType outTopo = TopoType::Edge;
       std::vector <GeomIdType> gEnts = xgcMesh.getModelAdjEnts(inTopo, entId, outTopo, pId);
@@ -131,14 +133,6 @@ int main(int argc, char** argv)
         std::cout << gEnts[i] << " " ;
       std::cout << "\n";
 
-      // Test adjacent X-point function
-      int surfaceId = 215;
-      std::vector<int> xPts = xgcMesh.getAdjacentXpoints(surfaceId, 0);
-      std::cout << "Number of XPoints on Private Region with model face # " << surfaceId << " are " << xPts.size() << "\n";
-      for (int k = 0; k < xPts.size(); k++)
-        std::cout << xPts[k] << " ";
-      std::cout << "\n";
- 
      // Test physics region curves
      int checkRegion = 1;
      

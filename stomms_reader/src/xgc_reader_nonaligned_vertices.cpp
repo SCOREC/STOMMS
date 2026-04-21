@@ -72,7 +72,7 @@ bool NonAlignedVertices::considerModelFaceForNonAlignedVertices(const ModelFace&
   SurfaceIdType sId = f.getGeomId();
 
   // Step 1: Ignore the model faces on low/high near vacuum side regions. 
-  if (sType == SurfaceType::LowFieldSideNearVacuum || sType == SurfaceType::HighFieldSideNearVacuum)
+  if (sType == SurfaceType::NearVacuum)
     return false;
   
   // Step 2:Find out psi values on a model face (using psi values on edges).  If a face has bounding 

@@ -35,10 +35,8 @@ SurfaceType getSurfaceTypeForString(std::string name)
   SurfaceType sType;
   if (name.compare(name.length() - 4, 4, "core") == 0)
     sType = SurfaceType::Core;
-  else if (name.compare(name.length() - 30, 30, "nearVacuumRegion/highFieldSide") == 0)
-    sType = SurfaceType::HighFieldSideNearVacuum;
-  else if (name.compare(name.length() - 29, 29, "nearVacuumRegion/lowFieldSide") == 0)
-    sType = SurfaceType::LowFieldSideNearVacuum;
+  else if (name.compare(name.length() - 16, 16, "nearVacuumRegion") == 0)
+    sType = SurfaceType::NearVacuum;
   else if (name.compare(name.length() - 30, 30, "plasmaEdgeRegion/highFieldSide") == 0)
     sType = SurfaceType::HighFieldSideEdge;
   else if (name.compare(name.length() - 29, 29, "plasmaEdgeRegion/lowFieldSide") == 0)

@@ -236,6 +236,8 @@ Adj getVertexAdj(const std::vector <Vertex>& vertices)
     PList_delete(faces);
     vAdj.rangeVector_2.push_back(vAdj.adjVector_2.size());
   }
+  if (!vAdj.adjVector_1.size())
+    vAdj.adjVector_1.push_back(0);
 
   return vAdj;
 }
@@ -276,7 +278,9 @@ Adj getEdgeAdj(const std::vector <Edge>& edges)
     eAdj.rangeVector_2.push_back(eAdj.adjVector_2.size());
     
   }
-
+  if (!eAdj.adjVector_1.size())
+    eAdj.adjVector_1.push_back(0);
+  
   return eAdj;
 }
 
