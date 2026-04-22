@@ -18,6 +18,9 @@ option(ENABLE_STOMMS_READER "Enable Stomms Mesh Reader" OFF)
 message (STATUS "ENABLE_STOMMS_MESHGEN:  ${ENABLE_STOMMS_MESHGEN} ")
 message (STATUS "ENABLE_STOMMS_READER:  ${ENABLE_STOMMS_READER} ")
 
+# Configure file for the documentation (Doxygen)
+configure_file( ${CMAKE_SOURCE_DIR}/docs/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+
 # Build stomms_meshgen
 if (ENABLE_STOMMS_MESHGEN)
   message(STATUS "Compiling stomms_meshgen")

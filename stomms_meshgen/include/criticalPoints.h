@@ -10,7 +10,7 @@
 /*
  * Basic model vertices types.
  */
-enum class PointType{
+enum class PhysicsPointType{
   OPoint,
   XPoint,
   None
@@ -29,9 +29,9 @@ class PhysicsPoint{
      * Constructor.
      * const Point& point (in): physical coordinates of the point defined in Point.
      * const double& psiAtPoint (in): psi value at the point.
-     * const PointType pType (in): physics type of the point (oPoint, xPoint).
+     * const PhysicsPointType pType (in): physics type of the point (oPoint, xPoint).
      */
-    PhysicsPoint(const Point& point, const double& psiAtPoint, const PointType pType);
+    PhysicsPoint(const Point& point, const double& psiAtPoint, const PhysicsPointType pType);
 
     /*
      * Function to get physical coordinates of a point.
@@ -46,11 +46,11 @@ class PhysicsPoint{
     /*
      * Function to get point type.
      */
-    const PointType& getPointType() const;
+    const PhysicsPointType& getPointType() const;
   private:
     Point pt;  // Point in physical space
     double psi;  // associated psi value
-    PointType pointType = PointType::None;  // initialize point with type None.
+    PhysicsPointType pointType = PhysicsPointType::None;  // initialize point with type None.
 };
 
 // Helper Functions:

@@ -322,7 +322,7 @@ CriticalPointsEqdsk::CriticalPointsEqdsk(const WallCurve& wall, const bool& reve
   for (int i = 0; i < filtered.size(); i++)
   {
     Point pt = filtered[i];
-    PointType ptType = getPointType(pt, useReversePsi);
+    PhysicsPointType ptType = getPointType(pt, useReversePsi);
     double psi;
     int ierr;
     eval_field_val(&pt.x, &pt.y, &psi, &ierr, useReversePsi);
@@ -331,9 +331,9 @@ CriticalPointsEqdsk::CriticalPointsEqdsk(const WallCurve& wall, const bool& reve
     PhysicsPoint physicsPt(pt, psi, ptType);
 
     // Step 5.2: Save to respective x-point, opoint container.
-    if (ptType == PointType::OPoint)
+    if (ptType == PhysicsPointType::OPoint)
       oPoints.push_back(physicsPt);
-    else if (ptType == PointType::XPoint)
+    else if (ptType == PhysicsPointType::XPoint)
       xPoints.push_back(physicsPt);
   }
 }
@@ -504,7 +504,7 @@ const std::vector <PhysicsPoint>& CriticalPointsEqdsk::getXPoints()
 /***********************************************/
 // Helper Functions
 /***********************************************/
-PointType getPointType(const Point& pt, bool reversePsi)
+PhysicsPointType getPointType(const Point& pt, bool reversePsi)
 {
   int ier;
   double d2[3];
@@ -530,13 +530,13 @@ PointType getPointType(const Point& pt, bool reversePsi)
   assert(det != 0);
 
   // Step 5: Evaluate point type.
-  PointType pointType;
+  PhysicsPointType pointType;
   if (det < 0)
-    pointType = PointType::XPoint;     // Saddle point
+    pointType = PhysicsPointType::XPoint;     // Saddle point
   else if (d2[0] > 0)
-    pointType = PointType::OPoint;     // Minimum
+    pointType = PhysicsPointType::OPoint;     // Minimum
   else if (d2[0] < 0)
-    pointType = PointType::None;     // Maximum
+    pointType = PhysicsPointType::None;     // Maximum
   
   return pointType;
 }
