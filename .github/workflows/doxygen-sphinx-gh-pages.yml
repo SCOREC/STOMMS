@@ -5,7 +5,7 @@ name: Deploy Doxygen-Sphinx-Github Pages for STOMMS documentation
 on:
   push:
     branches:
-      - documentation
+      - main
 
 # Deploy github pages for the documentation
 
