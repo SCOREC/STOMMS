@@ -78,10 +78,10 @@ bool inDomain(const Point& pt, const std::array<double,4>& box);
  */
 std::vector <Point> filterUniquePoints(const std::vector <Point>& candidates);
 
-/*
+/**
  * Given a vector of points, filter the points that are outside the wall curve.
- * const std::vector <Point>& candidates (in): a vector on input points.
- * const std::vector <Point>& wall (in): a vector of points on wall curve.
+ * @param candidates: a vector of input points.
+ * @param wall: a vector of points on wall curve.
  */
 
 void filterOutsideTheWallPoints(std::vector <Point>& candidates, const std::vector <Point>& wall);

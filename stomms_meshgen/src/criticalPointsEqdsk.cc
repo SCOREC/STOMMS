@@ -5,12 +5,13 @@
 // 1- Simplex 
 // 2- Simplex Grid
 /***********************************************/
-// Simplex
+// Contructor that takes in three points.
 Simplex::Simplex(Point pt1, Point pt2, Point pt3):point1(pt1), point2(pt2), point3(pt3)
 {
   points = {{ {point1.x, point1.y}, {point2.x, point2.y}, {point3.x, point3.y} }};
 }
 
+// Contructor that takes in a vector of points
 Simplex::Simplex(std::vector <Point> pts)
 {
   assert (pts.size() == 3 || pts.size() == 4); // 3 for 2D, 4 for 3D
@@ -18,15 +19,18 @@ Simplex::Simplex(std::vector <Point> pts)
   point2 = pts[1];
   point3 = pts[2];
 
+  // Set the points in terms of an doubles array of size 2 (2D) 
   points = {{ {point1.x, point1.y}, {point2.x, point2.y}, {point3.x, point3.y} }};
 }
 
-// Simplex Grid
+// Simplex Grid constructor to create a vector of simplexes given the resolution and domain box.
 SimplexGrid::SimplexGrid(int xResolution, int yResolution, const std::array<double,4>& box)
 {
+  // Step 1: Read the domain box values and set the minimum and maximum bounds.
   double xMin = box[0], yMin = box[1];
   double xMax = box[2], yMax = box[3];
 
+  // Step 2: Iterate of number of points in x-direction and y-direction.
   for (int i = 0; i < xResolution; i++)
   {
     for (int j = 0; j < yResolution; j++)
@@ -34,35 +38,40 @@ SimplexGrid::SimplexGrid(int xResolution, int yResolution, const std::array<doub
       Point p1, p2, p3;
       p1.z = p2.z = p3.z = 0.0;
 
-      // Point 1
+      // Step 3: Get the point 1.
       p1.x = (xMin*(xResolution-i) + xMax*i)/double(xResolution);
       p1.y = (yMin*(yResolution-j) + yMax*j)/double(yResolution);
 
-      // Point 2
+      // Step 4: Get the point 2.
       p2.x = (xMin*(xResolution-i-1) + xMax*(i+1))/double(xResolution);
       p2.y = p1.y;
 
-      // Point 3
+      // Step 5: Get the point 3.
       p3.x = p1.x;
       p3.y = (yMin*(yResolution-j-1) + yMax*(j+1))/double(yResolution);
 
-      // To make sure we are not getting a point just outside of the
+      // Step 6: Make sure we are not getting a point just outside of the
       // computational domain because of numerical inconsistencies.
       checkBounds(p1, box);
       checkBounds(p2, box);
       checkBounds(p3, box);
 
-      // Create Simplex
+      // Step 7: Once points are verified, and bounds are checked, create
+      // a simplex and save it to global vector of simplexes.
       Simplex simplex(p1,p2,p3);
       simplexVec.push_back(simplex);
     }
   }
+
+  // Step 8: Make sure the number of simplexes are eqaul to our desired resolution.
   assert (simplexVec.size() == (xResolution*yResolution));
 }
 
 /***********************************************/
 // Class SimplexMethod
 /***********************************************/
+// Contructor: SimplexMethod takes a SimplexGrid, and a bounding box, and calculates the minimums
+// in the domain box. This one is specific to the gradient of the psi field (grad_psi).
 SimplexMethod::SimplexMethod(const SimplexGrid& simplexGrid, const std::array <double,4>& box, const bool& useReversePsi)
 {
   // Step 1: Read domain information and grid of simplexes.
@@ -70,37 +79,37 @@ SimplexMethod::SimplexMethod(const SimplexGrid& simplexGrid, const std::array <d
   grid = simplexGrid;
   reversePsi = useReversePsi;
 
-   // Step 2: Set up variables for Simplex points, tolerance, and number of iterations.
+   // Step 2.1: Set up variables for Simplex points, tolerance, and number of iterations.
   std::array<std::array<double, 2>, 3> simplexPoints;
   double absoluteTolerance = 1E-8;
   double relativeTolerance = 1E-8;
   int nFunc;
 
-  // Now variables for field values (psi values and its gradients)
+  // Step 2.2: Now variables for field values (psi values and its gradients)
   std::array<double, 3> gradPsi;
   double psi;
   int ierr;
 
   
-  // Step 3: Call the simplex method for individual simplexes.
-  // Iterate over each simplex.
+  // Step 3: Iterate over each simplex and call the simplex method for individual simplexes.
   int numSimplex = grid.simplexVec.size();
   for (int i = 0; i < numSimplex; i++)
   {
+    // Step 3.1: Get the points on the simplex.
     Simplex simplex = grid.simplexVec[i];
     simplexPoints = simplex.points;
     
-    // Step 3.1: Get field value (grad_psi) for each of the points of simplex.
+    // Step 3.2: Get field value (grad_psi) for each of the points of simplex.
     for (int j = 0; j < 3; j++)
       eval_field_grad_abs2(&simplexPoints[j][0], &simplexPoints[j][1], &gradPsi[j], &ierr, reversePsi);
 
-    // Step 3.2: Evaluate minimums from each simplex. If returned 0, means no minium found, so move
+    // Step 3.3: Evaluate minimums from each simplex. If returned 0, means no minium found, so move
     // to next simplex. If returns 1, means a minium is found from given simplex.
     nFunc = 0;    
     if (evaluateMinimum(simplexPoints, gradPsi, absoluteTolerance, relativeTolerance, nFunc) == 0)
       continue;
 
-    // Step 3.3: Save the point in the vector.
+    // Step 3.4: Save the point in the vector.
     Point possibleMinimum(simplexPoints[0][0], simplexPoints[0][1]);
     candidates.push_back(possibleMinimum);
   } 
@@ -128,9 +137,9 @@ double SimplexMethod::evaluateTrialPoint(std::array<std::array<double, 2>, 3>& p
   pTry[0] = std::min(std::max(pTry[0], domainBox[0]), domainBox[2]);
   pTry[1] = std::min(std::max(pTry[1], domainBox[1]), domainBox[3]);
 
-  //  Step 5: Eva;uate field value at trial point. If its better than
-  //  the highest point (ihi) replace ihi with trial point. Update 
-  //  pSum and return trial point.
+  // Step 5: Eva;uate field value at trial point. If its better than
+  // the highest point (ihi) replace ihi with trial point. Update 
+  // pSum and return trial point.
   int ierr;
   eval_field_grad_abs2(&pTry[0], &pTry[1], &yTry, &ierr, reversePsi);
   if (yTry < y[ihi]) 
@@ -150,8 +159,8 @@ double SimplexMethod::evaluateTrialPoint(std::array<std::array<double, 2>, 3>& p
 int SimplexMethod::evaluateMinimum(std::array<std::array<double, 2>, 3>& points, std::array<double,3>& y, 
                                    const double& fToleranceAbs, const double& fToleranceRel, int& nFunc)
 {
-  // Step 1: Define the variables needed 
-  // ihi = index of highest field value, ilo = lowest, inhi = next highest (intermediate)
+  // Step 1: Define the variables needed. ihi = index of highest field value, 
+  // ilo = lowest, inhi = next highest (intermediate)
   int ihi, ilo, inhi, ierr; 
   double rTolerance, aTolerance, sum, ySave, yTry;
   std::array <double, 2> pSum;
@@ -170,7 +179,7 @@ int SimplexMethod::evaluateMinimum(std::array<std::array<double, 2>, 3>& points,
     pSum[j] = sum;
   }
 
-  // Step 3: Keep running until an exit condition is hit (either found the minium or exceeded
+  // Step 3: Keep going until an exit condition is hit (either found the minium or exceeded
   // the maximum allowed iterations).
   while (true)
   {
@@ -216,12 +225,12 @@ int SimplexMethod::evaluateMinimum(std::array<std::array<double, 2>, 3>& points,
 
     nFunc += 2;
 
-    // Step 3.3: Begin a new iteration. First extrapolate by a factor -1 through the face of the simplex 
+    // Step 3.4: Begin a new iteration. First extrapolate by a factor -1 through the face of the simplex 
     // across from the high point, i.e., reflect the simplex from the high point.
     yTry = evaluateTrialPoint(points, y, pSum, ihi, -1.0);
 
     if(yTry <= y[ilo])
-      //Gives a result better than the best point, so try an additional extrapolation by a factor 2.
+      //Gives a result better than the best point, so try an additional extrapolation by a factor 2.0
       yTry = evaluateTrialPoint(points, y, pSum, ihi, 2.0);
     else if (yTry >= y[inhi]) 
     {
@@ -256,7 +265,7 @@ int SimplexMethod::evaluateMinimum(std::array<std::array<double, 2>, 3>& points,
     else 
       --nFunc;
 
-    // Step 3.4: Check if all the points of the simplex are inside the domain or not.
+    // Step 3.5: Check if all the points of the simplex are inside the domain or not.
     Point p1, p2, p3;
     p1.x = points[0][0], p1.y = points[0][1];
     p2.x = points[1][0], p2.y = points[1][1];
@@ -267,9 +276,8 @@ int SimplexMethod::evaluateMinimum(std::array<std::array<double, 2>, 3>& points,
   return 1;  //Sucssess
 }
 
-// Function to return the minimums from the simplex method. They 
-// are called candidates for now because we will still run Newton
-// Method.
+// Function to return the minimums from the simplex method. They are 
+// called candidates for now because we will still run Newton Method.
 const std::vector <Point>& SimplexMethod::getCandidates()
 {
   return candidates;
@@ -278,23 +286,28 @@ const std::vector <Point>& SimplexMethod::getCandidates()
 /***********************************************/
 // Class CriticalPointsEqdsk
 /***********************************************/
+// Constructor: Given wall curve, (already have access to eqdsk file and domain box
+// using gfileUtil.h function), evaluates the critical points in the doamin.
 CriticalPointsEqdsk::CriticalPointsEqdsk(const WallCurve& wall, const bool& reversePsi):
                                          wallCurve(wall), useReversePsi(reversePsi)
 {
   std::cout << "========== CRITICAL POINTS SEARCH ==========\n";
+
+  // Step 1: Read wall curve points.
   wallPoints = wallCurve.getPoints();
 
-  // Step 1: Execute Simplex Method
+  // Step 2: Execute Simplex Method and get a vector of candidates for the
+  // Newton method.
   std::cout << "Simplex Method Started ..........\n";
   std::vector <Point> candidates = findMinimumSimplexMethod();
 
-  // Step 2: Filter out the points that are outside the wall curve 
-  // and only keep unique points (get rid of duplicates). Save 
-  // unique points in a new vector.
+  // Step 3: Filter out the points that are outside the wall curve and 
+  // only keep unique points (get rid of duplicates). Save unique points 
+  // in a new vector.
   filterOutsideTheWallPoints(candidates, wallPoints);
   std::vector <Point> filtered = filterUniquePoints(candidates);  
 
-  // Step 3: Execute Newton Method.
+  // Step 4: Execute Newton Method.
   std::vector <Point> updatedPoints;
   for (int i = 0; i < filtered.size(); i++)
   {
@@ -302,23 +315,23 @@ CriticalPointsEqdsk::CriticalPointsEqdsk(const WallCurve& wall, const bool& reve
     if (i == 0)
       std::cout << "Newton Method Started ..........\n";
  
-    // Step 3.1: If point is outside wall curve, ignore it.
+    // Step 4.1: If point is outside wall curve, ignore it.
     if (windingNumberPolygonTest(pt, wallPoints) == 0)
       continue;
 
-    // Step 3.4: If minimum, save it to the a new vector.
+    // Step 4.2: If minimum, save it to the a new vector.
     int returnIndx = findMinimumNewtonMethod(pt, ptFinal, domainBox);
     if (returnIndx == 0)
       updatedPoints.push_back(ptFinal);
   } 
 
-  // Step 4: Clear the old filtered vector and do filteration step again.
+  // Step 5: Clear the old filtered vector and do filteration step again.
   filtered.clear();
   filterOutsideTheWallPoints(updatedPoints, wallPoints);
   filtered = filterUniquePoints(updatedPoints);
   updatedPoints.clear();
 
-  // Step 5: Run the Hessian test to get point type.
+  // Step 6: Run the Hessian test to get point type.
   for (int i = 0; i < filtered.size(); i++)
   {
     Point pt = filtered[i];
@@ -327,10 +340,10 @@ CriticalPointsEqdsk::CriticalPointsEqdsk(const WallCurve& wall, const bool& reve
     int ierr;
     eval_field_val(&pt.x, &pt.y, &psi, &ierr, useReversePsi);
 
-    // Step 5.1: Setup PhysicsPoint.
+    // Step 6.1: Setup PhysicsPoint.
     PhysicsPoint physicsPt(pt, psi, ptType);
 
-    // Step 5.2: Save to respective x-point, opoint container.
+    // Step 6.2: Save to respective x-point, opoint container.
     if (ptType == PhysicsPointType::OPoint)
       oPoints.push_back(physicsPt);
     else if (ptType == PhysicsPointType::XPoint)
@@ -338,7 +351,7 @@ CriticalPointsEqdsk::CriticalPointsEqdsk(const WallCurve& wall, const bool& reve
   }
 }
 
-// Find the critical points from EQDSK file.
+// Function to call Simplex method, and to return a vector of minimums from Simplex method.
 std::vector <Point> CriticalPointsEqdsk::findMinimumSimplexMethod()
 {
   // Step 1: Domain box bounds
@@ -346,7 +359,7 @@ std::vector <Point> CriticalPointsEqdsk::findMinimumSimplexMethod()
   get_b_box_(bbox);
   domainBox = {bbox[0], bbox[1], bbox[2], bbox[3]};
 
-  // Step 2: Set up  Simplex Method
+  // Step 2: Set up the Simplex grid.
   int x = 30;  // resolution on x axis
   int y = 30;  // resolution on y axis
   SimplexGrid simplexGrid(x, y, domainBox);
@@ -358,6 +371,7 @@ std::vector <Point> CriticalPointsEqdsk::findMinimumSimplexMethod()
   return minimumPoints; 
 }
 
+// Function to find a minimum using Newton method given an initial guess (these guesses are calculated from Simplex method).
 int CriticalPointsEqdsk::findMinimumNewtonMethod(const Point& initialGuess, Point& finalPosition, const std::array<double,4> domain) 
 {
   // Step 1: Check validity of the initial point.
@@ -372,12 +386,12 @@ int CriticalPointsEqdsk::findMinimumNewtonMethod(const Point& initialGuess, Poin
   trialPosition[1] = initialGuess.y;
 
   // Step 3: Find find value and derivates at the trial point.
-  // Field value
+  // Step 3.1: Field value
   double psiVal;
   int ierr; 
   eval_field_val(&trialPosition[0], &trialPosition[1], &psiVal, &ierr, useReversePsi);
 
-  // Field derivative
+  // Step 3.2: Field derivative
   std::array <double,3> dy;
   eval_field_grad(&trialPosition[0], &trialPosition[1], &dy[0], &ierr, useReversePsi);
   
@@ -414,17 +428,17 @@ int CriticalPointsEqdsk::findMinimumNewtonMethod(const Point& initialGuess, Poin
   dr = drUnit*dl; 
   dz = dzUnit*dl;
 
-  //position update
+  // Step 6.1: Position update
   trialPosition[0] += dr; 
   trialPosition[1] += dz;
   iStep++;
 
-  //check validity
+  // Ste 6.2: check validity
   Point ptToCheck(trialPosition[0], trialPosition[1]);
   if(!inDomain(ptToCheck, domain))
     return -2;
 
-  //psi(x_1)
+  // Step 6.3: Find psi(x+1)
   double psiValNext;
   eval_field_val(&trialPosition[0], &trialPosition[1], &psiValNext, &ierr, useReversePsi);
 
@@ -524,7 +538,7 @@ PhysicsPointType getPointType(const Point& pt, bool reversePsi)
   eval_field_deriv(&pt.x, &pt.y, &dr, &dz, &d2[2], &ier, reversePsi);
   assert(ier == 0);
 
-  // Step 4: Second Partial Derivative Test
+  // Step 4: Second Partial Derivative Test (determinant of Hessian matrix).
   // https://en.wikipedia.org/wiki/Second_partial_derivative_test
   double det = d2[0]*d2[2] - d2[1]*d2[1];
   assert(det != 0);
@@ -532,12 +546,11 @@ PhysicsPointType getPointType(const Point& pt, bool reversePsi)
   // Step 5: Evaluate point type.
   PhysicsPointType pointType;
   if (det < 0)
-    pointType = PhysicsPointType::XPoint;     // Saddle point
+    pointType = PhysicsPointType::XPoint;  // Saddle point
   else if (d2[0] > 0)
-    pointType = PhysicsPointType::OPoint;     // Minimum
+    pointType = PhysicsPointType::OPoint;  // Minimum
   else if (d2[0] < 0)
-    pointType = PhysicsPointType::None;     // Maximum
+    pointType = PhysicsPointType::None;  // Maximum
   
   return pointType;
 }
-
