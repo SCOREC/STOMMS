@@ -254,6 +254,9 @@ class EqdskData{
   PlaneMetaData planeMetaData;
   std::vector <double> fluxValues;
   std::vector <double> intraCurveSpacingGradPsi;
+
+  // Test
+  void readPsiGrid();
 };
 
 #endif

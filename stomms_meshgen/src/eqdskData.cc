@@ -23,6 +23,9 @@ EqdskData::EqdskData(const Inputs& input, const PlaneMetaData& planeData, const 
   // Step 4: Set intra curve grad spacing for non-field following case.
   if (intraCurveSpacingOption == -2)
     setintraCurveSpacingGradPsi();
+
+  // Test
+  readPsiGrid();
 }
 
 // Set intraCurveSpacingGradPsi vector in the class
@@ -662,4 +665,33 @@ const double& EqdskData::getIntraCurveMinLengthLastEdge() const
 const bool& EqdskData::useWallCurve() const
 {
   return useWall;
+}
+
+// Test Function
+void EqdskData::readPsiGrid()
+{
+  int xRes, yRes;
+  get_psi_grid_num_(&xRes, &yRes);
+  
+  int gridSize = xRes*yRes;
+  std::vector <double> r(xRes), z(yRes), psi(gridSize);
+  get_psi_and_its_grid_(r.data(), z.data(), psi.data());
+
+  // Write data to a txt file for plotting in notebook or something.
+  // JUST FOR DEBUGGING
+  // DELETE THIS BLOCK ONCE DEVELOPMENT IS DONE (BEFORE MERGING TO MAIN)
+  FILE* fp = fopen("psiGrid.txt", "w");
+  fprintf(fp, "   %d   %d\n", xRes, yRes);
+  for (int i = 0; i < xRes; i++)
+  {
+    double x = r[i];
+    for (int j = 0; j < yRes; j++)
+    {
+      double y = z[j];
+      double index = i*yRes + j;
+      double psiAtIndx = psi[index];
+      fprintf(fp, "%f  %f  %f\n", x, y, psiAtIndx);  
+    }
+  }
+  fclose(fp);  
 }

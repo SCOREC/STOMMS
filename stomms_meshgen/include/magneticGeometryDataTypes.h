@@ -150,4 +150,30 @@ enum class FaceType {
   None
 };
 
+/**
+ * Type of physics fields.
+ */
+enum class FieldType{
+  Psi,
+  None
+};
+
+/**
+ * A class to save data on a grid. We can add different fields to the same Grid.
+ */
+class GridFieldData{
+  public:
+    GridFieldData(){};
+    GridFieldData(const std::vector <double>& pointsR, const std::vector <double>& pointsZ);
+    void setDoubleFieldOnGrid(const std::vector <double>& field, const FieldType& fieldType); 
+
+    const std::vector <double>& getRPoints();
+    const std::vector <double>& getZPoints();
+    const std::vector <double>& getDoubleFieldData(const FieldType& fieldType);
+  private:
+    std::vector <double> rPoints;
+    std::vector <double> zPoints;
+    std::vector <double> psiField;
+};
+
 #endif
