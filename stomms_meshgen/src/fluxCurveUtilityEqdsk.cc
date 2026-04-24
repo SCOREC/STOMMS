@@ -287,7 +287,7 @@ std::vector <PhysicsPoint> getStartPointClosed(const std::vector <double>& coreP
     assert (psiNormalized >= 0.0);
 
     Point pt = eqdskData.convertPsiToPoint(psi);
-    PhysicsPoint startPoint(pt, psi, PointType::None);
+    PhysicsPoint startPoint(pt, psi, PhysicsPointType::None);
     startPoints.push_back(startPoint);
   }
 
@@ -402,7 +402,7 @@ std::vector <std::vector <PhysicsPoint>> getStartPointsOnSimFace(pGFace face, co
             continue;
         }
         double psi = eqdskData.convertNormToPsi(psiNormalized);
-        PhysicsPoint startPt(ptFoundLocal[j], psi, PointType::None);
+        PhysicsPoint startPt(ptFoundLocal[j], psi, PhysicsPointType::None);
         startPoints[ipsi].push_back(startPt);
       }
     }

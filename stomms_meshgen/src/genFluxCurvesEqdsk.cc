@@ -455,7 +455,7 @@ std::vector <Flux> SeparatrixCurve::mergeSeparatrixLegs(std::vector <SeparatrixL
       flux.fieldPoints.insert(flux.fieldPoints.end(), startLeg.fieldPoints.begin(), startLeg.fieldPoints.end() - 1);
       flux.fieldPoints.insert(flux.fieldPoints.end(), endLeg.fieldPoints.begin(), endLeg.fieldPoints.end());
       flux.curveType = CurveType::Separatrix;
-      PhysicsPoint pt(xPoint, psi, PointType::XPoint);
+      PhysicsPoint pt(xPoint, psi, PhysicsPointType::XPoint);
       flux.xPoint = pt;
       flux.psiNormOnFlux = psiNorm;
       fluxCurves.push_back(flux);
@@ -480,7 +480,7 @@ std::vector <Flux> SeparatrixCurve::mergeSeparatrixLegs(std::vector <SeparatrixL
     flux.separatrixLegs.push_back(endLeg);
     flux.fieldPoints.insert(flux.fieldPoints.end(), endLeg.fieldPoints.begin() + 1, endLeg.fieldPoints.end());
     flux.curveType = CurveType::Separatrix;
-    PhysicsPoint pt(xPoint, psi, PointType::XPoint);
+    PhysicsPoint pt(xPoint, psi, PhysicsPointType::XPoint);
     flux.xPoint = pt;
     flux.psiNormOnFlux = psiNorm;
     fluxCurves.push_back(flux);    

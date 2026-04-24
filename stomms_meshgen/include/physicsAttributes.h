@@ -27,7 +27,7 @@ int getNumPeriodicEdgesOnModelFace(pGFace gf);
  * @param pointType: type of critical point (OPoint, XPoint).
  * @return a vector of model vertices of type pointType. Empty vector if finds no such point.
  */
-std::vector <pGVertex> getCriticalPointsOnModelFace(pGFace gf, PointType pointType);
+std::vector <pGVertex> getCriticalPointsOnModelFace(pGFace gf, PhysicsPointType pointType);
 
 /**
  * Function to set classification on model faces adjacent to X-point.
@@ -74,6 +74,6 @@ bool compareVertexPsi(pGVertex gv1, pGVertex gv2);
  * @param pointType: type of critical point (OPoint, XPoint).
  * @return a vector of model vertices of type pointType.
  */
-std::vector <pGVertex> getCriticalPointsOnModel(pGModel model, PointType pointType);
+std::vector <pGVertex> getCriticalPointsOnModel(pGModel model, PhysicsPointType pointType);
 
 #endif

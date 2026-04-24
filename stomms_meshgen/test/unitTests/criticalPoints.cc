@@ -158,9 +158,9 @@ ValidationData getValidationData(const std::string& testCase)
   {
     data.numPlanes = 1;
     Point oPt1Coord(6.55989, 0.573433);
-    PhysicsPoint oPt1(oPt1Coord, -10.5537, PointType::OPoint);
+    PhysicsPoint oPt1(oPt1Coord, -10.5537, PhysicsPointType::OPoint);
     Point xPt1Coord(5.11698, -3.42392);
-    PhysicsPoint xPt1(xPt1Coord, -1.50227, PointType::XPoint);
+    PhysicsPoint xPt1(xPt1Coord, -1.50227, PhysicsPointType::XPoint);
     data.oPoints.push_back(oPt1);
     data.xPoints.push_back(xPt1);
   }
@@ -210,11 +210,11 @@ ValidationData getValidationData(const std::string& testCase)
   {
     data.numPlanes = 1;
     Point oPt1Coord(1.03567, -0.0826343);
-    PhysicsPoint oPt1(oPt1Coord, -0.0474163, PointType::OPoint);
+    PhysicsPoint oPt1(oPt1Coord, -0.0474163, PhysicsPointType::OPoint);
     Point xPt1Coord(0.376017, -1.45911);
-    PhysicsPoint xPt1(xPt1Coord, 0.0123977, PointType::XPoint);
+    PhysicsPoint xPt1(xPt1Coord, 0.0123977, PhysicsPointType::XPoint);
     Point xPt2Coord(0.378819, 1.29527);
-    PhysicsPoint xPt2(xPt2Coord, 0.0165915, PointType::XPoint);
+    PhysicsPoint xPt2(xPt2Coord, 0.0165915, PhysicsPointType::XPoint);
 
     data.oPoints.push_back(oPt1);
     data.xPoints.push_back(xPt1);

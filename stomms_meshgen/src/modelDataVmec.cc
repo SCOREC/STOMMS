@@ -88,7 +88,7 @@ std::map<int, Vertex> ModelVmec::sortOPointsByPlanes(Model m, std::vector <doubl
     Vertex axisV;
     
     // Step 2.1: Set the attributes to the vertex.
-    GEN_setNativeIntAttribute(axis, static_cast<int>(PointType::OPoint), "PointType");
+    GEN_setNativeIntAttribute(axis, static_cast<int>(PhysicsPointType::OPoint), "PointType");
     GEN_setNativeDoubleAttribute(axis, 0.0, "PsiNorm");    
 
     axisV.setSimVertex(axis);

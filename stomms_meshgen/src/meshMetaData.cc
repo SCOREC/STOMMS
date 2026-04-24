@@ -47,7 +47,7 @@ std::vector <int> PlaneMeshMetaData::setFaceMeshType(const std::vector <Face> ge
       meshType = 1;
 
     // Step 5: If SOL, and adjacent to x-points, set unstructured mesh type
-    std::vector <pGVertex> xPts = getCriticalPointsOnModelFace(f.getSimFace(), PointType::XPoint); 
+    std::vector <pGVertex> xPts = getCriticalPointsOnModelFace(f.getSimFace(), PhysicsPointType::XPoint); 
     if ((faceType == FaceType::ScrapeOffLayer || faceType == FaceType::Core || 
          fluxCurvesOnPrivateRegion) && (xPts.size() > 0))
       meshType = 0;

@@ -33,13 +33,13 @@ void ModelEqdsk::setPlane()
   p.planeNumber = 0;
 
   // Step 2: Get the primary O-point on the plane.
-  std::vector <pGVertex> oPoints = getCriticalPointsOnModel(model.getSimModel(), PointType::OPoint);
+  std::vector <pGVertex> oPoints = getCriticalPointsOnModel(model.getSimModel(), PhysicsPointType::OPoint);
   Vertex axis;
   axis.setSimVertex(oPoints[0]);
   p.oPoint = axis;
 
   // Step 3: Set x-points on the plane.
-  std::vector <pGVertex> xPoints = getCriticalPointsOnModel(model.getSimModel(), PointType::XPoint);
+  std::vector <pGVertex> xPoints = getCriticalPointsOnModel(model.getSimModel(), PhysicsPointType::XPoint);
   for (int i = 0; i < xPoints.size(); i++)
     p.setXPoint(xPoints[i]);
 

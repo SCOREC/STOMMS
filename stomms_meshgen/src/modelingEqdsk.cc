@@ -132,7 +132,7 @@ pGFace createModelFace(const PhysicsPoint& oPoint, SimmetrixWallCurve& wall, pGM
   Point oPt = oPoint.getPoint();
   std::vector <double> oPtCoord= {oPt.x, oPt.y, 0.0};
   pGVertex axisVertex = GF_createVertex(simFace, oPtCoord.data()); 
-  GEN_setNativeIntAttribute(axisVertex, static_cast<int>(PointType::OPoint), "PointType");
+  GEN_setNativeIntAttribute(axisVertex, static_cast<int>(PhysicsPointType::OPoint), "PointType");
 
   return simFace;
 }
@@ -200,7 +200,7 @@ void insertSeparatricesToModelFace(pGModel model, pGFace gf, SimmetrixWallCurve&
     if (!vertexExist(vCoord, xPtVertices))
     {
       vXpt = GR_createVertex(GIP_outerRegion(GM_rootPart(model)), vCoord.data()); 
-      GEN_setNativeIntAttribute(vXpt, static_cast<int>(PointType::XPoint), "PointType");
+      GEN_setNativeIntAttribute(vXpt, static_cast<int>(PhysicsPointType::XPoint), "PointType");
       GEN_setNativeDoubleAttribute(vXpt, psiNorm, "PsiNorm");
       xPtVertices.push_back(vXpt);
     }
@@ -535,8 +535,8 @@ double stomms_dist2(double a[3], double b[3])
 
 void classifyModelFaces(pGModel model)
 {
-  std::vector <pGVertex> xPoints = getCriticalPointsOnModel(model, PointType::XPoint);
-  std::vector <pGVertex> oPoints = getCriticalPointsOnModel(model, PointType::OPoint);
+  std::vector <pGVertex> xPoints = getCriticalPointsOnModel(model, PhysicsPointType::XPoint);
+  std::vector <pGVertex> oPoints = getCriticalPointsOnModel(model, PhysicsPointType::OPoint);
   std::array<double,3> oCoord, xCoord;
   GV_point(oPoints[0], oCoord.data());
   for (int i = 0; i < xPoints.size(); i++)

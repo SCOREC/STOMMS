@@ -31,7 +31,7 @@ int getNumPeriodicEdgesOnModelFace(pGFace gf)
 }
 
 // Function to get a vector of model vertices classified on the model face.
-std::vector <pGVertex> getCriticalPointsOnModelFace(pGFace gf, PointType pointType)
+std::vector <pGVertex> getCriticalPointsOnModelFace(pGFace gf, PhysicsPointType pointType)
 {
   std::vector <pGVertex> criticalPoints;
   pPList vertices = GF_vertices(gf);
@@ -159,7 +159,7 @@ bool compareVertexPsi(pGVertex gv1, pGVertex gv2)
 }
 
 // Functon to return model vertices of critical points on the model.
-std::vector <pGVertex> getCriticalPointsOnModel(pGModel model, PointType pointType)
+std::vector <pGVertex> getCriticalPointsOnModel(pGModel model, PhysicsPointType pointType)
 {
   std::vector <pGVertex> criticalPoints;
   GVIter vertexIter = GM_vertexIter(model);
