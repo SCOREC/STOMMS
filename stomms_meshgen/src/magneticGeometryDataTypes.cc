@@ -121,30 +121,29 @@ void GridFieldData::setDoubleFieldOnGrid(const std::vector <double>& field, cons
   }
 }
 
-const std::vector <double>& GridFieldData::getRPoints()
+const std::vector <double>& GridFieldData::getRPoints() const
 {
   return rPoints;
 }
 
-const std::vector <double>& GridFieldData::getZPoints()
+const std::vector <double>& GridFieldData::getZPoints() const
 {
   return zPoints;
 }
 
-const std::vector <double>& GridFieldData::getDoubleFieldData(const FieldType& fieldType)
+const std::vector <double>& GridFieldData::getDoubleFieldData(const FieldType& fieldType) const
 {
   // Step 1: Check the field and return corresponding field vector.
   if (fieldType == FieldType::Psi)
   {
-    // If field is not empty, return it. If empty, print an error message.
+    // If field is not empty, return it. If empty, print an warning message.
     if (psiField.size())
       return psiField;
     else
     {
-      std::cout << "ERROR: psi Field is empty. Doesn't contain any data yet\n";
-      std::cout << "Make sure its properly set before calling this function\n";
-      exit(1);
-    }  
+      std::cout << "Warning: psi Field is empty. Doesn't contain any data yet\n";
+      return psiField;
+    }
   }
   else
   {

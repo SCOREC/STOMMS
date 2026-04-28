@@ -24,8 +24,8 @@ EqdskData::EqdskData(const Inputs& input, const PlaneMetaData& planeData, const 
   if (intraCurveSpacingOption == -2)
     setintraCurveSpacingGradPsi();
 
-  // Test
-  readPsiGrid();
+  // Step 5: Set the Eqdsk Grid Data.
+  setEqdskGrid();
 }
 
 // Set intraCurveSpacingGradPsi vector in the class
@@ -52,6 +52,24 @@ void EqdskData::setintraCurveSpacingGradPsi()
    double gradPsiAbs = sqrt(gradPsi[0]*gradPsi[0] + gradPsi[1]*gradPsi[1]);
    intraCurveSpacingGradPsi.push_back(gradPsiAbs); 
  }
+}
+
+// Set the eqdsk grid data.
+void EqdskData::setEqdskGrid()
+{
+  // Step 1: Get the grid size.
+  int xRes, yRes;
+  get_psi_grid_num_(&xRes, &yRes);
+  int gridSize = xRes*yRes;
+
+  // Step 2: Read the grid points, and corresponding psi values.
+  // If needed in future, read additional data from Eqdsk here.
+  std::vector <double> r(xRes), z(yRes), psi(gridSize);
+  get_psi_and_its_grid_(r.data(), z.data(), psi.data());
+
+  // Step 3: Set the eqdsk grid for local use in the code.
+  eqdskGrid = GridFieldData(r, z);
+  eqdskGrid.setDoubleFieldOnGrid(psi, FieldType::Psi);
 }
 
 // Returns the values of psi at a physical location defined by pt.
@@ -498,7 +516,7 @@ double EqdskData::getInterCurveSpacingLinear(double psiNorm)
   Point lowBoundPt = convertPsiToPoint(convertNormToPsi(psiInputVector[lowBound]));
   Point upBoundPt = convertPsiToPoint(convertNormToPsi(psiInputVector[lowBound+1]));
 
-  // Step 3: Get the spacing between horizontal coordinates of two points.
+  // Step 4: Get the spacing between horizontal coordinates of two points.
   double spacing = fabs(lowBoundPt.x - upBoundPt.x);
   assert (spacing > 0.0);
   return spacing;
@@ -580,6 +598,11 @@ double EqdskData::getNodeSpacing(const Point& pt, double psiNorm)
     meshSize = meshSize*std::min(intraCurveSpacingPropFacMax, std::max(intraCurveSpacingPropFacMin, gradAbs/gradPsiAbs));
   }
   return meshSize;
+}
+
+const GridFieldData& EqdskData::getEqdskGridData()
+{
+  return eqdskGrid;
 }
 
 void EqdskData::setParameters(const Inputs& in)
@@ -665,33 +688,4 @@ const double& EqdskData::getIntraCurveMinLengthLastEdge() const
 const bool& EqdskData::useWallCurve() const
 {
   return useWall;
-}
-
-// Test Function
-void EqdskData::readPsiGrid()
-{
-  int xRes, yRes;
-  get_psi_grid_num_(&xRes, &yRes);
-  
-  int gridSize = xRes*yRes;
-  std::vector <double> r(xRes), z(yRes), psi(gridSize);
-  get_psi_and_its_grid_(r.data(), z.data(), psi.data());
-
-  // Write data to a txt file for plotting in notebook or something.
-  // JUST FOR DEBUGGING
-  // DELETE THIS BLOCK ONCE DEVELOPMENT IS DONE (BEFORE MERGING TO MAIN)
-  FILE* fp = fopen("psiGrid.txt", "w");
-  fprintf(fp, "   %d   %d\n", xRes, yRes);
-  for (int i = 0; i < xRes; i++)
-  {
-    double x = r[i];
-    for (int j = 0; j < yRes; j++)
-    {
-      double y = z[j];
-      double index = i*yRes + j;
-      double psiAtIndx = psi[index];
-      fprintf(fp, "%f  %f  %f\n", x, y, psiAtIndx);  
-    }
-  }
-  fclose(fp);  
 }

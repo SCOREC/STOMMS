@@ -4,6 +4,7 @@
 #include "input.h"
 #include "criticalPoints.h"
 #include "modelMetaData.h"
+#include "magneticGeometryDataTypes.h"
 
 /** 
  * Class eqdskData contains the magnetic field information from eqdsk file.
@@ -167,11 +168,11 @@ class EqdskData{
      * @return true if point is inside, false for outside.
      */
     bool insideBox(const std::array <double,3>& pt);
-
+    
     /**
-     * Function to set eqdsk parameters from inputs.
+     * Function to return eqdsk grid data.
      */ 
-    void setParameters(const Inputs& in);
+    const GridFieldData& getEqdskGridData();
 
     /**
      * Returns the number of poloidal planes (user input).
@@ -255,8 +256,20 @@ class EqdskData{
   std::vector <double> fluxValues;
   std::vector <double> intraCurveSpacingGradPsi;
 
-  // Test
-  void readPsiGrid();
+  // EQDSK Grid Info
+  GridFieldData eqdskGrid;
+
+  // Internal Functions
+  /**
+   * Function to set eqdsk grid data.
+   * Only sets psi grid at the moment.
+   */   
+  void setEqdskGrid();
+
+  /**
+   * Function to set eqdsk parameters from inputs.
+   */ 
+  void setParameters(const Inputs& in);
 };
 
 #endif

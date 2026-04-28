@@ -3,7 +3,7 @@
 /***********************************************/
 // Class: StommsOutput
 /***********************************************/
-StommsOutput::StommsOutput(const StommsMesh& m):mesh(m)
+StommsOutput::StommsOutput(const StommsMesh& m, const GridFieldData& gridData):mesh(m), gridFieldData(gridData)
 {
   std::cout << "============ Output Writing Starts ============\n";
 
@@ -178,10 +178,13 @@ void StommsOutput::writeAdiosFile()
     writePhysicsClassification(io, writer, i);
   
     // Step 5.2: Write Model Adjacency Information.
-    writeModelAdjacency(io, writer, i);  
+    writeModelAdjacency(io, writer, i);
   }
 
-  // Step 6: End the writer engine.
+  // Step 6: Write input grid information.
+  writeGridInformation(io, writer);
+
+  // Step 7: End the writer engine.
   writer.EndStep();
   writer.Close();
 
@@ -413,4 +416,29 @@ void StommsOutput::writeModelAdjacency(adios2::IO& io, adios2::Engine& writer, i
   writeAdios2Array(io, writer, adj.rangeVector_2, 1, varName);
   varName = groupName + "data";
   writeAdios2Array(io, writer, adj.adjVector_2, 1, varName);
+}
+
+void StommsOutput::writeGridInformation(adios2::IO& io, adios2::Engine& writer)
+{
+  // Step 1: Declare the variables and names of the variables needed in adios2 file
+  std::string name, varName;
+  name  = "stommsMesh/fieldGridData/";
+
+  // Step 2: Check if the GridFieldData object has the grid information populated. If not, return.
+  // If yes, start writing the data in adios2 file.
+  std::vector <double> psiField = gridFieldData.getDoubleFieldData(FieldType::Psi);
+  if (!psiField.size())
+    return;
+
+  // Step 3: Read the grid points (r and z) and write them in adios2 file.
+  std::vector <double> rPoints = gridFieldData.getRPoints();
+  std::vector <double> zPoints = gridFieldData.getZPoints();
+  varName = name + "rGridPoints";
+  writeAdios2Array(io, writer, rPoints, 1, varName);
+  varName = name + "zGridPoints";
+  writeAdios2Array(io, writer, zPoints, 1, varName);
+
+  // Step 4: Write psi Grid Data to adios2 file
+  varName = name + "psiGrid";
+  writeAdios2Array(io, writer, psiField, zPoints.size(), varName);
 }

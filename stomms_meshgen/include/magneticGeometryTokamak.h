@@ -61,6 +61,11 @@ class MagneticGeometryForTokamak: public MagneticGeometry{
      */ 
     const std::vector <Plane>& getPlanes() const override;
 
+    /**
+     * Function to return magnetic field data on the background grid.
+     */
+    const GridFieldData& getGridFieldData() const override;    
+
   private:
     // Input data.
     WallCurve wallCurve;  // physical wall curve.
@@ -78,7 +83,7 @@ class MagneticGeometryForTokamak: public MagneticGeometry{
     std::vector <Flux> closedCurves;
     std::vector <Flux> separatrixCurves;
     PlaneMetaData planeMetaData;
-
+    GridFieldData gridData;
     ModelEqdsk modelEqdsk;
     
     // Internal functions:

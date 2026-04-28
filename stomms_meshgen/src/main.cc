@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
     StommsMesh stommsMesh(meshMetaData);
 
     // Step 9: Write output files from STOMMS mesh.
-    StommsOutput stommsOutput(stommsMesh);
+    StommsOutput stommsOutput(stommsMesh, mg->getGridFieldData());
   }
   MPI_Finalize();
 
