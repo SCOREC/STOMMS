@@ -3,7 +3,6 @@ find_package(PSPLINE REQUIRED)
 find_package(Omega_h REQUIRED)
 find_package(Adios2 REQUIRED)
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(netcdf-cxx4 REQUIRED IMPORTED_TARGET netcdf-cxx4) 
 
 # Find git hash and save it to GIT_HASH variable
 # Issue a warning if can't find git hash
@@ -85,12 +84,27 @@ target_include_directories(stommsLib PUBLIC
 target_link_libraries(stommsLib PUBLIC 
    MPI::MPI_CXX OpenMP::OpenMP_CXX
    ${SIMMODSUITE_LIBS}
-   PkgConfig::netcdf-cxx4
    ${PSPLINE_LIBRARIES}
    Omega_h::omega_h
    adios2::cxx11
 )
-                                           
+
+# NetCDF (C, Cxx4) doesn't have cmake targets at PPPL so need to do
+# this step manually. Might clean it in future.
+option(ENABLE_PPPL OFF)
+message(STATUS "PPPL:  ${ENABLE_PPPL}")
+if (ENABLE_PPPL)
+  pkg_check_modules(netcdf REQUIRED IMPORTED_TARGET netcdf) 
+  target_include_directories(stommsLib PUBLIC ${NETCDF_CXX4_INCLUDE_DIR})
+  target_link_directories(stommsLib PUBLIC ${NETCDF_CXX4_LIB_DIR})
+  target_link_libraries(stommsLib PUBLIC netcdf-cxx4)
+  target_link_libraries(stommsLib PUBLIC PkgConfig::netcdf)
+  target_compile_definitions(stommsLib PRIVATE ENABLE_PPPL)
+else()
+  pkg_check_modules(netcdf-cxx4 REQUIRED IMPORTED_TARGET netcdf-cxx4)
+  target_link_libraries(stommsLib PUBLIC PkgConfig::netcdf-cxx4) 
+endif()
+
 # Finally add executable
 add_executable(stomms_meshgen src/main.cc)
 target_link_libraries(stomms_meshgen PRIVATE stommsLib)

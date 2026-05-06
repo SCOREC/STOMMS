@@ -1,5 +1,5 @@
 find_package(Omega_h REQUIRED)
-find_package(ADIOS2 REQUIRED)
+find_package(Adios2 REQUIRED)
 
 set(XGC_READER_SRC
   src/xgc_reader_model.cpp
