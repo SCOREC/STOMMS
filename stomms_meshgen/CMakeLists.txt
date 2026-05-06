@@ -4,11 +4,6 @@ find_package(Omega_h REQUIRED)
 find_package(Adios2 REQUIRED)
 find_package(PkgConfig REQUIRED)
 
-message(STATUS "PPPL:  ${ENABLE_PPPL}")
-if (!ENABLE_PPPL)
-  pkg_check_modules(netcdf-cxx4 REQUIRED IMPORTED_TARGET netcdf-cxx4)
-endif() 
-
 # Find git hash and save it to GIT_HASH variable
 # Issue a warning if can't find git hash
 execute_process(
@@ -97,6 +92,7 @@ target_link_libraries(stommsLib PUBLIC
 # NetCDF (C, Cxx4) doesn't have cmake targets at PPPL so need to do
 # this step manually. Might clean it in future.
 option(ENABLE_PPPL OFF)
+message(STATUS "PPPL:  ${ENABLE_PPPL}")
 if (ENABLE_PPPL)
   pkg_check_modules(netcdf REQUIRED IMPORTED_TARGET netcdf) 
   target_include_directories(stommsLib PUBLIC ${NETCDF_CXX4_INCLUDE_DIR})
@@ -104,7 +100,8 @@ if (ENABLE_PPPL)
   target_link_libraries(stommsLib PUBLIC netcdf-cxx4)
   target_link_libraries(stommsLib PUBLIC PkgConfig::netcdf)
   target_compile_definitions(stommsLib PRIVATE ENABLE_PPPL)
-elseif()
+else()
+  pkg_check_modules(netcdf-cxx4 REQUIRED IMPORTED_TARGET netcdf-cxx4)
   target_link_libraries(stommsLib PUBLIC PkgConfig::netcdf-cxx4) 
 endif()
 

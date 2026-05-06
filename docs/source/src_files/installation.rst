@@ -50,6 +50,56 @@ Compilation
    - ../config-files/scorec_rhel9_config.sh
    - make install
 
+PPPL Flux
+^^^^^^^^^
+STOMMS meshing executables ``stomms_meshgen`` and required modules ``env_stomms.sh`` can be found in the directory below. They are ogranized by date in the format ``YYYY_MM_DD``. 
+
+.. code-block:: text
+   
+   /p/epsi/rpi/install/STOMMS/YYYY_MM_DD/bin/stomms_meshgen
+   /p/epsi/rpi/install/STOMMS/YYYY_MM_DD/modules/env_stomms.sh
+
+For example, the latest one is:
+
+.. code-block:: text
+
+   /p/epsi/rpi/install/STOMMS/2026_04_28/bin/stomms_meshgen
+   /p/epsi/rpi/install/STOMMS/2026_04_28/modules/env_stomms.sh
+
+To install ``stomms_meshgen``, follow the instruction below.
+
+Required Modules and Libraries
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   module use /opt/scorec/spack/rhel9/v0201_4/lmod/linux-rhel9-x86_64/Core/
+   module purge
+   module load gcc/13.2.0
+   module load openmpi/4.1.6-gcc-13.2.0
+   module load openmpi-4.1.6/gcc-13.2.0/netcdf-c/main-4adke
+   module load openmpi-4.1.6/gcc-13.2.0/netcdf-cxx4/4.3.1-k3f2t
+   module load simmodsuite/2026.0-260404
+   setenv LD_LIBRARY_PATH /p/epsi/rpi/install/OmegaH/2026_04_28/lib64:$LD_LIBRARY_PATH
+   setenv LD_LIBRARY_PATH /p/xgc/Software/install/adios2/5.14.0-570.21.1.el9_6.x86_64/gcc-13.2.0/lib64:$LD_LIBRARY_PATH
+   setenv OMP_NUM_THREADS 1
+
+Compilation
+~~~~~~~~~~~
+
+.. code-block:: bash
+
+   - git clone https://github.com/SCOREC/STOMMS.git
+   - cd STOMMS
+   - Edit config-files/pppl_flux_config.sh as needed (at minimum need to change the PREFIX).
+   - Edit PREFIX in the pppl_flux_config.sh and set it to the location where you want to install executable/library.
+   - Set COMPILE_STOMMS_MESHGEN="ON" to compile stomms_meshgen and set COMPILE_STOMMS_READER="ON" to install reader
+     library. By default both are "ON" on PPPL Flux. Set "OFF" if they are not needed. 
+   - mkdir build
+   - cd build
+   - ../config-files/pppl_flux_config.sh
+   - make install
+
 Perlmutter
 ^^^^^^^^^^
 Perlmutter is mainly used to run the analysis codes, therefore mesh generation libraries and Simmetrix Simmodsuite tools are not available at Perlmutter. Since Perlmuuter does not have Simmetrix libraries, ``stomms_meshgen`` is not supported and only ``stomms_reader`` can be compiled at Perlmutter.
