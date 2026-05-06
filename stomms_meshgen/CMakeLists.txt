@@ -89,18 +89,23 @@ target_include_directories(stommsLib PUBLIC
 target_link_libraries(stommsLib PUBLIC 
    MPI::MPI_CXX OpenMP::OpenMP_CXX
    ${SIMMODSUITE_LIBS}
-   #PkgConfig::netcdf-cxx4
    ${PSPLINE_LIBRARIES}
    Omega_h::omega_h
    adios2::cxx11
 )
 
+# NetCDF (C, Cxx4) doesn't have cmake targets at PPPL so need to do
+# this step manually. Might clean it in future.
+option(ENABLE_PPPL OFF)
 if (ENABLE_PPPL)
   pkg_check_modules(netcdf REQUIRED IMPORTED_TARGET netcdf) 
   target_include_directories(stommsLib PUBLIC ${NETCDF_CXX4_INCLUDE_DIR})
   target_link_directories(stommsLib PUBLIC ${NETCDF_CXX4_LIB_DIR})
   target_link_libraries(stommsLib PUBLIC netcdf-cxx4)
   target_link_libraries(stommsLib PUBLIC PkgConfig::netcdf)
+  target_compile_definitions(stommsLib PRIVATE ENABLE_PPPL)
+elseif()
+  target_link_libraries(stommsLib PUBLIC PkgConfig::netcdf-cxx4) 
 endif()
 
 # Finally add executable
