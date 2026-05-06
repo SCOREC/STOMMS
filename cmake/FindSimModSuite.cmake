@@ -8,7 +8,6 @@
 #  SIMMODSUITE_MINOR_VERSION - the date code from the version string
 #
 # Based on input variables:
-#  SIM_MPI
 #  SIMMETRIX_LIB_DIR
 #  SIMMETRIX_INCLUDE_DIR
 # And environment variable:
@@ -18,11 +17,6 @@
 # VERSION/
 #         include/*.h
 #         lib/ARCHOS/*.a
-
-set(SIM_MPI "" CACHE STRING "MPI implementation used for SimPartitionWrapper")
-if(SIM_MPI MATCHES "^$")
-  message(FATAL_ERROR "SIM_MPI is not defined... libSimPartitionWrapper-$SIM_MPI.a should exist in the SimModSuite lib directory")
-endif()
 
 macro(simLibCheck libs isRequired)
   foreach(lib ${libs})
@@ -84,7 +78,7 @@ string(REGEX REPLACE
   "${SIM_VERSION}")
 
 set(MIN_VALID_SIM_VERSION 15.0.191017)
-set(MAX_VALID_SIM_VERSION 2025.1-250602)
+set(MAX_VALID_SIM_VERSION 2026.0.260404)
 if( ${SKIP_SIMMETRIX_VERSION_CHECK} )
   message(STATUS "Skipping Simmetrix SimModSuite version check."
     " This may result in undefined behavior")
@@ -99,7 +93,7 @@ message(STATUS "Building with SimModSuite ${SIM_DOT_VERSION}")
 set(SIMMODSUITE_LIBS "")
 
 set(SIM_BOOTSTRAP_LIB_NAME
-  SimPartitionedMesh-mpi)
+  SimPartitionedMesh)
 
 simLibCheck("${SIM_BOOTSTRAP_LIB_NAME}" TRUE)
 
@@ -116,7 +110,7 @@ set(SIM_OPT_LIB_NAMES
 
 simLibCheck("${SIM_OPT_LIB_NAMES}" FALSE)
 
-option(SIM_DISCRETE "Use Simmetrix discrete modeling" ON)
+option(SIM_DISCRETE "Use Simmetrix discrete modeling" OFF)
 if (SIM_DISCRETE)
   set(SIM_CAD_LIB_NAMES SimDiscrete ${SIM_CAD_LIB_NAMES})
 endif()
@@ -159,11 +153,13 @@ endif()
 simLibCheck("${SIM_CAD_LIB_NAMES}" TRUE)
 
 set(SIM_CORE_LIB_NAMES
-  SimPartitionedMesh-mpi
-  SimPartitionWrapper-${SIM_MPI}
   SimMeshing
   SimMeshTools
   SimModel)
+
+if (ENABLE_PPPL)
+  list(APPEND SIM_CORE_LIB_NAMES SimLicense)
+endif()
 
 simLibCheck("${SIM_CORE_LIB_NAMES}" TRUE)
 
