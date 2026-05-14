@@ -44,7 +44,7 @@ void EqdskData::setintraCurveSpacingGradPsi()
    // Step 4: Set y coordinate of the pt to y of magnetic axis.
    pt.y = axis.getPoint().y;
 
-   // Step4: Find absolute grad value and save it to the vector.
+   // Step 5: Find absolute grad value and save it to the vector.
    std::array<double, 3> gradPsi = getPsiGradAtPoint(pt); 
    double gradPsiAbs = sqrt(gradPsi[0]*gradPsi[0] + gradPsi[1]*gradPsi[1]);
    intraCurveSpacingGradPsi.push_back(gradPsiAbs); 
@@ -96,11 +96,11 @@ double EqdskData::getPsiDerivativeAtPoint(const Point& pt, int dr, int dz)
 {
   double dy2;
   int ierr;
+  eval_field_deriv(&pt.x, &pt.y, &dr, &dz, &dy2, &ierr, reversePsi);
 
   if (ierr)
     std::cout << "WARNING: psi derivative at location " << pt.x << " , " << pt.y << " could not be found\n";
 
-  eval_field_deriv(&pt.x, &pt.y, &dr, &dz, &dy2, &ierr, reversePsi); 
   return dy2;
 }
 
@@ -261,7 +261,7 @@ bool EqdskData::rk4(Point& point0, Point& point1, double dt, int dimension)
 
   point1 = Point(pt1[0], pt1[1], pt1[2]);  // Point update
 
-  // Step 3: Confirm if it is just a valid point within domain
+  // Step 4: Confirm if it is just a valid point within domain
   if (!insideBox(point1))
     return true;
 
@@ -385,25 +385,27 @@ int EqdskData::findPsiPt(double targetPsi, Point startPoint, std::array<double,2
   }
 }
 
+// Given a target psi and a line (defined by two points), find the point on the line with
+// the target psi. The initial guess point is found using bisection method on the line.
 int EqdskData::findPsiPtOnLine(double targetPsi, const Point& pt1, const Point pt2, Point& finalPoint)
 {
   double tolerance = psiTolerance;
   int maxIter = 100;
 
-  // Evaluate a middle point of the given line as a start point (start)
+  // Step 1: Evaluate a middle point of the given line as a start point (start)
+  // and find psi value at it.
   Point start = {(pt1.x + pt2.x)*0.5, (pt1.y + pt2.y)*0.5};
-
-  // Evaluate psi at start. 
   double psi =  getPsiAtPoint(start);
 
-  // Evaluate a relative vector
+  // Step 2: Evaluate a relative vector and vector absolute length.
   std::array <double, 2> vecRelative = {pt2.x - pt1.x, pt2.y - pt1.y};
-  // Evaluate length between pt1 & pt2
   double len = sqrt(vecRelative[0]*vecRelative[0] + vecRelative[1]*vecRelative[1]);
 
-  // Set direction
+  // Step 3: Set direction vector.
   std::array <double,2> dir = {vecRelative[0]/len, vecRelative[1]/len};
 
+  // Step 4: Keep iterating until we find target psi or exceed the max number
+  // of iterations.
   int iter=0;
   while(fabs(psi - targetPsi) > tolerance && iter++ < maxIter) 
   {
@@ -438,6 +440,8 @@ int EqdskData::findPsiPtOnLine(double targetPsi, const Point& pt1, const Point p
     start.y += dx*dir[1];
     psi = getPsiAtPoint(start);
   }
+
+  // Step 5: Set the fianl point and check if it is at target psi or not.
   finalPoint.x = start.x;
   finalPoint.y = start.y;
   if(fabs(psi - targetPsi) < tolerance) 
@@ -450,15 +454,19 @@ int EqdskData::findPsiPtOnLine(double targetPsi, const Point& pt1, const Point p
 // horizontal line from axis to the box (either inward or outward).
 Point EqdskData::convertPsiToPoint(double psi)
 {
+  // Step 1: Convert psi to normalized psi, and set an initial unit vector. 
   std::array<double,2> dir = {1,0};
-  Point initialGuess;
   double psiNorm = convertPsiToNorm(psi);
 
+  // Step 2: Find an initial guess (halfway of midplane). Depending on the user's
+  // input, its either on outboard midplane of inboard midplace.
+  Point initialGuess;
   if (inboardStart && psiNorm < 1.0)
     initialGuess = Point((axis.getPoint().x + boundingBox[0])*0.5, axis.getPoint().y);
   else if (!inboardStart || psiNorm > 1.0)
     initialGuess = Point((axis.getPoint().x + boundingBox[2])*0.5, axis.getPoint().y); 
 
+  // Step 3: Find point on the psi (still on horizontal line since given dir = [1,0]).
   Point returnPt;
   int returnIndex = findPsiPt(psi, initialGuess, dir, returnPt);
   assert(returnIndex == 1);
@@ -495,7 +503,7 @@ double EqdskData::getInterCurveSpacingLinear(double psiNorm)
   Point lowBoundPt = convertPsiToPoint(convertNormToPsi(psiInputVector[lowBound]));
   Point upBoundPt = convertPsiToPoint(convertNormToPsi(psiInputVector[lowBound+1]));
 
-  // Step 3: Get the spacing between horizontal coordinates of two points.
+  // Step 4: Get the spacing between horizontal coordinates of two points.
   double spacing = fabs(lowBoundPt.x - upBoundPt.x);
   assert (spacing > 0.0);
   return spacing;
@@ -508,6 +516,8 @@ DomainBox EqdskData::getDomainBox()
   return box;
 }
 
+// Checks if a point pt is inside or outside of the bounding box.
+// pt is given as Point.
 bool EqdskData::insideBox(const Point& pt)
 {
    // Step 1: Get the lower and upper limits of rectangular box.
@@ -521,12 +531,15 @@ bool EqdskData::insideBox(const Point& pt)
   return true;
 }
 
+// Checks if a point pt is inside or outside of the bounding box.
+// pt is given as an array.
 bool EqdskData::insideBox(const std::array <double,3>& pt)
 {
   Point point(pt[0], pt[1], pt[2]);
   return insideBox(point);
 }
 
+// Function to get intra curve spacing for the given psi and a starting point.
 double EqdskData::getNodeSpacing(const Point& pt, double psiNorm)
 {
   // Step 1: Get node spacing from psi value.
@@ -579,6 +592,7 @@ double EqdskData::getNodeSpacing(const Point& pt, double psiNorm)
   return meshSize;
 }
 
+// Function to set eqdsk parameters from inputs.
 void EqdskData::setParameters(const Inputs& in)
 {
   reversePsi = in.useReversePsi();

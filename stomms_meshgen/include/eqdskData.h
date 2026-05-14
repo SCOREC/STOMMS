@@ -20,39 +20,40 @@ class EqdskData{
      * @param input: class holding all the input data.
      * @param planeData: planer meta data
      * @param oPoint: primary oPoint.
-     * @param psiCoreBoundary: psi value of last closed flux curve or innermost separatrix (primary)
+     * @param psiCoreBoundary: psi value of last closed flux curve or innermost separatrix (primary).
      */ 
     EqdskData(const Inputs& input, const PlaneMetaData& planeData, const PhysicsPoint& oPoint, const double& psiCoreBoundary);
 
     /**
      * Set the intra curve gradient spacing.
+     * Required when intraCurveSpacingOption == -2 (non-field following case).
      */
     void setintraCurveSpacingGradPsi();    
  
     /**
      * Returns the values of psi at a physical location defined by pt.
-     * @param pt: physical location on the domain defined by struct Point.
+     * @param pt: physical location on the domain defined by the struct Point.
      * @return the psi value at the point.
      */ 
     double getPsiAtPoint(const Point& pt);
 
     /**
      * Returns the values of psi gradients at a physical location defined by pt.
-     * @param pt: physical location on the domain defined by struct Point.
+     * @param pt: physical location on the domain defined the by struct Point.
      * @return an array of psi gradients in each direction(dpsi/dr, dpsi/dz, dpsi/dphi) 
      */ 
     std::array<double,3> getPsiGradAtPoint(const Point& pt);
 
     /**
      * Returns the absolute value of psi gradients at a physical location defined by pt.
-     * @param pt: physical location on the domain defined by struct Point.
+     * @param pt: physical location on the domain defined by the struct Point.
      * @return absolute value of psi gradients. 
      */ 
     double getPsiGradAbsoluteAtPoint(const Point& pt);
 
     /**
      * Returns the psi partial derivative at a physical location defined by pt.
-     * @param pt: physical location on the domain defined by struct Point.
+     * @param pt: physical location on the domain defined by the struct Point.
      * @param dr: order of derivative along R-direction.
      * @param dz: order of derivative along Z-direction.
      * @return partial derivatives at the given point.
@@ -81,7 +82,7 @@ class EqdskData{
     double convertPsiToNorm(double psi);
     
     /**
-     * Function to update point pt, to the nearest point with goalPsi.
+     * Function to update a point pt to the nearest point with goalPsi.
      * @param pt: point to readjust on goalPsi.
      * @param goalPsi: the desired psi value.
      * @return true if found a point with goalPsi and readjusted pt to it.
@@ -93,7 +94,7 @@ class EqdskData{
      * @param ptArray: array defining three coordinates of a physical point.
      * @param dpsi: a vector to contain components of magnetic field (B). Size 2 for 2D, and 3 for 3D.
      * @param dimension: 2 for 2D, 3 for 3D. Any other dimensions will throw an error.
-     * returns 0 for success. 
+     * @return 0 for success. 
      */ 
     int magneticField(std::array <double,3> ptArray, std::vector <double>& dpsi, int dimension);
 
@@ -103,17 +104,17 @@ class EqdskData{
      * @param point1: physical coordinates of the output  point.
      * @param dt: time step-size.
      * @param dimension: 2 for 2D, 3 for 3D. Any other dimensions will throw an error.
-     * returns true = outside of the domain, false = inside of the domain (success). 
+     * @return true = outside of the domain, false = inside of the domain (success). 
      */ 
     bool rk4(Point& point0, Point& point1, double dt, int dimension);
 
     /**
      * To find a next point by going around on edges of box boundary when tracing point hits a 
      * box boundary using Newton method.
-     * @param[in,out] pt: a position to be adjusted.
+     * @param pt: a point to be adjusted.
      * @param psi: a psi value for the adjusted position to have.
      * @param side: an indicator of a side of a box boundary where tracing point hits.
-     * @return true if the position with psi is found on an edge of the box
+     * @return true if the position with psi is found on an edge of the box.
      */ 
     bool findNextPsiPointOnBoundary(Point& pt, double psi, int side);
 
@@ -126,11 +127,23 @@ class EqdskData{
      * @return 1 for success, 0 otherwise.
      */ 
     int findPsiPt(double targetPsi, Point startPoint, std::array<double,2> dir, Point& finalPoint);
+
+    /**
+     * Given a target psi and a line (defined by two points), find the point on the line with
+     * the target psi. The initial guess point is found using bisection method on the line.
+     * @param targetPsi: psi value on which the point is desired.
+     * @param pt1: start point of the line.
+     * @param pt2: end point of the line.
+     * @param finalPoint: the point with target psi value on the straight line.
+     * @return 1 for success, 0 otherwise.
+     */ 
     int findPsiPtOnLine(double targetPsi, const Point& pt1, const Point pt2, Point& finalPoint);
 
     /**
      * Given the psi value, this function finds the coordinates of the point on a 
      * horizontal line from axis to the box (either inward or outward).
+     * @param psi: target psi value.
+     * @return: Point on outboard (or inboard) midplane defined by a horizontal line.
      */ 
     Point convertPsiToPoint(double psi);
 
@@ -145,7 +158,7 @@ class EqdskData{
      * Function to get intra curve spacing for the given psi and a starting point.
      * @pt: A starting point (needed in non-field following case). TO-DO: Make it optional in future.
      * @param psiNorm: normalized psi value.
-     * @return returns desired node spacing.
+     * @return desired node spacing.
      */ 
     double getNodeSpacing(const Point& pt, double psiNorm);
  
@@ -156,14 +169,14 @@ class EqdskData{
 
     /**
      * Checks if a point pt is inside or outside of the bounding box.
-     * @param pt: point to check.
+     * @param pt: point (defined by struct Point) to check.
      * @return true if point is inside, false for outside.
      */
     bool insideBox(const Point& pt);
     
     /**
      * Checks if a point pt is inside or outside of the bounding box.
-     * @param pt: point to check.
+     * @param pt: point (defined by an array of size 3) to check.
      * @return true if point is inside, false for outside.
      */
     bool insideBox(const std::array <double,3>& pt);
@@ -230,6 +243,7 @@ class EqdskData{
     const bool& useWallCurve() const;
   private:
   // input data.
+  // Check the input parameter document for the description of these parameters.
   bool reversePsi;
   bool inboardStart;
   bool fluxRandomStart;

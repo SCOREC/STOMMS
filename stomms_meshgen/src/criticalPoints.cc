@@ -125,8 +125,8 @@ void filterOutsideTheWallPoints(std::vector <Point>& candidates, const std::vect
 // Given a vector of critical points, print them out.
 void printCriticalPoints(const std::vector <PhysicsPoint>& criticalPoints)
 {
-  // Step 1: Determine the type of critical point. This could be check by checking the type
-  // of one of the points in the vector. Print out the type.
+  // Step 1: Determine the type of critical point. This could be checked by checking 
+  // the type of one of the points in the vector. Print out the type.
   std::string pointType;
   if (criticalPoints.size() > 0)
   {

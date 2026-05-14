@@ -7,7 +7,7 @@
 #include <cmath>
 #include <algorithm>
 
-/*
+/**
  * Basic model vertices types.
  */
 enum class PhysicsPointType{
@@ -16,7 +16,7 @@ enum class PhysicsPointType{
   None
 };
 
-/*
+/**
  * Physics point contains both the physical coordinate (Point) and physics
  * properties such as point type, psi values. Add more point properties here
  * if needed.
@@ -25,25 +25,25 @@ class PhysicsPoint{
   public:
     PhysicsPoint(){};
 
-    /*
+    /**
      * Constructor.
-     * const Point& point (in): physical coordinates of the point defined in Point.
-     * const double& psiAtPoint (in): psi value at the point.
-     * const PhysicsPointType pType (in): physics type of the point (oPoint, xPoint).
+     * @param point: an object of Point containing the physical coordinates.
+     * @param psiAtPoint: psi value at the point.
+     * @param pType: physics type of the point (OPoint, XPoint, None).
      */
     PhysicsPoint(const Point& point, const double& psiAtPoint, const PhysicsPointType pType);
 
-    /*
-     * Function to get physical coordinates of a point.
+    /**
+     * Function to get physical coordinates of a physics point.
      */
     const Point& getPoint() const;
 
-    /*
-     * Function to get psi value at a point.
+    /**
+     * Function to get psi value of a physics point.
      */
     const double& getPsi() const;
 
-    /*
+    /**
      * Function to get point type.
      */
     const PhysicsPointType& getPointType() const;
@@ -55,26 +55,26 @@ class PhysicsPoint{
 
 // Helper Functions:
 
-/*
+/**
  * If the given Point pt is slightly outside the domain box due to 
  * floating point inconsistencies, readjust it to the boundary of box.
- * Point& pt (in, out): point to be tested and adjusted.
- * const std::array<double,4>& box (in): domain box boundary. 
+ * @param pt: point to be tested and adjusted.
+ * @param box: domain box boundary defined by an array of size 4. 
  */
 void checkBounds(Point& pt, const std::array<double,4>& box);
 
-/*
+/**
  * Check if the given point pt is inside or outside of the domain box.
- * const Point& pt (in): point to be tested.
- * const std::array<double,4>& box (in): domain box boundary.
- * returns true if the point is inside the box.
+ * @param pt: point to be tested.
+ * @param box: domain box boundary defined by an array of size 4.
+ * @return true if the point is inside the box, false otherwise.
  */
 bool inDomain(const Point& pt, const std::array<double,4>& box);
 
-/*
+/**
  * Given a vector of points, filter the unique points and get rid of duplicates.
- * const std::vector <Point>& candidates (in): a vector on input points.
- * returns a vector of filtered points with no duplicates.
+ * @param candidates: a vector on input points.
+ * @return a vector of filtered points with no duplicates.
  */
 std::vector <Point> filterUniquePoints(const std::vector <Point>& candidates);
 
@@ -86,17 +86,18 @@ std::vector <Point> filterUniquePoints(const std::vector <Point>& candidates);
 
 void filterOutsideTheWallPoints(std::vector <Point>& candidates, const std::vector <Point>& wall);
 
-/*
+/**
  *  Given a vector of critical points, print them out for execution report.
- *  const std::vector <PhysicsPoint>& criticalPoints (in) : a vector of critical points.
+ *  @param criticalPoints: a vector of critical points.
  */
 void printCriticalPoints(const std::vector <PhysicsPoint>& criticalPoints);
 
-/*
- * Given two points, compare their pis values. If psi of pt1 is less than or equal to
+/**
+ * Given two points, compare their psi values. If psi of pt1 is less than or equal to
  * psi of pt 2, return true.
- * const PhysicsPoint& pt1 (in): first point
- * const PhysicsPoint& pt2 (in): second point
+ * @param pt1: first physics point.
+ * @param pt2: second physics point.
+ * @return true if psi value of pt1 is less or equal to psi value of pt2. Else, false.
  */
 bool comparePhysicsPoints(const PhysicsPoint& pt1, const PhysicsPoint& pt2);
 #endif
