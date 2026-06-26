@@ -659,13 +659,18 @@ subroutine get_psi_array(psiarray)
 end subroutine get_psi_array
 
 !*******************************************************
-subroutine get_poloidal_current(currentarray)
+subroutine get_poloidal_current(currentarray, eqdTag)
 !*******************************************************
   use eqd_module
   implicit none
+  integer, intent(in) :: eqdTag
   real(kind=8), intent(out), dimension(size(eqd_psi_grid)) :: currentarray
   
-  currentarray = abs(eqd_fpol)
+  if(eqdTag .eq. 1) then
+    currentarray = abs(eq_I)
+  else
+    currentarray = abs(eqd_fpol)
+  endif
 end subroutine get_poloidal_current
 
 !*******************************************************

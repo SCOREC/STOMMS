@@ -232,6 +232,7 @@ class EqdskData{
   private:
   // input data.
   bool reversePsi;
+  int eqdTag;
   bool inboardStart;
   bool fluxRandomStart;
   int numPlanes;

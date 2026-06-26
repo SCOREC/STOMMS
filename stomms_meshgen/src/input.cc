@@ -20,6 +20,7 @@ void Inputs::setDefaultValues()
 
   // Input parameters - EQDSK
   reversePsi = false;
+  eqdTag = 0;
   eqdPsiFactor = 1.0;
   numPlanes = 64;
   inboardStart = false;
@@ -283,19 +284,17 @@ void Inputs::initializeEqdskFile()
   int strLength = eqdskFile.length();
   set_eqd_psi_factor_(&eqdPsiFactor);
 
-  // Step 2: Check if the file is eqd (no wall) or gFile,
-  // and set the tag. Then laod the file.
-  int eqd_tag = 0;
-
-  // Step 2.1: If last 4 character of file name are ".eqd", its an eqd file.
+  // Step 2: Check if the file is eqd (no wall) or gFile, and set the tag. 
+  // Then laod the file. If last 4 character of file name are ".eqd", its 
+  // an eqd file.
   if(eqdskFile.compare(eqdskFile.size()-4,4,".eqd")==0)
   {  // eqd format
-    eqd_tag=1;
+    eqdTag=1;
     readeqdfile_(eqdskFile.c_str(), &strLength);
   }
   else // else, its a gFile
   { // efit data file
-    eqd_tag=0;
+    eqdTag=0;
     readgfile_(eqdskFile.c_str(), &strLength);
   }
 
@@ -304,7 +303,7 @@ void Inputs::initializeEqdskFile()
   if(reversePsi) rev = 1;
 
   // Step 5: Spline fitting of the discrete 2D data on background grid.
-  init_ez_spline_(&rev, &eqd_tag);
+  init_ez_spline_(&rev, &eqdTag);
 }
 
 // Function to return limiter (wall curve) file name.
@@ -335,6 +334,12 @@ const InputData& Inputs::getInputData() const
 const bool& Inputs::useReversePsi() const
 {
   return reversePsi;
+}
+
+// Function to return the tag of the equilibrium file.
+const int& Inputs::getEqdTag() const
+{
+  return eqdTag;
 }
 
 // Returns the number of tokamak planes for magnetic field line tracing.

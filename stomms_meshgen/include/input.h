@@ -61,10 +61,15 @@ class Inputs{
      */ 
     const ReactorType& getReactorType() const;
 
-    /*
+    /**
      * Function to check if psi is reverse or not.
      */
     const bool& useReversePsi() const;
+
+    /**
+     * Function to return the tag of the equilibrium file.
+     */ 
+    const int& getEqdTag() const;
 
     /**
      * Returns the number of tokamak planes for magnetic field line tracing.
@@ -182,6 +187,7 @@ class Inputs{
 
     // Variables for internal use
     ReactorType reactorType;
+    int eqdTag;
  
    /*
      * Hierarchy in Input data to understand how to call data from other parts of code.

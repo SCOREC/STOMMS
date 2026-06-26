@@ -180,3 +180,38 @@ const std::vector <double>& GridFieldData::getDoubleFieldData(const FieldType& f
     exit(1);
   }  
 }
+
+const std::vector <double>& GridFieldData::getPsiArray() const
+{
+  return psiArray;
+}
+
+const std::vector <double>& GridFieldData::getPoloidalCurrentArray() const
+{
+  return poloidalCurrentArray;
+}
+
+const std::vector <double>& GridFieldData::getLimiterPointsR() const
+{
+  return rLimiterPoints;
+}
+
+const std::vector <double>& GridFieldData::getLimiterPointsZ() const
+{
+  return zLimiterPoints;
+}
+
+const std::vector <double>& GridFieldData::getBdryPointsR() const
+{
+  return rBdryPoints;
+}
+
+const std::vector <double>& GridFieldData::getBdryPointsZ() const
+{
+  return zBdryPoints;
+}
+
+const std::vector <double>& GridFieldData::getDomainBox() const
+{
+  return domainBox;
+}

@@ -68,7 +68,7 @@ void get_sep_pts_(double * x, double* y, int* numPts);
 void get_num_sep_pts_(int* n);
 void get_psi_array_size_(int* npsi);
 void get_psi_array_(double* psiarray);
-void get_poloidal_current_(double* currentarray);
+void get_poloidal_current_(double* currentarray, int* eqdTag);
 
 /*
  * I never had to use the remaining functions in TOMMS. I will add the explanation

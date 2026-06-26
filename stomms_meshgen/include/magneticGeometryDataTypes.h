@@ -175,6 +175,13 @@ class GridFieldData{
     const std::vector <double>& getRPoints() const;
     const std::vector <double>& getZPoints() const;
     const std::vector <double>& getDoubleFieldData(const FieldType& fieldType) const;
+    const std::vector <double>& getPsiArray() const;
+    const std::vector <double>& getPoloidalCurrentArray() const;
+    const std::vector <double>& getLimiterPointsR() const;
+    const std::vector <double>& getLimiterPointsZ() const;
+    const std::vector <double>& getBdryPointsR() const;
+    const std::vector <double>& getBdryPointsZ() const;
+    const std::vector <double>& getDomainBox() const;
   private:
     std::vector <double> rPoints;
     std::vector <double> zPoints;

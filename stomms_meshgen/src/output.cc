@@ -433,12 +433,65 @@ void StommsOutput::writeGridInformation(adios2::IO& io, adios2::Engine& writer)
   // Step 3: Read the grid points (r and z) and write them in adios2 file.
   std::vector <double> rPoints = gridFieldData.getRPoints();
   std::vector <double> zPoints = gridFieldData.getZPoints();
-  varName = name + "rGridPoints";
+  varName = name + "gridPointsR";
   writeAdios2Array(io, writer, rPoints, 1, varName);
-  varName = name + "zGridPoints";
+  varName = name + "gridPointsZ";
   writeAdios2Array(io, writer, zPoints, 1, varName);
 
   // Step 4: Write psi Grid Data to adios2 file
   varName = name + "psiGrid";
   writeAdios2Array(io, writer, psiField, zPoints.size(), varName);
+
+  // Step 5: Write psi and poloidal current arrays
+  writeFieldArraysToGrid(io, writer, name);
+
+  // Step 6: Write physical boundaries data.
+  writePhysicalDataToGrid(io, writer, name);
+}
+
+void StommsOutput::writeFieldArraysToGrid(adios2::IO& io, adios2::Engine& writer, std::string& name)
+{
+  std::string varName;  // name of the variable to be written to adios2  
+
+  // Step 1: Read psi array and write it to adios2 file
+  std::vector <double> psiArray = gridFieldData.getPsiArray();
+  varName = name + "psi";
+  writeAdios2Array(io, writer, psiArray, 1, varName);
+   
+  // Step 2: Read poloidal current and write it to adios2 file
+  std::vector <double> currentArray = gridFieldData.getPoloidalCurrentArray();
+  varName = name + "poloidalCurrent";
+  writeAdios2Array(io, writer, currentArray, 1, varName);
+}
+
+void StommsOutput::writePhysicalDataToGrid(adios2::IO& io, adios2::Engine& writer, std::string& name)
+{
+  std::string varName;  // name of the variable to be written to adios2
+
+  // Step 1: Write bounding box to the adios2 file
+  // rMin = box[0], zMin = box[1], rMax = box[2], zMax = box[3]
+  std::vector <double> box = gridFieldData.getDomainBox();
+  varName = name + "DomainBox";
+  writeAdios2Array(io, writer, box, 1, varName);
+
+  // Step 2: Write wall curve from the eqdsk file. Might be different from 
+  // the wall curve we have used in processing since it could come from 
+  // external file instead of eqdsk file.
+  std::vector <double> rLimiterPoints = gridFieldData.getLimiterPointsR();
+  std::vector <double> zLimiterPoints = gridFieldData.getLimiterPointsZ();
+  varName = name + "limiterPointsR";
+  writeAdios2Array(io, writer, rLimiterPoints, 1, varName);
+  varName = name + "limiterPointsZ";
+  writeAdios2Array(io, writer, zLimiterPoints, 1, varName);
+
+  // Step 3: Write seperatrix points from eqdsk file. This is the different 
+  // from the separatrix curve points we traced. These are taken directly 
+  // from eqdsk utility code. We might not need them in adios2 file.
+  std::vector <double> rBdryPoints = gridFieldData.getBdryPointsR();
+  std::vector <double> zBdryPoints = gridFieldData.getBdryPointsZ();
+  varName = name + "boundaryPointsR";
+  writeAdios2Array(io, writer, rBdryPoints, 1, varName);
+  varName = name + "boundaryPointsZ";
+  writeAdios2Array(io, writer, zBdryPoints, 1, varName);
+
 }

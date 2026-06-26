@@ -73,6 +73,9 @@ void EqdskData::setEqdskGrid()
 
   // Step 4: Set individual field arrays on the grid data.
   setEqdskArraysOnGridData();
+
+  // Step 5: Set Physical data on the grid (plasma boundary, wall, box)
+  setPhysicalDataOnGridData();
 }
 
 void EqdskData::setEqdskArraysOnGridData()
@@ -88,11 +91,8 @@ void EqdskData::setEqdskArraysOnGridData()
 
   // Step 3: Get poloidal current data and set it to eqdskGrid.
   std::vector <double> currentArray(numPsi);
-  get_poloidal_current_(currentArray.data());
+  get_poloidal_current_(currentArray.data(), &eqdTag);
   eqdskGrid.setPoloidalCurrentArray(currentArray);
-
-  // Step 4: Set Physical data on the grid (plasma boundary, wall, box)
-  setPhysicalDataOnGridData();  
 }
 
 void EqdskData::setPhysicalDataOnGridData()
@@ -653,6 +653,7 @@ const GridFieldData& EqdskData::getEqdskGridData()
 void EqdskData::setParameters(const Inputs& in)
 {
   reversePsi = in.useReversePsi();
+  eqdTag = in.getEqdTag();
   inboardStart = in.useInboardStart();
   fluxRandomStart = in.useFluxRandomStart();
   numPlanes = in.getNumTokamakPlanes();
