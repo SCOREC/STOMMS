@@ -58,14 +58,22 @@ void eval_b_val_(const double* r, const double* z, double* Bval, int *ierr);
 void get_b_box_(double * bbox);
 
 /*
- * I never had to use the remaining functions in TOMMS. I will add the explanation
- * in case, we end up using them.
+ * NEW DEVELOPMENT FUNCTIONS. 
  */
 void get_psi_grid_num_(int* mw, int* mh);
 void get_psi_and_its_grid_(double* rgrid, double* zgrid, double* psirz);
 void get_bd_pts_(double * x, double*y, int* numPts);
 void get_num_bd_pts_(int* n);
 void get_sep_pts_(double * x, double* y, int* numPts);
+void get_num_sep_pts_(int* n);
+void get_psi_array_size_(int* npsi);
+void get_psi_array_(double* psiarray);
+void get_poloidal_current_(double* currentarray);
+
+/*
+ * I never had to use the remaining functions in TOMMS. I will add the explanation
+ * in case, we end up using them.
+ */
 void get_x_pt_(double* xPt);
 void get_axis_(double* axisPt);
 void remove_duplicate_pt_ (double *inputx, double* inputy, int* numpt);

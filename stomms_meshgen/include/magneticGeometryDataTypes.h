@@ -166,7 +166,12 @@ class GridFieldData{
     GridFieldData(){};
     GridFieldData(const std::vector <double>& pointsR, const std::vector <double>& pointsZ);
     void setDoubleFieldOnGrid(const std::vector <double>& field, const FieldType& fieldType); 
-
+    void setPsiArray(const std::vector <double>& psi);
+    void setPoloidalCurrentArray(const std::vector <double>& poloidalCurrent);
+    void setLimiter(const std::vector <double>& rLim, const std::vector <double>& zLim);
+    void setPlasmaBoundary(const std::vector <double>& rBdry, const std::vector <double>& zBdry);
+    void setDomainBox(const std::vector <double>& box);
+ 
     const std::vector <double>& getRPoints() const;
     const std::vector <double>& getZPoints() const;
     const std::vector <double>& getDoubleFieldData(const FieldType& fieldType) const;
@@ -174,6 +179,21 @@ class GridFieldData{
     std::vector <double> rPoints;
     std::vector <double> zPoints;
     std::vector <double> psiField;
+
+    // 1D Arrays
+    std::vector <double> psiArray;
+    std::vector <double> poloidalCurrentArray;
+  
+    // Physical coordinates (limiter and plasma boundary points)
+    // Limiter is basically wall curve given in eqdsk file.
+    // plasma boundary (bdry) is separatrix boundary given in
+    // eqdsk (not the one we traced from our calculations)
+    // NOTE: Need to discuss if XGC needs this info
+    std::vector <double> rLimiterPoints;
+    std::vector <double> zLimiterPoints;
+    std::vector <double> rBdryPoints;
+    std::vector <double> zBdryPoints;
+    std::vector <double> domainBox;
 };
 
 #endif

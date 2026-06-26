@@ -267,6 +267,13 @@ class EqdskData{
   void setEqdskGrid();
 
   /**
+   * Function to set individual arrays on Eqdsk Grid Data.
+   */
+  void setEqdskArraysOnGridData(); 
+  
+  void setPhysicalDataOnGridData(); 
+  
+  /**
    * Function to set eqdsk parameters from inputs.
    */ 
   void setParameters(const Inputs& in);

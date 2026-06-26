@@ -121,6 +121,33 @@ void GridFieldData::setDoubleFieldOnGrid(const std::vector <double>& field, cons
   }
 }
 
+void GridFieldData::setPsiArray(const std::vector <double>& psi)
+{
+  psiArray = psi;
+}
+
+void GridFieldData::setPoloidalCurrentArray(const std::vector <double>& poloidalCurrent)
+{
+  poloidalCurrentArray = poloidalCurrent;
+}
+
+void GridFieldData::setLimiter(const std::vector <double>& rLim, const std::vector <double>& zLim)
+{
+  rLimiterPoints = rLim;
+  zLimiterPoints = zLim;
+}
+
+void GridFieldData::setPlasmaBoundary(const std::vector <double>& rBdry, const std::vector <double>& zBdry)
+{
+  rBdryPoints = rBdry;
+  zBdryPoints = zBdry;
+}
+
+void GridFieldData::setDomainBox(const std::vector <double>& box)
+{
+  domainBox = box;
+}
+
 const std::vector <double>& GridFieldData::getRPoints() const
 {
   return rPoints;

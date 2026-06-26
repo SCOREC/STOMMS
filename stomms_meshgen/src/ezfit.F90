@@ -639,6 +639,36 @@ subroutine get_psi_and_its_grid( rgrid, zgrid, psirz )
 end subroutine get_psi_and_its_grid
 
 !*******************************************************
+subroutine get_psi_array_size(npsi)
+!*******************************************************
+  use eqd_module
+  implicit none
+  integer, intent(out) :: npsi
+
+  npsi = size(eqd_psi_grid)
+end subroutine get_psi_array_size
+
+!*******************************************************
+subroutine get_psi_array(psiarray)
+!*******************************************************
+  use eqd_module
+  implicit none
+  real(kind=8), intent(out), dimension(size(eqd_psi_grid)) :: psiarray
+
+  psiarray = eqd_psi_grid
+end subroutine get_psi_array
+
+!*******************************************************
+subroutine get_poloidal_current(currentarray)
+!*******************************************************
+  use eqd_module
+  implicit none
+  real(kind=8), intent(out), dimension(size(eqd_psi_grid)) :: currentarray
+  
+  currentarray = abs(eqd_fpol)
+end subroutine get_poloidal_current
+
+!*******************************************************
 subroutine set_eqd_psi_factor (fac)
 !*******************************************************
   use eqd_module
@@ -901,6 +931,15 @@ subroutine get_bd_pts (x,y, numPts)
   x(1:numPts)=eqd_rlim(1:numPts);
   y(1:numPts)=eqd_zlim(1:numPts);
 end subroutine get_bd_pts
+
+!*******************************************************
+subroutine get_num_sep_pts(n)
+!*******************************************************
+  use eqd_module
+  implicit none
+  integer, intent(out) :: n
+  n = eqd_nbdry
+end subroutine get_num_sep_pts
 
 !*******************************************************
 subroutine get_num_bd_pts(n)

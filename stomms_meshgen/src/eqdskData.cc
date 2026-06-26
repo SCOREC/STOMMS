@@ -70,6 +70,51 @@ void EqdskData::setEqdskGrid()
   // Step 3: Set the eqdsk grid for local use in the code.
   eqdskGrid = GridFieldData(r, z);
   eqdskGrid.setDoubleFieldOnGrid(psi, FieldType::Psi);
+
+  // Step 4: Set individual field arrays on the grid data.
+  setEqdskArraysOnGridData();
+}
+
+void EqdskData::setEqdskArraysOnGridData()
+{
+  // Step 1: Get array size.
+  int numPsi;
+  get_psi_array_size_(&numPsi);
+
+  // Step 2: Get psi data and set it to eqdskGrid.
+  std::vector <double> psiArray(numPsi);
+  get_psi_array_(psiArray.data());
+  eqdskGrid.setPsiArray(psiArray);
+
+  // Step 3: Get poloidal current data and set it to eqdskGrid.
+  std::vector <double> currentArray(numPsi);
+  get_poloidal_current_(currentArray.data());
+  eqdskGrid.setPoloidalCurrentArray(currentArray);
+
+  // Step 4: Set Physical data on the grid (plasma boundary, wall, box)
+  setPhysicalDataOnGridData();  
+}
+
+void EqdskData::setPhysicalDataOnGridData()
+{
+  // Step 1: Set the boundary box
+  std::vector <double> domainBox(4);
+  get_b_box_(domainBox.data());
+  eqdskGrid.setDomainBox(domainBox);
+
+  // Step 2: Set the wall curve (limiter)
+  int numLimPts;
+  get_num_bd_pts_(&numLimPts);
+  std::vector<double> rLimPoints(numLimPts), zLimPoints(numLimPts);
+  get_bd_pts_(rLimPoints.data(), zLimPoints.data(), &numLimPts);
+  eqdskGrid.setLimiter(rLimPoints, zLimPoints);
+
+  // Step 3: Set the plasma boundary from eqdsk.
+  int numBdryPts;
+  get_num_sep_pts_(&numBdryPts);
+  std::vector<double> rBdryPoints(numBdryPts), zBdryPoints(numBdryPts);
+  get_sep_pts_(rBdryPoints.data(), zBdryPoints.data(), &numBdryPts);
+  eqdskGrid.setPlasmaBoundary(rBdryPoints, zBdryPoints);
 }
 
 // Returns the values of psi at a physical location defined by pt.
