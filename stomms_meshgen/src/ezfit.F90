@@ -649,6 +649,7 @@ subroutine get_psi_array_size(npsi)
 end subroutine get_psi_array_size
 
 !*******************************************************
+! Function to return psi array
 subroutine get_psi_array(psiarray)
 !*******************************************************
   use eqd_module
@@ -659,6 +660,7 @@ subroutine get_psi_array(psiarray)
 end subroutine get_psi_array
 
 !*******************************************************
+! Function to return poloidal current array
 subroutine get_poloidal_current(currentarray, eqdTag)
 !*******************************************************
   use eqd_module

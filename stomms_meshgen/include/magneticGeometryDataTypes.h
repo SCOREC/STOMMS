@@ -136,7 +136,7 @@ class CurveContainer{
     std::vector <Edge> wallEdges;  // model edges on wall curve
 };
 
-/*
+/**
  * The set of surfaces can be classified into seven different types depending on the physics
  * they corresponds to. The physics regions can be increased/decreased as we move forward.
 */ 
@@ -160,29 +160,115 @@ enum class FieldType{
 
 /**
  * A class to save data on a grid. We can add different fields to the same Grid.
- */
+ * Currently supports reading grid data from eqdsk/eqd files.
+*/
 class GridFieldData{
   public:
+    /**
+     * Default constructor.
+    */ 
     GridFieldData(){};
+    
+    /**
+     * Constructor to create a physical grid. It adds no field data to grid.
+     * @param pointsR: Coordinates of the points in the R direction.
+     * @param pointsZ: Coordinates of the points in the Z direction.
+    */ 
     GridFieldData(const std::vector <double>& pointsR, const std::vector <double>& pointsZ);
+
+    /**
+     * Function to set a field of type double on the grid.
+     * @param field: a vector of the field values on the grid.
+     * @param fieldType: field type. See class FieldType for details.
+    */  
     void setDoubleFieldOnGrid(const std::vector <double>& field, const FieldType& fieldType); 
+
+    /**
+     * Function to set array of psi values from the magnetic field source file.
+     * @param psi: a vector of psi values.
+    */ 
     void setPsiArray(const std::vector <double>& psi);
+
+    /**
+     * Function to set an array of poloidal current values from the magnetic field source file.
+     * @param poloidalCurrent: a vector of poloidal current values.
+    */ 
     void setPoloidalCurrentArray(const std::vector <double>& poloidalCurrent);
+
+    /**
+     * Function to set raw limiter data (wall curve) to the grid data.
+     * @param rLim: R coordinates of the limiter points.
+     * @param zLim: Z coordinates of the limiter points.
+    */ 
     void setLimiter(const std::vector <double>& rLim, const std::vector <double>& zLim);
+
+    /**
+     * Function to set plasma boundary (separatrix) data to the grid data.
+     * @param rBdry: R coordinates of the poloidal boundary.
+     * @param zBdry: Z coordinates of the poloidal boundary. 
+    */ 
     void setPlasmaBoundary(const std::vector <double>& rBdry, const std::vector <double>& zBdry);
+
+    /**
+     * Function to set the domain box to grid data.
+     * @param box: A vector of size = 4 containing rMin, yMin, rMax, yMax.
+    */   
     void setDomainBox(const std::vector <double>& box);
  
+    /**
+     * Function to return r grid points.
+    */ 
     const std::vector <double>& getRPoints() const;
+
+    /**
+     * Function to return z grid points.
+    */ 
     const std::vector <double>& getZPoints() const;
+
+    /**
+     * Function to return a field of type double.
+     * @param fieldType: desired output field.
+     * @return a vector of the desired field.
+    */ 
     const std::vector <double>& getDoubleFieldData(const FieldType& fieldType) const;
+
+    /**
+     * Function to return psi field array.
+    */ 
     const std::vector <double>& getPsiArray() const;
+
+    /**
+     * Function to return poloidal current field vector.
+    */ 
     const std::vector <double>& getPoloidalCurrentArray() const;
+
+    /**
+     * Function to return r coordinate of limiter points.
+    */ 
     const std::vector <double>& getLimiterPointsR() const;
+
+    /**
+     * Function to return z coordinate of limiter points.
+    */ 
     const std::vector <double>& getLimiterPointsZ() const;
+
+    /**
+     * Function to return r coordinate of physical boundary.
+    */ 
     const std::vector <double>& getBdryPointsR() const;
+
+    /**
+     * Function to return z coordinate of physical boundary. 
+    */  
     const std::vector <double>& getBdryPointsZ() const;
+
+    /**
+     * Function to return a vector of size 4 for the rectangular domain box.
+     * rMin = box[0], zMin = box[1], rMax = box[2], zMax = box[3]
+    */ 
     const std::vector <double>& getDomainBox() const;
   private:
+    // Grid Data
     std::vector <double> rPoints;
     std::vector <double> zPoints;
     std::vector <double> psiField;

@@ -47,14 +47,14 @@ void EqdskData::setintraCurveSpacingGradPsi()
    // Step 4: Set y coordinate of the pt to y of magnetic axis.
    pt.y = axis.getPoint().y;
 
-   // Step4: Find absolute grad value and save it to the vector.
+   // Step 5: Find absolute grad value and save it to the vector.
    std::array<double, 3> gradPsi = getPsiGradAtPoint(pt); 
    double gradPsiAbs = sqrt(gradPsi[0]*gradPsi[0] + gradPsi[1]*gradPsi[1]);
    intraCurveSpacingGradPsi.push_back(gradPsiAbs); 
  }
 }
 
-// Set the eqdsk grid data.
+// Function to set the eqdsk data.
 void EqdskData::setEqdskGrid()
 {
   // Step 1: Get the grid size.
@@ -78,6 +78,8 @@ void EqdskData::setEqdskGrid()
   setPhysicalDataOnGridData();
 }
 
+// Function to set individual arrays on Eqdsk Grid Data.
+// Currently sets psi and poloidal current data.
 void EqdskData::setEqdskArraysOnGridData()
 {
   // Step 1: Get array size.
@@ -95,6 +97,9 @@ void EqdskData::setEqdskArraysOnGridData()
   eqdskGrid.setPoloidalCurrentArray(currentArray);
 }
 
+// Function to set physical coordinates of different entities directlly 
+// from eqdsk file. Adds bounding box data, wall curve (limiter) points, 
+// and plasma boundary (separatrix) curve to grid data.
 void EqdskData::setPhysicalDataOnGridData()
 {
   // Step 1: Set the boundary box
@@ -645,6 +650,7 @@ double EqdskData::getNodeSpacing(const Point& pt, double psiNorm)
   return meshSize;
 }
 
+// Function to return eqdsk grid data.
 const GridFieldData& EqdskData::getEqdskGridData()
 {
   return eqdskGrid;

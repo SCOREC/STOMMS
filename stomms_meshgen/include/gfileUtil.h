@@ -57,17 +57,71 @@ void eval_b_val_(const double* r, const double* z, double* Bval, int *ierr);
  */
 void get_b_box_(double * bbox);
 
-/*
- * NEW DEVELOPMENT FUNCTIONS. 
+/**
+ * Function to get the number of grid points on the background equilibrium grid.
+ * @param mw: number of points in R direction.
+ * @param mh: number of points in Z direction.
  */
 void get_psi_grid_num_(int* mw, int* mh);
+
+/**
+ * Function to get the grid point coordinates and psi grid values.
+ * @param rgrid: coordinates of points in the R direction.
+ * @param zgrid: coordinates of points in the Z direction.
+ * @param psirz: psi field on the grid points (for mw*nh number of points)
+ */
 void get_psi_and_its_grid_(double* rgrid, double* zgrid, double* psirz);
+
+/**
+ * Function to get wall curve points from eqdsk file.
+ * @param x: r coordinates of points.
+ * @param y: z coordinates of points.
+ * @param numPts: total number of points.
+ */
 void get_bd_pts_(double * x, double*y, int* numPts);
+
+/**
+ * Function to get total number of wall (limiter) points from eqdsk.
+ * @param n: number of points. 
+ */
 void get_num_bd_pts_(int* n);
+
+/**
+ * Function to get separatrix (plasma boundary) points from eqdsk file.
+ * @param x: r coordinates of points.
+ * @param y: z coordinates of points.
+ * @param numPts: total number of points.
+ */
 void get_sep_pts_(double * x, double* y, int* numPts);
+
+/**
+ * Function to get total number of plasma boundary points from eqdsk.
+ * @param n: number of points.
+ */
 void get_num_sep_pts_(int* n);
+
+/**
+ * Function to get the size of psi array (starts frm oPoints to plasma boundary).
+ * It is different than the psi background grid.
+ * @param npsi: number of psi points given in the eqdsk file.
+ */
 void get_psi_array_size_(int* npsi);
+
+/**
+ * Function to get the psi array (starts frm oPoints to plasma boundary).
+ * It is different than the psi background grid.
+ * @param psiarray: array to contain output psi values.
+ */
 void get_psi_array_(double* psiarray);
+
+/**
+ * Function to get poloidal current values from eqdsk values.
+ * Number of current values is equal to number of psi values.
+ * size of psi array == size of currentarray.
+ * @param currentarray: array to hold output poloidal current data.
+ * @param eqdTag: set eqdTag = 1, if input equilibrium file is eqd, else
+ *                eqdTag = 0 for eqdsk files.
+ */
 void get_poloidal_current_(double* currentarray, int* eqdTag);
 
 /*

@@ -71,7 +71,7 @@ class MagneticGeometryForStellarator: public MagneticGeometry{
     std::map<int , std::vector<PhysicsPoint>> xPoints;  // map between plane number and XPoints
     VmecData vmec;  // VMEC data (Stellarator core region)
     ModelVmec modelVmec;  // model data associated with vmec geometry  
-    GridFieldData gridData;   
+    GridFieldData gridData;  // background grid data  
  
     /**
      * Read input VMEC file and store relevant data in struct vmecData.

@@ -298,11 +298,11 @@ void Inputs::initializeEqdskFile()
     readgfile_(eqdskFile.c_str(), &strLength);
   }
 
-  // Step 4: If reverse psi, flip the signs of field.
+  // Step 3: If reverse psi, flip the signs of field.
   int rev = 0;
   if(reversePsi) rev = 1;
 
-  // Step 5: Spline fitting of the discrete 2D data on background grid.
+  // Step 4: Spline fitting of the discrete 2D data on background grid.
   init_ez_spline_(&rev, &eqdTag);
 }
 

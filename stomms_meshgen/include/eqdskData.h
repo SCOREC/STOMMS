@@ -263,15 +263,21 @@ class EqdskData{
   // Internal Functions
   /**
    * Function to set eqdsk grid data.
-   * Only sets psi grid at the moment.
+   * Sets psi grid data, psi and poloidal current arrays, and physical geometry data.
    */   
   void setEqdskGrid();
 
   /**
    * Function to set individual arrays on Eqdsk Grid Data.
+   * Currently sets psi and poloidal current data.
    */
   void setEqdskArraysOnGridData(); 
   
+  /**
+   * Function to set physical coordinates of different entities directlly from eqdsk file.
+   * Adds bounding box data, wall curve (limiter) points, and
+   * plasma boundary (separatrix) curve to grid data.
+   */ 
   void setPhysicalDataOnGridData(); 
   
   /**

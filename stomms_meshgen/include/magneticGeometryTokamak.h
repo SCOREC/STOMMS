@@ -83,7 +83,7 @@ class MagneticGeometryForTokamak: public MagneticGeometry{
     std::vector <Flux> closedCurves;
     std::vector <Flux> separatrixCurves;
     PlaneMetaData planeMetaData;
-    GridFieldData gridData;
+    GridFieldData gridData;  // background grid data.
     ModelEqdsk modelEqdsk;
     
     // Internal functions:

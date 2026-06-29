@@ -418,6 +418,7 @@ void StommsOutput::writeModelAdjacency(adios2::IO& io, adios2::Engine& writer, i
   writeAdios2Array(io, writer, adj.adjVector_2, 1, varName);
 }
 
+// Function to write magnetic field information from background grid to adios2 file.
 void StommsOutput::writeGridInformation(adios2::IO& io, adios2::Engine& writer)
 {
   // Step 1: Declare the variables and names of the variables needed in adios2 file
@@ -449,6 +450,7 @@ void StommsOutput::writeGridInformation(adios2::IO& io, adios2::Engine& writer)
   writePhysicalDataToGrid(io, writer, name);
 }
 
+// Function to write field arrays from input grid information to adios2 grid information.
 void StommsOutput::writeFieldArraysToGrid(adios2::IO& io, adios2::Engine& writer, std::string& name)
 {
   std::string varName;  // name of the variable to be written to adios2  
@@ -464,6 +466,8 @@ void StommsOutput::writeFieldArraysToGrid(adios2::IO& io, adios2::Engine& writer
   writeAdios2Array(io, writer, currentArray, 1, varName);
 }
 
+// Function to write physical coordinates of the entities from input grid 
+// information to adios2 grid information.
 void StommsOutput::writePhysicalDataToGrid(adios2::IO& io, adios2::Engine& writer, std::string& name)
 {
   std::string varName;  // name of the variable to be written to adios2
@@ -493,5 +497,4 @@ void StommsOutput::writePhysicalDataToGrid(adios2::IO& io, adios2::Engine& write
   writeAdios2Array(io, writer, rBdryPoints, 1, varName);
   varName = name + "boundaryPointsZ";
   writeAdios2Array(io, writer, zBdryPoints, 1, varName);
-
 }

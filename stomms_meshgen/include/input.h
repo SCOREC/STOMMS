@@ -68,6 +68,7 @@ class Inputs{
 
     /**
      * Function to return the tag of the equilibrium file.
+     * @return 1 for eqd files, and 0 for eqdsk files.
      */ 
     const int& getEqdTag() const;
 
