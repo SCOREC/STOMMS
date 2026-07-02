@@ -112,7 +112,8 @@ class StommsOutput{
      * @param writer: adios2 write engine.
      */
     void writePhysicalDataToGrid(adios2::IO& io, adios2::Engine& writer, std::string& name);    
- 
+
+    void writeSplinesDataToGrid(adios2::IO& io, adios2::Engine& writer, std::string& name); 
     /**
      * Function to read adios2 file. For verification of the data.
      */ 

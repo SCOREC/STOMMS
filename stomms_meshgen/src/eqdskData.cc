@@ -76,6 +76,9 @@ void EqdskData::setEqdskGrid()
 
   // Step 5: Set Physical data on the grid (plasma boundary, wall, box)
   setPhysicalDataOnGridData();
+
+  // Step 6: Set Spline data on the grid.
+  setSplinesOnGridData();
 }
 
 // Function to set individual arrays on Eqdsk Grid Data.
@@ -120,6 +123,26 @@ void EqdskData::setPhysicalDataOnGridData()
   std::vector<double> rBdryPoints(numBdryPts), zBdryPoints(numBdryPts);
   get_sep_pts_(rBdryPoints.data(), zBdryPoints.data(), &numBdryPts);
   eqdskGrid.setPlasmaBoundary(rBdryPoints, zBdryPoints);
+}
+
+// Function to set spline data on the grid.
+// First one is psi data, second one is poloidal current.
+void EqdskData::setSplinesOnGridData()
+{
+  // Step 1: Read the size in each dimension and set it to shape vector.
+  int d1, d2, d3;  // size of spline coefficients 3D array
+  get_psi_spline_coefficients_shape_(&d1, &d2, &d3);
+  std::vector <int> shape;
+  shape.push_back(d1);
+  shape.push_back(d2);
+  shape.push_back(d3);
+
+  // Step 2: Read the coefficients array
+  std::vector<double> psiSplineCoefficients(d1*d2*d3);
+  get_psi_spline_coefficients_(psiSplineCoefficients.data());
+
+  // Step 3: Write the psi spline data to grid data.
+  eqdskGrid.setPsiSpline(psiSplineCoefficients, shape); 
 }
 
 // Returns the values of psi at a physical location defined by pt.

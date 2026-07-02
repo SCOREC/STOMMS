@@ -279,7 +279,8 @@ class EqdskData{
    * plasma boundary (separatrix) curve to grid data.
    */ 
   void setPhysicalDataOnGridData(); 
-  
+ 
+  void setSplinesOnGridData(); 
   /**
    * Function to set eqdsk parameters from inputs.
    */ 

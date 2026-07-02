@@ -156,6 +156,14 @@ void GridFieldData::setDomainBox(const std::vector <double>& box)
   domainBox = box;
 }
 
+// Function to set psi spline coefficients and shape.
+void GridFieldData::setPsiSpline(std::vector <double>& coefficeints, std::vector <int>& shape)
+{
+  psiSplineShape = shape;
+  assert (coefficeints.size()  == shape[0]*shape[1]*shape[2]);
+  psiSplineCoefficients = coefficeints;
+}
+
 // Function to return r grid points.
 const std::vector <double>& GridFieldData::getRPoints() const
 {
@@ -232,4 +240,14 @@ const std::vector <double>& GridFieldData::getBdryPointsZ() const
 const std::vector <double>& GridFieldData::getDomainBox() const
 {
   return domainBox;
+}
+
+const std::vector <double>& GridFieldData::getPsiSplineCoefficients() const
+{
+  return psiSplineCoefficients;
+}
+
+const std::vector <int>& GridFieldData::getPsiSplineShape() const
+{
+  return psiSplineShape;
 }

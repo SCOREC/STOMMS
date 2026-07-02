@@ -448,6 +448,9 @@ void StommsOutput::writeGridInformation(adios2::IO& io, adios2::Engine& writer)
 
   // Step 6: Write physical boundaries data.
   writePhysicalDataToGrid(io, writer, name);
+
+  // STep 7: Write spline data to the grid.
+  writeSplinesDataToGrid(io, writer, name);
 }
 
 // Function to write field arrays from input grid information to adios2 grid information.
@@ -497,4 +500,15 @@ void StommsOutput::writePhysicalDataToGrid(adios2::IO& io, adios2::Engine& write
   writeAdios2Array(io, writer, rBdryPoints, 1, varName);
   varName = name + "boundaryPointsZ";
   writeAdios2Array(io, writer, zBdryPoints, 1, varName);
+}
+
+void StommsOutput::writeSplinesDataToGrid(adios2::IO& io, adios2::Engine& writer, std::string& name)
+{
+  std::string varName;  // name of the variable to be written to adios2
+
+  // Step 1: Get the Psi spline coefficients and its array shape.
+  std::vector <int> arrayShape = gridFieldData.getPsiSplineShape();
+  std::vector <double> psiSplineCoefficients = gridFieldData.getPsiSplineCoefficients();
+  varName = name + "psiSplineCoefficients";
+  writeAdios2MultiDimArray(io, writer, psiSplineCoefficients, arrayShape, varName);
 }

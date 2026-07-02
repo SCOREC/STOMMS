@@ -215,6 +215,7 @@ class GridFieldData{
     */   
     void setDomainBox(const std::vector <double>& box);
  
+    void setPsiSpline(std::vector <double>& coefficeints, std::vector <int>& shape);
     /**
      * Function to return r grid points.
     */ 
@@ -267,6 +268,9 @@ class GridFieldData{
      * rMin = box[0], zMin = box[1], rMax = box[2], zMax = box[3]
     */ 
     const std::vector <double>& getDomainBox() const;
+
+    const std::vector <double>& getPsiSplineCoefficients() const;
+    const std::vector <int>& getPsiSplineShape() const;
   private:
     // Grid Data
     std::vector <double> rPoints;
@@ -287,6 +291,10 @@ class GridFieldData{
     std::vector <double> rBdryPoints;
     std::vector <double> zBdryPoints;
     std::vector <double> domainBox;
+
+    // Splines Coefficients
+    std::vector <double> psiSplineCoefficients;
+    std::vector <int> psiSplineShape; 
 };
 
 #endif

@@ -73,6 +73,21 @@ void get_psi_grid_num_(int* mw, int* mh);
 void get_psi_and_its_grid_(double* rgrid, double* zgrid, double* psirz);
 
 /**
+ * Function to get the shape of the original spline coefficients array.
+ * @param d1: size of array in dimension 1.
+ * @param d2: size of array in dimension 2.
+ * @param d3: size of array in dimension 3.
+ * numCoefficients = d1*d2*d3
+ */
+void get_psi_spline_coefficients_shape_(int* d1, int* d2, int* d3);
+
+/**
+ * Function to get the coefficients of psi spline.
+ * @param psi_coefficients: A 1D flattened array of the psi spline coefficients.
+ */
+void get_psi_spline_coefficients_(double* psi_coefficients);
+
+/**
  * Function to get wall curve points from eqdsk file.
  * @param x: r coordinates of points.
  * @param y: z coordinates of points.

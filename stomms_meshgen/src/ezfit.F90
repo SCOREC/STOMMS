@@ -454,6 +454,7 @@ subroutine init_ez_spline (reverse_psi, eqd_g_tag)
 
     call EZspline_setup(spl,eqd_psirz,ier)
     call EZspline_error(ier)
+
 #ifdef DEBUG
        print *, 'EZspline setup for psirz is completed'
 #endif       
@@ -637,6 +638,48 @@ subroutine get_psi_and_its_grid( rgrid, zgrid, psirz )
     enddo
 !$omp end parallel
 end subroutine get_psi_and_its_grid
+
+!*******************************************************
+subroutine get_psi_spline_coefficients_shape(d1, d2, d3)
+!*******************************************************
+    use interpData
+    implicit none
+    integer, intent(out) :: d1
+    integer, intent(out) :: d2
+    integer, intent(out) :: d3
+    
+    d1 = size(spl%fspl, 1)
+    d2 =  size(spl%fspl,2)
+    d3 =  size(spl%fspl,3) 
+end subroutine get_psi_spline_coefficients_shape
+
+!*******************************************************
+subroutine get_psi_spline_coefficients(psi_coefficients)
+!*******************************************************
+    use interpData
+    implicit none
+    real(kind=8), intent(out), dimension(product(shape(spl%fspl))) :: psi_coefficients
+
+    integer ::i, j, k, count
+    integer ::d1, d2, d3
+
+    ! Set the individual array max sizes
+    d1 =  size(spl%fspl,1)
+    d2 =  size(spl%fspl,2)
+    d3 =  size(spl%fspl,3)
+
+    ! Loop over the array dimensions and set it to a flattened array
+!$omp parallel private(i,j,k)
+!$omp do collapse(3)
+    do i=1, d1
+        do j=1, d2
+            do k=1, d3
+              psi_coefficients(k+d2*(j-1)+d2*d3*(i-1)) = spl%fspl(i,j,k)
+            enddo
+        enddo
+    enddo
+!$omp end parallel
+end subroutine get_psi_spline_coefficients
 
 !*******************************************************
 subroutine get_psi_array_size(npsi)
