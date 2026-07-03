@@ -198,6 +198,16 @@ void writeAdios2Value(adios2::IO& io, adios2::Engine& writer,
   writer.Put(val, value);
 }
 
+/**
+ * Function to write an array of any dimension to adios2 file.
+ * @param io: adios2 IO.
+ * @param writer: adios2 write engine.
+ * @param arrayData: array data in vector.
+ * @param arrayShape: a vector of n member for the shape of n dimensional array.
+ * For example: a vector with 3 members shows a 3D array with each member represents
+ * size of the array in the particular dimension. 
+ * @param name: output array name.
+ */
 template <typename T>
 void writeAdios2MultiDimArray(adios2::IO& io, adios2::Engine& writer,
           std::vector <T>& arrayData, std::vector <int>& arrayShape, std::string& name)

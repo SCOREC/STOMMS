@@ -88,6 +88,21 @@ void get_psi_spline_coefficients_shape_(int* d1, int* d2, int* d3);
 void get_psi_spline_coefficients_(double* psi_coefficients);
 
 /**
+ * Function to get the shape of the original poloidal current spline coefficients array.
+ * @param d1: size of array in dimension 1.
+ * @param d2: size of array in dimension 2.
+ * numCoefficients = d1*d2
+ */
+void get_i_spline_coefficients_shape_(int* d1, int* d2);
+
+/**
+ * Function to get the coefficients of poloidal current spline.
+ * @param current_coefficients: A 1D flattened array of the poloidal current 
+ * spline coefficients.
+ */
+void get_i_spline_coefficients_(double* current_coefficients);
+
+/**
  * Function to get wall curve points from eqdsk file.
  * @param x: r coordinates of points.
  * @param y: z coordinates of points.

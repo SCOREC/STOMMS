@@ -648,9 +648,9 @@ subroutine get_psi_spline_coefficients_shape(d1, d2, d3)
     integer, intent(out) :: d2
     integer, intent(out) :: d3
     
-    d1 = size(spl%fspl, 1)
-    d2 =  size(spl%fspl,2)
-    d3 =  size(spl%fspl,3) 
+    d1 = size(spl%fspl,1)
+    d2 = size(spl%fspl,2)
+    d3 = size(spl%fspl,3) 
 end subroutine get_psi_spline_coefficients_shape
 
 !*******************************************************
@@ -664,9 +664,9 @@ subroutine get_psi_spline_coefficients(psi_coefficients)
     integer ::d1, d2, d3
 
     ! Set the individual array max sizes
-    d1 =  size(spl%fspl,1)
-    d2 =  size(spl%fspl,2)
-    d3 =  size(spl%fspl,3)
+    d1 = size(spl%fspl,1)
+    d2 = size(spl%fspl,2)
+    d3 = size(spl%fspl,3)
 
     ! Loop over the array dimensions and set it to a flattened array
 !$omp parallel private(i,j,k)
@@ -680,6 +680,43 @@ subroutine get_psi_spline_coefficients(psi_coefficients)
     enddo
 !$omp end parallel
 end subroutine get_psi_spline_coefficients
+
+!*******************************************************
+subroutine get_i_spline_coefficients_shape(d1, d2)
+!*******************************************************
+    use interpData
+    implicit none
+    integer, intent(out) :: d1
+    integer, intent(out) :: d2
+    
+    d1 = size(spl_I%fspl,1)
+    d2 = size(spl_I%fspl,2)
+end subroutine get_i_spline_coefficients_shape
+
+!*******************************************************
+subroutine get_i_spline_coefficients(current_coefficients)
+!*******************************************************
+    use interpData
+    implicit none
+    real(kind=8), intent(out), dimension(product(shape(spl_I%fspl))) :: current_coefficients
+
+    integer ::i, j, count
+    integer ::d1, d2
+
+    ! Set the individual array max sizes
+    d1 = size(spl_I%fspl,1)
+    d2 = size(spl_I%fspl,2)
+
+    ! Loop over the array dimensions and set it to a flattened array
+!$omp parallel private(i,j)
+!$omp do collapse(2)
+    do i=1, d1
+        do j=1, d2
+            current_coefficients(j+d2*(i-1)) = spl_I%fspl(i,j)
+        enddo
+    enddo
+!$omp end parallel
+end subroutine get_i_spline_coefficients
 
 !*******************************************************
 subroutine get_psi_array_size(npsi)

@@ -142,7 +142,20 @@ void EqdskData::setSplinesOnGridData()
   get_psi_spline_coefficients_(psiSplineCoefficients.data());
 
   // Step 3: Write the psi spline data to grid data.
-  eqdskGrid.setPsiSpline(psiSplineCoefficients, shape); 
+  eqdskGrid.setPsiSpline(psiSplineCoefficients, shape);
+
+  // Step 4: Read the size of the current spline in each dimension.
+  get_i_spline_coefficients_shape_(&d1, &d2);
+  shape.clear();
+  shape.push_back(d1);
+  shape.push_back(d2);
+
+  // Step 5: Read the coefficients array
+  std::vector<double> currentSplineCoefficients(d1*d2);
+  get_i_spline_coefficients_(currentSplineCoefficients.data());
+
+  // Step 6: Write the current spline data to grid data.
+  eqdskGrid.setCurrentSpline(currentSplineCoefficients, shape);
 }
 
 // Returns the values of psi at a physical location defined by pt.

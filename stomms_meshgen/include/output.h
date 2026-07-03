@@ -102,6 +102,7 @@ class StommsOutput{
      * Function to write field arrays from input grid information to adios2 grid information.
      * @param io: adios2 IO.
      * @param writer: adios2 write engine.
+     * @param name: variables name prefix.
      */
     void writeFieldArraysToGrid(adios2::IO& io, adios2::Engine& writer, std::string& name);
     
@@ -110,10 +111,18 @@ class StommsOutput{
      * adios2 grid information.
      * @param io: adios2 IO.
      * @param writer: adios2 write engine.
+     * @param name: variables name prefix.
      */
     void writePhysicalDataToGrid(adios2::IO& io, adios2::Engine& writer, std::string& name);    
 
-    void writeSplinesDataToGrid(adios2::IO& io, adios2::Engine& writer, std::string& name); 
+    /**
+     * Function to write spline data to the adios2 file.
+     * @param io: adios2 IO.
+     * @param writer: adios2 write engine.
+     * @param name: variables name prefix.
+     */ 
+    void writeSplinesDataToGrid(adios2::IO& io, adios2::Engine& writer, std::string& name);
+ 
     /**
      * Function to read adios2 file. For verification of the data.
      */ 

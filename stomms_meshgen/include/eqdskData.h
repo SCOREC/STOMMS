@@ -279,8 +279,13 @@ class EqdskData{
    * plasma boundary (separatrix) curve to grid data.
    */ 
   void setPhysicalDataOnGridData(); 
- 
+
+  /**
+   * Function to set spline data on the grid data.
+   * Add the data for (a) psi spline, (b) poloidal current spline
+   */  
   void setSplinesOnGridData(); 
+
   /**
    * Function to set eqdsk parameters from inputs.
    */ 

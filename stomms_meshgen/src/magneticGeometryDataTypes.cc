@@ -160,8 +160,16 @@ void GridFieldData::setDomainBox(const std::vector <double>& box)
 void GridFieldData::setPsiSpline(std::vector <double>& coefficeints, std::vector <int>& shape)
 {
   psiSplineShape = shape;
-  assert (coefficeints.size()  == shape[0]*shape[1]*shape[2]);
+  assert (coefficeints.size() == shape[0]*shape[1]*shape[2]);
   psiSplineCoefficients = coefficeints;
+}
+
+// Function to set poloidal current spline coefficients to the grid data.
+void GridFieldData::setCurrentSpline(std::vector <double>& coefficeints, std::vector <int>& shape)
+{
+  currentSplineShape = shape;
+  assert (coefficeints.size() == shape[0]*shape[1]);
+  currentSplineCoefficients = coefficeints; 
 }
 
 // Function to return r grid points.
@@ -242,12 +250,26 @@ const std::vector <double>& GridFieldData::getDomainBox() const
   return domainBox;
 }
 
+// Function to return a vector of psi spline coefficients.
 const std::vector <double>& GridFieldData::getPsiSplineCoefficients() const
 {
   return psiSplineCoefficients;
 }
 
+// Function to return a vector of size 3 for the shape of coefficients array.
 const std::vector <int>& GridFieldData::getPsiSplineShape() const
 {
   return psiSplineShape;
+}
+
+// Function to return a vector of poloidal current spline coefficients.
+const std::vector <double>& GridFieldData::getCurrentSplineCoefficients() const
+{
+  return currentSplineCoefficients;
+}
+
+// Function to return a vector of size 2 for the shape of coefficients array.
+const std::vector <int>& GridFieldData::getCurrentSplineShape() const
+{
+  return currentSplineShape;
 }

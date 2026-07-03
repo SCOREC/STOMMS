@@ -502,6 +502,7 @@ void StommsOutput::writePhysicalDataToGrid(adios2::IO& io, adios2::Engine& write
   writeAdios2Array(io, writer, zBdryPoints, 1, varName);
 }
 
+// Function to write spline data to the adios2 file.
 void StommsOutput::writeSplinesDataToGrid(adios2::IO& io, adios2::Engine& writer, std::string& name)
 {
   std::string varName;  // name of the variable to be written to adios2
@@ -511,4 +512,10 @@ void StommsOutput::writeSplinesDataToGrid(adios2::IO& io, adios2::Engine& writer
   std::vector <double> psiSplineCoefficients = gridFieldData.getPsiSplineCoefficients();
   varName = name + "psiSplineCoefficients";
   writeAdios2MultiDimArray(io, writer, psiSplineCoefficients, arrayShape, varName);
+
+  // Step 2: Get the poloidal current spline coefficients and its array shape.
+  arrayShape = gridFieldData.getCurrentSplineShape();
+  std::vector <double> currentSplineCoefficients = gridFieldData.getCurrentSplineCoefficients();
+  varName = name + "poloidalCurrentSplineCoefficients";
+  writeAdios2MultiDimArray(io, writer, currentSplineCoefficients, arrayShape, varName);
 }
