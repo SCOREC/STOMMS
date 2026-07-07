@@ -59,6 +59,11 @@ class MagneticGeometry{
      * Function to get all the geometric information on individual planes.
      */ 
     virtual const std::vector <Plane>& getPlanes() const = 0;
+
+    /**
+     * Function to return magnetic field data on the background grid.
+     */ 
+    virtual const GridFieldData& getGridFieldData() const = 0;
 };
 
 

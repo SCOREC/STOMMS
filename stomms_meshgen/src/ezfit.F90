@@ -454,6 +454,7 @@ subroutine init_ez_spline (reverse_psi, eqd_g_tag)
 
     call EZspline_setup(spl,eqd_psirz,ier)
     call EZspline_error(ier)
+
 #ifdef DEBUG
        print *, 'EZspline setup for psirz is completed'
 #endif       
@@ -637,6 +638,122 @@ subroutine get_psi_and_its_grid( rgrid, zgrid, psirz )
     enddo
 !$omp end parallel
 end subroutine get_psi_and_its_grid
+
+!*******************************************************
+subroutine get_psi_spline_coefficients_shape(d1, d2, d3)
+!*******************************************************
+    use interpData
+    implicit none
+    integer, intent(out) :: d1
+    integer, intent(out) :: d2
+    integer, intent(out) :: d3
+    
+    d1 = size(spl%fspl,1)
+    d2 = size(spl%fspl,2)
+    d3 = size(spl%fspl,3) 
+end subroutine get_psi_spline_coefficients_shape
+
+!*******************************************************
+subroutine get_psi_spline_coefficients(psi_coefficients)
+!*******************************************************
+    use interpData
+    implicit none
+    real(kind=8), intent(out), dimension(product(shape(spl%fspl))) :: psi_coefficients
+
+    integer ::i, j, k, count
+    integer ::d1, d2, d3
+
+    ! Set the individual array max sizes
+    d1 = size(spl%fspl,1)
+    d2 = size(spl%fspl,2)
+    d3 = size(spl%fspl,3)
+
+    ! Loop over the array dimensions and set it to a flattened array
+!$omp parallel private(i,j,k)
+!$omp do collapse(3)
+    do i=1, d1
+        do j=1, d2
+            do k=1, d3
+              psi_coefficients(k+d2*(j-1)+d2*d3*(i-1)) = spl%fspl(i,j,k)
+            enddo
+        enddo
+    enddo
+!$omp end parallel
+end subroutine get_psi_spline_coefficients
+
+!*******************************************************
+subroutine get_i_spline_coefficients_shape(d1, d2)
+!*******************************************************
+    use interpData
+    implicit none
+    integer, intent(out) :: d1
+    integer, intent(out) :: d2
+    
+    d1 = size(spl_I%fspl,1)
+    d2 = size(spl_I%fspl,2)
+end subroutine get_i_spline_coefficients_shape
+
+!*******************************************************
+subroutine get_i_spline_coefficients(current_coefficients)
+!*******************************************************
+    use interpData
+    implicit none
+    real(kind=8), intent(out), dimension(product(shape(spl_I%fspl))) :: current_coefficients
+
+    integer ::i, j, count
+    integer ::d1, d2
+
+    ! Set the individual array max sizes
+    d1 = size(spl_I%fspl,1)
+    d2 = size(spl_I%fspl,2)
+
+    ! Loop over the array dimensions and set it to a flattened array
+!$omp parallel private(i,j)
+!$omp do collapse(2)
+    do i=1, d1
+        do j=1, d2
+            current_coefficients(j+d2*(i-1)) = spl_I%fspl(i,j)
+        enddo
+    enddo
+!$omp end parallel
+end subroutine get_i_spline_coefficients
+
+!*******************************************************
+subroutine get_psi_array_size(npsi)
+!*******************************************************
+  use eqd_module
+  implicit none
+  integer, intent(out) :: npsi
+
+  npsi = size(eqd_psi_grid)
+end subroutine get_psi_array_size
+
+!*******************************************************
+! Function to return psi array
+subroutine get_psi_array(psiarray)
+!*******************************************************
+  use eqd_module
+  implicit none
+  real(kind=8), intent(out), dimension(size(eqd_psi_grid)) :: psiarray
+
+  psiarray = eqd_psi_grid
+end subroutine get_psi_array
+
+!*******************************************************
+! Function to return poloidal current array
+subroutine get_poloidal_current(currentarray, eqdTag)
+!*******************************************************
+  use eqd_module
+  implicit none
+  integer, intent(in) :: eqdTag
+  real(kind=8), intent(out), dimension(size(eqd_psi_grid)) :: currentarray
+  
+  if(eqdTag .eq. 1) then
+    currentarray = abs(eq_I)
+  else
+    currentarray = abs(eqd_fpol)
+  endif
+end subroutine get_poloidal_current
 
 !*******************************************************
 subroutine set_eqd_psi_factor (fac)
@@ -901,6 +1018,15 @@ subroutine get_bd_pts (x,y, numPts)
   x(1:numPts)=eqd_rlim(1:numPts);
   y(1:numPts)=eqd_zlim(1:numPts);
 end subroutine get_bd_pts
+
+!*******************************************************
+subroutine get_num_sep_pts(n)
+!*******************************************************
+  use eqd_module
+  implicit none
+  integer, intent(out) :: n
+  n = eqd_nbdry
+end subroutine get_num_sep_pts
 
 !*******************************************************
 subroutine get_num_bd_pts(n)

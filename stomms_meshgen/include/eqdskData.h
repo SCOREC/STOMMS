@@ -4,6 +4,7 @@
 #include "input.h"
 #include "criticalPoints.h"
 #include "modelMetaData.h"
+#include "magneticGeometryDataTypes.h"
 
 /** 
  * Class eqdskData contains the magnetic field information from eqdsk file.
@@ -167,11 +168,11 @@ class EqdskData{
      * @return true if point is inside, false for outside.
      */
     bool insideBox(const std::array <double,3>& pt);
-
+    
     /**
-     * Function to set eqdsk parameters from inputs.
+     * Function to return eqdsk grid data.
      */ 
-    void setParameters(const Inputs& in);
+    const GridFieldData& getEqdskGridData();
 
     /**
      * Returns the number of poloidal planes (user input).
@@ -231,6 +232,7 @@ class EqdskData{
   private:
   // input data.
   bool reversePsi;
+  int eqdTag;
   bool inboardStart;
   bool fluxRandomStart;
   int numPlanes;
@@ -254,6 +256,40 @@ class EqdskData{
   PlaneMetaData planeMetaData;
   std::vector <double> fluxValues;
   std::vector <double> intraCurveSpacingGradPsi;
+
+  // EQDSK Grid Info
+  GridFieldData eqdskGrid;
+
+  // Internal Functions
+  /**
+   * Function to set eqdsk grid data.
+   * Sets psi grid data, psi and poloidal current arrays, and physical geometry data.
+   */   
+  void setEqdskGrid();
+
+  /**
+   * Function to set individual arrays on Eqdsk Grid Data.
+   * Currently sets psi and poloidal current data.
+   */
+  void setEqdskArraysOnGridData(); 
+  
+  /**
+   * Function to set physical coordinates of different entities directlly from eqdsk file.
+   * Adds bounding box data, wall curve (limiter) points, and
+   * plasma boundary (separatrix) curve to grid data.
+   */ 
+  void setPhysicalDataOnGridData(); 
+
+  /**
+   * Function to set spline data on the grid data.
+   * Add the data for (a) psi spline, (b) poloidal current spline
+   */  
+  void setSplinesOnGridData(); 
+
+  /**
+   * Function to set eqdsk parameters from inputs.
+   */ 
+  void setParameters(const Inputs& in);
 };
 
 #endif

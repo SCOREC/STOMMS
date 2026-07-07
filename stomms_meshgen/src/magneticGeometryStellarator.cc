@@ -109,3 +109,9 @@ const std::vector <Plane>& MagneticGeometryForStellarator::getPlanes() const
 {
   return modelVmec.getPlanes();
 }
+
+// Function to return magnetic field data on the background grid.
+const GridFieldData& MagneticGeometryForStellarator::getGridFieldData() const
+{
+  return gridData;
+}

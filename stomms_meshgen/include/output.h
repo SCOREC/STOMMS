@@ -6,12 +6,18 @@
 
 class StommsOutput{
   public:
-    StommsOutput(const StommsMesh& m);
+    /**
+     * Constructor to read in mesh data and input field data to write output.
+     * @param m: mesh data.
+     * @param gridData: input grid data from source file (eqdsk for now).
+     */ 
+    StommsOutput(const StommsMesh& m, const GridFieldData& gridData);
     ~StommsOutput();
   private:
     StommsMesh mesh;  // StommsMesh with underlying Simmetrix mesh and other meta data.
     pMesh simMesh;  // Simmetrix mesh
     pGModel simModel;  // Simmetrix model
+    const GridFieldData& gridFieldData; // input grid data from source file
     std::vector <PlaneMeshData> planes;  // Mesh data set on individual planes
     std::vector <Plane> geometricPlanes; // model data on planes
     std::vector <Omega_h::Mesh> omegahMeshes;  // vector of omegah 2D planer meshes
@@ -84,6 +90,38 @@ class StommsOutput{
      * @param planeIndex: index of the poloidal plane.
      */ 
     void writeModelAdjacency(adios2::IO& io, adios2::Engine& writer, int planeIndex);   
+
+    /**
+     * Function to write magnetic field information from background grid to adios2 file.
+     * @param io: adios2 IO.
+     * @param writer: adios2 write engine.
+     */
+    void writeGridInformation(adios2::IO& io, adios2::Engine& writer);
+     
+    /**
+     * Function to write field arrays from input grid information to adios2 grid information.
+     * @param io: adios2 IO.
+     * @param writer: adios2 write engine.
+     * @param name: variables name prefix.
+     */
+    void writeFieldArraysToGrid(adios2::IO& io, adios2::Engine& writer, std::string& name);
+    
+    /**
+     * Function to write physical coordinates of the entities from input grid information to 
+     * adios2 grid information.
+     * @param io: adios2 IO.
+     * @param writer: adios2 write engine.
+     * @param name: variables name prefix.
+     */
+    void writePhysicalDataToGrid(adios2::IO& io, adios2::Engine& writer, std::string& name);    
+
+    /**
+     * Function to write spline data to the adios2 file.
+     * @param io: adios2 IO.
+     * @param writer: adios2 write engine.
+     * @param name: variables name prefix.
+     */ 
+    void writeSplinesDataToGrid(adios2::IO& io, adios2::Engine& writer, std::string& name);
  
     /**
      * Function to read adios2 file. For verification of the data.

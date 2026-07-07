@@ -59,13 +59,20 @@ class MagneticGeometryForStellarator: public MagneticGeometry{
      * Function to get all the geometric information on individual planes.
      */ 
     const std::vector <Plane>& getPlanes() const override;
+
+    /**
+     * Function to return magnetic field data on the background grid.
+     */
+    const GridFieldData& getGridFieldData() const override;
+
   private:
     std::string vmecFile;  // vmec file name    
     std::map<int , std::vector<PhysicsPoint>> oPoints;  // map between plane number and OPoints
     std::map<int , std::vector<PhysicsPoint>> xPoints;  // map between plane number and XPoints
     VmecData vmec;  // VMEC data (Stellarator core region)
     ModelVmec modelVmec;  // model data associated with vmec geometry  
-    
+    GridFieldData gridData;  // background grid data  
+ 
     /**
      * Read input VMEC file and store relevant data in struct vmecData.
      * returns the struct vmecData vm.

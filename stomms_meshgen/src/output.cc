@@ -3,7 +3,7 @@
 /***********************************************/
 // Class: StommsOutput
 /***********************************************/
-StommsOutput::StommsOutput(const StommsMesh& m):mesh(m)
+StommsOutput::StommsOutput(const StommsMesh& m, const GridFieldData& gridData):mesh(m), gridFieldData(gridData)
 {
   std::cout << "============ Output Writing Starts ============\n";
 
@@ -178,10 +178,13 @@ void StommsOutput::writeAdiosFile()
     writePhysicsClassification(io, writer, i);
   
     // Step 5.2: Write Model Adjacency Information.
-    writeModelAdjacency(io, writer, i);  
+    writeModelAdjacency(io, writer, i);
   }
 
-  // Step 6: End the writer engine.
+  // Step 6: Write input grid information.
+  writeGridInformation(io, writer);
+
+  // Step 7: End the writer engine.
   writer.EndStep();
   writer.Close();
 
@@ -413,4 +416,106 @@ void StommsOutput::writeModelAdjacency(adios2::IO& io, adios2::Engine& writer, i
   writeAdios2Array(io, writer, adj.rangeVector_2, 1, varName);
   varName = groupName + "data";
   writeAdios2Array(io, writer, adj.adjVector_2, 1, varName);
+}
+
+// Function to write magnetic field information from background grid to adios2 file.
+void StommsOutput::writeGridInformation(adios2::IO& io, adios2::Engine& writer)
+{
+  // Step 1: Declare the variables and names of the variables needed in adios2 file
+  std::string name, varName;
+  name  = "stommsMesh/fieldGridData/";
+
+  // Step 2: Check if the GridFieldData object has the grid information populated. If not, return.
+  // If yes, start writing the data in adios2 file.
+  std::vector <double> psiField = gridFieldData.getDoubleFieldData(FieldType::Psi);
+  if (!psiField.size())
+    return;
+
+  // Step 3: Read the grid points (r and z) and write them in adios2 file.
+  std::vector <double> rPoints = gridFieldData.getRPoints();
+  std::vector <double> zPoints = gridFieldData.getZPoints();
+  varName = name + "gridPointsR";
+  writeAdios2Array(io, writer, rPoints, 1, varName);
+  varName = name + "gridPointsZ";
+  writeAdios2Array(io, writer, zPoints, 1, varName);
+
+  // Step 4: Write psi Grid Data to adios2 file
+  varName = name + "psiGrid";
+  writeAdios2Array(io, writer, psiField, zPoints.size(), varName);
+
+  // Step 5: Write psi and poloidal current arrays
+  writeFieldArraysToGrid(io, writer, name);
+
+  // Step 6: Write physical boundaries data.
+  writePhysicalDataToGrid(io, writer, name);
+
+  // STep 7: Write spline data to the grid.
+  writeSplinesDataToGrid(io, writer, name);
+}
+
+// Function to write field arrays from input grid information to adios2 grid information.
+void StommsOutput::writeFieldArraysToGrid(adios2::IO& io, adios2::Engine& writer, std::string& name)
+{
+  std::string varName;  // name of the variable to be written to adios2  
+
+  // Step 1: Read psi array and write it to adios2 file
+  std::vector <double> psiArray = gridFieldData.getPsiArray();
+  varName = name + "psi";
+  writeAdios2Array(io, writer, psiArray, 1, varName);
+   
+  // Step 2: Read poloidal current and write it to adios2 file
+  std::vector <double> currentArray = gridFieldData.getPoloidalCurrentArray();
+  varName = name + "poloidalCurrent";
+  writeAdios2Array(io, writer, currentArray, 1, varName);
+}
+
+// Function to write physical coordinates of the entities from input grid 
+// information to adios2 grid information.
+void StommsOutput::writePhysicalDataToGrid(adios2::IO& io, adios2::Engine& writer, std::string& name)
+{
+  std::string varName;  // name of the variable to be written to adios2
+
+  // Step 1: Write bounding box to the adios2 file
+  // rMin = box[0], zMin = box[1], rMax = box[2], zMax = box[3]
+  std::vector <double> box = gridFieldData.getDomainBox();
+  varName = name + "DomainBox";
+  writeAdios2Array(io, writer, box, 1, varName);
+
+  // Step 2: Write wall curve from the eqdsk file. Might be different from 
+  // the wall curve we have used in processing since it could come from 
+  // external file instead of eqdsk file.
+  std::vector <double> rLimiterPoints = gridFieldData.getLimiterPointsR();
+  std::vector <double> zLimiterPoints = gridFieldData.getLimiterPointsZ();
+  varName = name + "limiterPointsR";
+  writeAdios2Array(io, writer, rLimiterPoints, 1, varName);
+  varName = name + "limiterPointsZ";
+  writeAdios2Array(io, writer, zLimiterPoints, 1, varName);
+
+  // Step 3: Write seperatrix points from eqdsk file. This is the different 
+  // from the separatrix curve points we traced. These are taken directly 
+  // from eqdsk utility code. We might not need them in adios2 file.
+  std::vector <double> rBdryPoints = gridFieldData.getBdryPointsR();
+  std::vector <double> zBdryPoints = gridFieldData.getBdryPointsZ();
+  varName = name + "boundaryPointsR";
+  writeAdios2Array(io, writer, rBdryPoints, 1, varName);
+  varName = name + "boundaryPointsZ";
+  writeAdios2Array(io, writer, zBdryPoints, 1, varName);
+}
+
+// Function to write spline data to the adios2 file.
+void StommsOutput::writeSplinesDataToGrid(adios2::IO& io, adios2::Engine& writer, std::string& name)
+{
+  std::string varName;  // name of the variable to be written to adios2
+
+  // Step 1: Get the Psi spline coefficients and its array shape.
+  std::vector <int> arrayShape = gridFieldData.getPsiSplineShape();
+  std::vector <double> psiSplineCoefficients = gridFieldData.getPsiSplineCoefficients();
+  varName = name + "psiSplineCoefficients";
+  writeAdios2MultiDimArray(io, writer, psiSplineCoefficients, arrayShape, varName);
+
+  // Step 2: Get the poloidal current spline coefficients and its array shape.
+  arrayShape = gridFieldData.getCurrentSplineShape();
+  std::vector <double> currentSplineCoefficients = gridFieldData.getCurrentSplineCoefficients();
+  varName = name + "poloidalCurrentSplineCoefficients";
+  writeAdios2MultiDimArray(io, writer, currentSplineCoefficients, arrayShape, varName);
 }

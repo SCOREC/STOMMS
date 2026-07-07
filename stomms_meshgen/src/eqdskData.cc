@@ -23,6 +23,9 @@ EqdskData::EqdskData(const Inputs& input, const PlaneMetaData& planeData, const 
   // Step 4: Set intra curve grad spacing for non-field following case.
   if (intraCurveSpacingOption == -2)
     setintraCurveSpacingGradPsi();
+
+  // Step 5: Set the Eqdsk Grid Data.
+  setEqdskGrid();
 }
 
 // Set intraCurveSpacingGradPsi vector in the class
@@ -44,11 +47,115 @@ void EqdskData::setintraCurveSpacingGradPsi()
    // Step 4: Set y coordinate of the pt to y of magnetic axis.
    pt.y = axis.getPoint().y;
 
-   // Step4: Find absolute grad value and save it to the vector.
+   // Step 5: Find absolute grad value and save it to the vector.
    std::array<double, 3> gradPsi = getPsiGradAtPoint(pt); 
    double gradPsiAbs = sqrt(gradPsi[0]*gradPsi[0] + gradPsi[1]*gradPsi[1]);
    intraCurveSpacingGradPsi.push_back(gradPsiAbs); 
  }
+}
+
+// Function to set the eqdsk data.
+void EqdskData::setEqdskGrid()
+{
+  // Step 1: Get the grid size.
+  int xRes, yRes;
+  get_psi_grid_num_(&xRes, &yRes);
+  int gridSize = xRes*yRes;
+
+  // Step 2: Read the grid points, and corresponding psi values.
+  // If needed in future, read additional data from Eqdsk here.
+  std::vector <double> r(xRes), z(yRes), psi(gridSize);
+  get_psi_and_its_grid_(r.data(), z.data(), psi.data());
+
+  // Step 3: Set the eqdsk grid for local use in the code.
+  eqdskGrid = GridFieldData(r, z);
+  eqdskGrid.setDoubleFieldOnGrid(psi, FieldType::Psi);
+
+  // Step 4: Set individual field arrays on the grid data.
+  setEqdskArraysOnGridData();
+
+  // Step 5: Set Physical data on the grid (plasma boundary, wall, box)
+  setPhysicalDataOnGridData();
+
+  // Step 6: Set Spline data on the grid.
+  setSplinesOnGridData();
+}
+
+// Function to set individual arrays on Eqdsk Grid Data.
+// Currently sets psi and poloidal current data.
+void EqdskData::setEqdskArraysOnGridData()
+{
+  // Step 1: Get array size.
+  int numPsi;
+  get_psi_array_size_(&numPsi);
+
+  // Step 2: Get psi data and set it to eqdskGrid.
+  std::vector <double> psiArray(numPsi);
+  get_psi_array_(psiArray.data());
+  eqdskGrid.setPsiArray(psiArray);
+
+  // Step 3: Get poloidal current data and set it to eqdskGrid.
+  std::vector <double> currentArray(numPsi);
+  get_poloidal_current_(currentArray.data(), &eqdTag);
+  eqdskGrid.setPoloidalCurrentArray(currentArray);
+}
+
+// Function to set physical coordinates of different entities directlly 
+// from eqdsk file. Adds bounding box data, wall curve (limiter) points, 
+// and plasma boundary (separatrix) curve to grid data.
+void EqdskData::setPhysicalDataOnGridData()
+{
+  // Step 1: Set the boundary box
+  std::vector <double> domainBox(4);
+  get_b_box_(domainBox.data());
+  eqdskGrid.setDomainBox(domainBox);
+
+  // Step 2: Set the wall curve (limiter)
+  int numLimPts;
+  get_num_bd_pts_(&numLimPts);
+  std::vector<double> rLimPoints(numLimPts), zLimPoints(numLimPts);
+  get_bd_pts_(rLimPoints.data(), zLimPoints.data(), &numLimPts);
+  eqdskGrid.setLimiter(rLimPoints, zLimPoints);
+
+  // Step 3: Set the plasma boundary from eqdsk.
+  int numBdryPts;
+  get_num_sep_pts_(&numBdryPts);
+  std::vector<double> rBdryPoints(numBdryPts), zBdryPoints(numBdryPts);
+  get_sep_pts_(rBdryPoints.data(), zBdryPoints.data(), &numBdryPts);
+  eqdskGrid.setPlasmaBoundary(rBdryPoints, zBdryPoints);
+}
+
+// Function to set spline data on the grid.
+// First one is psi data, second one is poloidal current.
+void EqdskData::setSplinesOnGridData()
+{
+  // Step 1: Read the size in each dimension and set it to shape vector.
+  int d1, d2, d3;  // size of spline coefficients 3D array
+  get_psi_spline_coefficients_shape_(&d1, &d2, &d3);
+  std::vector <int> shape;
+  shape.push_back(d1);
+  shape.push_back(d2);
+  shape.push_back(d3);
+
+  // Step 2: Read the coefficients array
+  std::vector<double> psiSplineCoefficients(d1*d2*d3);
+  get_psi_spline_coefficients_(psiSplineCoefficients.data());
+
+  // Step 3: Write the psi spline data to grid data.
+  eqdskGrid.setPsiSpline(psiSplineCoefficients, shape);
+
+  // Step 4: Read the size of the current spline in each dimension.
+  get_i_spline_coefficients_shape_(&d1, &d2);
+  shape.clear();
+  shape.push_back(d1);
+  shape.push_back(d2);
+
+  // Step 5: Read the coefficients array
+  std::vector<double> currentSplineCoefficients(d1*d2);
+  get_i_spline_coefficients_(currentSplineCoefficients.data());
+
+  // Step 6: Write the current spline data to grid data.
+  eqdskGrid.setCurrentSpline(currentSplineCoefficients, shape);
 }
 
 // Returns the values of psi at a physical location defined by pt.
@@ -495,7 +602,7 @@ double EqdskData::getInterCurveSpacingLinear(double psiNorm)
   Point lowBoundPt = convertPsiToPoint(convertNormToPsi(psiInputVector[lowBound]));
   Point upBoundPt = convertPsiToPoint(convertNormToPsi(psiInputVector[lowBound+1]));
 
-  // Step 3: Get the spacing between horizontal coordinates of two points.
+  // Step 4: Get the spacing between horizontal coordinates of two points.
   double spacing = fabs(lowBoundPt.x - upBoundPt.x);
   assert (spacing > 0.0);
   return spacing;
@@ -579,9 +686,16 @@ double EqdskData::getNodeSpacing(const Point& pt, double psiNorm)
   return meshSize;
 }
 
+// Function to return eqdsk grid data.
+const GridFieldData& EqdskData::getEqdskGridData()
+{
+  return eqdskGrid;
+}
+
 void EqdskData::setParameters(const Inputs& in)
 {
   reversePsi = in.useReversePsi();
+  eqdTag = in.getEqdTag();
   inboardStart = in.useInboardStart();
   fluxRandomStart = in.useFluxRandomStart();
   numPlanes = in.getNumTokamakPlanes();

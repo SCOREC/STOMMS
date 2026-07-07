@@ -35,6 +35,7 @@ MagneticGeometryForTokamak::MagneticGeometryForTokamak(const ModelMetaData& mode
   
   // Step 6: Set up Eqdsk Data class for curve generation.
   EqdskData eqdskData(input, planeMetaData, oPointsVec[0], psiCoreBoundary);
+  gridData = eqdskData.getEqdskGridData();
   genFluxCurves(planeMetaData, eqdskData, wallCurve);
 
   // Step 7: Populate CurveContainer with flux curves info
@@ -149,4 +150,10 @@ const Model& MagneticGeometryForTokamak::getModel() const
 const std::vector <Plane>& MagneticGeometryForTokamak::getPlanes() const
 {
   return modelEqdsk.getPlanes();
+}
+
+// Function to return magnetic field data on the background grid.
+const GridFieldData& MagneticGeometryForTokamak::getGridFieldData() const
+{
+  return gridData;
 }
