@@ -31,6 +31,9 @@ int main(int argc, char** argv)
     }
     else
       std::cout << "Adios2 file with extension .bp is missing\n";
+
+    // Step 2: Test the background grid data
+    XgcBackgroundGridData xgcBackgroundGridData(adios2File);
   
     // Step 2: Create a mesh reader object
     XgcMesh xgcMesh(adios2File);

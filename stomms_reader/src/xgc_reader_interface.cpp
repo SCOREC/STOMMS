@@ -502,3 +502,72 @@ std::map<MeshIdType, std::vector <CurveIdType>> XgcMesh::getNonAlignedMeshVertic
 
   return verticesOnModel;
 }
+
+/*******************************/
+// Class XgcBackgroundGridData
+/*******************************/
+XgcBackgroundGridData::XgcBackgroundGridData(std::string adiosFileName):adiosFile(adiosFileName)
+{
+  // Step 1: Create adios2 object and io.
+  adios2::ADIOS adios;
+  adios2::IO io = adios.DeclareIO("xgcReader");
+
+  // Step 2: Start the reader engine
+  adios2::Engine reader = io.Open(adiosFile, adios2::Mode::Read);
+  reader.BeginStep();
+
+  // Step 3: Verify grid data exists in adios2 file.
+  gridDataName = setGridDataName(io);
+
+  // Step 4: Set grid data from adios2 file to class EqdskGridData
+  eqdskGridData = EqdskGridData(io, reader, gridDataName);
+}
+
+std::string XgcBackgroundGridData::setGridDataName(adios2::IO &io)
+{
+  std::string name;  // return grid data name
+
+  // Step 1: Set the path of the groups to read.
+  auto g = io.InquireGroup('/');  // group identifier
+  std::string groupName = "";  // the very first group in the list
+  
+  // Step 2: Read groups and make sure the size of groups is 1 (only top level mesh name).
+  // If greater than 1, throw an error.
+  auto groups = g.AvailableGroups();
+  if (groups.size() == 1)
+    name = groups[0];
+  else if (groups.size() > 1)
+  {
+   std::cout << "More than one mesh names exist in the file\n";
+   std::cout << "Make sure only one mesh is provided in the adios2 file\n";
+   std::cout << "========== List of mesh names in file is provided below ===========\n";
+   for (const auto &g : groups)
+    std::cout << "Group name: " << g << "\n";  
+  
+   exit(1);
+  }
+
+  // Step 3: Make sure grid field data exist in the file.
+  g.setPath(name);
+  groups = g.AvailableGroups();
+  bool gridFound = false;
+  for (const auto &g : groups)
+  {
+    if (g == "fieldGridData")
+    {
+      std::cout << "Background field data is found in the adios2 file\n";
+      name = name + "/" + g;
+      gridFound = true;
+      break;
+    }
+  }
+
+  // Step 4: Exit the program with an error message if field data is not found.
+  if (!gridFound)
+  {
+    std::cout << "The variable = " << name << "/fieldGridData does not exist in the adios2 file\n";
+    std::cout << "Make sure to use correct adios2 file with valid fieldgridData before using XgcBackgroundGridData\n"; 
+    exit(1);
+  }
+  return name; 
+}

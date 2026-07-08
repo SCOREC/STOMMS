@@ -478,7 +478,7 @@ void StommsOutput::writePhysicalDataToGrid(adios2::IO& io, adios2::Engine& write
   // Step 1: Write bounding box to the adios2 file
   // rMin = box[0], zMin = box[1], rMax = box[2], zMax = box[3]
   std::vector <double> box = gridFieldData.getDomainBox();
-  varName = name + "DomainBox";
+  varName = name + "domainBox";
   writeAdios2Array(io, writer, box, 1, varName);
 
   // Step 2: Write wall curve from the eqdsk file. Might be different from 

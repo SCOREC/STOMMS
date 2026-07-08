@@ -2,6 +2,7 @@
 #define XGC_READER_INTERFACE_H
 
 #include "xgc_reader_plane.hpp"
+#include "xgc_reader_background_grid.hpp"
 
 /*
 * @brief class XGCMesh.
@@ -232,6 +233,26 @@ class XgcMesh{
     int numPlanes = 1;
 };
 
+/**
+* @brief class XGCBackgroundGridData.
+*/
+class XgcBackgroundGridData{
+  public:
+    XgcBackgroundGridData(){};
+
+    /**
+     *
+     */
+    XgcBackgroundGridData(std::string adiosFileName);
+       
+  private:
+   std::string setGridDataName(adios2::IO &io);
+
+  // Variables
+  std::string adiosFile;
+  std::string gridDataName;
+  EqdskGridData eqdskGridData; 
+};
 /* 
  * ** Not implemented yet.
  * Given arbitrary location in RZ, give back which physics region

@@ -33,16 +33,18 @@ template <typename T>
 void readAdios2Array(adios2::IO &io, adios2::Engine &reader, std::vector <T> &array, std::string &name)
 {
   auto var = io.InquireVariable(name);
-  std::vector<size_t> shape = var.Count();
-  assert(shape.size() == 2);
-  size_t Nx = shape[0];
-  size_t Ny = shape[1];
+  std::vector <size_t> shape = var.Count();
+  
+  size_t arraySize = 1;
+  for (size_t size: shape)
+    arraySize = arraySize*size;
 
-  array.resize(Nx*Ny);
+  array.resize(arraySize);
   adios2::Variable<T> bpData = io.InquireVariable<T>(name);
   if (bpData) // means found
   {
-    bpData.SetSelection({{0,0}, {Nx,Ny}});
+    std::vector <size_t> start(shape.size(),0);
+    bpData.SetSelection({start, shape});
     reader.Get(bpData, array.data(),adios2::Mode::Sync);
   }
 }
