@@ -257,8 +257,9 @@ class EqdskData{
   std::vector <double> fluxValues;
   std::vector <double> intraCurveSpacingGradPsi;
 
-  // EQDSK Grid Info
+  // EQDSK Grid Info 
   GridFieldData eqdskGrid;
+  
 
   // Internal Functions
   /**
@@ -285,6 +286,12 @@ class EqdskData{
    * Add the data for (a) psi spline, (b) poloidal current spline
    */  
   void setSplinesOnGridData(); 
+
+  /**
+   * Function to set psi values at Chebhysev points of the cells in the grid.
+   * Needed to evaluate bicubic spline coefficients in XGC.
+   */ 
+  void setPsiAtChebyshevPointsOnGridData();
 
   /**
    * Function to set eqdsk parameters from inputs.

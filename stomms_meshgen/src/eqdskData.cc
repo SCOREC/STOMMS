@@ -79,6 +79,9 @@ void EqdskData::setEqdskGrid()
 
   // Step 6: Set Spline data on the grid.
   setSplinesOnGridData();
+
+  // Step 7: Set psi values at Chebhysev points of the cells in the grid.
+  setPsiAtChebyshevPointsOnGridData();
 }
 
 // Function to set individual arrays on Eqdsk Grid Data.
@@ -109,7 +112,7 @@ void EqdskData::setPhysicalDataOnGridData()
   std::vector <double> domainBox(4);
   get_b_box_(domainBox.data());
   eqdskGrid.setDomainBox(domainBox);
-
+  
   // Step 2: Set the wall curve (limiter)
   int numLimPts;
   get_num_bd_pts_(&numLimPts);
@@ -157,6 +160,58 @@ void EqdskData::setSplinesOnGridData()
   // Step 6: Write the current spline data to grid data.
   eqdskGrid.setCurrentSpline(currentSplineCoefficients, shape);
 }
+
+void EqdskData::setPsiAtChebyshevPointsOnGridData()
+{
+  // Stepp 1: Set number (nR and nZ) of cells in both directions.
+  // Also, change (dR and dZ) in both directions for a uniform grid.
+  std::vector <double> rPoints = eqdskGrid.getRPoints();
+  std::vector <double> zPoints = eqdskGrid.getZPoints();
+  int nR = rPoints.size() - 1;
+  int nZ = zPoints.size() - 1;
+  double dR = rPoints[1] - rPoints[0];
+  double dZ = zPoints[1] - zPoints[0];
+
+  // Step 2: Set up  interpolation positions using Chebyshev points
+  const double pi = 3.14159265358979323846;
+  std::array <double, 4> weight;
+  for (int i = 0; i < 4; i++)
+    weight[i] = (cos( pi*(i + 1.0)/5.0 ) + 1.0 )/2.0;
+
+  // Step 3: Find location of Chenyshev points in the cell and find psi
+  // value at them.
+  std::vector <double> psiValueAtChebyshevPoints(4*4*nR*nZ);
+  std::array <double, 4> rCoord, zCoord;  // coordinates of chebyshev points
+  for (int j = 0; j < nZ; j++)
+  {
+    for (int i = 0; i < nR; i++)
+    {
+      rCoord[0] = rPoints[i] + weight[0]*dR;
+      rCoord[1] = rPoints[i] + weight[1]*dR;
+      rCoord[2] = rPoints[i] + weight[2]*dR;
+      rCoord[3] = rPoints[i] + weight[3]*dR;
+      zCoord[0] = zPoints[j] + weight[0]*dZ;
+      zCoord[1] = zPoints[j] + weight[1]*dZ;
+      zCoord[2] = zPoints[j] + weight[2]*dZ;
+      zCoord[3] = zPoints[j] + weight[3]*dZ;
+      for (int j2 = 0; j2 < 4; j2++)
+      {
+        for (int i2 = 0; i2 < 4; i2++)
+        {
+          Point pt(rCoord[i2], zCoord[j2]);
+          
+          // Indexing: (j2*4+i2)+(i*16 + j*nR*16)
+          psiValueAtChebyshevPoints[(j2*4 + i2) + (i*16 + j*nR*16)] = getPsiAtPoint(pt);
+
+        }    
+      }
+    }  // end nR loop
+  } // end nZ loop
+
+  // Step 4: Set the psi vector back to grid data.
+  eqdskGrid.setPsiAtChebyshevPoints(psiValueAtChebyshevPoints);
+}
+  
 
 // Returns the values of psi at a physical location defined by pt.
 double EqdskData::getPsiAtPoint(const Point& pt)
