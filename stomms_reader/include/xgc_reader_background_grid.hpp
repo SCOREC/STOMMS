@@ -8,11 +8,6 @@ class EqdskGridData{
   public:
     EqdskGridData(){};
     EqdskGridData(const adios2::IO& io, const adios2::Engine& reader, std::string name);
-    void setPsiFieldOnGrid(const std::vector <double>& psiField);
-    //void setLimiter(const std::vector <double>& rLim, const std::vector <double>& zLim);
-    //void setPlasmaBoundary(const std::vector <double>& rBdry, const std::vector <double>& zBdry);
-    //void setDomainBox(const std::vector <double>& box);
-        
   private:
     // Set Internal Data
     /**

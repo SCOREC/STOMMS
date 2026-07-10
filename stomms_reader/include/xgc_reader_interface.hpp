@@ -241,11 +241,16 @@ class XgcBackgroundGridData{
     XgcBackgroundGridData(){};
 
     /**
-     *
+     * Constructor for XGC Background Grid Data. 
+     * @param adiosFileName: Adios2 file name containing mesh and related information.
      */
     XgcBackgroundGridData(std::string adiosFileName);
        
   private:
+   /**
+    * Function to read and set the grid data name from adios2 file.
+    * @param io: adios2 io to interact with adios2 input file.
+    */ 
    std::string setGridDataName(adios2::IO &io);
 
   // Variables

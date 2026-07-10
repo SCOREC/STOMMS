@@ -25,7 +25,7 @@ EqdskGridData::EqdskGridData(const adios2::IO& io, const adios2::Engine& reader,
 // Function to verify that all required variables exist in the adios2 file.
 void EqdskGridData::verifyGridData()
 {
-  // Step 1: Ste the variables needed from the adios2 file.
+  // Step 1: Set the variables needed from the adios2 file.
   std::vector <std::string> checkVariables = {"boundaryPointsR", "boundaryPointsZ",
                                               "gridPointsR", "gridPointsZ",
                                               "limiterPointsR", "limiterPointsZ",
