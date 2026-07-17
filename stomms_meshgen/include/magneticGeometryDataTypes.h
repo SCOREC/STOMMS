@@ -239,6 +239,13 @@ class GridFieldData{
      */
     void setPsiAtChebyshevPoints(const std::vector <double>& psiValuesAtPoints);
 
+   /**
+    * Function to set psi bicubic spline coefficients for each grid cell.
+    * @param biCubicSplineCoefficientsGrid: coefficients on each point of each cell.
+    * biCubicSplineCoefficientsGrid size should be (4*4)*(numPointsR-1)*(numPointsZ-1).
+    */ 
+   void setBiCubicSplineCoefficients(const std::vector <double>& biCubicSplineCoefficientsGrid);
+
     /**
      * Function to return r grid points.
      */ 
@@ -319,6 +326,11 @@ class GridFieldData{
      */ 
     const std::vector <double>& getPsiAtChebyshevPoints() const;
 
+    /**
+     * Function to return a vector of bicubic spline coefficients on the grid cells.
+     */ 
+    const std::vector <double>& getBiCubicSplineCoefficients() const;
+
   private:
     // Grid Data
     std::vector <double> rPoints;
@@ -348,6 +360,9 @@ class GridFieldData{
 
     // Psi Values for Chebyshev points
     std::vector <double> psiValueAtChebyshevPoints; 
+
+   // Bicubic spline coefficients for psi grid
+   std::vector <double> biCubicSplineCoefficients;
 };
 
 #endif

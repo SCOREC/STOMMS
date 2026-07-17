@@ -5,6 +5,7 @@
 #include "criticalPoints.h"
 #include "modelMetaData.h"
 #include "magneticGeometryDataTypes.h"
+#include "biCubicSpline.h"
 
 /** 
  * Class eqdskData contains the magnetic field information from eqdsk file.
@@ -292,6 +293,11 @@ class EqdskData{
    * Needed to evaluate bicubic spline coefficients in XGC.
    */ 
   void setPsiAtChebyshevPointsOnGridData();
+
+  /**
+   * Function to set bicubic spline coefficients for psi grid.
+   */ 
+  void setBiCubicSplineCoefficients();
 
   /**
    * Function to set eqdsk parameters from inputs.

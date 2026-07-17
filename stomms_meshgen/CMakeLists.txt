@@ -68,6 +68,7 @@ set(STELLMESH_SRCS
 
   # Utilitis
   src/util.cc 
+  src/biCubicSpline.cc
   src/ezfit.F90
 )
 

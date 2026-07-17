@@ -187,6 +187,20 @@ void GridFieldData::setPsiAtChebyshevPoints(const std::vector <double>& psiValue
   psiValueAtChebyshevPoints = psiValuesAtPoints;
 }
 
+// Function to set psi bicubic spline coefficients for each grid cell.
+void GridFieldData::setBiCubicSplineCoefficients(const std::vector <double>& biCubicSplineCoefficientsGrid)
+{
+  // Step 1: Get number of cells in both r and z direction.
+  int nR = rPoints.size() - 1;  // # of cells in r direction
+  int nZ = zPoints.size() - 1;  // # of cells in z direction
+
+  // Step 2: Verify the number of elements in the vector, and write the values to 
+  // the local data member.
+  assert (biCubicSplineCoefficientsGrid.size() == 4*4*nR*nZ);
+  biCubicSplineCoefficients.resize(4*4*nR*nZ);
+  biCubicSplineCoefficients = biCubicSplineCoefficientsGrid;
+}
+
 // Function to return r grid points.
 const std::vector <double>& GridFieldData::getRPoints() const
 {
@@ -293,4 +307,10 @@ const std::vector <int>& GridFieldData::getCurrentSplineShape() const
 const std::vector <double>& GridFieldData::getPsiAtChebyshevPoints() const
 {
   return psiValueAtChebyshevPoints;
+}
+
+// Function to return a vector of bicubic spline coefficients on the grid cells.
+const std::vector <double>& GridFieldData::getBiCubicSplineCoefficients() const
+{
+  return biCubicSplineCoefficients;
 }

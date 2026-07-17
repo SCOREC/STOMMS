@@ -1,4 +1,5 @@
 #include "eqdskData.h"
+
 /***********************************************/
 // Class: EqdskData
 /***********************************************/
@@ -81,6 +82,9 @@ void EqdskData::setEqdskGrid()
 
   // Step 7: Set psi values at Chebhysev points of the cells in the grid.
   setPsiAtChebyshevPointsOnGridData();
+
+  // Step 8: Set bicubic spline coefficients for psi field.
+  setBiCubicSplineCoefficients();
 }
 
 // Function to set individual arrays on Eqdsk Grid Data.
@@ -211,6 +215,67 @@ void EqdskData::setPsiAtChebyshevPointsOnGridData()
   eqdskGrid.setPsiAtChebyshevPoints(psiValueAtChebyshevPoints);
 }
   
+void EqdskData::setBiCubicSplineCoefficients()
+{
+  // Stepp 1: Set number (nR and nZ) of cells in both directions.
+  // Also, change (dR and dZ) in both directions for a uniform grid.
+  std::vector <double> rPoints = eqdskGrid.getRPoints();
+  std::vector <double> zPoints = eqdskGrid.getZPoints();
+  int nR = rPoints.size() - 1;
+  int nZ = zPoints.size() - 1;
+  double dR = rPoints[1] - rPoints[0];
+  double dZ = zPoints[1] - zPoints[0];
+
+  // Step 2: Set up  interpolation positions using Chebyshev points
+  const double pi = 3.14159265358979323846;
+  std::array <double, 4> weight;
+  for (int i = 0; i < 4; i++)
+    weight[i] = (cos( pi*(i + 1.0)/5.0 ) + 1.0 )/2.0;
+
+  // Step 3: Find the mid points for every cell in both r and z directions
+  std::vector <double> midR(nR), midZ(nZ);
+  for (int i = 0; i < nR; i++)
+    midR[i] = (rPoints[i] + rPoints[i+1])/2.0;
+  
+  for (int j = 0; j < nR; j++)
+    midZ[j] = (zPoints[j] + zPoints[j+1])/2.0;
+
+  // Step 4: Find location of Chenyshev points in the cell and find psi
+  // value at them. After that, generate bicubic spline coefficients.
+  std::array <double, 16> psiValueAtChebyshevPoints, coefficients;
+  std::vector <double> coefficientsGlobalVector;
+  std::array <double, 4> rCoord, zCoord;  // coordinates of chebyshev points
+  for (int j = 0; j < nZ; j++)
+  {
+    for (int i = 0; i < nR; i++)
+    {
+      rCoord[0] = rPoints[i] + weight[0]*dR;
+      rCoord[1] = rPoints[i] + weight[1]*dR;
+      rCoord[2] = rPoints[i] + weight[2]*dR;
+      rCoord[3] = rPoints[i] + weight[3]*dR;
+      zCoord[0] = zPoints[j] + weight[0]*dZ;
+      zCoord[1] = zPoints[j] + weight[1]*dZ;
+      zCoord[2] = zPoints[j] + weight[2]*dZ;
+      zCoord[3] = zPoints[j] + weight[3]*dZ;
+      for (int j2 = 0; j2 < 4; j2++)
+      {
+        for (int i2 = 0; i2 < 4; i2++)
+        {
+          Point pt(rCoord[i2], zCoord[j2]);
+          psiValueAtChebyshevPoints[j2*4 + i2] = getPsiAtPoint(pt);
+        }    
+      }
+      coefficients = generateBiCubicCoefficients(rCoord, zCoord, rPoints[i], zPoints[j], psiValueAtChebyshevPoints);
+ 
+      // Step 4.1: Set the local cell coefficients to the global vector
+      coefficientsGlobalVector.insert(coefficientsGlobalVector.end(), coefficients.begin(), coefficients.end());
+
+    }  // end nR loop
+  } // end nZ loop
+
+  // Step 5: Set the psi vector back to grid data.
+  eqdskGrid.setBiCubicSplineCoefficients(coefficientsGlobalVector);
+}
 
 // Returns the values of psi at a physical location defined by pt.
 double EqdskData::getPsiAtPoint(const Point& pt)
