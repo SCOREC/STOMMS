@@ -30,7 +30,8 @@ void EqdskGridData::verifyGridData()
                                               "gridPointsR", "gridPointsZ",
                                               "limiterPointsR", "limiterPointsZ",
                                               "psi", "psiGrid", "domainBox", "psiSplineCoefficients",
-                                              "poloidalCurrent", "poloidalCurrentSplineCoefficients"};
+                                              "poloidalCurrent", "poloidalCurrentSplineCoefficients",
+                                              "psiAtChebyshevPoints", "bicubicSplineCoefficients"};
 
   // Step 2: Get the list of variables in group = gridName from adios2 file.
   std::vector <std::string> variables = findVarInGroup(ioGrid, gridName);
@@ -61,6 +62,9 @@ void EqdskGridData::setPsiFieldOnGrid()
   readAdios2Array(ioGrid, readerGrid, psiGrid, varName);  
 
   assert (psiGrid.size() == rGridPoints.size()*zGridPoints.size());
+
+  // Step 3: Set psi at Chebyshev points of each grid cell.
+  setPsiAtChebyshevPoints();
 }
 
 // Function to set 1D arrays data to Eqdsk data.
@@ -155,6 +159,27 @@ void EqdskGridData::setPoloidalCurrentSplineCoefficients()
   assert(currentSplineCoefficients.size() == 2*poloidalCurrent.size());
 }
 
+// Function to set bicubic spline coefficients for psi.
+// # of coefficients = 16 * (# of r grid points - 1)*(# of z grid points - 1)
+void EqdskGridData::setBicubicSplineCoefficients()
+{
+  // Step 1: Read the coefficients array (3D) from the adios2 file.
+  std::string varName = gridName + "/bicubicSplineCoefficients";
+  readAdios2Array(ioGrid, readerGrid, bicubicSplineCoefficients, varName);
+
+  assert(bicubicSplineCoefficients.size() == 16*(rGridPoints.size() - 1)*(zGridPoints.size() - 1));
+}
+
+// Function to set psi values at Chebyshev points of each grid to evaluate bicubic splines.
+void EqdskGridData::setPsiAtChebyshevPoints()
+{
+  // Step 1: Read the psi values at Chebyshev points on each gril cell.
+  std::string varName = gridName + "/psiAtChebyshevPoints";
+  readAdios2Array(ioGrid, readerGrid, psiAtChebyshevPoints, varName);
+
+  assert(psiAtChebyshevPoints.size() == 16*(rGridPoints.size() - 1)*(zGridPoints.size() - 1));
+}
+
 // Function to set PSPLINE spline coefficients for eqdsk data.
 // Sets psi spline and poloidal current spline coefficients.
 void EqdskGridData::setSplineCoefficients()
@@ -164,4 +189,7 @@ void EqdskGridData::setSplineCoefficients()
 
   // Step 2: Set the poloidal current spline coefficients.
   setPoloidalCurrentSplineCoefficients();
+
+  // Step 3: Set the bicubic spline coefficients vector. 
+  setBicubicSplineCoefficients();
 }

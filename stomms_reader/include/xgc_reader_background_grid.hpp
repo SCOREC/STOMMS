@@ -66,6 +66,23 @@ class EqdskGridData{
     void setPoloidalCurrentSplineCoefficients();
 
     /**
+     * Function to set bicubic spline coefficients for psi. The coefficients 
+     * are generated for each grid cell in the domain.
+     * 16 coefficients for every box.
+     * # of coefficients = 16 * (# of r grid points - 1)*(# of z grid points - 1)
+     */ 
+    void setBicubicSplineCoefficients();
+
+    /**
+     * Function to set psi values at Chebyshev points of each grid cell.
+     * # of points = 16 * (# of r grid points - 1)*(# of z grid points - 1).
+     * This might be needed if bicubic spline coefficients are evaluated
+     * in XGC instead of being provided in adios2 file. Will review it
+     * future to see what data to keep and what to discard. (2026-07-21).
+     */  
+    void setPsiAtChebyshevPoints();
+
+    /**
      * Function to set PSPLINE spline coefficients for eqdsk data.
      * Sets psi spline and poloidal current spline coefficients.
      */ 
@@ -80,6 +97,7 @@ class EqdskGridData{
     std::vector <double> rGridPoints;
     std::vector <double> zGridPoints;
     std::vector <double> psiGrid;
+    std::vector <double> psiAtChebyshevPoints;
 
     // Eqdsk Psi and Poloidal Current Arrays
     std::vector <double> psi;
@@ -98,6 +116,7 @@ class EqdskGridData{
     // Splines Coefficients
     std::vector <double> psiSplineCoefficients;
     std::vector <double> currentSplineCoefficients;
+    std::vector <double> bicubicSplineCoefficients;
 };
 
 #endif
