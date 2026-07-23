@@ -193,3 +193,126 @@ void EqdskGridData::setSplineCoefficients()
   // Step 3: Set the bicubic spline coefficients vector. 
   setBicubicSplineCoefficients();
 }
+
+// Function to return a vector of R coordinates of the grid. 
+const std::vector <double>& EqdskGridData::getGridPointsR() const
+{
+  return rGridPoints;
+}
+
+// Function to return a vector of Z coordinates of the grid.
+const std::vector <double>& EqdskGridData::getGridPointsZ() const
+{
+  return zGridPoints;
+}
+
+// Function to return a vector of psi field on grid points.
+const std::vector <double>& EqdskGridData::getPsiFieldOnGrid() const
+{
+  return psiGrid;
+}
+
+// Function to return a vector of psi flux from Eqdsk.
+const std::vector <double>& EqdskGridData::getPsiArray()const
+{
+  return psi;
+}
+
+// Function to return a vector of poloidal current from Eqdsk.
+const std::vector <double>& EqdskGridData::getPoloidalCurrentArray() const
+{
+  return poloidalCurrent;
+}
+
+// Function to return a vector of R coordinates of the limiter.
+const std::vector <double>& EqdskGridData::getLimiterR() const
+{
+  return rLimiterPoints;
+}
+
+// Function to return a vector of Z coordinates of the limiter.
+const std::vector <double>& EqdskGridData::getLimiterZ() const
+{
+  return zLimiterPoints;
+}
+
+// Function to return eqdsk domain box.
+std::array <double, 4> EqdskGridData::getDomainBox() const
+{
+  std::array <double, 4> box{domainBox[0], domainBox[1],
+                             domainBox[2], domainBox[3]};
+  return box;
+}
+
+// Function to return global PSPLINE psi spline coefficients.
+const std::vector <double>& EqdskGridData::getPsplinePsiCoefficients() const
+{
+  return psiSplineCoefficients;
+}
+
+// Function to return PSPLINE poloidal current spline coefficients.
+const std::vector <double>& EqdskGridData::getPsplineCurrentCoefficients() const
+{
+  return currentSplineCoefficients;
+}
+
+// Function to return a vector of all the bicubic spline coefficients 
+// in each grid cell.
+const std::vector <double>& EqdskGridData::getBicubicSplineCoefficients() const
+{
+  return bicubicSplineCoefficients;
+}
+
+// Function to return an array of bicubic spline coefficients for a grid cell.
+// rIndex: index of grid cell along R. Ranges from 0 to rGridPoints.size()-1
+// zIndex: index of grid cell along Z. Ranges from 0 to zGridPoints.size()-1
+std::array <double, 16> EqdskGridData::getBicubicSplineCoefficientsInCell(int rIndex, int zIndex) const
+{
+  // Step 1: Get the number of cells in each direction (1 less than the total number in that direction)
+  // Also, verify that the indices are valid.
+  int numCellsAlongR = rGridPoints.size() - 1;
+  int numCellsAlongZ = zGridPoints.size() - 1;
+
+  if (rIndex >= numCellsAlongR || zIndex >= numCellsAlongZ)
+  {
+    throw std::runtime_error("Error in getBicubicSplineCoefficientsInCell: index out of range.\n"
+                        "Range of rIndex should be: 0 - " + std::to_string(numCellsAlongR - 1) + ".\n" +
+                        "Range of zIndex should be: 0 - " + std::to_string(numCellsAlongZ - 1) + ".\n" + 
+                        "Given values: rIndex = " + std::to_string(rIndex) + " ,zIndex = " + std::to_string(zIndex));
+  }
+
+  // Step 2: Get the cell index and start point of the coefficients in bicubicSplineCoefficients.
+  // Then copy it to the array.
+  int cellIndex = (zIndex*numCellsAlongR) + rIndex;
+  int start = 16*cellIndex;
+
+  std::array <double, 16> coefficients;
+  std::copy_n(bicubicSplineCoefficients.begin() + start, 16, coefficients.begin());
+  return coefficients;
+}
+
+// Function to return an array of psi values at Chebyshev points for a grid cell.
+std::array <double, 16> EqdskGridData::getPsiAtChebyshevPointsInCell(int rIndex, int zIndex) const
+{
+  // Step 1: Get the number of cells in each direction (1 less than the total number in that direction)
+  // Also, verify that the indices are valid.
+  int numCellsAlongR = rGridPoints.size() - 1;
+  int numCellsAlongZ = zGridPoints.size() - 1;
+
+  if (rIndex >= numCellsAlongR || zIndex >= numCellsAlongZ)
+  {
+    throw std::runtime_error("Error in getPsiAtChebyshevPointsInCell: index out of range.\n"
+                        "Range of rIndex should be: 0 - " + std::to_string(numCellsAlongR - 1) + ".\n" +
+                        "Range of zIndex should be: 0 - " + std::to_string(numCellsAlongZ - 1) + ".\n" + 
+                        "Given values: rIndex = " + std::to_string(rIndex) + " ,zIndex = " + std::to_string(zIndex));
+  }
+
+  // Step 2: Get the cell index and start point in the vector psiAtChebyshevPoints.
+  // Then copy it to the array.
+  int cellIndex = (zIndex*numCellsAlongR) + rIndex;
+  int start = 16*cellIndex;
+
+  std::array <double, 16> psiValues;
+  std::copy_n(psiAtChebyshevPoints.begin() + start, 16, psiValues.begin());
+  return psiValues;
+}

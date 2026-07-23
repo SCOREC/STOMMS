@@ -8,6 +8,82 @@ class EqdskGridData{
   public:
     EqdskGridData(){};
     EqdskGridData(const adios2::IO& io, const adios2::Engine& reader, std::string name);
+
+    /**
+     * Function to return a vector of R coordinates of the grid.
+     */ 
+    const std::vector <double>& getGridPointsR() const;
+
+    /**
+     * Function to return a vector of Z coordinates of the grid.
+     */ 
+    const std::vector <double>& getGridPointsZ() const;
+   
+    /**
+     * Function to return a vector of psi field on grid points.
+     * Size of psi vector = size of R vector* size of Z vector.
+     */ 
+    const std::vector <double>& getPsiFieldOnGrid() const;
+
+    /**
+     * Function to return a vector of psi flux from Eqdsk.
+     */
+    const std::vector <double>& getPsiArray()const;
+
+    /**
+     * Function to return a vector of poloidal current from Eqdsk.
+     */
+    const std::vector <double>& getPoloidalCurrentArray() const;
+ 
+    /**
+     * Function to return a vector of R coordinates of the limiter.
+     */
+    const std::vector <double>& getLimiterR() const;
+
+    /**
+     * Function to return a vector of Z coordinates of the limiter.
+     */
+    const std::vector <double>& getLimiterZ() const;
+     
+    /**
+     * Function to return eqdsk domain box.
+     * An array of size 4.
+     * Contains rMin, zMin, rMax, zMax.
+     */
+    std::array <double,4> getDomainBox() const; 
+
+    /**
+     * Function to return global PSPLINE psi spline coefficients.
+     * # of coefficients = 4*rGridPoints.size()*zGridPoints.size()
+     */
+    const std::vector <double>& getPsplinePsiCoefficients() const;
+ 
+    /**
+     * Function to return PSPLINE poloidal current spline coefficients.
+     * # of coefficients = 2*psi.size()
+     */
+    const std::vector <double>& getPsplineCurrentCoefficients() const;
+
+    /**
+     * Function to return a vector of all the bicubic spline coefficients in each grid cell.
+     * It contains 16 coefficients for each cell. 
+     */ 
+    const std::vector <double>& getBicubicSplineCoefficients() const;
+
+    /**
+     * Function to return an array of bicubic spline coefficients for a grid cell.
+     * @param rIndex: index of grid cell along R. Ranges from 0 to rGridPoints.size()-1
+     * @param zIndex: index of grid cell along Z. Ranges from 0 to zGridPoints.size()-1
+     */ 
+    std::array <double, 16> getBicubicSplineCoefficientsInCell(int rIndex, int zIndex) const;
+
+    /**
+     * Function to return an array of psi values at Chebyshev points for a grid cell.
+     * @param rIndex: index of grid cell along R. Ranges from 0 to rGridPoints.size()-1
+     * @param zIndex: index of grid cell along Z. Ranges from 0 to zGridPoints.size()-1
+     */ 
+    std::array <double, 16> getPsiAtChebyshevPointsInCell(int rIndex, int zIndex) const;
+
   private:
     // Set Internal Data
     /**
