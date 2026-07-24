@@ -571,3 +571,81 @@ std::string XgcBackgroundGridData::setGridDataName(adios2::IO &io)
   }
   return name; 
 }
+
+// Function to return a vector of R coordinates of the grid.
+const std::vector <double>& XgcBackgroundGridData::getGridPointsR() const
+{
+  return eqdskGridData.getGridPointsR();
+}
+
+// Function to return a vector of Z coordinates of the grid.
+const std::vector <double>& XgcBackgroundGridData::getGridPointsZ() const
+{
+  return eqdskGridData.getGridPointsZ();
+}
+
+// Function to return a vector of psi field on grid points.
+const std::vector <double>& XgcBackgroundGridData::getPsiFieldOnGrid() const
+{
+  return eqdskGridData.getPsiFieldOnGrid();
+}
+
+// Function to return a vector of psi flux from Eqdsk.
+const std::vector <double>& XgcBackgroundGridData::getPsiArray() const
+{
+  return eqdskGridData.getPsiArray();
+}
+
+// Function to return a vector of poloidal current from Eqdsk.
+const std::vector <double>& XgcBackgroundGridData::getPoloidalCurrentArray() const
+{
+  return eqdskGridData.getPoloidalCurrentArray();
+}
+
+// Function to return a vector of R coordinates of the limiter.
+const std::vector <double>& XgcBackgroundGridData::getLimiterR() const
+{
+  return eqdskGridData.getLimiterR();
+}
+
+// Function to return a vector of Z coordinates of the limiter.
+const std::vector <double>& XgcBackgroundGridData::getLimiterZ() const
+{
+  return eqdskGridData.getLimiterZ();
+}
+
+// Function to return eqdsk domain box.
+std::array <double,4> XgcBackgroundGridData::getDomainBox() const
+{
+  return eqdskGridData.getDomainBox();
+}
+
+// Function to return global PSPLINE psi spline coefficients.
+const std::vector <double>& XgcBackgroundGridData::getPsplinePsiCoefficients() const
+{
+  return eqdskGridData.getPsplinePsiCoefficients();
+}
+
+// Function to return PSPLINE poloidal current spline coefficients.
+const std::vector <double> XgcBackgroundGridData::getPsplineCurrentCoefficients() const
+{
+  return eqdskGridData.getPsplineCurrentCoefficients();
+}
+
+// Function to return a vector of all the bicubic spline coefficients of all the grid cell.
+const std::vector <double>& XgcBackgroundGridData::getBicubicSplineCoefficients() const
+{
+  return eqdskGridData.getBicubicSplineCoefficients();
+}
+
+// Function to return an array of bicubic spline coefficients for a grid cell.
+std::array <double, 16> XgcBackgroundGridData::getBicubicSplineCoefficientsInCell(int rIndex, int zIndex) const
+{
+  return eqdskGridData.getBicubicSplineCoefficientsInCell(rIndex, zIndex);
+}
+
+// Function to return an array of psi values at Chebyshev points for a grid cell.
+std::array <double, 16> XgcBackgroundGridData::getPsiAtChebyshevPointsInCell(int rIndex, int zIndex) const
+{
+  return eqdskGridData.getPsiAtChebyshevPointsInCell(rIndex, zIndex);
+}

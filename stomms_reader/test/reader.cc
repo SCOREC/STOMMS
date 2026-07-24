@@ -34,7 +34,32 @@ int main(int argc, char** argv)
 
     // Step 2: Test the background grid data
     XgcBackgroundGridData xgcBackgroundGridData(adios2File);
-  
+    const std::vector <double>& rGrid = xgcBackgroundGridData.getGridPointsR();
+    const std::vector <double>& zGrid = xgcBackgroundGridData.getGridPointsZ();
+    const std::vector <double>& psiGrid = xgcBackgroundGridData.getPsiFieldOnGrid();
+    const std::vector <double>& psiArray = xgcBackgroundGridData.getPsiArray(); 
+    const std::vector <double>& currentArray = xgcBackgroundGridData.getPoloidalCurrentArray();
+    const std::vector <double>& limiterR = xgcBackgroundGridData.getLimiterR();
+    const std::vector <double>& limiterZ = xgcBackgroundGridData.getLimiterZ();
+    std::array <double, 4> box = xgcBackgroundGridData.getDomainBox();
+    std::vector <double> biCubicCoefficients = xgcBackgroundGridData.getBicubicSplineCoefficients();
+    std::array <double, 16> localCoefficients = xgcBackgroundGridData.getBicubicSplineCoefficientsInCell(64,3);
+
+    std::cout << "=================== Interface for XgcBackgroundGridData ===================\n";
+    std::cout << "R Grid Size = " <<  rGrid.size() << "\n";
+    std::cout << "Z Grid Size = " <<  zGrid.size() << "\n"; 
+    std::cout << "Psi Grid Size = " <<  psiGrid.size() << "\n";
+    std::cout << "Psi Array Size = " <<  psiArray.size() << "\n";
+    std::cout << "Current Array Size = " <<  currentArray.size() << "\n";
+    std::cout << "Limiter R Size = " <<  limiterR.size() << "\n";
+    std::cout << "Limiter Z Size = " <<  limiterZ.size() << "\n";
+    std::cout << "Domain Box = " << box[0] << " , " << box[1] << " , " << box[2] << " , " << box[3] << "\n";
+    std::cout << "# of bicubic spline coefficients on full grid = " << biCubicCoefficients.size() << "\n";
+    for (int i = 0; i < 16; i++)
+      std::cout << localCoefficients[i] << "\t";
+    std::cout << "\n";
+    std::cout << "===========================================================================\n";
+ 
     // Step 2: Create a mesh reader object
     XgcMesh xgcMesh(adios2File);
 
