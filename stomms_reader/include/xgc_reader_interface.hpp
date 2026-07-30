@@ -257,7 +257,7 @@ class XgcBackgroundGridData{
     const std::vector <double>& getGridPointsZ() const;
    
     /**
-     * Function to return a vector of psi field on grid points.
+     * Function to return a vector of psi field on grid points.\n
      * Size of psi vector = size of R vector* size of Z vector.
      */ 
     const std::vector <double>& getPsiFieldOnGrid() const;
@@ -283,26 +283,26 @@ class XgcBackgroundGridData{
     const std::vector <double>& getLimiterZ() const;
      
     /**
-     * Function to return eqdsk domain box.
-     * An array of size 4.
+     * Function to return eqdsk domain box.\n
+     * An array of size 4.\n
      * Contains rMin, zMin, rMax, zMax.
      */
     std::array <double,4> getDomainBox() const; 
 
     /**
-     * Function to return global PSPLINE psi spline coefficients.
-     * # of coefficients = 4*rGridPoints.size()*zGridPoints.size()
+     * Function to return global PSPLINE psi spline coefficients.\n
+     * number of coefficients = 4*rGridPoints.size()*zGridPoints.size()
      */
     const std::vector <double>& getPsplinePsiCoefficients() const;
  
     /**
-     * Function to return PSPLINE poloidal current spline coefficients.
-     * # of coefficients = 2*psi.size()
+     * Function to return PSPLINE poloidal current spline coefficients.\n
+     * number of coefficients = 2*psi.size()
      */
     const std::vector <double> getPsplineCurrentCoefficients() const;
 
     /**
-     * Function to return a vector of all the bicubic spline coefficients in each grid cell.
+     * Function to return a vector of all the bicubic spline coefficients in each grid cell.\n
      * It contains 16 coefficients for each cell. 
      */ 
     const std::vector <double>& getBicubicSplineCoefficients() const;

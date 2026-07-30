@@ -53,19 +53,19 @@ class EqdskGridData{
     std::array <double,4> getDomainBox() const; 
 
     /**
-     * Function to return global PSPLINE psi spline coefficients.
-     * # of coefficients = 4*rGridPoints.size()*zGridPoints.size()
+     * Function to return global PSPLINE psi spline coefficients.\n
+     * Number of coefficients = 4*rGridPoints.size()*zGridPoints.size()
      */
     const std::vector <double>& getPsplinePsiCoefficients() const;
  
     /**
-     * Function to return PSPLINE poloidal current spline coefficients.
-     * # of coefficients = 2*psi.size()
+     * Function to return PSPLINE poloidal current spline coefficients.\n
+     * Number of coefficients = 2*psi.size()
      */
     const std::vector <double>& getPsplineCurrentCoefficients() const;
 
     /**
-     * Function to return a vector of all the bicubic spline coefficients in each grid cell.
+     * Function to return a vector of all the bicubic spline coefficients in each grid cell.\n
      * It contains 16 coefficients for each cell. 
      */ 
     const std::vector <double>& getBicubicSplineCoefficients() const;
@@ -92,19 +92,19 @@ class EqdskGridData{
     void verifyGridData();
 
     /**
-     * Function to set psi field on a grid from the adions2 file.
+     * Function to set psi field on a grid from the adions2 file.\n
      * Reads and sets the grid data (coordinates) and psi field on those points.
      */ 
     void setPsiFieldOnGrid();
 
     /**
-     * Function to set 1D arrays data to eqdsk data.
+     * Function to set 1D arrays data to eqdsk data.\n
      * Current Support: Psi array and Poloidal Current array.
      */
     void setDataArrays(); 
 
     /**
-     * Function to set domain box limits. Its an array of size 4.
+     * Function to set domain box limits. Its an array of size 4.\n
      * Contains rMin, zMin, rMax, zMax.
      */ 
     void setDomainBox();
@@ -130,14 +130,14 @@ class EqdskGridData{
     /**
      * Function to set spline coefficients for psi grid. The coefficients
      * are generated from PSPLINE ezspline routine.
-     * # of coefficients = 4*(# of r grid points)*(# of z grid points)
+     * number of coefficients = 4*(# of r grid points)*(# of z grid points)
      */ 
     void setPsiSplineCoefficients();
 
     /**
      * Function to set spline coefficients for poloidal current. The 
      * coefficients are generated from PSPLINE ezspline routine.
-     * # of coefficients = 2*(size of 1D poloidal current array)
+     * number of coefficients = 2*(size of 1D poloidal current array)
      */ 
     void setPoloidalCurrentSplineCoefficients();
 
@@ -145,13 +145,13 @@ class EqdskGridData{
      * Function to set bicubic spline coefficients for psi. The coefficients 
      * are generated for each grid cell in the domain.
      * 16 coefficients for every box.
-     * # of coefficients = 16 * (# of r grid points - 1)*(# of z grid points - 1)
+     * Number of coefficients = 16 * (# of r grid points - 1)*(# of z grid points - 1)
      */ 
     void setBicubicSplineCoefficients();
 
     /**
      * Function to set psi values at Chebyshev points of each grid cell.
-     * # of points = 16 * (# of r grid points - 1)*(# of z grid points - 1).
+     * number of points = 16 * (# of r grid points - 1)*(# of z grid points - 1).
      * This might be needed if bicubic spline coefficients are evaluated
      * in XGC instead of being provided in adios2 file. Will review it
      * future to see what data to keep and what to discard. (2026-07-21).

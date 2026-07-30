@@ -12,7 +12,8 @@ STOMMS has two compilation targets:
   1. Simmetrix Simmodsuite (for ``stomms_meshgen``)
   2. PSPLINE (for ``stomms_meshgen``)
   3. Omega_h (for both ``stomms_meshgen`` and ``stomms_reader``)
-  4. Adios2 (for both ``stomms_meshgen`` and ``stomms_reader``) 
+  4. Adios2 (for both ``stomms_meshgen`` and ``stomms_reader``)
+  5. LAPACK (for ``stomms_meshgen``) 
 
 The installation instructions for each system are provided here.
 
@@ -29,10 +30,13 @@ Required Modules and Libraries
    module load simmetrix-simmodsuite/2025.1-250602dev-yv5oiom netcdf-c/4.9.2-2ilqxr3 netcdf-cxx4/4.3.1-7427fnc
    module load simmetrix/simModeler/2025.0-250108-dev
    module load adios2/2.9.0-nztsv7o
+   module load netlib-lapack/3.11.0-b22mgwg
+   module load doxygen/1.9.6-5ppxahb
    export LD_LIBRARY_PATH=/opt/scorec/spack/rhel9/v0201_4/install/linux-rhel9-x86_64/gcc-12.3.0/netcdf-c-4.9.2-2ilqxr3rpuva5xlwzkzeqitei4oybuba/lib:$LD_LIBRARY_PATH
    export LD_LIBRARY_PATH=/opt/scorec/spack/rhel9/v0201_4/install/linux-rhel9-x86_64/gcc-12.3.0/netcdf-cxx4-4.3.1-7427fncoukmgmapu2ylfyuhgnawm77og/lib:$LD_LIBRARY_PATH
    export LD_LIBRARY_PATH=/opt/scorec/spack/rhel9/v0201_4/install/linux-rhel9-x86_64/gcc-12.3.0/adios2-2.9.0-nztsv7oahftcta2dntesql2wkep6kdfp/lib64:$LD_LIBRARY_PATH
-   export LD_LIBRARY_PATH=/lore/riazu2/Tools/install/OmegaH/gcc12.3.0/lib64:$LD_LIBRARY_PATH
+   export LD_LIBRARY_PATH=/opt/scorec/spack/rhel9/v0201_4/install/linux-rhel9-x86_64/gcc-12.3.0/netlib-lapack-3.11.0-b22mgwgxwwyajomdudwwbhewg6ulam7m/lib64:$LD_LIBRARY_PATH
+   export LD_LIBRARY_PATH=/users/riazu2/lore.scorec.rpi.edu/Tools/install/OmegaH/gcc12.3.0/lib64:$LD_LIBRARY_PATH
 
 Compilation
 ~~~~~~~~~~~
