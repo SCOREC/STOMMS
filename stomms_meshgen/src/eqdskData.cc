@@ -257,12 +257,12 @@ void EqdskData::setBiCubicSplineCoefficients()
       zCoord[1] = zPoints[j] + weight[1]*dZ;
       zCoord[2] = zPoints[j] + weight[2]*dZ;
       zCoord[3] = zPoints[j] + weight[3]*dZ;
-      for (int j2 = 0; j2 < 4; j2++)
+      for (int i2 = 0; i2 < 4; i2++)
       {
-        for (int i2 = 0; i2 < 4; i2++)
+        for (int j2 = 0; j2 < 4; j2++)
         {
           Point pt(rCoord[i2], zCoord[j2]);
-          psiValueAtChebyshevPoints[j2*4 + i2] = getPsiAtPoint(pt);
+          psiValueAtChebyshevPoints[i2*4 + j2] = getPsiAtPoint(pt);
         }    
       }
       coefficients = generateBiCubicCoefficients(rCoord, zCoord, midR[i], midZ[j], psiValueAtChebyshevPoints);

@@ -35,13 +35,7 @@ std::array <double,16> generateBiCubicCoefficients(const std::array <double,4>& 
   // Step 3: Solve the factorized matrices
   // tempMatrix = inv(tX)*fieldValues 
   // argument 'N' in the LAPACKE_dgetrs call means no transpose
-  std::array <double,16> tempMatrix{};
-  for (int i = 0; i < 4; i++)
-  {
-    for (int j = 0; j < 4; j++)
-      tempMatrix[i*4 + j] = fieldValues[j*4 + i];
-  }
-
+  std::array <double,16> tempMatrix = fieldValues;
   info = LAPACKE_dgetrs(LAPACK_ROW_MAJOR, 'N', 4, 4, tX.data(), 4, pivotX.data(), tempMatrix.data(), 4); 
 
   if (info != 0)
