@@ -43,7 +43,9 @@ int main(int argc, char** argv)
     const std::vector <double>& limiterZ = xgcBackgroundGridData.getLimiterZ();
     std::array <double, 4> box = xgcBackgroundGridData.getDomainBox();
     std::vector <double> biCubicCoefficients = xgcBackgroundGridData.getBicubicSplineCoefficients();
-    std::array <double, 16> localCoefficients = xgcBackgroundGridData.getBicubicSplineCoefficientsInCell(64,3);
+    int rIndx = 69;
+    int zIndx = 100;
+    std::array <double, 16> localCoefficients = xgcBackgroundGridData.getBicubicSplineCoefficientsInCell(rIndx, zIndx);
 
     std::cout << "=================== Interface for XgcBackgroundGridData ===================\n";
     std::cout << "R Grid Size = " <<  rGrid.size() << "\n";
@@ -55,6 +57,7 @@ int main(int argc, char** argv)
     std::cout << "Limiter Z Size = " <<  limiterZ.size() << "\n";
     std::cout << "Domain Box = " << box[0] << " , " << box[1] << " , " << box[2] << " , " << box[3] << "\n";
     std::cout << "# of bicubic spline coefficients on full grid = " << biCubicCoefficients.size() << "\n";
+    std::cout << "Local coefficients for grid with rIndx = " << rIndx  << " and zIndx = " << zIndx << "\n";
     for (int i = 0; i < 16; i++)
       std::cout << localCoefficients[i] << "\t";
     std::cout << "\n";

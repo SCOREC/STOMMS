@@ -302,8 +302,9 @@ class XgcBackgroundGridData{
     const std::vector <double> getPsplineCurrentCoefficients() const;
 
     /**
-     * Function to return a vector of all the bicubic spline coefficients in each grid cell.\n
-     * It contains 16 coefficients for each cell. 
+     * Function to return a vector of all the bicubic spline coefficients in all grid cell.\n
+     * It contains 16 coefficients for each cell.
+     * vector.size() = nR*nZ*16. 
      */ 
     const std::vector <double>& getBicubicSplineCoefficients() const;
 

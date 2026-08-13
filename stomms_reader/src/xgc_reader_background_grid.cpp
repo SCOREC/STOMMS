@@ -26,8 +26,8 @@ EqdskGridData::EqdskGridData(const adios2::IO& io, const adios2::Engine& reader,
 void EqdskGridData::verifyGridData()
 {
   // Step 1: Set the variables needed from the adios2 file.
-  std::vector <std::string> checkVariables = {"boundaryPointsR", "boundaryPointsZ",
-                                              "gridPointsR", "gridPointsZ",
+  // Optional Variables: "boundaryPointsR", "boundaryPointsZ"
+  std::vector <std::string> checkVariables = {"gridPointsR", "gridPointsZ",
                                               "limiterPointsR", "limiterPointsZ",
                                               "psi", "psiGrid", "domainBox", "psiSplineCoefficients",
                                               "poloidalCurrent", "poloidalCurrentSplineCoefficients",
@@ -132,7 +132,7 @@ void EqdskGridData::setBoundaryData()
   // Step 3: Set the plasma boundary. 
   // Note: We might not need it since we already have separatrix curve information. 
   // Talk to XGC team about it.
-  setPlasmaBoundary();
+  // setPlasmaBoundary();
 }
 
 // Function to set spline coefficients for psi grid.
