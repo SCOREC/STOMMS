@@ -237,7 +237,7 @@ void EqdskData::setBiCubicSplineCoefficients()
   for (int i = 0; i < nR; i++)
     midR[i] = (rPoints[i] + rPoints[i+1])/2.0;
   
-  for (int j = 0; j < nR; j++)
+  for (int j = 0; j < nZ; j++)
     midZ[j] = (zPoints[j] + zPoints[j+1])/2.0;
 
   // Step 4: Find location of Chenyshev points in the cell and find psi
@@ -265,8 +265,8 @@ void EqdskData::setBiCubicSplineCoefficients()
           psiValueAtChebyshevPoints[j2*4 + i2] = getPsiAtPoint(pt);
         }    
       }
-      coefficients = generateBiCubicCoefficients(rCoord, zCoord, rPoints[i], zPoints[j], psiValueAtChebyshevPoints);
- 
+      coefficients = generateBiCubicCoefficients(rCoord, zCoord, midR[i], midZ[j], psiValueAtChebyshevPoints);
+
       // Step 4.1: Set the local cell coefficients to the global vector
       coefficientsGlobalVector.insert(coefficientsGlobalVector.end(), coefficients.begin(), coefficients.end());
 
