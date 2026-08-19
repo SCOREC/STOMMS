@@ -230,6 +230,21 @@ class GridFieldData{
      * coefficients.size() == shape[0]*shape[1]
      */
     void setCurrentSpline(std::vector <double>& coefficeints, std::vector <int>& shape);
+  
+    /**
+     * Function to set psi values at Chebyshev points of the cells in the grid.
+     * Needed to evaluate bicubic spline coefficients in XGC.
+     * @param psiValuesAtPoints: psi values on each point of each cell.
+     * psiValuesAtPoints size should be (4*4)*(numPointsR-1)*(numPointsZ-1)
+     */
+    void setPsiAtChebyshevPoints(const std::vector <double>& psiValuesAtPoints);
+
+   /**
+    * Function to set psi bicubic spline coefficients for each grid cell.
+    * @param biCubicSplineCoefficientsGrid: coefficients on each point of each cell.
+    * biCubicSplineCoefficientsGrid size should be (4*4)*(numPointsR-1)*(numPointsZ-1).
+    */ 
+   void setBiCubicSplineCoefficients(const std::vector <double>& biCubicSplineCoefficientsGrid);
 
     /**
      * Function to return r grid points.
@@ -305,6 +320,17 @@ class GridFieldData{
      * The original array is 2D which is flattened in a vector.
      */ 
     const std::vector <int>& getCurrentSplineShape() const;
+
+    /**
+     * Function to return vector of psi values at Chebyshev points on the grid cells.
+     */ 
+    const std::vector <double>& getPsiAtChebyshevPoints() const;
+
+    /**
+     * Function to return a vector of bicubic spline coefficients on the grid cells.
+     */ 
+    const std::vector <double>& getBiCubicSplineCoefficients() const;
+
   private:
     // Grid Data
     std::vector <double> rPoints;
@@ -330,7 +356,13 @@ class GridFieldData{
     std::vector <double> psiSplineCoefficients;
     std::vector <int> psiSplineShape;
     std::vector <double> currentSplineCoefficients;
-    std::vector <int> currentSplineShape; 
+    std::vector <int> currentSplineShape;
+
+    // Psi Values for Chebyshev points
+    std::vector <double> psiValueAtChebyshevPoints; 
+
+   // Bicubic spline coefficients for psi grid
+   std::vector <double> biCubicSplineCoefficients;
 };
 
 #endif

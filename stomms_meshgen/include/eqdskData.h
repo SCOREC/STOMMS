@@ -5,6 +5,7 @@
 #include "criticalPoints.h"
 #include "modelMetaData.h"
 #include "magneticGeometryDataTypes.h"
+#include "biCubicSpline.h"
 
 /** 
  * Class eqdskData contains the magnetic field information from eqdsk file.
@@ -257,8 +258,9 @@ class EqdskData{
   std::vector <double> fluxValues;
   std::vector <double> intraCurveSpacingGradPsi;
 
-  // EQDSK Grid Info
+  // EQDSK Grid Info 
   GridFieldData eqdskGrid;
+  
 
   // Internal Functions
   /**
@@ -285,6 +287,17 @@ class EqdskData{
    * Add the data for (a) psi spline, (b) poloidal current spline
    */  
   void setSplinesOnGridData(); 
+
+  /**
+   * Function to set psi values at Chebhysev points of the cells in the grid.
+   * Needed to evaluate bicubic spline coefficients in XGC.
+   */ 
+  void setPsiAtChebyshevPointsOnGridData();
+
+  /**
+   * Function to set bicubic spline coefficients for psi grid.
+   */ 
+  void setBiCubicSplineCoefficients();
 
   /**
    * Function to set eqdsk parameters from inputs.

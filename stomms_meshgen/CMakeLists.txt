@@ -2,6 +2,7 @@ find_package(SimModSuite) #modify to take argForDebug and internal flags
 find_package(PSPLINE REQUIRED)
 find_package(Omega_h REQUIRED)
 find_package(Adios2 REQUIRED)
+find_package(LAPACKE REQUIRED)
 find_package(PkgConfig REQUIRED)
 
 # Find git hash and save it to GIT_HASH variable
@@ -67,6 +68,7 @@ set(STELLMESH_SRCS
 
   # Utilitis
   src/util.cc 
+  src/biCubicSpline.cc
   src/ezfit.F90
 )
 
@@ -87,6 +89,7 @@ target_link_libraries(stommsLib PUBLIC
    ${PSPLINE_LIBRARIES}
    Omega_h::omega_h
    adios2::cxx11
+   lapacke
 )
 
 # NetCDF (C, Cxx4) doesn't have cmake targets at PPPL so need to do

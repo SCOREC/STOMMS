@@ -13,3 +13,10 @@ XgcMesh Class
 .. doxygenclass:: XgcMesh
    :members:
    :project: STOMMS
+
+XgcBackgroundGridData Class
+---------------------------
+
+.. doxygenclass:: XgcBackgroundGridData
+   :members:
+   :project: STOMMS

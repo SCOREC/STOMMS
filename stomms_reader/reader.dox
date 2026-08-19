@@ -10,5 +10,5 @@ Page for mesh reader API's:
 - \ref include/xgc_reader_plane.hpp "Plane Mesh"
 - \ref include/xgc_reader_interface.hpp "XGC-STOMMS Interface"
 - \ref include/xgc_reader_utility.hpp "Utility Functions"
-
+- \ref include/xgc_reader_background_grid.hpp "Background Grid (EQDSK) Interface"
 */

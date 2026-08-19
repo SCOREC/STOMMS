@@ -502,3 +502,150 @@ std::map<MeshIdType, std::vector <CurveIdType>> XgcMesh::getNonAlignedMeshVertic
 
   return verticesOnModel;
 }
+
+/*******************************/
+// Class XgcBackgroundGridData
+/*******************************/
+XgcBackgroundGridData::XgcBackgroundGridData(std::string adiosFileName):adiosFile(adiosFileName)
+{
+  // Step 1: Create adios2 object and io.
+  adios2::ADIOS adios;
+  adios2::IO io = adios.DeclareIO("xgcReader");
+
+  // Step 2: Start the reader engine
+  adios2::Engine reader = io.Open(adiosFile, adios2::Mode::Read);
+  reader.BeginStep();
+
+  // Step 3: Verify grid data exists in adios2 file.
+  gridDataName = setGridDataName(io);
+
+  // Step 4: Set grid data from adios2 file to class EqdskGridData
+  eqdskGridData = EqdskGridData(io, reader, gridDataName);
+}
+
+std::string XgcBackgroundGridData::setGridDataName(adios2::IO &io)
+{
+  std::string name;  // return grid data name
+
+  // Step 1: Set the path of the groups to read.
+  auto g = io.InquireGroup('/');  // group identifier
+  std::string groupName = "";  // the very first group in the list
+  
+  // Step 2: Read groups and make sure the size of groups is 1 (only top level mesh name).
+  // If greater than 1, throw an error.
+  auto groups = g.AvailableGroups();
+  if (groups.size() == 1)
+    name = groups[0];
+  else if (groups.size() > 1)
+  {
+   std::cout << "More than one mesh names exist in the file\n";
+   std::cout << "Make sure only one mesh is provided in the adios2 file\n";
+   std::cout << "========== List of mesh names in file is provided below ===========\n";
+   for (const auto &g : groups)
+    std::cout << "Group name: " << g << "\n";  
+  
+   exit(1);
+  }
+
+  // Step 3: Make sure grid field data exist in the file.
+  g.setPath(name);
+  groups = g.AvailableGroups();
+  bool gridFound = false;
+  for (const auto &g : groups)
+  {
+    if (g == "fieldGridData")
+    {
+      std::cout << "Background field data is found in the adios2 file\n";
+      name = name + "/" + g;
+      gridFound = true;
+      break;
+    }
+  }
+
+  // Step 4: Exit the program with an error message if field data is not found.
+  if (!gridFound)
+  {
+    std::cout << "The variable = " << name << "/fieldGridData does not exist in the adios2 file\n";
+    std::cout << "Make sure to use correct adios2 file with valid fieldgridData before using XgcBackgroundGridData\n"; 
+    exit(1);
+  }
+  return name; 
+}
+
+// Function to return a vector of R coordinates of the grid.
+const std::vector <double>& XgcBackgroundGridData::getGridPointsR() const
+{
+  return eqdskGridData.getGridPointsR();
+}
+
+// Function to return a vector of Z coordinates of the grid.
+const std::vector <double>& XgcBackgroundGridData::getGridPointsZ() const
+{
+  return eqdskGridData.getGridPointsZ();
+}
+
+// Function to return a vector of psi field on grid points.
+const std::vector <double>& XgcBackgroundGridData::getPsiFieldOnGrid() const
+{
+  return eqdskGridData.getPsiFieldOnGrid();
+}
+
+// Function to return a vector of psi flux from Eqdsk.
+const std::vector <double>& XgcBackgroundGridData::getPsiArray() const
+{
+  return eqdskGridData.getPsiArray();
+}
+
+// Function to return a vector of poloidal current from Eqdsk.
+const std::vector <double>& XgcBackgroundGridData::getPoloidalCurrentArray() const
+{
+  return eqdskGridData.getPoloidalCurrentArray();
+}
+
+// Function to return a vector of R coordinates of the limiter.
+const std::vector <double>& XgcBackgroundGridData::getLimiterR() const
+{
+  return eqdskGridData.getLimiterR();
+}
+
+// Function to return a vector of Z coordinates of the limiter.
+const std::vector <double>& XgcBackgroundGridData::getLimiterZ() const
+{
+  return eqdskGridData.getLimiterZ();
+}
+
+// Function to return eqdsk domain box.
+std::array <double,4> XgcBackgroundGridData::getDomainBox() const
+{
+  return eqdskGridData.getDomainBox();
+}
+
+// Function to return global PSPLINE psi spline coefficients.
+const std::vector <double>& XgcBackgroundGridData::getPsplinePsiCoefficients() const
+{
+  return eqdskGridData.getPsplinePsiCoefficients();
+}
+
+// Function to return PSPLINE poloidal current spline coefficients.
+const std::vector <double> XgcBackgroundGridData::getPsplineCurrentCoefficients() const
+{
+  return eqdskGridData.getPsplineCurrentCoefficients();
+}
+
+// Function to return a vector of all the bicubic spline coefficients of all the grid cell.
+const std::vector <double>& XgcBackgroundGridData::getBicubicSplineCoefficients() const
+{
+  return eqdskGridData.getBicubicSplineCoefficients();
+}
+
+// Function to return an array of bicubic spline coefficients for a grid cell.
+std::array <double, 16> XgcBackgroundGridData::getBicubicSplineCoefficientsInCell(int rIndex, int zIndex) const
+{
+  return eqdskGridData.getBicubicSplineCoefficientsInCell(rIndex, zIndex);
+}
+
+// Function to return an array of psi values at Chebyshev points for a grid cell.
+std::array <double, 16> XgcBackgroundGridData::getPsiAtChebyshevPointsInCell(int rIndex, int zIndex) const
+{
+  return eqdskGridData.getPsiAtChebyshevPointsInCell(rIndex, zIndex);
+}

@@ -172,6 +172,35 @@ void GridFieldData::setCurrentSpline(std::vector <double>& coefficeints, std::ve
   currentSplineCoefficients = coefficeints; 
 }
 
+
+// Function to set psi values at Chebyshev points of the cells in the grid. 
+void GridFieldData::setPsiAtChebyshevPoints(const std::vector <double>& psiValuesAtPoints)
+{
+  // Step 1: Get number of cells in both r and z direction.
+  int nR = rPoints.size() - 1;  // # of cells in r direction
+  int nZ = zPoints.size() - 1;  // # of cells in z direction
+
+  // Step 2: Verify the number of elements in the vector, and write the values to 
+  // the local data member.
+  assert (psiValuesAtPoints.size() == 4*4*nR*nZ);
+  psiValueAtChebyshevPoints.resize(4*4*nR*nZ);
+  psiValueAtChebyshevPoints = psiValuesAtPoints;
+}
+
+// Function to set psi bicubic spline coefficients for each grid cell.
+void GridFieldData::setBiCubicSplineCoefficients(const std::vector <double>& biCubicSplineCoefficientsGrid)
+{
+  // Step 1: Get number of cells in both r and z direction.
+  int nR = rPoints.size() - 1;  // # of cells in r direction
+  int nZ = zPoints.size() - 1;  // # of cells in z direction
+
+  // Step 2: Verify the number of elements in the vector, and write the values to 
+  // the local data member.
+  assert (biCubicSplineCoefficientsGrid.size() == 4*4*nR*nZ);
+  biCubicSplineCoefficients.resize(4*4*nR*nZ);
+  biCubicSplineCoefficients = biCubicSplineCoefficientsGrid;
+}
+
 // Function to return r grid points.
 const std::vector <double>& GridFieldData::getRPoints() const
 {
@@ -272,4 +301,16 @@ const std::vector <double>& GridFieldData::getCurrentSplineCoefficients() const
 const std::vector <int>& GridFieldData::getCurrentSplineShape() const
 {
   return currentSplineShape;
+}
+
+// Function to return vector of psi values at Chebyshev points on the grid cells.
+const std::vector <double>& GridFieldData::getPsiAtChebyshevPoints() const
+{
+  return psiValueAtChebyshevPoints;
+}
+
+// Function to return a vector of bicubic spline coefficients on the grid cells.
+const std::vector <double>& GridFieldData::getBiCubicSplineCoefficients() const
+{
+  return biCubicSplineCoefficients;
 }

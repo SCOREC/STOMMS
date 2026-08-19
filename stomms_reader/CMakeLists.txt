@@ -9,6 +9,7 @@ set(XGC_READER_SRC
   src/xgc_reader_utility.cpp
   src/xgc_reader_plane.cpp
   src/xgc_reader_nonaligned_vertices.cpp
+  src/xgc_reader_background_grid.cpp
   src/xgc_reader_interface.cpp
 )
 
@@ -37,6 +38,7 @@ set(XGC_READER_INCLUDE
   include/xgc_reader_utility.hpp
   include/xgc_reader_plane.hpp
   include/xgc_reader_nonaligned_vertices.hpp
+  include/xgc_reader_background_grid.hpp
   include/xgc_reader_interface.hpp
 )
 install(FILES ${XGC_READER_INCLUDE} DESTINATION include)

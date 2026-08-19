@@ -442,14 +442,25 @@ void StommsOutput::writeGridInformation(adios2::IO& io, adios2::Engine& writer)
   // Step 4: Write psi Grid Data to adios2 file
   varName = name + "psiGrid";
   writeAdios2Array(io, writer, psiField, zPoints.size(), varName);
+ 
+  // Step 5: Write psi values at the Chebhysev points of the cells in the grid.
+  const std::vector <double>& psiAtChebyshevPoints = gridFieldData.getPsiAtChebyshevPoints();
+  varName = name + "psiAtChebyshevPoints";
+  std::vector <int> arrayShape{static_cast<int>(zPoints.size()-1), static_cast<int>(rPoints.size()-1), 16};
+  writeAdios2MultiDimArray(io, writer, psiAtChebyshevPoints, arrayShape, varName);
 
-  // Step 5: Write psi and poloidal current arrays
+  // Step 6: Write bicubic spline coefficients for each cell in the grid (eqdsk grid).
+  const std::vector <double>& biCubicCoefficients = gridFieldData.getBiCubicSplineCoefficients();
+  varName = name + "bicubicSplineCoefficients";
+  writeAdios2MultiDimArray(io, writer, biCubicCoefficients, arrayShape, varName);
+
+  // Step 7: Write psi and poloidal current arrays
   writeFieldArraysToGrid(io, writer, name);
 
-  // Step 6: Write physical boundaries data.
+  // Step 8: Write physical boundaries data.
   writePhysicalDataToGrid(io, writer, name);
 
-  // STep 7: Write spline data to the grid.
+  // STep 9: Write spline data to the grid.
   writeSplinesDataToGrid(io, writer, name);
 }
 
@@ -478,7 +489,7 @@ void StommsOutput::writePhysicalDataToGrid(adios2::IO& io, adios2::Engine& write
   // Step 1: Write bounding box to the adios2 file
   // rMin = box[0], zMin = box[1], rMax = box[2], zMax = box[3]
   std::vector <double> box = gridFieldData.getDomainBox();
-  varName = name + "DomainBox";
+  varName = name + "domainBox";
   writeAdios2Array(io, writer, box, 1, varName);
 
   // Step 2: Write wall curve from the eqdsk file. Might be different from 

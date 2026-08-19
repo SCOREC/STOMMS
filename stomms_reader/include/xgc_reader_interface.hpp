@@ -2,6 +2,7 @@
 #define XGC_READER_INTERFACE_H
 
 #include "xgc_reader_plane.hpp"
+#include "xgc_reader_background_grid.hpp"
 
 /*
 * @brief class XGCMesh.
@@ -232,6 +233,107 @@ class XgcMesh{
     int numPlanes = 1;
 };
 
+/**
+* @brief class XGCBackgroundGridData.
+*/
+class XgcBackgroundGridData{
+  public:
+    XgcBackgroundGridData(){};
+
+    /**
+     * Constructor for XGC Background Grid Data. 
+     * @param adiosFileName: Adios2 file name containing mesh and related information.
+     */
+    XgcBackgroundGridData(std::string adiosFileName);
+ 
+    /**
+     * Function to return a vector of R coordinates of the grid.
+     */ 
+    const std::vector <double>& getGridPointsR() const;
+
+    /**
+     * Function to return a vector of Z coordinates of the grid.
+     */ 
+    const std::vector <double>& getGridPointsZ() const;
+   
+    /**
+     * Function to return a vector of psi field on grid points.\n
+     * Size of psi vector = size of R vector* size of Z vector.
+     */ 
+    const std::vector <double>& getPsiFieldOnGrid() const;
+
+    /**
+     * Function to return a vector of psi flux from Eqdsk.
+     */
+    const std::vector <double>& getPsiArray() const;
+
+    /**
+     * Function to return a vector of poloidal current from Eqdsk.
+     */
+    const std::vector <double>& getPoloidalCurrentArray() const;
+ 
+    /**
+     * Function to return a vector of R coordinates of the limiter.
+     */
+    const std::vector <double>& getLimiterR() const;
+
+    /**
+     * Function to return a vector of Z coordinates of the limiter.
+     */
+    const std::vector <double>& getLimiterZ() const;
+     
+    /**
+     * Function to return eqdsk domain box.\n
+     * An array of size 4.\n
+     * Contains rMin, zMin, rMax, zMax.
+     */
+    std::array <double,4> getDomainBox() const; 
+
+    /**
+     * Function to return global PSPLINE psi spline coefficients.\n
+     * number of coefficients = 4*rGridPoints.size()*zGridPoints.size()
+     */
+    const std::vector <double>& getPsplinePsiCoefficients() const;
+ 
+    /**
+     * Function to return PSPLINE poloidal current spline coefficients.\n
+     * number of coefficients = 2*psi.size()
+     */
+    const std::vector <double> getPsplineCurrentCoefficients() const;
+
+    /**
+     * Function to return a vector of all the bicubic spline coefficients in all grid cell.\n
+     * It contains 16 coefficients for each cell.
+     * vector.size() = nR*nZ*16. 
+     */ 
+    const std::vector <double>& getBicubicSplineCoefficients() const;
+
+    /**
+     * Function to return an array of bicubic spline coefficients for a grid cell.
+     * @param rIndex: index of grid cell along R. Ranges from 0 to rGridPoints.size()-1
+     * @param zIndex: index of grid cell along Z. Ranges from 0 to zGridPoints.size()-1
+     */ 
+    std::array <double, 16> getBicubicSplineCoefficientsInCell(int rIndex, int zIndex) const;
+
+    /**
+     * Function to return an array of psi values at Chebyshev points for a grid cell.
+     * @param rIndex: index of grid cell along R. Ranges from 0 to rGridPoints.size()-1
+     * @param zIndex: index of grid cell along Z. Ranges from 0 to zGridPoints.size()-1
+     */ 
+    std::array <double, 16> getPsiAtChebyshevPointsInCell(int rIndex, int zIndex) const;
+       
+  private:
+   /**
+    * Function to read and set the grid data name from adios2 file.
+    * @param io: adios2 io to interact with adios2 input file.
+    */ 
+   std::string setGridDataName(adios2::IO &io);
+
+  // Variables
+  std::string adiosFile;
+  std::string gridDataName;
+  EqdskGridData eqdskGridData; 
+};
 /* 
  * ** Not implemented yet.
  * Given arbitrary location in RZ, give back which physics region

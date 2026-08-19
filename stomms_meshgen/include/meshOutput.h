@@ -210,7 +210,7 @@ void writeAdios2Value(adios2::IO& io, adios2::Engine& writer,
  */
 template <typename T>
 void writeAdios2MultiDimArray(adios2::IO& io, adios2::Engine& writer,
-          std::vector <T>& arrayData, std::vector <int>& arrayShape, std::string& name)
+          const std::vector <T>& arrayData, std::vector <int>& arrayShape, std::string& name)
 {
   // step 1: Safety checks before proceeding. Make sure array has the correct size.
   int desiredSize = 1;
