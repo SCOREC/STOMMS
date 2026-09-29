@@ -1,5 +1,5 @@
-#ifndef MAGNETICGEOMETRYTOKAMAK_H
-#define MAGNETICGEOMETRYTOKAMAK_H
+#ifndef MAGNETICGEOMETRYEQDSK_H
+#define MAGNETICGEOMETRYEQDSK_H
 
 #include "magneticGeometry.h"
 #include "gfileUtil.h"
@@ -10,15 +10,15 @@
  * A class to hold magnetic geometry of tokamaks along with the
  * construction of actual geometry (model).
  */
-class MagneticGeometryForTokamak: public MagneticGeometry{
+class MagneticGeometryEqdsk: public MagneticGeometry{
   public:
     /**
-     * Constructor to set magnetic geometry information from tokamak to class MagneticGeometry.
+     * Constructor to set magnetic geometry information from EQDSK to class MagneticGeometry.
      * @param wall: phsyical wall curve of the reactor. Needed for critical point search and 
      *              flux curves (open and separatrix) generation.
      * @param input: class holding all the input data.
      */ 
-    MagneticGeometryForTokamak(const ModelMetaData& modelMetaData, const WallCurve& wall, const Inputs& input);
+    MagneticGeometryEqdsk(const ModelMetaData& modelMetaData, const WallCurve& wall, const Inputs& input);
 
     /**
      * A function to return psi value of the axis in the tokamak domain.

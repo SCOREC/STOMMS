@@ -34,7 +34,7 @@ set(STELLMESH_SRCS
   src/eqdskData.cc
   src/fluxCurveUtilityEqdsk.cc 
   src/genFluxCurvesEqdsk.cc
-  src/magneticGeometryTokamak.cc
+  src/magneticGeometryEqdsk.cc
   src/modelDataEqdsk.cc
   src/modelingEqdsk.cc
 

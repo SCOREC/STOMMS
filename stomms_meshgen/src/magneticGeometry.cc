@@ -1,6 +1,6 @@
 #include "magneticGeometry.h"
 #include "magneticGeometryVmec.h"
-#include "magneticGeometryTokamak.h"
+#include "magneticGeometryEqdsk.h"
 
 /* 
  * Function to set magnetic geometry.
@@ -33,13 +33,13 @@ std::unique_ptr <MagneticGeometry> setMagneticGeometry(const Inputs& input, cons
   }
 
   // Step 2: If reactor type is tokamak, look for EQDSK file and set magnetic 
-  // geometry using MagneticGeometryForTokamak.
+  // geometry using MagneticGeometryEqdsk.
   if(input.getReactorType() == ReactorType::Tokamak)
   {
     std::cout << "Geometry (Reactor) Type: Tokamak \n";
     int planeNum = 0; // for tokamaks
     WallCurve wall = physicalGeometry.getWallCurveAtPlane(planeNum);
-    mg =  std::make_unique<MagneticGeometryForTokamak>(modelMetaData, wall, input);
+    mg =  std::make_unique<MagneticGeometryEqdsk>(modelMetaData, wall, input);
   }
 
   return mg;
