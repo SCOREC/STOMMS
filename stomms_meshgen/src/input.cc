@@ -62,12 +62,21 @@ void Inputs::setValuesFromInputFile()
       input >> vmecFile;
       reactorType = ReactorType::Stellarator;
       magneticFieldInputSource = MagneticInputSource::Vmec;
+      magneticFieldSources.push_back("VMEC file read from parameter: vmecFile");
     }
     else if (token == "eqdskFile")
     {
       input >> eqdskFile;
       reactorType = ReactorType::Tokamak;
       magneticFieldInputSource = MagneticInputSource::Eqdsk;
+      magneticFieldSources.push_back("EQDSK file read from parameter: eqdskFile");
+    }
+    else if (token == "bmwFile")
+    {
+      input >> bmwFile;
+      reactorType = ReactorType::Stellarator;
+      magneticFieldInputSource = MagneticInputSource::Bmw;
+      magneticFieldSources.push_back("BMW file read from parameter: bmwFile");
     }
     else if (token == "fluxFile")
       input >> fluxFile;
@@ -120,11 +129,16 @@ void Inputs::setValuesFromInputFile()
 // A function to set values to local variables and containers for internal code use.
 void Inputs::setValuesForLocalUse()
 {
-  // Step 1: Initialize magnetic field file sources if needed. 
+  // Step 1: First verify the sources of magnetic field and make sure we have only
+  // one.
+  checkMagneticFieldInputSources();
+  
+  // Step 2: Initialize magnetic field file sources if needed.
+  // Need for EQDSK file. 
   if (magneticFieldInputSource == MagneticInputSource::Eqdsk)
     initializeEqdskFile();
 
-  // Step 2: Read files to set resolution.
+  // Step 3: Read files to set resolution.
   in.fd.fluxInput = readFluxFile();  // Read the flux input file.
   in.fd.fluxMeshSize = readMeshSizeOnFlux();  // Read the mesh size input file.
 
@@ -309,6 +323,27 @@ void Inputs::initializeEqdskFile()
   init_ez_spline_(&rev, &eqdTag);
 }
 
+// Function to check the validity of magnetic field input sources.
+void Inputs::checkMagneticFieldInputSources()
+{
+  // Step 1: If there is only one source, move ahead without throwing an error.
+  // If more than one, throw an error and list all the sources name for the user.
+  if (magneticFieldSources.size() == 1)
+    return;
+  else if (magneticFieldSources.size() > 1)
+  {
+    std::string errorMessage = "\n"
+                               "More than one source of magnetic field has been provided in the input file.\n"
+                               "Make sure only one source is provided. The sources from input file are:\n";
+    for (int i = 0; i < magneticFieldSources.size(); i++)
+      errorMessage += std::to_string(i+1) + "- " + magneticFieldSources[i] + "\n";
+
+    throw std::runtime_error(errorMessage);
+  } 
+
+  return;
+}
+
 // Function to return limiter (wall curve) file name.
 const std::string& Inputs::getLimiterFile() const
 {
@@ -327,10 +362,16 @@ const MagneticInputSource& Inputs::getMagneticFieldInputSource() const
   return magneticFieldInputSource;
 }
 
-// Function to VMEC file name.
+// Function to get VMEC file name.
 const std::string& Inputs::getVmecFile() const
 {
   return vmecFile;
+}
+
+// Function to get BMW file name.
+const std::string& Inputs::getBmwFile() const
+{
+  return bmwFile;
 }
 
 // Function to return InputData struct which contains flux and planes info.

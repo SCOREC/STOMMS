@@ -38,7 +38,7 @@ enum class ReactorType{
 enum class MagneticInputSource{
   Eqdsk,  
   Vmec,
-  bmw
+  Bmw
 };
 
 // Class Inputs handles all the input information. This includes:
@@ -54,9 +54,15 @@ class Inputs{
     const std::string& getLimiterFile() const;
 
     /*
-     * Function to VMEC file name.
+     * Function to get VMEC file name.
      */ 
     const std::string& getVmecFile() const;
+
+
+    /*
+     * Function to get BMW file name.
+     */ 
+    const std::string& getBmwFile() const;
 
     /*
      * Function to return InputData struct which contains flux and planes info.
@@ -170,7 +176,8 @@ class Inputs{
     // Input parameters
     std::string inputFile;
     std::string vmecFile;	// VMEC file to load magnetic field for stellarator core region.
-    std::string eqdskFile;      // EQDSK file to load magnetic field for tokamaks. 
+    std::string eqdskFile;      // EQDSK file to load magnetic field for tokamaks.
+    std::string bmwFile;        // BMW file to load magnetic field for stellarator core and SOL region.
     std::string fluxFile;	// Input file containing the number of flux curves and their flux indices.
     std::string planeFile;	// Input file containing the number and toroidal position (degrees) of the planes.
     std::string meshSizeFile;	// Input file to define the mesh size on each flux curve in terms of number of desired points on flux curves.
@@ -201,6 +208,7 @@ class Inputs{
     // Variables for internal use
     ReactorType reactorType;
     MagneticInputSource magneticFieldInputSource;
+    std::vector <std::string> magneticFieldSources;  // A vector to store magnetic field input sources to make sure we aren't getting more than one.
     int eqdTag;
  
    /*
@@ -255,6 +263,13 @@ class Inputs{
      * returns a map between flux normalized psi value and desired node spacing on that flux.
      */
     std::map <double, double> readMeshSizeOnFlux();
+
+    /**
+     * Function to check the validity of magnetic field input sources.
+     * Only make sures we don't have more than one input source.
+     * Throws an error when there are more than one sources.
+     */ 
+    void checkMagneticFieldInputSources();
 };
 
 #endif
