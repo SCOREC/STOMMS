@@ -34,14 +34,14 @@ set(STELLMESH_SRCS
   src/eqdskData.cc
   src/fluxCurveUtilityEqdsk.cc 
   src/genFluxCurvesEqdsk.cc
-  src/magneticGeometryTokamak.cc
+  src/magneticGeometryEqdsk.cc
   src/modelDataEqdsk.cc
   src/modelingEqdsk.cc
 
   # VMEC
   src/modelDataVmec.cc
   src/modelingVmec.cc
-  src/magneticGeometryStellarator.cc
+  src/magneticGeometryVmec.cc
 
   # Geometry(Physics & Physical) 
   src/criticalPoints.cc

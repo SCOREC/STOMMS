@@ -17,7 +17,7 @@
 - \ref include/eqdskData.h "EQDSK Data Class"
 - \ref include/fluxCurveUtilityEqdsk.h "Flux Curve Generation Utilities"
 - \ref include/genFluxCurvesEqdsk.h "Flux Curve Generation"
-- \ref include/magneticGeometryTokamak.h "Magnetic Geometry for Tokamaks"
+- \ref include/magneticGeometryEqdsk.h "Magnetic Geometry for Tokamaks from EQDSK"
 - \ref include/modelDataEqdsk.h "Modeling Data for EQDSK Geometries"
 - \ref include/modelingEqdsk.h  "Geometric Modeling for EQDSK"
 */
@@ -27,7 +27,7 @@
 - \ref include/vmecData.h "VMEC Data Class"
 - \ref include/modelDataVmec.h "Modeling Data for VMEC Geometries"
 - \ref include/modelingVmec.h  "Geometric Modeling for VMEC"
-- \ref include/magneticGeometryStellarator.h "Magnetic Geometry for Stellarators"
+- \ref include/magneticGeometryVmec.h "Magnetic Geometry for Stellarators Core from VMEC"
 */
 
 

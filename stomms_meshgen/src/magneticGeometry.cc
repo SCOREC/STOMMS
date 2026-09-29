@@ -1,6 +1,6 @@
 #include "magneticGeometry.h"
-#include "magneticGeometryStellarator.h"
-#include "magneticGeometryTokamak.h"
+#include "magneticGeometryVmec.h"
+#include "magneticGeometryEqdsk.h"
 
 /* 
  * Function to set magnetic geometry.
@@ -9,11 +9,12 @@ std::unique_ptr <MagneticGeometry> setMagneticGeometry(const Inputs& input, cons
 {
   std::unique_ptr <MagneticGeometry> mg;
 
-  // Step 1: If reactor type is stellarator, look for VMEC file and set
-  // magnetic geometry using MagneticGeometryForStellarator.
-  if(input.getReactorType() == ReactorType::Stellarator)
+  // Step 1: If magnetic field source is VMEC, look for VMEC file and set
+  // magnetic geometry using MagneticGeometryVmec.
+  if(input.getMagneticFieldInputSource() == MagneticInputSource::Vmec)
   {
-    std::cout << "Geometry (Reactor) Type: Stellarator\n"; 
+    std::cout << "Geometry (Reactor) Type: Stellarator\n";
+    std::cout << "Magnetic Field Input Source: VMEC\n"; 
     std::string vmecFileName;
 
     // Step 1.1: If can't find VMEC file, throw an error.
@@ -29,17 +30,18 @@ std::unique_ptr <MagneticGeometry> setMagneticGeometry(const Inputs& input, cons
     }
     
     // Step 1.2: Set up the magnetic geometry
-    mg =  std::make_unique<MagneticGeometryForStellarator>(modelMetaData, vmecFileName);
+    mg =  std::make_unique<MagneticGeometryVmec>(modelMetaData, vmecFileName);
   }
 
-  // Step 2: If reactor type is tokamak, look for EQDSK file and set magnetic 
-  // geometry using MagneticGeometryForTokamak.
-  if(input.getReactorType() == ReactorType::Tokamak)
+  // Step 2: If magnetic field source in EQDSK, look for EQDSK file and set magnetic 
+  // geometry using MagneticGeometryEqdsk.
+  if(input.getMagneticFieldInputSource() == MagneticInputSource::Eqdsk)
   {
     std::cout << "Geometry (Reactor) Type: Tokamak \n";
+    std::cout << "Magnetic Field Input Source: EQDSK\n";
     int planeNum = 0; // for tokamaks
     WallCurve wall = physicalGeometry.getWallCurveAtPlane(planeNum);
-    mg =  std::make_unique<MagneticGeometryForTokamak>(modelMetaData, wall, input);
+    mg =  std::make_unique<MagneticGeometryEqdsk>(modelMetaData, wall, input);
   }
 
   return mg;

@@ -1,10 +1,10 @@
-#include "magneticGeometryTokamak.h"
+#include "magneticGeometryEqdsk.h"
 
 /***********************************************/
-// Class: MagneticGeometryForTokamak
+// Class: MagneticGeometryEqdsk
 // Derived class for MagneticGeometry
 /***********************************************/
-MagneticGeometryForTokamak::MagneticGeometryForTokamak(const ModelMetaData& modelMetaData, const WallCurve& wall, const Inputs& input)
+MagneticGeometryEqdsk::MagneticGeometryEqdsk(const ModelMetaData& modelMetaData, const WallCurve& wall, const Inputs& input)
 {
   // Step 1: Find critical points from EQDSK file and print them.
   wallCurve = wall;
@@ -47,7 +47,7 @@ MagneticGeometryForTokamak::MagneticGeometryForTokamak(const ModelMetaData& mode
 }
 
 // Classify psi normalized values into respective types (open, closed etc.)
-void MagneticGeometryForTokamak::classifyPsiValues(const Inputs& in)
+void MagneticGeometryEqdsk::classifyPsiValues(const Inputs& in)
 {
   std::cout << "\n========== FLUX CURVES CLASSIFICATION ==========\n";
   // Step 1: Setup psi of axis point. Since Tokamak has one plane so opoints
@@ -101,7 +101,7 @@ void MagneticGeometryForTokamak::classifyPsiValues(const Inputs& in)
     std::cout << "Separatrix Curves || psi = " << psiValuesSeparatrix[i] << "\n";
 }
 
-void MagneticGeometryForTokamak::genFluxCurves(const PlaneMetaData& planeMetaData, EqdskData& eqdskData, const WallCurve& wall)
+void MagneticGeometryEqdsk::genFluxCurves(const PlaneMetaData& planeMetaData, EqdskData& eqdskData, const WallCurve& wall)
 {
  std::cout << "\n========== FLUX CURVES GENERATION ==========\n";
 
@@ -115,45 +115,45 @@ void MagneticGeometryForTokamak::genFluxCurves(const PlaneMetaData& planeMetaDat
 }
 
 // Function to get a map between plane number and vector of OPoints.
-const std::map<int, std::vector<PhysicsPoint>>& MagneticGeometryForTokamak::getOPoints() const
+const std::map<int, std::vector<PhysicsPoint>>& MagneticGeometryEqdsk::getOPoints() const
 {
   return oPoints;
 }
 
 // Function to get a map between plane number and vector of XPoints.
-const std::map<int, std::vector<PhysicsPoint>>& MagneticGeometryForTokamak::getXPoints() const
+const std::map<int, std::vector<PhysicsPoint>>& MagneticGeometryEqdsk::getXPoints() const
 {
   return xPoints;
 }
 
 // A function to return psi value of the axis in the tokamak domain.
-double MagneticGeometryForTokamak::getPsiAxis() const
+double MagneticGeometryEqdsk::getPsiAxis() const
 {
   PhysicsPoint axis = oPoints.at(0).at(0);  // first member on first plane. 
   return axis.getPsi();
 }
 
 // A function to return psi value of the innermost separatrix.
-double MagneticGeometryForTokamak::getPsiCoreBoundary() const
+double MagneticGeometryEqdsk::getPsiCoreBoundary() const
 {
   PhysicsPoint xPt = xPoints.at(0).at(0);
   return xPt.getPsi();
 }
 
 // Function to get model associated with tokamak geometry.
-const Model& MagneticGeometryForTokamak::getModel() const
+const Model& MagneticGeometryEqdsk::getModel() const
 {
   return modelEqdsk.getModel();
 }
 
 // Function to get all the geometric information on individual planes.
-const std::vector <Plane>& MagneticGeometryForTokamak::getPlanes() const
+const std::vector <Plane>& MagneticGeometryEqdsk::getPlanes() const
 {
   return modelEqdsk.getPlanes();
 }
 
 // Function to return magnetic field data on the background grid.
-const GridFieldData& MagneticGeometryForTokamak::getGridFieldData() const
+const GridFieldData& MagneticGeometryEqdsk::getGridFieldData() const
 {
   return gridData;
 }
