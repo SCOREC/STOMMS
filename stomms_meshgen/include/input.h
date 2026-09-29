@@ -34,6 +34,13 @@ enum class ReactorType{
   None
 };
 
+// Magnetic Configuration Input Source
+enum class MagneticInputSource{
+  Eqdsk,  
+  Vmec,
+  bmw
+};
+
 // Class Inputs handles all the input information. This includes:
 // magnetic field information, modeling and mesh parameters,
 // any kind of control parameters.
@@ -57,10 +64,15 @@ class Inputs{
     const InputData& getInputData() const;
 
     /*
-     *  Function to return reactor type (Stellarator, Tokamak)
+     * Function to return reactor type (Stellarator, Tokamak)
      */ 
     const ReactorType& getReactorType() const;
 
+    /*
+     * Function to return the input source for magnetic field.
+     */ 
+    const MagneticInputSource& getMagneticFieldInputSource() const;
+ 
     /**
      * Function to check if psi is reverse or not.
      */
@@ -188,6 +200,7 @@ class Inputs{
 
     // Variables for internal use
     ReactorType reactorType;
+    MagneticInputSource magneticFieldInputSource;
     int eqdTag;
  
    /*

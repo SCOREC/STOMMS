@@ -17,6 +17,7 @@ Inputs::Inputs()
 void Inputs::setDefaultValues()
 {
   reactorType = ReactorType::Stellarator;  // Default Stellarator for now.
+  magneticFieldInputSource = MagneticInputSource::Vmec;  // Default
 
   // Input parameters - EQDSK
   reversePsi = false;
@@ -60,11 +61,13 @@ void Inputs::setValuesFromInputFile()
     {
       input >> vmecFile;
       reactorType = ReactorType::Stellarator;
+      magneticFieldInputSource = MagneticInputSource::Vmec;
     }
     else if (token == "eqdskFile")
     {
       input >> eqdskFile;
       reactorType = ReactorType::Tokamak;
+      magneticFieldInputSource = MagneticInputSource::Eqdsk;
     }
     else if (token == "fluxFile")
       input >> fluxFile;
@@ -118,7 +121,7 @@ void Inputs::setValuesFromInputFile()
 void Inputs::setValuesForLocalUse()
 {
   // Step 1: Initialize magnetic field file sources if needed. 
-  if (reactorType == ReactorType::Tokamak)
+  if (magneticFieldInputSource == MagneticInputSource::Eqdsk)
     initializeEqdskFile();
 
   // Step 2: Read files to set resolution.
@@ -159,7 +162,7 @@ std::map<double, double> Inputs::readMeshSizeOnFlux()
   // Step 4: Make sure there is no flux with normalzied psi lesser than 0 or greater than 1.
   while(meshInput >> psiNorm && meshInput >> vertexSpacing)
   {
-    if (psiNorm < 0.0 || (psiNorm > 1.0 && reactorType == ReactorType::Stellarator))
+    if (psiNorm < 0.0 || (psiNorm > 1.0 && magneticFieldInputSource == MagneticInputSource::Vmec))
     {
       std::cout << " The normalized psi value  =  " << psiNorm << " from mesh size input file will not be used since it is lesser than 0.0 (axis)\n";
       std::cout << "Or magnetic input type is VMEC which doesn't allow values greater than 1.0\n";
@@ -205,7 +208,7 @@ std::vector<double> Inputs::readFluxFile()
   for (int i = 0; i < psiNormVec.size(); i++)
   {
     double normPsi = psiNormVec[i];
-    if (normPsi < 0.0 || (psiNorm > 1.0 && reactorType == ReactorType::Stellarator))
+    if (normPsi < 0.0 || (psiNorm > 1.0 && magneticFieldInputSource == MagneticInputSource::Vmec))
     {   
         psiNormVec.erase(psiNormVec.begin()+i);
         std::cout << "The normalized psi value =  " << normPsi << " is removed since it is either lesser than 0.0 (axis)\n";
@@ -316,6 +319,12 @@ const std::string& Inputs::getLimiterFile() const
 const ReactorType& Inputs::getReactorType() const
 {
   return reactorType;
+}
+
+// Function to return the input source for magnetic field.
+const MagneticInputSource& Inputs::getMagneticFieldInputSource() const
+{
+  return magneticFieldInputSource;
 }
 
 // Function to VMEC file name.
