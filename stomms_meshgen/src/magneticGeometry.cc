@@ -1,5 +1,5 @@
 #include "magneticGeometry.h"
-#include "magneticGeometryStellarator.h"
+#include "magneticGeometryVmec.h"
 #include "magneticGeometryTokamak.h"
 
 /* 
@@ -10,7 +10,7 @@ std::unique_ptr <MagneticGeometry> setMagneticGeometry(const Inputs& input, cons
   std::unique_ptr <MagneticGeometry> mg;
 
   // Step 1: If reactor type is stellarator, look for VMEC file and set
-  // magnetic geometry using MagneticGeometryForStellarator.
+  // magnetic geometry using MagneticGeometryVmec.
   if(input.getReactorType() == ReactorType::Stellarator)
   {
     std::cout << "Geometry (Reactor) Type: Stellarator\n"; 
@@ -29,7 +29,7 @@ std::unique_ptr <MagneticGeometry> setMagneticGeometry(const Inputs& input, cons
     }
     
     // Step 1.2: Set up the magnetic geometry
-    mg =  std::make_unique<MagneticGeometryForStellarator>(modelMetaData, vmecFileName);
+    mg =  std::make_unique<MagneticGeometryVmec>(modelMetaData, vmecFileName);
   }
 
   // Step 2: If reactor type is tokamak, look for EQDSK file and set magnetic 

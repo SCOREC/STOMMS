@@ -27,7 +27,7 @@
 - \ref include/vmecData.h "VMEC Data Class"
 - \ref include/modelDataVmec.h "Modeling Data for VMEC Geometries"
 - \ref include/modelingVmec.h  "Geometric Modeling for VMEC"
-- \ref include/magneticGeometryStellarator.h "Magnetic Geometry for Stellarators"
+- \ref include/magneticGeometryVmec.h "Magnetic Geometry for Stellarators Core"
 */
 
 

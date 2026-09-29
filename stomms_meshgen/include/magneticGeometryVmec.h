@@ -1,5 +1,5 @@
-#ifndef MAGNETICGEOMTRYSTELLARATOR_H
-#define MAGNETICGEOMTRYSTELLARATOR_H
+#ifndef MAGNETICGEOMTRYVMEC_H
+#define MAGNETICGEOMTRYVMEC_H
 
 #include "ncFile.h"
 #include "ncVar.h"
@@ -9,17 +9,17 @@
 using namespace netCDF;
 
 /**
- * A class to hold magnetic geometry of stellarators along with the
- * construction of actual geometry (model). 
+ * A class to hold magnetic geometry of stellarators core from VMEC along 
+ * with the construction of actual geometry (model). 
  */
-class MagneticGeometryForStellarator: public MagneticGeometry{
+class MagneticGeometryVmec: public MagneticGeometry{
   public:
     /**
-     * Constructor to set magnetic geometry information from stellarator to class MagneticGeometry.
+     * Constructor to set magnetic geometry information from VMEC to class MagneticGeometry.
      * @param md: metadata needed for geometry construction.
      * @param vmecFileName: vmec file name containing all the vmec data.
      */ 
-    MagneticGeometryForStellarator(const ModelMetaData& md, const std::string& vmecFileName);
+    MagneticGeometryVmec(const ModelMetaData& md, const std::string& vmecFileName);
 
     /**
      * A function to return psi value of the axis in the vmec domain.

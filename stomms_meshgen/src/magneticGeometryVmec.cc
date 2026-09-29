@@ -1,14 +1,14 @@
-#include "magneticGeometryStellarator.h"
+#include "magneticGeometryVmec.h"
 
 /***********************************************/
-// class MagneticGeometryForStellarator
+// class MagneticGeometryVmec
 // Geometry construction along with the physics
 // properties of stellarators are done here.
 /***********************************************/
 
 // A fucntion to set magnetic geometry information (any kind of physics information given)
 // to class MagneticGeometry.
-MagneticGeometryForStellarator::MagneticGeometryForStellarator(const ModelMetaData& md, 
+MagneticGeometryVmec::MagneticGeometryVmec(const ModelMetaData& md, 
                                 const std::string& vmecFileName):vmecFile(vmecFileName)
 {
   // Step 1: Read VMEC file data
@@ -19,7 +19,7 @@ MagneticGeometryForStellarator::MagneticGeometryForStellarator(const ModelMetaDa
 }
 
 // Reads input VMEC file and store relevant data in struct vmecData.
-VmecData MagneticGeometryForStellarator::readVmecData()
+VmecData MagneticGeometryVmec::readVmecData()
 {
   VmecData v;
 
@@ -69,49 +69,49 @@ VmecData MagneticGeometryForStellarator::readVmecData()
 }
 
 // A function to return psi value of the axis in the vmec domain.
-double MagneticGeometryForStellarator::getPsiAxis() const
+double MagneticGeometryVmec::getPsiAxis() const
 {
   return vmec.psi[0];
 }
 
 // A function to return psi value of the last closed flux curve in the vmec domain.
-double MagneticGeometryForStellarator::getPsiCoreBoundary() const
+double MagneticGeometryVmec::getPsiCoreBoundary() const
 {
   return vmec.psi[vmec.nSurf - 1]; 
 }
 
 // Function to return the reactor type(Stellarator for this class).
-ReactorType MagneticGeometryForStellarator::getReactorType() const
+ReactorType MagneticGeometryVmec::getReactorType() const
 {
   return ReactorType::Stellarator;
 }
 
 // Function to get a map between plane number and vector of OPoints.
-const std::map<int, std::vector<PhysicsPoint>>& MagneticGeometryForStellarator::getOPoints() const
+const std::map<int, std::vector<PhysicsPoint>>& MagneticGeometryVmec::getOPoints() const
 {
   return oPoints;
 }
 
 // Function to get a map between plane number and vector of XPoints.
-const std::map<int, std::vector<PhysicsPoint>>& MagneticGeometryForStellarator::getXPoints() const
+const std::map<int, std::vector<PhysicsPoint>>& MagneticGeometryVmec::getXPoints() const
 {
   return xPoints;
 }
 
 // Function to get model associated with stellarator geometry.
-const Model& MagneticGeometryForStellarator::getModel() const
+const Model& MagneticGeometryVmec::getModel() const
 {
   return modelVmec.getModel();
 }
 
 // Function to get all the geometric information on individual planes.
-const std::vector <Plane>& MagneticGeometryForStellarator::getPlanes() const
+const std::vector <Plane>& MagneticGeometryVmec::getPlanes() const
 {
   return modelVmec.getPlanes();
 }
 
 // Function to return magnetic field data on the background grid.
-const GridFieldData& MagneticGeometryForStellarator::getGridFieldData() const
+const GridFieldData& MagneticGeometryVmec::getGridFieldData() const
 {
   return gridData;
 }

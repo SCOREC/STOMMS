@@ -41,7 +41,7 @@ set(STELLMESH_SRCS
   # VMEC
   src/modelDataVmec.cc
   src/modelingVmec.cc
-  src/magneticGeometryStellarator.cc
+  src/magneticGeometryVmec.cc
 
   # Geometry(Physics & Physical) 
   src/criticalPoints.cc
