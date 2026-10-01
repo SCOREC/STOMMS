@@ -136,9 +136,9 @@ PhysicalGeometry::PhysicalGeometry(const Inputs& in)
   // Step 1: Read the number of planes
   numPlanes = in.getInputData().pd.planeInput.size();
 
-  // Step 2: If VMEC, don't do anything (For now, 
+  // Step 2: If Stellarator, don't do anything (For now, 
   // may need something in future).
-  if (in.getMagneticFieldInputSource() == MagneticInputSource::Vmec)
+  if (in.getReactorType() == ReactorType::Stellarator)
     return;    
 
   // Step 3: If external limiter file is provided, read the wall curve 

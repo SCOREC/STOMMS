@@ -1,8 +1,9 @@
 #include "magneticGeometry.h"
 #include "magneticGeometryVmec.h"
 #include "magneticGeometryEqdsk.h"
+#include "magneticGeometryBmw.h"
 
-/* 
+/** 
  * Function to set magnetic geometry.
  */
 std::unique_ptr <MagneticGeometry> setMagneticGeometry(const Inputs& input, const PhysicalGeometry& physicalGeometry, const ModelMetaData& modelMetaData)
@@ -33,7 +34,31 @@ std::unique_ptr <MagneticGeometry> setMagneticGeometry(const Inputs& input, cons
     mg =  std::make_unique<MagneticGeometryVmec>(modelMetaData, vmecFileName);
   }
 
-  // Step 2: If magnetic field source in EQDSK, look for EQDSK file and set magnetic 
+  // Step 2: If magnetic field source is BMW, look for BMW file and set magnetic 
+  // geometry using MagneticGeometryBmw.
+  if(input.getMagneticFieldInputSource() == MagneticInputSource::Bmw)
+  {
+    std::cout << "Geometry (Reactor) Type: Stellarator\n";
+    std::cout << "Magnetic Field Input Source: BMW\n";
+    std::string bmwFileName;
+
+    // Step 1.1: If can't find Bmw file, throw an error.
+    if (!input.getBmwFile().empty())
+    {
+      bmwFileName = input.getBmwFile();
+      std::cout << "Input BMW file: " << bmwFileName << "\n";
+    }
+    else
+    {
+      std::cerr << "ERROR: BMW file not found. Make sure the name or path to file is correct\n";
+      exit(1);
+    }
+    
+    // Step 1.2: Set up the magnetic geometry
+    mg =  std::make_unique<MagneticGeometryBmw>(modelMetaData, bmwFileName);
+  }
+
+  // Step 3: If magnetic field source in EQDSK, look for EQDSK file and set magnetic 
   // geometry using MagneticGeometryEqdsk.
   if(input.getMagneticFieldInputSource() == MagneticInputSource::Eqdsk)
   {
