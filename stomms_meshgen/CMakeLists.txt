@@ -43,6 +43,10 @@ set(STELLMESH_SRCS
   src/modelingVmec.cc
   src/magneticGeometryVmec.cc
 
+  # BMW
+  src/bmwData.cc
+  src/magneticGeometryBmw.cc
+  
   # Geometry(Physics & Physical) 
   src/criticalPoints.cc
   src/fieldPointsOnFlux.cc
