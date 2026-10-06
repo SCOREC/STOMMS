@@ -1092,3 +1092,150 @@ subroutine remove_duplicate_pt (inputx, inputy, numpt)
   inputx(1:numpt)=xbuff(1:numpt)
   inputy(1:numpt)=ybuff(1:numpt)
 end subroutine remove_duplicate_pt
+
+
+!=====================================================================
+! 10-05-2026: Adding a routine to initialize spline for magnetic field
+! Br, Bz, Bphi from BMW file. 
+!=====================================================================
+
+module interpDataBfield
+
+  use EZspline_obj
+  use EZspline
+
+  type(EZspline3_r8) :: spl_br
+  type(EZspline3_r8) :: spl_bphi
+  type(EZspline3_r8) :: spl_bz
+
+  real(kind=8) :: boundBox(4)
+  real(kind=8) :: phi_min, phi_max
+
+end module interpDataBfield
+
+!**************************************************************************
+subroutine init_b_spline(rgrid, zgrid, phigrid, nr, nz, nphi, br, bz, bphi) 
+!**************************************************************************
+  use EZspline_obj
+  use EZspline
+  use interpDataBfield
+  implicit none
+
+  ! Input Data 
+  integer, intent(in) :: nr, nz, nphi
+
+  real(kind=8), intent(in) :: rgrid(nr)
+  real(kind=8), intent(in) :: zgrid(nz)
+  real(kind=8), intent(in) :: phigrid(nphi)
+  
+  real(kind=8), intent(in) :: br(nr*nz*nphi)
+  real(kind=8), intent(in) :: bz(nr*nz*nphi)
+  real(kind=8), intent(in) :: bphi(nr*nz*nphi)
+
+  ! Local Variables 
+  integer, dimension(2) :: BCS1, BCS2, BCS3
+  integer :: ir, iz, iphi,idx, ier
+
+  real(kind=8), allocatable :: br_grid(:,:,:)
+  real(kind=8), allocatable :: bz_grid(:,:,:)
+  real(kind=8), allocatable :: bphi_grid(:,:,:)
+
+  allocate(br_grid(nphi, nz, nr))
+  allocate(bz_grid(nphi, nz, nr))
+  allocate(bphi_grid(nphi, nz, nr))
+ 
+  ! Set bounding box and phi (min & max) data to use it for bound 
+  ! checking in queries.
+  boundBox(1) = rgrid(1)
+  boundBox(2) = zgrid(1)
+  boundBox(3) = rgrid(nr)
+  boundBox(4) = zgrid(nz)
+
+  phi_min = phigrid(1)
+  phi_max = phigrid(nphi)
+
+  ! Boundary Conditions
+  ! phi is periodic for stellarator case.
+  ! phi = 0.0 and phi = 360/numFieldPeriods are same.
+  BCS1 = -1 ! phi is periodic
+  BCS2 = 0 ! not a knot
+  BCS3 = 0 ! not a knot
+
+  ! Set data from c++ vector (1D) to 3D array
+  ! index in c++ vector[ir + (nr*iz) + (nr*nz*iphi)]
+  ! Make sure to use Fortran indexing (+1 offset)
+  do iphi = 0, nphi - 1
+    do iz = 0, nz - 1
+      do ir = 0, nr -1
+        idx = ir + (nr * iz) + (nr * nz * iphi) + 1
+        br_grid(iphi+1,iz+1,ir+1) = br(idx)
+        bz_grid(iphi+1,iz+1,ir+1) = bz(idx)
+        bphi_grid(iphi+1,iz+1,ir+1) = bphi(idx)
+      enddo  !end r loop
+    enddo  !end z loop
+  enddo !end phi loop 
+
+  ! Start setting up splines for individual components
+  ! First start with Br
+  call EZspline_init(spl_br, nphi, nz, nr, BCS1, BCS2, BCS3, ier)
+  call EZspline_error(ier)
+
+  spl_br%x1 = phigrid
+  spl_br%x2 = zgrid
+  spl_br%x3 = rgrid
+
+  call EZspline_setup(spl_br, br_grid, ier)
+  call EZspline_error(ier) 
+
+  ! Bz Spline
+  call EZspline_init(spl_bz, nphi, nz, nr, BCS1, BCS2, BCS3, ier)
+  call EZspline_error(ier)
+
+  spl_bz%x1 = phigrid
+  spl_bz%x2 = zgrid
+  spl_bz%x3 = rgrid
+
+  call EZspline_setup(spl_bz, bz_grid, ier)
+  call EZspline_error(ier)
+
+  ! Bphi Spline
+  call EZspline_init(spl_bphi, nphi, nz, nr, BCS1, BCS2, BCS3, ier)
+  call EZspline_error(ier)
+
+  spl_bphi%x1 = phigrid
+  spl_bphi%x2 = zgrid
+  spl_bphi%x3 = rgrid
+
+  call EZspline_setup(spl_bphi, bphi_grid, ier)
+  call EZspline_error(ier)
+  
+end subroutine init_b_spline
+
+!*******************************************************
+subroutine eval_b_field(r, z, phi, b_vec, ier)
+!*******************************************************
+  use interpDataBfield
+  use EZspline
+  implicit none
+
+  real(kind=8), intent(in) :: r, z, phi
+  real(kind=8), intent(out), dimension(3) :: b_vec
+  integer, intent(out) :: ier
+
+  ! Check Bounds. First R-Z bounds
+  if(r<boundBox(1) .or. r>boundBox(3).or. z<boundBox(2) .or. z>boundBox(4)) then
+    ier=1
+    return
+  end if
+
+  ! Get the components of the magnetic field B.
+  call EZspline_interp(spl_br, phi, z, r, b_vec(1), ier)
+  call EZspline_error(ier)
+  
+  call EZspline_interp(spl_bz, phi, z, r, b_vec(2), ier)
+  call EZspline_error(ier)
+
+  call EZspline_interp(spl_bphi, phi, z, r, b_vec(3), ier)
+  call EZspline_error(ier)
+
+end subroutine eval_b_field
