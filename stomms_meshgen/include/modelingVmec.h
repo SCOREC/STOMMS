@@ -7,11 +7,18 @@
 #include "magneticGeometry.h"
 
 /**
+ * From a given Vmec File, generate the model of the core region of stellarator.
+ *
+ */
+Model generateSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& vm);
+
+/**
  * From a given Vmec File, generate the model of the core region of stellarator
  * @param mD: a vector of planes with their meta data. 
- * @return an object of Model class.
+ * @param vm: an object of vmec data class.
+ * @return an object of Simmetrix model pGModel.
 */
-Model generateCoreSimModelVmec(std::vector <PlaneMetaData> mD, const VmecData& vm);
+pGModel generateCoreSimModelVmec(std::vector <PlaneMetaData> mD, const VmecData& vm);
 
 /**
  * From Vmec flux data (vf), flux indices (nrho and rhos), and, poloidal planes (nzeta and zetas)

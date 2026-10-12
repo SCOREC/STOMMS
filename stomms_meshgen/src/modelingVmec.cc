@@ -8,8 +8,27 @@
   #define M_PI 3.14159265358979323846
 #endif
 
+Model generateSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& vm)
+{
+  // Step 1: Create the model for core region 
+  pGModel simModel = generateCoreSimModelVmec(md, vm);
+
+  // Step 2: Add wallcurve to the model.
+
+
+  // Step 3: Write the model (.smd) on disk for visualization.
+  GM_write(simModel, "simModel.smd", 0, 0);
+
+  // Step 4: Save it as type Model
+  Model model;
+  model.setSimModel(simModel);
+
+  return model;
+}
+
+
 //From a given plane meta data (Vmec, flux and plane info), generate the model of the core region of stellarator
-Model generateCoreSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& vm)
+pGModel generateCoreSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& vm)
 {
   // Step 1: Read the data from the vmec object (vm)
   double avmajr = vm.majorR;
@@ -54,14 +73,7 @@ Model generateCoreSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& v
   // Step 6: Create model entities from the vmec physics data.
   pGModel simModel = simModelFromVmec(vf, npsi, nzeta, psiVec.data(), zetas.data());
 
-  // Step 7: Write the model (.smd) on disk for visualization.
-  GM_write(simModel, "simModel.smd", 0, 0);
-
-  // Step 8: Save it as type Model
-  Model model;
-  model.setSimModel(simModel);
-
-  return model;
+  return simModel;
 }
 
 // From Vmec flux data (vf), flux indices (nrho and rhos), and, poloidal planes (nzeta and zetas)
