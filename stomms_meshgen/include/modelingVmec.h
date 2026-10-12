@@ -5,6 +5,7 @@
 #include "input.h"
 #include "vmecData.h"
 #include "magneticGeometry.h"
+#include "modeling.h"
 
 /**
  * From a given Vmec File, generate the model of the core region of stellarator.

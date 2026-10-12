@@ -76,6 +76,8 @@ pGModel generateCoreSimModelVmec(std::vector <PlaneMetaData> md, const VmecData&
   return simModel;
 }
 
+
+
 // From Vmec flux data (vf), flux indices (nrho and rhos), and, poloidal planes (nzeta and zetas)
 // generate a Simmetrix model (pGModel model)
 pGModel simModelFromVmec(pVmecFlux vf, int npsi, int nzeta, const double *psis, const double *zetas)

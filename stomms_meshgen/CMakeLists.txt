@@ -56,6 +56,7 @@ set(STELLMESH_SRCS
   src/modelMetaData.cc
   src/modelTopology.cc
   src/stommsModel.cc
+  src/modeling.cc
   src/physicalGeometry.cc
   
   # Meshing
