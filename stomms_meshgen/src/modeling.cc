@@ -324,7 +324,7 @@ std::vector <pCurve> createWallCurve(const std::vector <Point> wallPoints)
     for (int i = 0; i < numPts - 1; i++)
     {
       std::vector <double> pt1 = {wallPoints[i].x, wallPoints[i].y, wallPoints[i].z};
-      std::vector <double> pt2 = {wallPoints[i+1].x, wallPoints[i+1].y, wallPoints[i].z};
+      std::vector <double> pt2 = {wallPoints[i+1].x, wallPoints[i+1].y, wallPoints[i+1].z};
       simWallCurves.push_back(SCurve_createLine(pt1.data(), pt2.data()));
     }
   }
@@ -395,7 +395,6 @@ std::vector<pGEdge> createWallEdges(pGModel model, std::vector <pCurve>& wallSim
   {
     pCurve sCurve = wallSimCurves[i];
     std::array <double, 3> v1, v2;
-    v1[2] = v2[2] = 0.0;
     if (i)
     {
       gv[0] = gv[1];
@@ -405,6 +404,7 @@ std::vector<pGEdge> createWallEdges(pGModel model, std::vector <pCurve>& wallSim
       {
         v2[0] = wallPoints[i+1].x;
         v2[1] = wallPoints[i+1].y;
+        v2[2] = wallPoints[i+1].z;
         gv[1] = GR_createVertex(GIP_outerRegion(GM_rootPart(model)), v2.data());  
       }
     }
@@ -412,9 +412,11 @@ std::vector<pGEdge> createWallEdges(pGModel model, std::vector <pCurve>& wallSim
     {
       v1[0] = wallPoints[i].x;
       v1[1] = wallPoints[i].y;
+      v1[2] = wallPoints[i].z;
       gv[0] = fv = GR_createVertex(GIP_outerRegion(GM_rootPart(model)), v1.data());
       v2[0] = wallPoints[i+1].x;
       v2[1] = wallPoints[i+1].y;
+      v2[2] = wallPoints[i+1].z;
       gv[1] = GR_createVertex(GIP_outerRegion(GM_rootPart(model)), v2.data()); 
     }
     pGEdge ge = GR_createEdge(GIP_outerRegion(GM_rootPart(model)), gv[0], gv[1], sCurve, 1);

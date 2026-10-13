@@ -14,7 +14,7 @@ Model generateSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& vm)
   pGModel simModel = generateCoreSimModelVmec(md, vm);
 
   // Step 2: Add wallcurve to the model.
-  //generateWallFaceVmec(simModel);
+  generateWallFaceVmec(simModel, md);
 
   // Step 3: Write the model (.smd) on disk for visualization.
   GM_write(simModel, "simModel.smd", 0, 0);
@@ -76,12 +76,34 @@ pGModel generateCoreSimModelVmec(std::vector <PlaneMetaData> md, const VmecData&
   return simModel;
 }
 
-void generateWallFaceVmec(pGModel model)
+void generateWallFaceVmec(pGModel model, std::vector <PlaneMetaData> md)
 {
   WallCurveFromFile wallCurve("wall.txt");
-  std::vector <Point> points = wallCurve.getPoints();
+  std::vector <Point> wallPoints = wallCurve.getPoints();
+  for (int i = 0; i  < md.size(); i++)
+  {
+    // Step 1: The toroidal angles from the plane meta data.
+    double toroidalAngle = md[i].getPlaneToroidalAngle();
+    std::cout << "Angle = " << toroidalAngle << "\n";
+    std::vector <Point> points = convertFromCylindricalToCartesian(wallPoints, toroidalAngle);
+    SimmetrixWallCurve simWallCurve(points, model);
+  }
+}
+
+std::vector <Point> convertFromCylindricalToCartesian(const std::vector <Point>& points, double phi)
+{
+  std::vector <Point> cylindricalPoints;
   for (int i = 0; i < points.size(); i++)
-    std::cout << points[i].x << " , " << points[i].y << "\n";
+  {
+    // Struct Point has R-Z data stored in X-Y(it works fine for 2D planes).
+    double r = points[i].x; 
+    double x = r*cos(phi);
+    double y = r*sin(phi);
+    double z = points[i].y;
+    Point transformedPoint(x,y,z);
+    cylindricalPoints.push_back(transformedPoint);
+  }
+  return cylindricalPoints;
 }
 
 // From Vmec flux data (vf), flux indices (nrho and rhos), and, poloidal planes (nzeta and zetas)

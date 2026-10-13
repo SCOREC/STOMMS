@@ -1,5 +1,5 @@
-#ifndef MODELING_H
-#define MODELING_H
+#ifndef MODELINGVMEC_H
+#define MODELINGVMEC_H
 
 #include <map>
 #include "input.h"
@@ -13,7 +13,9 @@
  */
 Model generateSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& vm);
 
-void generateWallFaceVmec(pGModel model);
+void generateWallFaceVmec(pGModel model, std::vector <PlaneMetaData> md);
+std::vector <Point> convertFromCylindricalToCartesian(const std::vector <Point>& points, double phi);
+
 /**
  * From a given Vmec File, generate the model of the core region of stellarator
  * @param mD: a vector of planes with their meta data. 
