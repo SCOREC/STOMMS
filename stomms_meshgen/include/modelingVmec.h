@@ -13,6 +13,7 @@
  */
 Model generateSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& vm);
 
+void generateWallFaceVmec(pGModel model);
 /**
  * From a given Vmec File, generate the model of the core region of stellarator
  * @param mD: a vector of planes with their meta data. 

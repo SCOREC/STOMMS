@@ -14,6 +14,7 @@ class SimmetrixWallCurve{
   public:
     SimmetrixWallCurve(){};
     SimmetrixWallCurve(const WallCurve& wall, pGModel model);
+    SimmetrixWallCurve(const std::vector <Point>& wallPoints, pGModel model);
     SimmetrixWallCurve(Flux& lastClosedFluxCurve, pGModel model);
     void updateSimEdges(std::vector <pGEdge> updatedEdgesVector);
     std::vector <pGEdge> getSimEdges();
@@ -36,12 +37,12 @@ void insertOpenCurvesToModel(pGModel model, SimmetrixWallCurve& wall, std::vecto
 pCurve createClosedCurve(Flux& f);
 pCurve createOpenCurve(std::vector <Point> points);
 pCurve createSepLegCurve(SeparatrixLeg& leg);
-std::vector <pCurve> createWallCurve(const WallCurve& wallCurve);
+std::vector <pCurve> createWallCurve(const std::vector <Point> wallPoints);
 
 // Model Edge Functions
 pGEdge createClosedEdge(pGModel model, pCurve simCurve, std::vector <Point> curvePoints);
 std::vector <pGEdge> createSeparatrixEdges(pGModel model, SimmetrixWallCurve& wall, Flux& f, pGVertex vXpt);
-std::vector<pGEdge> createWallEdges(pGModel model, std::vector <pCurve>& wallSimCurves, const WallCurve& wallCurve);
+std::vector<pGEdge> createWallEdges(pGModel model, std::vector <pCurve>& wallSimCurves, const std::vector <Point>& wallPoints);
 pGFace insertPeriodicEdgeToModelFace(pGFace gf, pGEdge ge);
 void insertLinearEdgeToModel(pGEdge ge, int endToUse);
 

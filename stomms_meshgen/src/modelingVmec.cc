@@ -14,7 +14,7 @@ Model generateSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& vm)
   pGModel simModel = generateCoreSimModelVmec(md, vm);
 
   // Step 2: Add wallcurve to the model.
-
+  //generateWallFaceVmec(simModel);
 
   // Step 3: Write the model (.smd) on disk for visualization.
   GM_write(simModel, "simModel.smd", 0, 0);
@@ -76,7 +76,13 @@ pGModel generateCoreSimModelVmec(std::vector <PlaneMetaData> md, const VmecData&
   return simModel;
 }
 
-
+void generateWallFaceVmec(pGModel model)
+{
+  WallCurveFromFile wallCurve("wall.txt");
+  std::vector <Point> points = wallCurve.getPoints();
+  for (int i = 0; i < points.size(); i++)
+    std::cout << points[i].x << " , " << points[i].y << "\n";
+}
 
 // From Vmec flux data (vf), flux indices (nrho and rhos), and, poloidal planes (nzeta and zetas)
 // generate a Simmetrix model (pGModel model)

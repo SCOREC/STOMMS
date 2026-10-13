@@ -7,8 +7,8 @@ SimmetrixWallCurve::SimmetrixWallCurve(const WallCurve& wall, pGModel model)
 {
   // Step 1: Get the curves defining the wall
   points = wall.getPoints();
-  simCurves = createWallCurve(wall);
-  simEdges = createWallEdges(model, simCurves, wall);  
+  simCurves = createWallCurve(points);
+  simEdges = createWallEdges(model, simCurves, points);  
 }
 
 // Function to set last closed flux curve as wall curve. 
@@ -30,6 +30,14 @@ SimmetrixWallCurve::SimmetrixWallCurve(Flux& lastClosedFluxCurve, pGModel model)
   points = pointsOnCurve;
   simCurves.push_back(simCurve);
   simEdges.push_back(ge);
+}
+
+SimmetrixWallCurve::SimmetrixWallCurve(const std::vector <Point>& wallPoints, pGModel model)
+{
+  // Step 1: Get the curves defining the wall
+  points = wallPoints;
+  simCurves = createWallCurve(points);
+  simEdges = createWallEdges(model, simCurves, points);
 }
 
 void SimmetrixWallCurve::updateSimEdges(std::vector <pGEdge> updatedEdgesVector)
@@ -303,10 +311,9 @@ pCurve createSepLegCurve(SeparatrixLeg& leg)
   return curve;
 }
 
-std::vector <pCurve> createWallCurve(const WallCurve& wallCurve)
+std::vector <pCurve> createWallCurve(const std::vector <Point> wallPoints)
 {
   std::vector <pCurve> simWallCurves;
-  std::vector <Point> wallPoints = wallCurve.getPoints();
   bool wallSplineOn = false;  // get it from input later
 
   if (wallSplineOn)
@@ -316,8 +323,8 @@ std::vector <pCurve> createWallCurve(const WallCurve& wallCurve)
     int numPts = wallPoints.size();
     for (int i = 0; i < numPts - 1; i++)
     {
-      std::vector <double> pt1 = {wallPoints[i].x, wallPoints[i].y, 0.0};
-      std::vector <double> pt2 = {wallPoints[i+1].x, wallPoints[i+1].y, 0.0};
+      std::vector <double> pt1 = {wallPoints[i].x, wallPoints[i].y, wallPoints[i].z};
+      std::vector <double> pt2 = {wallPoints[i+1].x, wallPoints[i+1].y, wallPoints[i].z};
       simWallCurves.push_back(SCurve_createLine(pt1.data(), pt2.data()));
     }
   }
@@ -379,12 +386,11 @@ std::vector <pGEdge> createSeparatrixEdges(pGModel model, SimmetrixWallCurve& wa
   return edgesOnSep; 
 }
 
-std::vector<pGEdge> createWallEdges(pGModel model, std::vector <pCurve>& wallSimCurves, const WallCurve& wallCurve)
+std::vector<pGEdge> createWallEdges(pGModel model, std::vector <pCurve>& wallSimCurves, const std::vector <Point>& wallPoints)
 {
   std::vector <pGEdge> wallEdges;
   std::array <pGVertex, 2> gv;
   pGVertex fv;
-  std::vector <Point> wallPoints = wallCurve.getPoints();
   for (int i = 0; i < wallSimCurves.size(); i++)
   {
     pCurve sCurve = wallSimCurves[i];
