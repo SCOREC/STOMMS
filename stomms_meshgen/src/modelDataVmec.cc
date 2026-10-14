@@ -122,8 +122,10 @@ std::map<int,std::vector<Face>> ModelVmec::sortFacesByPlanes(Model m, std::vecto
 
     // Setp 2.1: Read the toroidal angle of the model face.
     VmecFlux_poloidalFaceInfo(vf, gf, &psi0, &psi1, &zeta);
-    int index = -1;
+    if (GEN_numNativeDoubleAttribute(gf, "Zeta") != 0)
+      GEN_nativeDoubleAttribute(gf, "Zeta", &zeta);
 
+    int index = -1;
     // Step 2.2: Compare the angle with the angles provided in input file (read in vector zetas).
     // If similar found, push the model face (as type Face) to respective plane number in planesMap.
     for (int i = 0; i < zetas.size(); i++)

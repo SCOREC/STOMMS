@@ -13,7 +13,7 @@
  */
 Model generateSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& vm);
 
-void generateWallFaceVmec(pGModel model, std::vector <PlaneMetaData> md);
+void generateWallFaceVmec(pGModel model, std::vector <PlaneMetaData> md, const VmecData& vm);
 std::vector <Point> convertFromCylindricalToCartesian(const std::vector <Point>& points, double phi);
 
 /**

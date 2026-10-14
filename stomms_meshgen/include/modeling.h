@@ -28,6 +28,7 @@ class SimmetrixWallCurve{
 
 pGFace createModelFace(const PhysicsPoint& oPoint, SimmetrixWallCurve& wall, pGModel model);
 pGFace createModelFace(const PhysicsPoint& oPoint, Flux& lastClosedFluxCurve, pGModel model);
+pGFace createWallFace(pGEdge fluxEdge, SimmetrixWallCurve& wall, pGModel model);
 pGFace insertClosedCurvesToModelFace(pGModel model, pGFace gf, std::vector <Flux>& closedCurves, bool noWall);
 void insertSeparatricesToModelFace(pGModel model, pGFace gf, SimmetrixWallCurve& wall, std::vector <Flux>& separatrices);
 void insertSeparatrixLegsToModel(pGFace gf, const std::map <int, std::vector <pGEdge>>& separatrices);

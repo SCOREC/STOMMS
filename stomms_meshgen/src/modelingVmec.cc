@@ -14,7 +14,7 @@ Model generateSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& vm)
   pGModel simModel = generateCoreSimModelVmec(md, vm);
 
   // Step 2: Add wallcurve to the model.
-  generateWallFaceVmec(simModel, md);
+  generateWallFaceVmec(simModel, md, vm);
 
   // Step 3: Write the model (.smd) on disk for visualization.
   GM_write(simModel, "simModel.smd", 0, 0);
@@ -76,7 +76,7 @@ pGModel generateCoreSimModelVmec(std::vector <PlaneMetaData> md, const VmecData&
   return simModel;
 }
 
-void generateWallFaceVmec(pGModel model, std::vector <PlaneMetaData> md)
+void generateWallFaceVmec(pGModel model, std::vector <PlaneMetaData> md, const VmecData& vm)
 {
   WallCurveFromFile wallCurve("wall.txt");
   std::vector <Point> wallPoints = wallCurve.getPoints();
@@ -84,9 +84,19 @@ void generateWallFaceVmec(pGModel model, std::vector <PlaneMetaData> md)
   {
     // Step 1: The toroidal angles from the plane meta data.
     double toroidalAngle = md[i].getPlaneToroidalAngle();
-    std::cout << "Angle = " << toroidalAngle << "\n";
     std::vector <Point> points = convertFromCylindricalToCartesian(wallPoints, toroidalAngle);
     SimmetrixWallCurve simWallCurve(points, model);
+    pVmecFlux vf = GM_vmec(model);
+    
+    std::vector <double> psiVmec = vm.psi;
+    std::vector <double> psiNorm = md[i].getPlaneFluxValues();
+    double psiAxis = psiVmec[0];
+    double psiLCF = psiVmec[vm.nSurf-1];
+    double psi = convertNormToPsi(psiNorm[psiNorm.size()-1], psiAxis, psiLCF);
+    pGEdge ge = VmecFlux_poloidalEdge(vf, psi, toroidalAngle);
+    pGFace gf = createWallFace(ge, simWallCurve, model);
+    GEN_setNativeIntAttribute(gf, static_cast<int>(FaceType::NearVacuum), "PhysicsRegion"); 
+    GEN_setNativeDoubleAttribute(gf, toroidalAngle, "Zeta");
   }
 }
 

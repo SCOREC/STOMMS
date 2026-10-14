@@ -94,6 +94,32 @@ pGFace createModelFace(const PhysicsPoint& oPoint, SimmetrixWallCurve& wall, pGM
   return simFace;
 }
 
+// Given the wall curve and outermost flux curve, create a model face
+pGFace createWallFace(pGEdge fluxEdge, SimmetrixWallCurve& wall, pGModel model)
+{
+  // Step 1: Get the wallEdges
+  std::vector <pGEdge> edges = wall.getSimEdges();
+  std::vector <int> dirs;
+  int nEdges = edges.size();
+  for (int i = 0; i < nEdges; i++)
+    dirs.push_back(1);
+
+  // Step 2: Add data for flux edge
+  edges.push_back(fluxEdge);
+  nEdges = nEdges + 1;
+  dirs.push_back(0);  // direction for innerloop
+
+  std::array <double, 6> bounds = getCurveBounds3d(wall.getPoints());
+  std::vector <double> corner = {bounds[0], bounds[1], bounds[2]};
+  std::vector <double> xpt = {bounds[3], bounds[4], bounds[2]};
+  std::vector <double> ypt = {bounds[0], bounds[1], bounds[5]};
+  std::array <int, 2> loopIndex = {0, nEdges-1};
+  pSurface pln = SSurface_createPlane(corner.data(), xpt.data(), ypt.data());
+  pGFace simFace = GR_createFace(GIP_outerRegion(GM_rootPart(model)), nEdges, edges.data(), dirs.data(), 2, loopIndex.data(), pln, 1);
+
+  return simFace;
+}
+
 pGFace insertClosedCurvesToModelFace(pGModel model, pGFace gf, std::vector <Flux>& closedCurves, bool noWall)
 {
   std::cout << ".......... Creating Closed Model Edges\n";
