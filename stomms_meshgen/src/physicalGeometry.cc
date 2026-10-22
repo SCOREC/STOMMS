@@ -201,7 +201,7 @@ const int& PhysicalGeometry::getNumPlanes() const
 }
 
 /*
- * Function to check if wall curves data exist in the class.
+ * Function to check if any wall curve exists in the data.
  */
 bool PhysicalGeometry::hasWallCurves() const
 {

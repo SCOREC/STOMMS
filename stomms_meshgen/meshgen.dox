@@ -49,6 +49,7 @@
 - \ref include/modelMetaData.h "Model Metadata"
 - \ref include/modelTopology.h "Model Topological Definitions"
 - \ref include/stommsModel.h "STOMMS Model"
+- \ref include/modeling.h "General Modeling Functions"
 */
 
 

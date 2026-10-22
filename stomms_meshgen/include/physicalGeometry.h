@@ -86,7 +86,8 @@ class PhysicalGeometry{
     const int& getNumPlanes() const;
 
     /**
-     * Function to check if wall curves data exist in the class
+     * Function to check if any wall curve exists in the data.
+     * @return true if data has wall curves, false if its empty.
      */ 
     bool hasWallCurves() const;
   private:

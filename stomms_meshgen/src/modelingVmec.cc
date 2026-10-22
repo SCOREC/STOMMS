@@ -8,6 +8,7 @@
   #define M_PI 3.14159265358979323846
 #endif
 
+// From given Vmec data and meta data, generate the model of the stellarator.
 Model generateSimModelVmec(std::vector <PlaneMetaData> md, const PhysicalGeometry& pg, const VmecData& vm)
 {
   // Step 1: Create the model for core region 
@@ -27,7 +28,7 @@ Model generateSimModelVmec(std::vector <PlaneMetaData> md, const PhysicalGeometr
 }
 
 
-//From a given plane meta data (Vmec, flux and plane info), generate the model of the core region of stellarator
+// From a given plane meta data (Vmec, flux and plane info), generate the model of the core region of stellarator
 pGModel generateCoreSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& vm)
 {
   // Step 1: Read the data from the vmec object (vm)
@@ -76,6 +77,7 @@ pGModel generateCoreSimModelVmec(std::vector <PlaneMetaData> md, const VmecData&
   return simModel;
 }
 
+// Given a pGModel and wall data, add wall curves and model face to the model.
 void generateWallFaceVmec(pGModel model, std::vector <PlaneMetaData> md, const PhysicalGeometry& pg, const VmecData& vm)
 {
   // Step 0: If physical geometry doesn't have a wall curve, just return and don't do anything.
@@ -120,6 +122,8 @@ void generateWallFaceVmec(pGModel model, std::vector <PlaneMetaData> md, const P
   }
 }
 
+// Given a vector of points in RZ coordinate, and an input toroidal angle phi, convert the points 
+// to Cartesian coordinates.
 std::vector <Point> convertFromCylindricalToCartesian(const std::vector <Point>& points, double phi)
 {
   std::vector <Point> cylindricalPoints;
