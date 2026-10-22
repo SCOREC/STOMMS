@@ -30,7 +30,7 @@ std::unique_ptr <MagneticGeometry> setMagneticGeometry(const Inputs& input, cons
     }
     
     // Step 1.2: Set up the magnetic geometry
-    mg =  std::make_unique<MagneticGeometryVmec>(modelMetaData, vmecFileName);
+    mg =  std::make_unique<MagneticGeometryVmec>(modelMetaData, physicalGeometry, vmecFileName);
   }
 
   // Step 2: If magnetic field source in EQDSK, look for EQDSK file and set magnetic 

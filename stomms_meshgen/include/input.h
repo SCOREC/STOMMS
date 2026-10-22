@@ -165,7 +165,12 @@ class Inputs{
      * Function to check if model needs to be bounded by wall curve or last closed flux curve.
      * Default is to use the wall curve. Only valid for zero Xpt cases. 
      */
-    const bool& useWallCurve() const;       
+    const bool& useWallCurve() const;
+
+    /**
+     * Function to return file name defining stellarator wall curve.
+     */
+    const std::string& getStellaratorWallFile() const;        
   private:
     // Input parameters
     std::string inputFile;
@@ -175,6 +180,7 @@ class Inputs{
     std::string planeFile;	// Input file containing the number and toroidal position (degrees) of the planes.
     std::string meshSizeFile;	// Input file to define the mesh size on each flux curve in terms of number of desired points on flux curves.
     std::string limiterFile;    // Input file for the wall curve (limiter). Optional
+    std::string stellaratorWallFile;   // An optional stellarator file if wall is desired in stellarators.
     
     // Input parameters - EQDSK
     bool reversePsi;            // To reverse the given psi values to get minimum psi at axis.

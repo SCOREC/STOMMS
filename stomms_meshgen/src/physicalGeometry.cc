@@ -128,6 +128,18 @@ WallCurveFromFile::WallCurveFromFile(const std::string& wallCurveFile):limiterFi
 }
 
 /***********************************************/
+// Class: WallCurveFromPoints
+// Class to read wall curve from a bunch of 
+// points(R,Z).
+/***********************************************/
+WallCurveFromPoints::WallCurveFromPoints(const std::vector <Point> wallPoints):givenPoints(wallPoints)
+{
+  // Step 1: From given points, get the filtered wall points.
+  points = filterPoints(givenPoints);
+}
+
+
+/***********************************************/
 // Class: PhysicalGeometry
 // Class to contain all physical features.
 /***********************************************/
@@ -136,17 +148,32 @@ PhysicalGeometry::PhysicalGeometry(const Inputs& in)
   // Step 1: Read the number of planes
   numPlanes = in.getInputData().pd.planeInput.size();
 
-  // Step 2: If VMEC, don't do anything (For now, 
-  // may need something in future).
+  // Step 2: If VMEC, first check if wall curve is given or not. If
+  // not just return, else save it.
   if (in.getMagneticFieldInputSource() == MagneticInputSource::Vmec)
-    return;    
+  {
+    if (!in.getStellaratorWallFile().empty())
+    {
+      std::cout << "Using wall curve file " << in.getStellaratorWallFile() << " for VMEC\n";
+      for (int i = 0; i < numPlanes; i++) 
+        reactorWall.push_back(WallCurveFromFile(in.getStellaratorWallFile()));  // In future, update this
+    }
+    else
+    {
+      std::cout << "No wall curve is given/used in the domain construction\n";
+      return;
+    }    
+  }
 
-  // Step 3: If external limiter file is provided, read the wall curve 
+  // Step 3: For Tokamak case, if external limiter file is provided, read the wall curve 
   // from that file, otherwise use wall curve from eqdsk file.
-  if (!in.getLimiterFile().empty())
-    reactorWall.push_back(WallCurveFromFile(in.getLimiterFile()));
-  else
-    reactorWall.push_back(WallCurveFromEqdsk());
+  if (in.getMagneticFieldInputSource() == MagneticInputSource::Eqdsk)
+  {
+    if (!in.getLimiterFile().empty())
+      reactorWall.push_back(WallCurveFromFile(in.getLimiterFile()));
+    else
+      reactorWall.push_back(WallCurveFromEqdsk());
+  }
 }
 
 /*
@@ -171,4 +198,15 @@ const WallCurve& PhysicalGeometry::getWallCurveAtPlane(const int& planeId) const
 const int& PhysicalGeometry::getNumPlanes() const
 {
   return numPlanes;
+}
+
+/*
+ * Function to check if any wall curve exists in the data.
+ */
+bool PhysicalGeometry::hasWallCurves() const
+{
+  if (reactorWall.size())
+    return true;
+
+  return false;
 }

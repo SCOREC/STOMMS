@@ -30,7 +30,7 @@ class WallCurve{
    std::vector <Point> filterPoints(std::vector <Point>& givenPoints);
 };
 
-/* 
+/** 
  * Class to read wall curve from a file that contains the points.
  * Derived class 1 for WallCurve.
  */
@@ -43,7 +43,7 @@ class WallCurveFromFile: public WallCurve{
     std::string limiterFile;  // file for wall curve points
 };
 
-/* 
+/** 
  * Class to read wall curve from the eqdsk file.
  * Derived class 2 for WallCurve.
  */
@@ -53,6 +53,19 @@ class WallCurveFromEqdsk: public WallCurve{
   private:
     std::vector <Point> givenPoints;  // raw unfiltered points
 };
+
+/**
+ * Class to read wall curve from given points.
+ * Derived class 3 for WallCurve.
+ */
+class WallCurveFromPoints: public WallCurve{
+  public:
+    WallCurveFromPoints(){};
+    WallCurveFromPoints(const std::vector <Point> wallPoints);
+  private:
+    std::vector <Point> givenPoints;  // raw unfiltered points
+};
+
 
 // Class to define the physical geometry of the reactor. Right now
 // only physical feature is wall curve. Add more here if needed. 
@@ -71,6 +84,12 @@ class PhysicalGeometry{
      * Function to get number of planes from physical geometry.
      */ 
     const int& getNumPlanes() const;
+
+    /**
+     * Function to check if any wall curve exists in the data.
+     * @return true if data has wall curves, false if its empty.
+     */ 
+    bool hasWallCurves() const;
   private:
     std::vector <WallCurve> reactorWall;  // Vector of wall curves. One for each plane.
     int numPlanes = 1;  // set number of planes (minimum = 1).

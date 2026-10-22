@@ -44,7 +44,8 @@ intraCurveSpacingOption -1
 !******************PHYSICAL COMPONENTS SOURCES (WALL CURVE FOR NOW)*****************
 !***********************************************************************************
 
-!limiterFile lim_adj_PT2.txt
+!limiterFile wall.txt
+!stellaratorWallFile wall.txt
 
 !***********************************************************************************
 !*******************************RESOLUTION SETTINGS*********************************

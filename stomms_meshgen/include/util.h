@@ -116,6 +116,13 @@ double distanceLineToPoint(const Point& pt1, const Point& pt2, const Point& pt);
 
 bool curveOrientation(const std::vector <Point>& curvePts);
 std::array <double, 4> getCurveBounds(const std::vector <Point>& curvePts);
+
+/**
+ * Given a vector of points, return the 3D bounds of the curve.
+ * @param curvePts: a vector of points defining the curve.
+ * @return an array of size 6 containing all 6 bounds.
+ */
+std::array <double, 6> getCurveBounds3d(const std::vector <Point>& curvePts);
 bool isPtOnModelEdge(const Point& checkPt, const pGEdge& ge);
 bool isPtOnCurve(const Point& pt, const std::vector <pGEdge>& edgesOnCurve);
 #endif

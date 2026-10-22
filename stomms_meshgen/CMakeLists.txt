@@ -49,7 +49,6 @@ set(STELLMESH_SRCS
   src/magneticGeometry.cc  
   src/magneticGeometryDataTypes.cc
   src/modelPhysicsQueries.cc
-  src/physicalGeometry.cc
   src/physicsAttributes.cc
   src/plane.cc
 
@@ -57,6 +56,8 @@ set(STELLMESH_SRCS
   src/modelMetaData.cc
   src/modelTopology.cc
   src/stommsModel.cc
+  src/modeling.cc
+  src/physicalGeometry.cc
   
   # Meshing
   src/meshMetaData.cc

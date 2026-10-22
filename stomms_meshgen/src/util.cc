@@ -231,7 +231,7 @@ std::array <double, 4> getCurveBounds(const std::vector <Point>& curvePts)
   if (curvePts.empty())
     std::cerr << "ERROR: Given curve is empty\n";  
 
-  double xMin, yMin, xMax, yMax;
+  double xMin, yMin, xMax, yMax, zMin, zMax;
   xMin = xMax = curvePts[0].x;
   yMin = yMax = curvePts[0].y;
 
@@ -248,6 +248,43 @@ std::array <double, 4> getCurveBounds(const std::vector <Point>& curvePts)
       yMax = pt.y;
   }
   std::array <double, 4> bounds = {xMin, yMin, xMax, yMax};
+  return bounds;
+}
+
+// Given a vector of points, return the 3D bounds of the curve.
+std::array <double, 6> getCurveBounds3d(const std::vector <Point>& curvePts)
+{
+  // Step 1: Throw error if the curve vector is empty.
+  if (curvePts.empty())
+    std::cerr << "ERROR: Given curve is empty\n";  
+
+  // Step 2: Initialize all bounds with the first element in the vector.
+  double xMin, yMin, xMax, yMax, zMin, zMax;
+  xMin = xMax = curvePts[0].x;
+  yMin = yMax = curvePts[0].y;
+  zMin = zMax = curvePts[0].z;
+
+  // Step 3: Iterate over the elements, and if current value exceeds
+  // the bounds, use that value as bound.
+  for (int i = 0; i < curvePts.size(); i++)
+  {
+    Point pt = curvePts[i];
+    if (pt.x < xMin)
+      xMin = pt.x;
+    if (pt.x > xMax)
+      xMax = pt.x;
+    if (pt.y < yMin)
+      yMin = pt.y;
+    if (pt.y >  yMax)
+      yMax = pt.y;
+    if (pt.z < zMin)
+      zMin = pt.z;
+    if (pt.z >  zMax)
+      zMax = pt.z;
+  }
+
+  // Step 4: Return the bounds array.
+  std::array <double, 6> bounds = {xMin, yMin, zMin, xMax, yMax, zMax};
   return bounds;
 }
 

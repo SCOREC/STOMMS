@@ -20,9 +20,10 @@ class ModelVmec{
     /**
      * Constructor to create model based on metadata and magnetic field information.
      * @param md: model metadata information to setup geometry.
+     * @param physicalGeometry: Information related to phsyical geometry (wall curve for now).
      * @param vm: struct containing all the necessary vmec information for modeling.
      */ 
-    ModelVmec(const ModelMetaData& md, const VmecData& vm);
+    ModelVmec(const ModelMetaData& md, const PhysicalGeometry& pg, const VmecData& vm);
 
     /**
      * Function to get model associated with vmec geometry. 

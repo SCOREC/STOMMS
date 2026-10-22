@@ -8,8 +8,28 @@
   #define M_PI 3.14159265358979323846
 #endif
 
-//From a given plane meta data (Vmec, flux and plane info), generate the model of the core region of stellarator
-Model generateCoreSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& vm)
+// From given Vmec data and meta data, generate the model of the stellarator.
+Model generateSimModelVmec(std::vector <PlaneMetaData> md, const PhysicalGeometry& pg, const VmecData& vm)
+{
+  // Step 1: Create the model for core region 
+  pGModel simModel = generateCoreSimModelVmec(md, vm);
+
+  // Step 2: Add wallcurve to the model.
+  generateWallFaceVmec(simModel, md, pg, vm);
+
+  // Step 3: Write the model (.smd) on disk for visualization.
+  GM_write(simModel, "simModel.smd", 0, 0);
+
+  // Step 4: Save it as type Model
+  Model model;
+  model.setSimModel(simModel);
+
+  return model;
+}
+
+
+// From a given plane meta data (Vmec, flux and plane info), generate the model of the core region of stellarator
+pGModel generateCoreSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& vm)
 {
   // Step 1: Read the data from the vmec object (vm)
   double avmajr = vm.majorR;
@@ -54,14 +74,70 @@ Model generateCoreSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& v
   // Step 6: Create model entities from the vmec physics data.
   pGModel simModel = simModelFromVmec(vf, npsi, nzeta, psiVec.data(), zetas.data());
 
-  // Step 7: Write the model (.smd) on disk for visualization.
-  GM_write(simModel, "simModel.smd", 0, 0);
+  return simModel;
+}
 
-  // Step 8: Save it as type Model
-  Model model;
-  model.setSimModel(simModel);
+// Given a pGModel and wall data, add wall curves and model face to the model.
+void generateWallFaceVmec(pGModel model, std::vector <PlaneMetaData> md, const PhysicalGeometry& pg, const VmecData& vm)
+{
+  // Step 0: If physical geometry doesn't have a wall curve, just return and don't do anything.
+  if (!pg.hasWallCurves())
+    return;
 
-  return model;
+  // Step 1: Iterate over the planes and set wall curve for each plane.
+  for (int i = 0; i  < md.size(); i++)
+  {
+    // Step 1.1: Get the toroidal angle from the plane meta data.
+    double toroidalAngle = md[i].getPlaneToroidalAngle();
+
+    // Step 1.2: For each plane, create a wall curve
+    WallCurve wallCurve = pg.getWallCurveAtPlane(i);
+
+    // Step 1.3: Get points for each wall curve, and convert them to Cartesian to pass to 
+    // Simmetrix API.
+    std::vector <Point> wallPoints = wallCurve.getPoints(); 
+    std::vector <Point> points = convertFromCylindricalToCartesian(wallPoints, toroidalAngle);
+
+    // Step 1.4: Create Simmetrix wall in terms of Simmetrix curve and edges for the given planes.
+    SimmetrixWallCurve simWallCurve(points, model);
+
+    // Step 1.5: Get the last closed flux curve psi value. Can directly get psiVmec[vm.nSurf-1] for 
+    // the last closed curve but to make sure we are using correct psiNorm from user given data and
+    // not using wrong value from psiVmec. 
+    std::vector <double> psiVmec = vm.psi;  // vector of psi values from VMEC
+    std::vector <double> psiNorm = md[i].getPlaneFluxValues();  // normalized psi values
+    double psiAxis = psiVmec[0];
+    double psiLCF = psiVmec[vm.nSurf-1];
+    double psi = convertNormToPsi(psiNorm[psiNorm.size()-1], psiAxis, psiLCF);
+
+    // Step 1.6: From the model, get the model edge for last closed curve. 
+    pVmecFlux vf = GM_vmec(model);
+    pGEdge ge = VmecFlux_poloidalEdge(vf, psi, toroidalAngle);
+
+    // Step 1.7: Using wall edges (outer loop) and last closed egde (inner loop), define
+    // a model face and then set its properties.
+    pGFace gf = createWallFace(ge, simWallCurve, model);
+    GEN_setNativeIntAttribute(gf, static_cast<int>(FaceType::NearVacuum), "PhysicsRegion"); 
+    GEN_setNativeDoubleAttribute(gf, toroidalAngle, "Zeta");
+  }
+}
+
+// Given a vector of points in RZ coordinate, and an input toroidal angle phi, convert the points 
+// to Cartesian coordinates.
+std::vector <Point> convertFromCylindricalToCartesian(const std::vector <Point>& points, double phi)
+{
+  std::vector <Point> cylindricalPoints;
+  for (int i = 0; i < points.size(); i++)
+  {
+    // Struct Point has R-Z data stored in X-Y(it works fine for 2D planes).
+    double r = points[i].x; 
+    double x = r*cos(phi);
+    double y = r*sin(phi);
+    double z = points[i].y;
+    Point transformedPoint(x,y,z);
+    cylindricalPoints.push_back(transformedPoint);
+  }
+  return cylindricalPoints;
 }
 
 // From Vmec flux data (vf), flux indices (nrho and rhos), and, poloidal planes (nzeta and zetas)

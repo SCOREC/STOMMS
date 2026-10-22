@@ -7,13 +7,13 @@
 // specific magnetic input type.
 /***********************************************/
 // Constructor gets the model meta data and uses it to setup StommsModel.
-ModelVmec::ModelVmec(const ModelMetaData& md, const VmecData& vm): modelMetaData(md), vmec(vm)
+ModelVmec::ModelVmec(const ModelMetaData& md, const PhysicalGeometry& pg, const VmecData& vm): modelMetaData(md), vmec(vm)
 {
   // Step 1: Get the vector of planes with their meta data from ModelMetadata.
   planesContainer = modelMetaData.getPlanesContainer();
 
   // Step 2: Generate the model using planes meta data.
-  model = generateCoreSimModelVmec(planesContainer, vmec);
+  model = generateSimModelVmec(planesContainer, pg, vmec);
 
   // Step 3: Setup the poloidal planes with their model enteties using
   // the model information.
@@ -121,8 +121,10 @@ std::map<int,std::vector<Face>> ModelVmec::sortFacesByPlanes(Model m, std::vecto
 
     // Setp 2.1: Read the toroidal angle of the model face.
     VmecFlux_poloidalFaceInfo(vf, gf, &psi0, &psi1, &zeta);
-    int index = -1;
+    if (GEN_numNativeDoubleAttribute(gf, "Zeta") != 0)
+      GEN_nativeDoubleAttribute(gf, "Zeta", &zeta);
 
+    int index = -1;
     // Step 2.2: Compare the angle with the angles provided in input file (read in vector zetas).
     // If similar found, push the model face (as type Face) to respective plane number in planesMap.
     for (int i = 0; i < zetas.size(); i++)

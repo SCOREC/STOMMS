@@ -17,9 +17,10 @@ class MagneticGeometryVmec: public MagneticGeometry{
     /**
      * Constructor to set magnetic geometry information from VMEC to class MagneticGeometry.
      * @param md: metadata needed for geometry construction.
+     * @param physicalGeometry: Information related to phsyical geometry (wall curve for now).
      * @param vmecFileName: vmec file name containing all the vmec data.
      */ 
-    MagneticGeometryVmec(const ModelMetaData& md, const std::string& vmecFileName);
+    MagneticGeometryVmec(const ModelMetaData& md, const PhysicalGeometry& physicalGeometry, const std::string& vmecFileName);
 
     /**
      * A function to return psi value of the axis in the vmec domain.
