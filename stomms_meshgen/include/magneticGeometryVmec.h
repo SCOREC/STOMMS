@@ -19,7 +19,7 @@ class MagneticGeometryVmec: public MagneticGeometry{
      * @param md: metadata needed for geometry construction.
      * @param vmecFileName: vmec file name containing all the vmec data.
      */ 
-    MagneticGeometryVmec(const ModelMetaData& md, const std::string& vmecFileName);
+    MagneticGeometryVmec(const ModelMetaData& md, const PhysicalGeometry& physicalGeometry, const std::string& vmecFileName);
 
     /**
      * A function to return psi value of the axis in the vmec domain.

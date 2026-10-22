@@ -113,6 +113,8 @@ void Inputs::setValuesFromInputFile()
       input >> lastClosedPsi;
     else if (token == "useWall")
       input >> useWall;
+    else if (token == "stellaratorWallFile")
+      input >> stellaratorWallFile;
   }
   input.close();
 }
@@ -446,4 +448,10 @@ const double& Inputs::getLastClosedPsi() const
 const bool& Inputs::useWallCurve() const
 {
   return useWall;
+}
+
+// Function to return vmec wall file name.
+const std::string& Inputs::getStellaratorWallFile() const
+{
+  return stellaratorWallFile;
 }

@@ -7,14 +7,13 @@
 // specific magnetic input type.
 /***********************************************/
 // Constructor gets the model meta data and uses it to setup StommsModel.
-ModelVmec::ModelVmec(const ModelMetaData& md, const VmecData& vm): modelMetaData(md), vmec(vm)
+ModelVmec::ModelVmec(const ModelMetaData& md, const PhysicalGeometry& pg, const VmecData& vm): modelMetaData(md), vmec(vm)
 {
   // Step 1: Get the vector of planes with their meta data from ModelMetadata.
   planesContainer = modelMetaData.getPlanesContainer();
 
   // Step 2: Generate the model using planes meta data.
-  model = generateSimModelVmec(planesContainer, vmec);
-  //model = generateCoreSimModelVmec(planesContainer, vmec);
+  model = generateSimModelVmec(planesContainer, pg, vmec);
 
   // Step 3: Setup the poloidal planes with their model enteties using
   // the model information.

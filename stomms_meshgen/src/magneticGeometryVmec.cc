@@ -8,14 +8,14 @@
 
 // A fucntion to set magnetic geometry information (any kind of physics information given)
 // to class MagneticGeometry.
-MagneticGeometryVmec::MagneticGeometryVmec(const ModelMetaData& md, 
+MagneticGeometryVmec::MagneticGeometryVmec(const ModelMetaData& md, const PhysicalGeometry& physicalGeometry, 
                                 const std::string& vmecFileName):vmecFile(vmecFileName)
 {
   // Step 1: Read VMEC file data
   vmec = readVmecData();
 
   // Step 2: Get the vector of planes with their meta data from ModelMetadata.
-  modelVmec = ModelVmec(md, vmec);
+  modelVmec = ModelVmec(md, physicalGeometry, vmec);
 }
 
 // Reads input VMEC file and store relevant data in struct vmecData.

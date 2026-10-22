@@ -11,9 +11,9 @@
  * From a given Vmec File, generate the model of the core region of stellarator.
  *
  */
-Model generateSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& vm);
+Model generateSimModelVmec(std::vector <PlaneMetaData> md, const PhysicalGeometry& pg, const VmecData& vm);
 
-void generateWallFaceVmec(pGModel model, std::vector <PlaneMetaData> md, const VmecData& vm);
+void generateWallFaceVmec(pGModel model, std::vector <PlaneMetaData> md, const PhysicalGeometry& pg, const VmecData& vm);
 std::vector <Point> convertFromCylindricalToCartesian(const std::vector <Point>& points, double phi);
 
 /**
