@@ -27,6 +27,7 @@ namespace
     {"wall_0Xpt", "useWall"},  
     {"inter_curve_spacing_file", "fluxFile"},
     {"intra_curve_spacing_file", "meshSizeFile"},
+    {"fluxC_in_privateR_on", "fluxCurvesInPrivate"},
     {"meshSizeWall", "meshSizeUnstructured"},
   };
 

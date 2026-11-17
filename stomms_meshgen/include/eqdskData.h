@@ -230,6 +230,11 @@ class EqdskData{
      * Default is to use the wall curve. Only valid for zero Xpt cases.
      */ 
     const bool& useWallCurve() const;
+
+    /**
+     * Function to check if flux curves in the private region are desired or not.
+     */ 
+    const bool& addFluxCurvesInPrivateRegion() const;
   private:
   // input data.
   bool reversePsi;
@@ -249,6 +254,7 @@ class EqdskData{
   double intraCurveMinLengthLastEdge; 
   double intraCurveSpacingPropFacMax;  // internal use for class
   double intraCurveSpacingPropFacMin;  // internal use for class
+  bool fluxCurvesInPrivate;
   bool useWall; 
 
   // Derived data.
