@@ -168,6 +168,11 @@ class Inputs{
     const bool& useWallCurve() const;
 
     /**
+     * Function to check if flux curves in the private region are desired or not.
+     */
+    const bool& addFluxCurvesInPrivateRegion() const; 
+
+    /**
      * Function to return file name defining stellarator wall curve.
      */
     const std::string& getStellaratorWallFile() const;        
@@ -200,6 +205,7 @@ class Inputs{
     double intraCurveSpacingPropFacMin;  // A factor (min) to set intra curve spacing for non-field following case
     double lastClosedPsi;  // Last closed psi used in zero X-point cases. Not needed in other cases.
     bool useWall;  // Set false if  want to bound domain but last closed curve. Valid only for zero xpt cases.
+    bool fluxCurvesInPrivate;  // To enable flux curves in private region
 
     // Input parameters - Meshing
     double meshSizeUnstructured;

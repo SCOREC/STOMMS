@@ -10,24 +10,33 @@
 // of the curve.  Right now only filters out points that are on a straight line.
 std::vector <Point> WallCurve::filterPoints(std::vector <Point>& givenPoints)
 {
-  std::vector <Point> filteredPoints; 
-  // Step 1: Push the first point to the final vector.
-  filteredPoints.push_back(givenPoints[0]);
+  // Step 0: Remove any repeated points, and only save unique points.
+  std::vector <Point> uniquePoints;
+  for (int i = 0; i < givenPoints.size(); i++)
+  {
+    Point pt = givenPoints[i];
+    if (uniquePoints.empty() || !arePointsSame(uniquePoints.back(), pt))
+      uniquePoints.push_back(pt);
+  }
 
-  // Step 2: Iterate over rest of them and if they are on a 
+  std::vector <Point> filteredPoints;
+  // Step 1: Push the first point to the final vector.
+  filteredPoints.push_back(uniquePoints[0]);
+
+  // Step 2: Iterate over rest of them and if they are on a
   // straight line, discard them.
-  int numPts = givenPoints.size();
+  int numPts = uniquePoints.size();
   for (int i = 1; i < numPts; i++)
   {
-    // Step 2.1: If i is current point, we need one backward 
+    // Step 2.1: If i is current point, we need one backward
     // point and one forward point
-    int backward = i-1;  
+    int backward = i-1;
     int forward = (i+1)%numPts;
-    
-    if(!isPointOnCorner(givenPoints[backward], givenPoints[i], givenPoints[forward]))
+
+    if(!isPointOnCorner(uniquePoints[backward], uniquePoints[i], uniquePoints[forward]))
       continue;  // skip the point
 
-    filteredPoints.push_back(givenPoints[i]);  // Save point to final list of points
+    filteredPoints.push_back(uniquePoints[i]);  // Save point to final list of points
   }
 
   // Step 3: If last point is not same as first point, push first point at the end.

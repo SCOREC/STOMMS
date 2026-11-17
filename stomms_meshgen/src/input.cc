@@ -37,6 +37,7 @@ void Inputs::setDefaultValues()
   intraCurveMinLengthLastEdge = 0.001;
   intraCurveSpacingPropFacMax = 1.0;
   intraCurveSpacingPropFacMin = 1.0;
+  fluxCurvesInPrivate = true;
   lastClosedPsi = 1e30;  // just a large number 
   useWall = true;  // use wall as default. When false, wall will be ignored.
 
@@ -147,6 +148,8 @@ void Inputs::setValuesFromInputFile()
       input >> intraCurveSpacingPropFacMin;
     else if (token == "lastClosedPsi")
       input >> lastClosedPsi;
+    else if (token == "fluxCurvesInPrivate")
+      input >> fluxCurvesInPrivate;
     else if (token == "useWall")
       input >> useWall;
     else if (token == "stellaratorWallFile")
@@ -488,6 +491,12 @@ const double& Inputs::getLastClosedPsi() const
 const bool& Inputs::useWallCurve() const
 {
   return useWall;
+}
+
+// Function to check if flux curves in the private region are desired or not.
+const bool& Inputs::addFluxCurvesInPrivateRegion() const
+{
+  return fluxCurvesInPrivate;
 }
 
 // Function to return vmec wall file name.
