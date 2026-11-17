@@ -97,7 +97,9 @@ namespace tomms
     auto option = options.find(name);
     if (option != options.end())
     {
+      std::streampos position = input.tellg();  // Remember where the value starts.
       input >> value;
+      input.seekg(position);  // Put the value back (it is read again below or by input.cc).
       if (option->second.availableValues.count(value) == 0)
         reportUnavailableOption(name, value, option->second.details);
     }

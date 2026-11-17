@@ -13,8 +13,8 @@ function(reg_test TESTNAME)
     NAME "TOMMS_INPUT_COMPATIBILITY_TEST/${TESTNAME}"
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_exe
             ${CMAKE_BINARY_DIR}/stomms_meshgen/stomms_meshgen
-            ${TOMMS_TEST_DIR}/samples/${TESTNAME}
-    WORKING_DIRECTORY ${TOMMS_TEST_DIR}/samples/${TESTNAME})
+            ${TEST_DIR}/tommsInputFiles/${TESTNAME}
+    WORKING_DIRECTORY ${TEST_DIR}/tommsInputFiles/${TESTNAME})
 endfunction(reg_test)
 
 # Add all the test cases here

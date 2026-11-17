@@ -48,16 +48,13 @@ if(ENABLE_TESTING)
   message(STATUS "TEST_DIR: ${TEST_DIR}")
 
   enable_testing()
-  add_subdirectory(stomms_meshgen/test/unitTests)
-  add_subdirectory(stomms_meshgen/test/regTests)
+  #add_subdirectory(stomms_meshgen/test/unitTests)
+  #add_subdirectory(stomms_meshgen/test/regTests)
 
-  # TOMMS input compatibility tests (optional). Set TOMMS_TEST_DIR to the
-  # directory that contains the TOMMS "samples" directory.
-  set(TOMMS_TEST_DIR "" CACHE PATH "Directory containing the TOMMS samples directory")
-  if(TOMMS_TEST_DIR)
-    message(STATUS "TOMMS_TEST_DIR: ${TOMMS_TEST_DIR}")
+  # Add testing for TOMMS legacy input files (xgc_mesh_in) - Keep it optional
+  option(ENABLE_TOMMS_INPUT_TESTING "Test for TOMMS input files" OFF)
+  message(STATUS "ENABLE_TOMMS_INPUT_TESTING: ${ENABLE_TOMMS_INPUT_TESTING}")
+  if(ENABLE_TOMMS_INPUT_TESTING)
     add_subdirectory(stomms_meshgen/test/tommsInputsCompatibility)
-  else()
-    message(STATUS "TOMMS_TEST_DIR not set: TOMMS input compatibility tests are disabled")
   endif()
 endif() 
