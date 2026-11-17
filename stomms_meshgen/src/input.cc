@@ -56,8 +56,13 @@ void Inputs::setValuesFromInputFile()
   {
     inputFile = tomms::inputFileName;
     tommsInput = true;
+    std::cout << "========================= Using TOMMS Legacy Input file (xgc_mesh_in) ============================\n";
     std::cout << "WARNING: Reading TOMMS input file '" << inputFile << "'. It is deprecated; "
               << "rename it to 'mesh_input' and use STOMMS parameter names.\n";
+
+    // TOMMS default (wall_0Xpt = 0): zero X-point domain bounded by the last closed
+    // flux curve, not the wall. Overridden if wall_0Xpt is given in the file.
+    useWall = false;
   }
 
   // Step 2: Check if input file can be accessed.
@@ -73,6 +78,14 @@ void Inputs::setValuesFromInputFile()
   std::string token;
   while (input >> token)
   {
+    // Step 3.1: Skip comments ('!' or '%' to the end of the line).
+    if (token[0] == '!' || token[0] == '%')
+    {
+      std::getline(input, token);
+      continue;
+    }
+
+    // Step 3.2: Read the tomms input parameters if needed.
     if (tommsInput)
     {
       if (tomms::handleLegacyParameter(token, input))
@@ -140,6 +153,10 @@ void Inputs::setValuesFromInputFile()
       input >> stellaratorWallFile;
   }
   input.close();
+
+  // Step 4: If tomms input used, print a closing message.
+  if (tommsInput)
+  std::cout << "========================= Reading TOMMS Legacy Input file (xgc_mesh_in) - DONE ============================\n\n";
 }
 
 // A function to set values to local variables and containers for internal code use.

@@ -28,17 +28,17 @@ namespace
     {"inter_curve_spacing_file", "fluxFile"},
     {"intra_curve_spacing_file", "meshSizeFile"},
     {"meshSizeWall", "meshSizeUnstructured"},
-    {"inter_curve_spacing_file", "fluxFile"},
-    {"intra_curve_spacing_file", "meshSizeFile"},
   };
 
   // TOMMS options for which STOMMS supports only some values (TOMMS name -> option).
   const std::map <std::string, tomms::Option> options = {
     {"radial_uniform_meshing_unit", {{"-1"}, "STOMMS only supports flux curves given in a file (-1), set with 'fluxFile'."}},
+    {"intra_curve_spacing_option", {{"-1", "-2"}, "STOMMS only supports intra curve spacing given in a file (-1, -2), set with 'meshSizeFile'."}},
   };
 
   // TOMMS parameters ignored by STOMMS (TOMMS name -> reason).
   const std::map <std::string, std::string> unusedParameters = {
+    {"radial_uniform_meshing_unit", "STOMMS always uses -1 (flux curves from 'fluxFile')."},
     {"max_step_meters", "constant in STOMMS (0.0025)."},
     {"tolerance_psi_deriv", "constant in STOMMS (1e-10)."},
     {"parallel_cutoff", "constant in STOMMS (0.99999)."},
@@ -85,24 +85,24 @@ namespace tomms
     return it->second;
   }
 
-  
+  // Function to handle legacy tomms parameters. 
   bool handleLegacyParameter(const std::string& name, std::istream& input)
   {
     std::string value;
 
-    // Option: only some values are available. STOMMS always uses the available
-    // value, so the parameter itself is not needed.
+    // Step 1: Check the parameters for which only few options are available. For example, 
+    // radial_unifrom_meshing_unit = -1 is supported but not others.
+    // Only the value is checked here; it is left in the input, so the steps below
+    // (or the renaming) decide what happens to the parameter.
     auto option = options.find(name);
     if (option != options.end())
     {
       input >> value;
       if (option->second.availableValues.count(value) == 0)
         reportUnavailableOption(name, value, option->second.details);
-      reportUnusedParameter(name, "STOMMS always uses " + value + ".");
-      return true;
     }
 
-    // Parameter not used by STOMMS.
+    // Step 2: Check if the parameter is not used by STOMMS.
     auto unused = unusedParameters.find(name);
     if (unused != unusedParameters.end())
     {
@@ -111,7 +111,7 @@ namespace tomms
       return true;
     }
 
-    // Parameter planned for a future STOMMS version.
+    // Step 3: Check if parameter is planned for a future STOMMS version.
     if (plannedParameters.count(name))
     {
       input >> value;
