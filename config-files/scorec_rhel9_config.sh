@@ -17,7 +17,6 @@ if [[ "$COMPILE_STOMMS_MESHGEN" == "ON" ]]; then
   SIM_ARCHOS=x64_rhel9_gcc11
   PSPLINE_DIR=/users/riazu2/lore.scorec.rpi.edu/Tools/install/PSPLINE/gcc12.3.0
   LAPACK_DIR=/opt/scorec/spack/rhel9/v0201_4/install/linux-rhel9-x86_64/gcc-12.3.0/netlib-lapack-3.11.0-b22mgwgxwwyajomdudwwbhewg6ulam7m
-  TOMMS_TEST_DIR=/users/riazu2/lore.scorec.rpi.edu/Fusion/Fusion_Public
   cmake .. \
     -DCMAKE_C_COMPILER=mpicc \
     -DCMAKE_CXX_COMPILER=mpicxx \
@@ -36,7 +35,7 @@ if [[ "$COMPILE_STOMMS_MESHGEN" == "ON" ]]; then
     -DENABLE_STOMMS_READER=$COMPILE_STOMMS_READER \
     -DCMAKE_INSTALL_PREFIX="$PREFIX" \
     -DENABLE_TESTING=ON \
-    -DTOMMS_TEST_DIR=$TOMMS_TEST_DIR \
+    -DENABLE_TOMMS_INPUT_TESTING=ON \
     -DCMAKE_BUILD_TYPE=$CMAKETYPE
 elif [[ "$COMPILE_STOMMS_MESHGEN" == "OFF" && "$COMPILE_STOMMS_READER" == "ON" ]]; then 
   cmake .. \
