@@ -1,4 +1,5 @@
 #include "input.h"
+#include "tommsInputsSupport.h"
 
 Inputs::Inputs()
 {
@@ -47,6 +48,19 @@ void Inputs::setDefaultValues()
 void Inputs::setValuesFromInputFile()
 {
   inputFile = "mesh_input";
+
+  // Step 1: Check the name of the file. If it's not mesh_input, look for 
+  // xgc_mesh_in.
+  bool tommsInput = false;
+  if (!std::ifstream(inputFile).good() && std::ifstream(tomms::inputFileName).good())
+  {
+    inputFile = tomms::inputFileName;
+    tommsInput = true;
+    std::cout << "WARNING: Reading TOMMS input file '" << inputFile << "'. It is deprecated; "
+              << "rename it to 'mesh_input' and use STOMMS parameter names.\n";
+  }
+
+  // Step 2: Check if input file can be accessed.
   std::ifstream input(inputFile);
   if (!input.is_open())
   {
@@ -54,9 +68,18 @@ void Inputs::setValuesFromInputFile()
     exit(1);	// If input file cannot be found, exit the program
   }
 
+  // Step 3: Read the input parameters, if xgc_mesh_in is given, handle it 
+  // differently (used mapping between old and new parameters).
   std::string token;
   while (input >> token)
   {
+    if (tommsInput)
+    {
+      if (tomms::handleLegacyParameter(token, input))
+        continue;
+      token = tomms::translateParameterName(token);
+    }
+
     if (token == "vmecFile")
     {
       input >> vmecFile;
