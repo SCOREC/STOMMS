@@ -10,12 +10,20 @@
 // Constructor gets the flux data (f), magnetic geometry (mg), and plane toroidal angle to setup meta data on the plane.
 PlaneMetaData::PlaneMetaData(const FluxData& f, double angle):toroidalAngle(angle)
 {
-  // Step 1: Setup the flux values on the plane.
-  fluxValues = f.fluxInput;
-
-  // Step 2: Setup the vector for number of desired mesh spacing on each flux curve.
+  // Step 1: Setup the vector for number of desired mesh spacing on each flux curve.
   for( const auto &itr : f.fluxMeshSize)
-    fluxMeshSize.push_back(itr.second);
+  {
+    fluxValues.push_back(itr.first);  // flux values
+    fluxMeshSize.push_back(itr.second);  // corresponding mesh sizes
+  }
+
+  // Step 2: Update the fluxValues and mesh size vectors to make sure we get a 
+  // consistent data between f.fluxInput and mesh size vectors. This requires
+  // interpolation.
+  updateMeshSizeVector(f.fluxInput);
+
+  // Step 3: Adding a guard to make sure vectors are updated correctly.
+  assert (fluxValues.size() == fluxMeshSize.size());
 }
 
 // Function to set mesh size on the model faces with unstructured mesh.
@@ -71,13 +79,32 @@ double PlaneMetaData::getNodeSpacingAtFlux(double psiNorm)
     }
   }
 
-  // Step 4: Linear Interpolation (y = (y2 - y1)/(x2 - x1)*(x - x1) + y1)
+  // Step 4: If psiNorm is slightly above the last psi value (psi + within tolerance),
+  // use the last stored value.
+  if (indx == -1)
+    return fluxMeshSize.back();
+
+  // Step 5: Linear Interpolation (y = (y2 - y1)/(x2 - x1)*(x - x1) + y1)
   double y1 = fluxMeshSize[indx - 1];
   double y2 = fluxMeshSize[indx];
   double x1 = fluxValues[indx - 1];
   double x2 = fluxValues[indx];
   double meshSize = (y2 - y1)/(x2 - x1)*(psiNorm - x1) + y1;
   return meshSize;
+}
+
+// Function to update the internal vectors of psi values and mesh sizes to make
+// sure we have a value of mesh size for every psi value. Done using interpolation.
+void PlaneMetaData::updateMeshSizeVector(const std::vector<double>& psiValues)
+{
+  // Step 1: Interpolate the mesh size at each flux psi value.
+  std::vector <double> meshSizes;
+  for (int i = 0; i < psiValues.size(); i++)
+    meshSizes.push_back(getNodeSpacingAtFlux(psiValues[i]));
+
+  // Step 2: Update the vectors of flux values and its corresponding mesh sizes.
+  fluxValues = psiValues;
+  fluxMeshSize = meshSizes;
 }
 
 // Function to get a vector of mesh node spacing (map directly with

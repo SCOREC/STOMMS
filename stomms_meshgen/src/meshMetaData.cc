@@ -41,15 +41,14 @@ std::vector <int> PlaneMeshMetaData::setFaceMeshType(const std::vector <Face> ge
         faceType == FaceType::LowFieldSideEdge || faceType == FaceType::HighFieldSideEdge) 
       meshType = 1;  // one-element deep
    
-    // Step 4: Setup on the private regions (TO-DO)
-    int fluxCurvesOnPrivateRegion = 1;  // Get this from user
+    // Step 4: Setup on the private regions.
+    bool fluxCurvesOnPrivateRegion = modelPlane.fluxCurveForPrivateRegionOn();
     if (fluxCurvesOnPrivateRegion && faceType == FaceType::Private)
       meshType = 1;
 
-    // Step 5: If SOL, and adjacent to x-points, set unstructured mesh type
+    // Step 5: If a face is adjacent to x-point, set unstructured mesh type
     std::vector <pGVertex> xPts = getCriticalPointsOnModelFace(f.getSimFace(), PhysicsPointType::XPoint); 
-    if ((faceType == FaceType::ScrapeOffLayer || faceType == FaceType::Core || 
-         fluxCurvesOnPrivateRegion) && (xPts.size() > 0))
+    if (xPts.size() > 0)
       meshType = 0;
 
     // Step 6: Store the type in the vector.

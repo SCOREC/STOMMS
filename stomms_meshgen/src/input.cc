@@ -91,6 +91,7 @@ void Inputs::setValuesFromInputFile()
     {
       if (tomms::handleLegacyParameter(token, input))
         continue;
+      std::cout << "Working Variable: = " << token << "\n";
       token = tomms::translateParameterName(token);
     }
 

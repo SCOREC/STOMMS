@@ -61,7 +61,14 @@ class PlaneMetaData{
     std::vector <double> fluxValues;  // vector of psi values of desired flux curves on the plane. 
     double toroidalAngle;  // Toroidal angle of the plane.
     std::vector <double> fluxMeshSize;  // Desired node spacing on each flux curve. fluxMeshSize.size() == fluxValues.size().
-    double meshSizeUnstructured; 
+    double meshSizeUnstructured;
+
+    /**
+     * Function to update the internal vectors of psi values and mesh sizes to make
+     * sure we have a value of mesh size for every psi value. Done using interpolation.
+     * @param psiValues: a vector of input psi values from the user.
+     */
+    void updateMeshSizeVector(const std::vector<double>& psiValues);  
 };
 
 /** 
