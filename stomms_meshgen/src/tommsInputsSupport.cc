@@ -93,14 +93,19 @@ namespace tomms
 
     // Step 1: Check the parameters for which only few options are available. For example, 
     // radial_unifrom_meshing_unit = -1 is supported but not others.
-    // Only the value is checked here; it is left in the input, so the steps below
     // (or the renaming) decide what happens to the parameter.
     auto option = options.find(name);
     if (option != options.end())
     {
-      std::streampos position = input.tellg();  // Remember where the value starts.
+      // Step 1.1: We are only checking if the value of the parameter is valid here. If 
+      // its not valid, it will end up throwing an error by triggering the if statement.
+      // If its a valid value, we want to make sure, to map it into STOMMS parameter (or
+      // any other exception in steps 2 or 3). For that, we will need tothen read its value 
+      // again. So we will store the position, read  value and then move back the stream 
+      // position to handle this (to read value later).
+      std::streampos position = input.tellg(); // saves the position before the value starts
       input >> value;
-      input.seekg(position);  // Put the value back (it is read again below or by input.cc).
+      input.seekg(position);  // move the stream back to position. Read it again later.
       if (option->second.availableValues.count(value) == 0)
         reportUnavailableOption(name, value, option->second.details);
     }

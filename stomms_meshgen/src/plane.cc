@@ -10,7 +10,7 @@ void Plane::setFieldPointsOnFlux(const std::vector <FluxParametricPoints>& field
   fieldPointsOnFluxCurves = fieldPoints;
 }
 
-// Function to set model edges and vertices on the plane. We already have model faces
+// Function to set model edges and vertices on the plane. We already have model faces.
 void Plane::setModelEntitiesFromModelFaces(const std::vector <Face>& modelFaces)
 {
   // Use sets to avoid duplicates.
@@ -66,6 +66,12 @@ void Plane::setXPoint(const Vertex& v)
   xPoints.push_back(v);
 }
 
+// Function to set the type of geometry in the private region of the plane.
+void Plane::setPrivateRegionGeometryType(bool fluxCurvesOnPrivateRegionOn)
+{
+  fluxCurvesOnPrivateRegion = fluxCurvesOnPrivateRegionOn;
+}
+
 // Function to get a vector of class that holds field following points info.
 const std::vector <FluxParametricPoints>& Plane::getFieldPointsOnFluxCurves() const
 {
@@ -100,4 +106,10 @@ const double& Plane::getUnstructuredMeshSizeOnPlane() const
 const std::unordered_map <int , double>& Plane::getMeshSizesOnModelFaces()
 {
   return meshSizeOnFaces;
+}
+
+// Function to check if the flux curves in the private region are enabled on the plane.
+const bool& Plane::fluxCurveForPrivateRegionOn() const
+{
+  return fluxCurvesOnPrivateRegion;
 }

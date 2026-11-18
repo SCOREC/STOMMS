@@ -24,6 +24,7 @@ ModelEqdsk::ModelEqdsk(const PlaneMetaData& planeMetaData, EqdskData& eqdskData,
   std::unordered_map<int, double> meshSizesOnFace = setMeshSizesOnModelFaces(planes[0].modelFaces, eqdskData, planeMetaData.getSizeForUnstructuredMesh());
   planes[0].setMeshSizeOnModelFaces(meshSizesOnFace);
   planes[0].setUnstructuredMeshSizeOnPlane(planeMetaData.getSizeForUnstructuredMesh());
+  planes[0].setPrivateRegionGeometryType(eqdskData.addFluxCurvesInPrivateRegion());
 }
 
 void ModelEqdsk::setPlane()
@@ -179,20 +180,21 @@ std::unordered_map <int, double> ModelEqdsk::setMeshSizesOnModelFaces(const std:
         psiNormAvg += psi;
         ++count;
       }
-
-      // Step 4: Calculate average.
-      psiNormAvg /= count;
-
-      // Step 4: If model face has single edge with valid psi value, set
-      // the general unstructured mesh size to the face.
-      if (count < 2)
-      {
-        double length = eqdsk.getInterCurveSpacingLinear(psiNormAvg);
-        meshSizes[GEN_tag(f.getSimFace())] = std::max(length, 0.01*meshSize);
-      }
-      else
-        meshSizes[GEN_tag(f.getSimFace())] = meshSize;
     }
+      
+    // Step 4: Calculate average.
+    psiNormAvg /= count;
+
+    // Step 5: If a model face has more than one flux edges, set the mesh size as 
+    // greater of length and 0.01*meshSize. Else, if model face has single edge 
+    // with valid psi value, set the general unstructured mesh size to the face.
+    if (count >= 2)
+    {
+      double length = eqdsk.getInterCurveSpacingLinear(psiNormAvg);
+      meshSizes[GEN_tag(f.getSimFace())] = std::max(length, 0.01*meshSize);
+    }
+    else
+      meshSizes[GEN_tag(f.getSimFace())] = 0.01*meshSize;
   }
   return meshSizes;  
 }
