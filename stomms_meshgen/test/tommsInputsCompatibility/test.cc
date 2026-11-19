@@ -175,11 +175,11 @@ std::array<int,6> getEntityValidationData(const std::string& testCase)
   if (checkFileName(testCase, "kstar_018451_2790_xgca"))
     data = std::array<int,6>{304, 390, 193, 50183, 150030, 99848};
   if (checkFileName(testCase, "LTX_1504291255_47400"))
-    data = std::array<int,6>{43, 42, 42, 6525, 19215, 12691};
+    data = std::array<int,6>{44, 43, 43, 6539, 19257, 12719};
   if (checkFileName(testCase, "ltx_1504291255_47400_xgc1"))
-    data = std::array<int,6>{270, 269, 86, 33396, 99560, 66165};
+    data = std::array<int,6>{278, 277, 86, 33397, 99555, 66159};
   if (checkFileName(testCase, "ltx_1504291255_47400_xgca"))
-    data = std::array<int,6>{251, 262, 55, 15870, 47119, 31250};
+    data = std::array<int,6>{260, 271, 56, 15908, 47227, 31320};
   if (checkFileName(testCase, "nstx_132588_00650_v2"))
     data = std::array<int,6>{149, 179, 89, 131266, 392737, 261472};
   if (checkFileName(testCase, "nstx_132588_development_sample"))
