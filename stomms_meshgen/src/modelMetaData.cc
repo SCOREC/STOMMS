@@ -100,7 +100,20 @@ void PlaneMetaData::updateMeshSizeVector(const std::vector<double>& psiValues)
   // Step 1: Interpolate the mesh size at each flux psi value.
   std::vector <double> meshSizes;
   for (int i = 0; i < psiValues.size(); i++)
-    meshSizes.push_back(getNodeSpacingAtFlux(psiValues[i]));
+  {
+    // Step 1.1: If some of the starting/ending psi values are not given in 
+    // mesh size file, its better to fix them here. It happens when flux file
+    // has more flux values than the mesh size values in the mesh size file or
+    // same number of values but psi values aren't matching exactly.
+    double psiNorm = psiValues[i]; 
+    if (psiNorm >= 0.0 && psiNorm < fluxValues.front())
+      meshSizes.push_back(fluxMeshSize.front());
+    else if (psiNorm > fluxValues.back())
+      meshSizes.push_back(fluxMeshSize.back());
+    else
+      meshSizes.push_back(getNodeSpacingAtFlux(psiNorm));
+
+  }
 
   // Step 2: Update the vectors of flux values and its corresponding mesh sizes.
   fluxValues = psiValues;
