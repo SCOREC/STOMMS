@@ -42,6 +42,8 @@ intraCurveSpacingOption -2
 intraCurveSpacingPropFacMin 0.95
 intraCurveSpacingPropFacMax 4.0
 
+fluxCurvesInPrivate 1
+
 !***********************************************************************************
 !******************PHYSICAL COMPONENTS SOURCES (WALL CURVE FOR NOW)*****************
 !***********************************************************************************

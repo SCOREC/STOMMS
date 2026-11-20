@@ -310,6 +310,31 @@ bool isPtOnModelEdge(const Point& checkPt, const pGEdge& ge)
   return false;
 }
 
+bool isPtOnLine(const Point& checkPt, const Point& pt1, const Point& pt2)
+{
+  // Step 1: Set two vectors - One between two points, and one between
+  // checkpt and one of the line points.
+  std::array <double, 2> vec1 = {pt2.x - pt1.x, pt2.y - pt1.y};
+  std::array <double, 2> vec2 = {checkPt.x - pt1.x, checkPt.y - pt1.y};
+
+  // Step 2: Get the magnitude of both vectors
+  double length1 = sqrt(vec1[0]*vec1[0]+vec1[1]*vec1[1]);
+  double length2 = sqrt(vec2[0]*vec2[0]+vec2[1]*vec2[1]);
+
+  // Step 3: Get the dot product and incident angle.
+  double dotProduct = fabs((vec1[0]*vec2[0])+(vec1[1]*vec2[1]));
+  double cosTheta = dotProduct/(length1*length2);
+
+  // Step 4: Setup tolerance and compere.
+  double toleranceUp = 1.0 + 1e-8;
+  double toleranceDown = 1.0 - 1e-8;
+
+  if (cosTheta < toleranceUp && cosTheta > toleranceDown)
+    return true;
+
+  return false;
+}
+
 bool isPtOnCurve(const Point& pt, const std::vector <pGEdge>& edgesOnCurve)
 {
   if (edgesOnCurve.empty())
@@ -327,3 +352,21 @@ bool isPtOnCurve(const Point& pt, const std::vector <pGEdge>& edgesOnCurve)
 
   return false;
 }
+
+bool isPtOnCurve(Point pt, const std::vector <Point>& curvePts)
+{
+  int numPts = curvePts.size();
+  assert (numPts >= 2); // atleast one valid line segment
+
+  bool ptOnCurve = false;
+  for (int i = 1; i < numPts; i++)
+  {
+    Point pt1 = curvePts[i-1];
+    Point pt2 = curvePts[i];
+    ptOnCurve = isPtOnLine(pt, pt1, pt2);
+    if (ptOnCurve)
+      return true;
+  }   
+  return false;
+}
+

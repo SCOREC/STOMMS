@@ -265,7 +265,7 @@ bool doesPointHitTheOrigin(Point& pt1, Point& pt2, Point startPt, double goal, d
     pt1.z = 0.5*(startPt.z + curveData.origin.z);
 
     double dpsi = eqdsk.getPsiAtPoint(pt1) - curveData.psi;
-    if (fabs(dpsi) - eqdsk.getPsiTolerance())
+    if (fabs(dpsi) > eqdsk.getPsiTolerance())
     {
       bool adjustedPointToPsi = eqdsk.snapToPsi(pt1, curveData.psi);
       assert(adjustedPointToPsi);
@@ -751,15 +751,15 @@ std::vector <Point> findStartPointOnWall(double psiNormalized, int type, const W
   return startPoints;
 }
 
-bool validOpenCurve(const Flux& f, const std::vector <pGEdge>& edgesOnCurve)
+bool validOpenCurve(const Flux& f, const std::vector <Point>& curvePoints)
 {
-  int numEdges = edgesOnCurve.size();
+  int numCurvePoints = curvePoints.size();
   int numPoints = f.fieldPoints.size();
 
   for (int i = 0; i < numPoints; i++)
   {
     Point pt = f.fieldPoints[i];
-    bool isPointOnCurve = isPtOnCurve(pt, edgesOnCurve);
+    bool isPointOnCurve = isPtOnCurve(pt, curvePoints);
     if (!isPointOnCurve)
       return true;
   }
@@ -767,23 +767,25 @@ bool validOpenCurve(const Flux& f, const std::vector <pGEdge>& edgesOnCurve)
   // If all points are on wall curve, then check if they are on the same line
   // if yes, curve is not valid and return false.
   // If not, return true.
-  for (int i = 0 ; i < numEdges; i++)
+  for (int i = 1 ; i < numCurvePoints; i++)
   {
-    pGEdge ge = edgesOnCurve[i];
-    int numPtsOnModelEdges = 0;
+    Point pt1 = curvePoints[i-1];
+    Point pt2 = curvePoints[i];
+    int numPtsOnLine = 0;
     for (int j = 0; j < numPoints; j++)
     {
       Point pt = f.fieldPoints[j];
-      bool ptOnEdge = isPtOnModelEdge(pt, ge);
-      if (ptOnEdge)
-        numPtsOnModelEdges++;
+      bool ptOnLine = isPtOnLine(pt, pt1, pt2);
+      if (ptOnLine)
+        numPtsOnLine++;
     }
-    if (numPtsOnModelEdges == numPoints)
+    if (numPtsOnLine == numPoints)
       return false;
   }
- 
+
   return true;
 }
+
 
 void restrictDistanceOfLastEdge(Flux& f, EqdskData& eqdsk)
 {

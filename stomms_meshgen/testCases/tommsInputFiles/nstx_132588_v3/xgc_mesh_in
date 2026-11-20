@@ -18,7 +18,7 @@ SimLic /usr/pppl/Simmetrix/simmodsuite.lic
 !This is the desired spacing between psi curves, in meters
 inter_curve_spacing 0.002
 inter_curve_spacing_max 0.03
-inter_curve_spacing_min 0.001
+inter_curve_spacing_min 0.0001
 inter_curve_spacing_axis_forcing 0.004
 inter_curve_spacing_file nstx_132588-00650_xgc1_surf.dat
 

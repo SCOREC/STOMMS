@@ -7,4 +7,4 @@ what parameters were removed and it affected which test case.
 
 ## inter\_curve\_spacing\_min
   - LTX\_1504291255\_47400
-  -ltx\_1504291255\_47400\_xgca 
+  - ltx\_1504291255\_47400\_xgca 
