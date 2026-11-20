@@ -20,6 +20,7 @@
 - \ref include/magneticGeometryEqdsk.h "Magnetic Geometry for Tokamaks from EQDSK"
 - \ref include/modelDataEqdsk.h "Modeling Data for EQDSK Geometries"
 - \ref include/modelingEqdsk.h  "Geometric Modeling for EQDSK"
+- \ref include/tommsInputsSupport.h "Support for Legacy TOMMS Input File and Parameters"
 */
 
 // Page for VMEC Modeling
