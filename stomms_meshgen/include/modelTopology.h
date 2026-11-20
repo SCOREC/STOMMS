@@ -263,7 +263,7 @@ public:
    * @param v2: second vertex.
    * @return true if tag of v1 is smaller than v2.
    */ 
-  bool operator()(Vertex v1, Vertex v2) const;
+  bool operator()(const Vertex& v1, const Vertex& v2) const;
 
   /**
    * Compares the tags of model edges.
@@ -271,7 +271,7 @@ public:
    * @param e2: second edge.
    * @return true if tag of e1 is smaller than e2.
    */ 
-  bool operator()(Edge e1, Edge e2) const;
+  bool operator()(const Edge& e1, const Edge& e2) const;
 
   /**
    * Compares the tags of model faces.
@@ -279,7 +279,7 @@ public:
    * @param f2: second face.
    * @return true if tag of f1 is smaller than f2.
    */ 
-  bool operator()(Face f1, Face f2) const;
+  bool operator()(const Face& f1, const Face& f2) const;
 };
 
 #endif

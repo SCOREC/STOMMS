@@ -36,13 +36,13 @@ pGModel generateCoreSimModelVmec(std::vector <PlaneMetaData> md, const VmecData&
   double avminr = vm.minorR;
   int nsurf = vm.nSurf;
   int nmode = vm.nMode;
-  std::vector <double> R = vm.R;
-  std::vector <double> Z = vm.Z;
-  std::vector <double> L = vm.L;
-  std::vector <double> iota = vm.iota;
-  std::vector <double> psi = vm.psi;
-  std::vector <double> xm = vm.xm;
-  std::vector <double> xn = vm.xn;
+  const std::vector <double>& R = vm.R;
+  const std::vector <double>& Z = vm.Z;
+  const std::vector <double>& L = vm.L;
+  const std::vector <double>& iota = vm.iota;
+  const std::vector <double>& psi = vm.psi;
+  const std::vector <double>& xm = vm.xm;
+  const std::vector <double>& xn = vm.xn;
 
   // Step 2: Create an object to hold Vmec flux data
   pVmecFlux vf = VmecFlux_create(avmajr, avminr, nsurf, nmode, R.data(), Z.data(), L.data(), iota.data(), psi.data(), xm.data(), xn.data());

@@ -3,7 +3,7 @@
 // Given a point on curve, and properties of magnetic field along with the curve meta deta, 
 // find next point on the poloidal curve. Not field following.
 bool findNextPoint(Point& startPoint, Point& nextPoint, double& lengthPoloidalGoal, const PhysicsPoint& oPoint, 
-                   CurveMetaData& curveData, EqdskData eqdsk)
+                   CurveMetaData& curveData, EqdskData& eqdsk)
 {
   double stepToroidalUnit = getStepToroidalUnit(oPoint, lengthPoloidalGoal);
   double distNewToStartLast = 0.0;
@@ -74,7 +74,7 @@ bool findNextPoint(Point& startPoint, Point& nextPoint, double& lengthPoloidalGo
 // Given a point on curve, and properties of magnetic field along with the curve meta deta, 
 // find next point on the poloidal curve. Field following point tracing.
 bool findNextFieldFollowingPoint(Point& startPoint, Point& nextPoint, double& dist, int m, CurveMetaData& curveData, 
-                                 EqdskData eqdsk)
+                                 EqdskData& eqdsk)
 {
   int steps;
   double stepToroidalAngle = getStepToroidalAngle(eqdsk.getNumPlanes(), m, steps, eqdsk.getStepRadians());
@@ -537,7 +537,7 @@ int getNumIntersection(const Point& pt1, const Point& pt2, const WallCurve& wall
   int numIntersections = 0;
   Point intersectionPoint1, intersectionPoint2;
 
-  std::vector <Point> wallPoints = wall.getPoints();
+  const std::vector <Point>& wallPoints = wall.getPoints();
   for(int i = 0; i < wallPoints.size() -1; i++)
     numIntersections += intersectBetweenTwoLineSegments(wallPoints[i], wallPoints[i+1], pt1, pt2, 0., toleranceSine, intersectionPoint1, intersectionPoint2);
 
@@ -721,7 +721,7 @@ std::vector <Point> findStartPointOnWall(double psiNormalized, int type, const W
   double distSampling = 1e-2; // 1cm
 
   double psi = eqdsk.convertNormToPsi(psiNormalized);
-  std::vector <Point> wallPoints = wall.getPoints();
+  const std::vector <Point>& wallPoints = wall.getPoints();
   double nPts = wallPoints.size();
 
    std::vector <Point> startPoints;
