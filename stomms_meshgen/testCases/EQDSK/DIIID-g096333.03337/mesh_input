@@ -40,6 +40,8 @@ spacingToleranceAbsolute 0.61803398874989484820
 !spacing between vertices option (-1: field following, -2: non-field following)
 intraCurveSpacingOption -1
 
+fluxCurvesInPrivate 1
+
 !***********************************************************************************
 !******************PHYSICAL COMPONENTS SOURCES (WALL CURVE FOR NOW)*****************
 !***********************************************************************************

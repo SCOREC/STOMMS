@@ -54,6 +54,19 @@ namespace
     {"meshSizeGrad", "not supported in STOMMS."},
     {"maxAspectRatioXpt", "not supported in STOMMS."},
     {"bdyNodeOrder", "not supported in STOMMS."},
+    {"finite_domain_on", "not supported in STOMMS."},
+    {"inter_curve_spacing_max", "not supported in STOMMS."},
+    {"inter_curve_spacing_min", "not supported in STOMMS."},
+    {"inter_curve_spacing_axis_forcing", "not supported in STOMMS."},
+    {"grid_bdry_psi2", "not supported in STOMMS."},
+    {"grid_bdry_psi2hfs", "not supported in STOMMS."},
+    {"inter_curve_spacing_sol", "not supported in STOMMS."},
+    {"wall1LayAdapt", "not supported in STOMMS."},
+    {"distance_factor_vtx_adjacent2wall", "not supported in STOMMS."},
+    {"meshSizeGradXpt", "not supported in STOMMS."},
+    {"tolerance_meters", "not supported in STOMMS."},
+    {"step_normalized", "not supported in STOMMS."},
+    {"addinfoflxFile", "not supported in STOMMS."},
   };
 
   // TOMMS parameters not available in STOMMS yet, but planned for the future.

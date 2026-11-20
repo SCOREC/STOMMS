@@ -43,6 +43,8 @@ intraCurveSpacingPropFacMin 0.95
 intraCurveSpacingPropFacMax 2.5
 intraCurveSpacingSmallVariation 0
 
+fluxCurvesInPrivate 1
+
 !Parameters needed and only valid for Zero X-point cases.
 lastClosedPsi 0.004000 !Required
 useWall 1 !Optional. By default wall be used. Set 0 if don't want it. 

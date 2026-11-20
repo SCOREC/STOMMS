@@ -124,5 +124,7 @@ std::array <double, 4> getCurveBounds(const std::vector <Point>& curvePts);
  */
 std::array <double, 6> getCurveBounds3d(const std::vector <Point>& curvePts);
 bool isPtOnModelEdge(const Point& checkPt, const pGEdge& ge);
+bool isPtOnLine(const Point& checkPt, const Point& pt1, const Point& pt2);
 bool isPtOnCurve(const Point& pt, const std::vector <pGEdge>& edgesOnCurve);
+bool isPtOnCurve(Point pt, const std::vector <Point>& curvePts);
 #endif

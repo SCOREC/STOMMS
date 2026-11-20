@@ -670,7 +670,8 @@ std::vector <Flux> getOpenCurvesOnFace(pGFace gf, std::vector <double> psiValues
         continue;
 
       Flux f = openFluxCurve.getFluxCurve();
-      // if (!validOpenCurve() add later
+      if (!validOpenCurve(f, wall.getPoints()))
+        continue;      
 
       restrictDistanceOfLastEdge(f, eqdskData);
       #pragma omp critical

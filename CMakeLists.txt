@@ -48,8 +48,8 @@ if(ENABLE_TESTING)
   message(STATUS "TEST_DIR: ${TEST_DIR}")
 
   enable_testing()
-  #add_subdirectory(stomms_meshgen/test/unitTests)
-  #add_subdirectory(stomms_meshgen/test/regTests)
+  add_subdirectory(stomms_meshgen/test/unitTests)
+  add_subdirectory(stomms_meshgen/test/regTests)
 
   # Add testing for TOMMS legacy input files (xgc_mesh_in) - Keep it optional
   option(ENABLE_TOMMS_INPUT_TESTING "Test for TOMMS input files" OFF)

@@ -159,37 +159,37 @@ std::array<int,6> getEntityValidationData(const std::string& testCase)
 {
   std::array<int,6> data;
   if (checkFileName(testCase, "coarse"))
-    data = std::array<int,6>{189, 213, 113, 34433, 103017, 68585};
+    data = std::array<int,6>{195, 219, 113, 34437, 103025, 68589};
   if (checkFileName(testCase, "d161218n_LH_D"))
-    data = std::array<int,6>{358, 445, 227, 236848, 709543, 472696};
+    data = std::array<int,6>{364, 451, 227, 236821, 709461, 472641};
   if (checkFileName(testCase, "d3d_144981-03175_meshing_v2"))
-    data = std::array<int,6>{294, 355, 179, 220492, 660478, 439987};
+    data = std::array<int,6>{300, 361, 179, 220558, 660674, 440117};
   if (checkFileName(testCase, "d3d_163240"))
-    data = std::array<int,6>{244, 296, 137, 74109, 221390, 147282};
+    data = std::array<int,6>{255, 307, 137, 73895, 220765, 146871};
   if (checkFileName(testCase, "D-g157308.04200")) 
-    data = std::array<int,6>{204, 234, 120, 96992, 290511, 193520};
+    data = std::array<int,6>{210, 240, 120, 96654, 289518, 192865};
   if (checkFileName(testCase, "ITER_10MA_xgca"))
-    data = std::array<int,6>{522, 656, 335, 272363, 816054, 543692};
+    data = std::array<int,6>{522, 656, 335, 272331, 815967, 543637};
   if (checkFileName(testCase, "kstar_018451_2790_xgc1"))
-    data = std::array<int,6>{317, 406, 203, 215327, 644552, 429226};
+    data = std::array<int,6>{317, 406, 203, 214788, 643006, 428219};
   if (checkFileName(testCase, "kstar_018451_2790_xgca"))
-    data = std::array<int,6>{304, 390, 193, 50183, 150030, 99848};
+    data = std::array<int,6>{304, 390, 193, 50152, 149950, 99799};
   if (checkFileName(testCase, "LTX_1504291255_47400"))
     data = std::array<int,6>{44, 43, 43, 6539, 19257, 12719};
   if (checkFileName(testCase, "ltx_1504291255_47400_xgc1"))
-    data = std::array<int,6>{278, 277, 86, 33397, 99555, 66159};
+    data = std::array<int,6>{278, 277, 86, 33440, 99684, 66245};
   if (checkFileName(testCase, "ltx_1504291255_47400_xgca"))
-    data = std::array<int,6>{260, 271, 56, 15908, 47227, 31320};
+    data = std::array<int,6>{260, 271, 56, 15799, 46905, 31107};
   if (checkFileName(testCase, "nstx_132588_00650_v2"))
-    data = std::array<int,6>{149, 179, 89, 131266, 392737, 261472};
+    data = std::array<int,6>{149, 179, 89, 131349, 392982, 261634};
   if (checkFileName(testCase, "nstx_132588_development_sample"))
-    data = std::array<int,6>{93, 98, 59, 241474, 723470, 481997};
+    data = std::array<int,6>{93, 98, 59, 239596, 717833, 478238};
   if (checkFileName(testCase, "nstx_132588_em_20210726"))
-    data = std::array<int,6>{115, 136, 64, 81907, 244740, 162834};
+    data = std::array<int,6>{115, 136, 64, 81909, 244746, 162838};
   if (checkFileName(testCase, "nstx_132588_v3"))
-    data = std::array<int,6>{122, 141, 73, 289206, 866360, 577155};
+    data = std::array<int,6>{122, 141, 73, 285556, 855422, 569867};
   if (checkFileName(testCase, "nstx_132588_v4"))
-    data = std::array<int,6>{121, 140, 73, 256563, 768518, 511956};
+    data = std::array<int,6>{121, 140, 73, 254633, 762754, 508122};
   
   // Data for production scale meshes
   if (checkFileName(testCase, "ITER_10MA"))

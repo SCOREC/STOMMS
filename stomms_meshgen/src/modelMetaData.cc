@@ -10,13 +10,14 @@
 // Constructor gets the flux data (f), magnetic geometry (mg), and plane toroidal angle to setup meta data on the plane.
 PlaneMetaData::PlaneMetaData(const FluxData& f, double angle):toroidalAngle(angle)
 {
-  // Step 1: Setup the vector for number of desired mesh spacing on each flux curve.
+  // Step 1: Store the mesh sizes on each flux directly from the mesh size file
+  // as they are given. 
   for( const auto &itr : f.fluxMeshSize)
   {
-    fluxValues.push_back(itr.first);  // flux values
-    fluxMeshSize.push_back(itr.second);  // corresponding mesh sizes
+    rawFluxValuesFromFile.push_back(itr.first);  // flux values
+    rawMeshSizesFromFile.push_back(itr.second);  // corresponding mesh sizes
   }
-
+  
   // Step 2: Update the fluxValues and mesh size vectors to make sure we get a 
   // consistent data between f.fluxInput and mesh size vectors. This requires
   // interpolation.
@@ -53,42 +54,24 @@ const std::vector <double>& PlaneMetaData::getPlaneFluxSizes() const
 // Function to return mesh size at specific psi normalized value.
 double PlaneMetaData::getNodeSpacingAtFlux(double psiNorm)
 {
-  // Step 1: Check bounds
-  double tolerance = 1e-8;
-  if (psiNorm < (fluxValues.front() - tolerance) || psiNorm > (fluxValues.back() + tolerance))
-  {
-    std::cerr << "ERROR: Given psi normalized value = " << psiNorm << " is out of bounds\n";
-    std::cout << "The value should be in the following range: " << fluxValues.front() << " , " << fluxValues.back() << "\n";
-    exit(1);
-  }
+  // Step 1: Check bounds and if values are lower and upper bounds use value of lowest or highest
+  // index accordingly. First take care of outside the range values.
+  if (psiNorm <= rawFluxValuesFromFile.front())
+    return rawMeshSizesFromFile.front();
+  if (psiNorm >= rawFluxValuesFromFile.back())
+    return rawMeshSizesFromFile.back();
 
-  // Step 2: If not out of bounds, find the index of first value in the fluxValues 
-  // vector that is equal or greater than given psiNorm. First check if its on the
-  // starting point of the vector, if yes return corresponding mesh size value
-  if (fabs(fluxValues[0] - psiNorm) < tolerance)
-    return fluxMeshSize[0];
+  // Step 2: If not out of bounds, find the index of first value in the 
+  // rawFluxValuesFromFile vector that is equal or greater than given psiNorm. 
+  int indx = 1;
+  while (rawFluxValuesFromFile[indx] < psiNorm)
+    indx++;	
 
-  // Step 3: Otherwise find the index.
-  int indx = -1;
-  for (int i = 1; i < fluxValues.size(); i++)
-  {
-    if (psiNorm <= fluxValues[i]) 
-    {
-      indx = i;
-      break;
-    }
-  }
-
-  // Step 4: If psiNorm is slightly above the last psi value (psi + within tolerance),
-  // use the last stored value.
-  if (indx == -1)
-    return fluxMeshSize.back();
-
-  // Step 5: Linear Interpolation (y = (y2 - y1)/(x2 - x1)*(x - x1) + y1)
-  double y1 = fluxMeshSize[indx - 1];
-  double y2 = fluxMeshSize[indx];
-  double x1 = fluxValues[indx - 1];
-  double x2 = fluxValues[indx];
+  // Step 3: Linear Interpolation (y = (y2 - y1)/(x2 - x1)*(x - x1) + y1)
+  double y1 = rawMeshSizesFromFile[indx - 1];
+  double y2 = rawMeshSizesFromFile[indx];
+  double x1 = rawFluxValuesFromFile[indx - 1];
+  double x2 = rawFluxValuesFromFile[indx];
   double meshSize = (y2 - y1)/(x2 - x1)*(psiNorm - x1) + y1;
   return meshSize;
 }
@@ -101,18 +84,8 @@ void PlaneMetaData::updateMeshSizeVector(const std::vector<double>& psiValues)
   std::vector <double> meshSizes;
   for (int i = 0; i < psiValues.size(); i++)
   {
-    // Step 1.1: If some of the starting/ending psi values are not given in 
-    // mesh size file, its better to fix them here. It happens when flux file
-    // has more flux values than the mesh size values in the mesh size file or
-    // same number of values but psi values aren't matching exactly.
     double psiNorm = psiValues[i]; 
-    if (psiNorm >= 0.0 && psiNorm < fluxValues.front())
-      meshSizes.push_back(fluxMeshSize.front());
-    else if (psiNorm > fluxValues.back())
-      meshSizes.push_back(fluxMeshSize.back());
-    else
-      meshSizes.push_back(getNodeSpacingAtFlux(psiNorm));
-
+    meshSizes.push_back(getNodeSpacingAtFlux(psiNorm));
   }
 
   // Step 2: Update the vectors of flux values and its corresponding mesh sizes.

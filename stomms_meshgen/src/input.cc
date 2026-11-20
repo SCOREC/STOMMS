@@ -37,7 +37,7 @@ void Inputs::setDefaultValues()
   intraCurveMinLengthLastEdge = 0.001;
   intraCurveSpacingPropFacMax = 1.0;
   intraCurveSpacingPropFacMin = 1.0;
-  fluxCurvesInPrivate = true;
+  fluxCurvesInPrivate = false;
   lastClosedPsi = 1e30;  // just a large number 
   useWall = true;  // use wall as default. When false, wall will be ignored.
 
@@ -91,7 +91,6 @@ void Inputs::setValuesFromInputFile()
     {
       if (tomms::handleLegacyParameter(token, input))
         continue;
-      std::cout << "Working Variable: = " << token << "\n";
       token = tomms::translateParameterName(token);
     }
 
