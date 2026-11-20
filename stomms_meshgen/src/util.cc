@@ -337,9 +337,13 @@ bool isPtOnLine(const Point& checkPt, const Point& pt1, const Point& pt2)
 
 bool isPtOnCurve(const Point& pt, const std::vector <pGEdge>& edgesOnCurve)
 {
+  // Step 1: Make sure curve has atleast one model edge.
   if (edgesOnCurve.empty())
     std::cerr << "ERROR: Given curve is empty\n";  
 
+  // Step 2: Loop over each model edge in the curve, and check 
+  // if the pt is located on any of those model edges. It it 
+  // does, return true. Otherwise return false.
   int n = edgesOnCurve.size(); 
   bool ptOnCurve = false;
   for (int i = 0; i < n; i++)
@@ -355,9 +359,13 @@ bool isPtOnCurve(const Point& pt, const std::vector <pGEdge>& edgesOnCurve)
 
 bool isPtOnCurve(Point pt, const std::vector <Point>& curvePts)
 {
+  // Step 1: Make sure curve has atleast two points.
   int numPts = curvePts.size();
   assert (numPts >= 2); // atleast one valid line segment
 
+  // Step 2: Loop over each segment in the curve, and check
+  // if the pt is on any of line segment. If it is return
+  // true.
   bool ptOnCurve = false;
   for (int i = 1; i < numPts; i++)
   {

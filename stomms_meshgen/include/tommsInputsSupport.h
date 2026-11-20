@@ -12,14 +12,20 @@
  */
 namespace tomms
 {
-  // Name of the TOMMS input file.
+  /** 
+   * Name of the TOMMS input file.
+   */
   const std::string inputFileName = "xgc_mesh_in";
 
-  // Contact information in case a capability is desired that was in TOMMS and not in
-  // STOMMS
+  /** 
+   * Contact information in case a capability is desired that was in TOMMS and not in
+   * STOMMS.
+   */
   const std::string contactLink = "https://scorec.github.io/STOMMS/src_files/contact.html";
 
-  // A TOMMS option for which STOMMS supports only some values.
+  /** 
+   * A TOMMS parameter for which STOMMS supports only some values. 
+   */
   struct Option
   {
     std::set <std::string> availableValues;  // Values available in STOMMS.
