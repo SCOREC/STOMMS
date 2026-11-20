@@ -19,12 +19,12 @@ class StommsModel{
     /**
      * Function to return the vector containing all the planes with their geometric data.
      */ 
-    const std::vector <Plane>& getPlanes();
+    const std::vector <Plane>& getPlanes() const;
 
     /**
      * Function to return the underlying model in StommsModel.
      */ 
-    const Model& getModel();
+    const Model& getModel() const;
 
   private:
     std::vector <Plane> planes;  // a vector to hold all the planes with their geometric data.

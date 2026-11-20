@@ -125,7 +125,7 @@ const PlaneMetaData& ModelMetaData::getPlaneMetaDataByIndex(int index) const
 }
 
 // Function to return a vector of toroidal angles of all the planes.
-const std::vector <double>& ModelMetaData::getToroidalAnglesMetaData()
+const std::vector <double>& ModelMetaData::getToroidalAnglesMetaData() const
 {
   return planesToroidalAngles;
 }

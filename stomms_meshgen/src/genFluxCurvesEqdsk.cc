@@ -34,16 +34,16 @@ std::vector <Flux> genSeparatrixCurves(const std::vector <PhysicsPoint>& xPts, E
     startPointsMap[i] = startPoints;     
   }
 
-  std::vector <double> psiInputVector = eqdskData.getFluxInputData().fluxInput;
+  const std::vector <double>& psiInputVector = eqdskData.getFluxInputData().fluxInput;
   for (int i = 0; i < xPts.size(); i++)
   {
     double psiNormalized = eqdskData.convertPsiToNorm(xPts[i].getPsi());
-    std::vector <Point> startPoints = startPointsMap.at(i);
+    const std::vector <Point>& startPoints = startPointsMap.at(i);
     if(psiInputVector.back() >= psiNormalized && psiInputVector.front() <= psiNormalized)
     {
       std::cout << "Generating separatrix curves from X-point # " << i+1 << "\n";
       SeparatrixCurve separatrixCurve(xPts[i], startPoints, eqdskData, wall, planeMetaData);
-      std::vector <Flux> sepCurvesFromXpt = separatrixCurve.getFluxCurves();
+      const std::vector <Flux>& sepCurvesFromXpt = separatrixCurve.getFluxCurves();
       separatrices.insert(separatrices.end(), sepCurvesFromXpt.begin(), sepCurvesFromXpt.end());
     }
   }  
@@ -59,7 +59,7 @@ std::vector <Flux> genOpenFluxCurves(pGModel& model, EqdskData& eqdskData, const
   // Step 1: Get SOL model faces to insert open curves on 
   // them with psi values for flux curves.
   std::vector <pGFace> solFaces = getSOLModelFaces(model);
-  std::vector <double> psiValues = planeMetaData.getPlaneFluxValues();
+  const std::vector <double>& psiValues = planeMetaData.getPlaneFluxValues();
   std::vector <Flux> openCurves;  // Save all open curves here.
 
   // Step 2: Generate flux curves on the SOL faces.
@@ -448,8 +448,8 @@ std::vector <Flux> SeparatrixCurve::mergeSeparatrixLegs(std::vector <SeparatrixL
     for (int i = 0; i < segFront.size(); i++)
     {
       Flux flux;
-      SeparatrixLeg startLeg = separatrixLegs[segFront[i]];
-      SeparatrixLeg endLeg = separatrixLegs[segBack[i]];
+      const SeparatrixLeg& startLeg = separatrixLegs[segFront[i]];
+      const SeparatrixLeg& endLeg = separatrixLegs[segBack[i]];
       flux.separatrixLegs.push_back(startLeg);
       flux.separatrixLegs.push_back(endLeg);
       flux.fieldPoints.insert(flux.fieldPoints.end(), startLeg.fieldPoints.begin(), startLeg.fieldPoints.end() - 1);
@@ -464,19 +464,19 @@ std::vector <Flux> SeparatrixCurve::mergeSeparatrixLegs(std::vector <SeparatrixL
   else if (segFront.size() == 1)
   { // separatrix curve with 2 legs and 1 closed loop
     Flux flux;
-    SeparatrixLeg startLeg = separatrixLegs[segFront[0]];
+    const SeparatrixLeg& startLeg = separatrixLegs[segFront[0]];
     flux.separatrixLegs.push_back(startLeg);
     flux.fieldPoints.insert(flux.fieldPoints.end(), startLeg.fieldPoints.begin(), startLeg.fieldPoints.end() - 1);
     for (int i = 0; i < separatrixLegs.size(); i++)
     {
       if (separatrixLegs[i].curveSubType == CurveSubType::Closed)
       {
-        SeparatrixLeg closed = separatrixLegs[i];
+        const SeparatrixLeg& closed = separatrixLegs[i];
         flux.separatrixLegs.push_back(separatrixLegs[i]);
         flux.fieldPoints.insert(flux.fieldPoints.end(), closed.fieldPoints.begin(), closed.fieldPoints.end());
       }
     }
-    SeparatrixLeg endLeg = separatrixLegs[segBack[0]];
+    const SeparatrixLeg& endLeg = separatrixLegs[segBack[0]];
     flux.separatrixLegs.push_back(endLeg);
     flux.fieldPoints.insert(flux.fieldPoints.end(), endLeg.fieldPoints.begin() + 1, endLeg.fieldPoints.end());
     flux.curveType = CurveType::Separatrix;
@@ -653,7 +653,7 @@ const bool& OpenFluxCurve::useStartPoint() const
 /***********************************************/
 // Other Helping Functions
 /***********************************************/
-std::vector <Flux> getOpenCurvesOnFace(pGFace gf, std::vector <double> psiValues, EqdskData& eqdskData, const WallCurve& wall,
+std::vector <Flux> getOpenCurvesOnFace(pGFace gf, const std::vector <double>& psiValues, EqdskData& eqdskData, const WallCurve& wall,
                                        const PhysicsPoint& oPoint, const PlaneMetaData& planeMetaData)
 {
   std::vector <Flux> openCurves;

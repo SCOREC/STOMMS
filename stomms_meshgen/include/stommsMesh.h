@@ -27,17 +27,17 @@ class PlaneMeshData{
     /*
      *  Function to get global mesh back (contains all the poloidal planes).
      */ 
-    const pMesh getGlobalMesh();
+    const pMesh& getGlobalMesh() const;
 
     /*
      * Function to return mesh defined on a plane.
      */ 
-    const pMesh getMesh();
+    const pMesh& getMesh() const;
 
     /*
      * Function to return domain that defines a poloidal plane.
      */ 
-    const pGDomain getDomain();
+    const pGDomain& getDomain() const;
   private:
     pMesh simMeshGlobal;  // Simmetrix full domain mesh
     PlaneMeshMetaData meshMetaDataOnP;  // Mesh meta data on a plane. Needed to extract mesh data on planes.
@@ -120,14 +120,14 @@ class StommsMesh{
       * @param edge: periodic model edge on which mesh vertices/edges are going to be specified.
       * @param parValues: a vector of par values on which vertices need to be specified.
       */ 
-     void specifyMeshOnPeriodicModelEdge(pMesh mesh, Edge edge, const std::vector<double>& parValues);
+     void specifyMeshOnPeriodicModelEdge(pMesh mesh, const Edge& edge, const std::vector<double>& parValues);
 
      /**
       * To specify mesh vertices and edges on a regular (non-periodic) model edge.
       * @param edge: periodic model edge on which mesh vertices/edges are going to be specified.
       * @param parValues: a vector of par values on which vertices need to be specified.
       */ 
-     void specifyMeshOnModelEdge(pMesh mesh, Edge edge, const std::vector<double>& parValues);  // non-periodic
+     void specifyMeshOnModelEdge(pMesh mesh, const Edge& edge, const std::vector<double>& parValues);  // non-periodic
 
      /**
       * Function to return already specified vertex tag. If not specified yet, returns -1.

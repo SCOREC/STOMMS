@@ -9,7 +9,7 @@ void PlaneMeshMetaData::setModelPlane(const Plane& p)
 {
   // Step 1: Get the model faces on the plane.
   modelPlane = p;
-  std::vector <Face> modelFaces = modelPlane.modelFaces;
+  const std::vector <Face>& modelFaces = modelPlane.modelFaces;
  
   // Step 2: Set the mesh types on model faces.
   faceMeshType = setFaceMeshType(modelFaces);
@@ -23,14 +23,14 @@ void PlaneMeshMetaData::setModelPlane(const Plane& p)
 }
 
 // Function to set up the mesh types for individual faces.
-std::vector <int> PlaneMeshMetaData::setFaceMeshType(const std::vector <Face> geomFaces)
+std::vector <int> PlaneMeshMetaData::setFaceMeshType(const std::vector <Face>& geomFaces)
 {
   std::vector <int> meshTypeOnFace;
 
   // Step 1: Iterate over the model faces in the model.
   for (int i = 0; i < geomFaces.size(); i++)
   {
-    Face f = geomFaces[i];
+    const Face& f = geomFaces[i];
 
     // Step 2: Get the physics type of model face.
     FaceType faceType = getModelFacePhysicsType(f);
@@ -59,19 +59,19 @@ std::vector <int> PlaneMeshMetaData::setFaceMeshType(const std::vector <Face> ge
 }
 
 // Function to return the vector of model faces on the particular poloidal plane.
-const std::vector <Face>& PlaneMeshMetaData::getModelFacesOnPlane()
+const std::vector <Face>& PlaneMeshMetaData::getModelFacesOnPlane() const
 {
   return modelPlane.modelFaces;
 }
 
 // Function to get the vector holding the mesh type for each individual model face on the plane.
-const std::vector <int>& PlaneMeshMetaData::getFaceMeshType()
+const std::vector <int>& PlaneMeshMetaData::getFaceMeshType() const
 {
   return faceMeshType;
 }
 
 // Function to get a vector of flux curves on the poloidal plane.
-const std::vector <Flux>& PlaneMeshMetaData::getFluxCurvesOnPlane()
+const std::vector <Flux>& PlaneMeshMetaData::getFluxCurvesOnPlane() const
 {
   return modelPlane.fluxCurves;
 }
@@ -85,7 +85,7 @@ const std::vector <FluxParametricPoints>& PlaneMeshMetaData::getMeshVerticesOnFl
 }
 
 // Function to get model vertex on oPoint of  the poloidal plane.
-const Vertex& PlaneMeshMetaData::getOPointOnPlane()
+const Vertex& PlaneMeshMetaData::getOPointOnPlane() const
 {
   return modelPlane.oPoint;
 }
@@ -128,27 +128,27 @@ MeshMetaData::MeshMetaData(const StommsModel& m):stommsModel(m)
 {
   std::cout << ".......... Setting Mesh Metadata\n";
   // Step 1: Get all the model planes from model.
-  std::vector <Plane> modelPlanes = stommsModel.getPlanes();
+  const std::vector <Plane>& modelPlanes = stommsModel.getPlanes();
 
   // Step 2: Iterate over the planes (except plane 0) and set mesh meta 
   // data on each plane and save each plane to planeMeshData.
   for (int i = 0; i < modelPlanes.size(); i++)
   {
     PlaneMeshMetaData pMeshData;
-    Plane p = modelPlanes[i];
+    const Plane& p = modelPlanes[i];
     pMeshData.setModelPlane(p);
     planeMeshData.push_back(pMeshData);
   }
 }
 
 // Function to return StommsModel from mesh meta data.
-const StommsModel& MeshMetaData::getStommsModel()
+const StommsModel& MeshMetaData::getStommsModel() const
 {
   return stommsModel;
 }
 
 // Function to get the vector of planes mesh meta data.
-const std::vector <PlaneMeshMetaData>& MeshMetaData::getMeshMetaDataPlanes()
+const std::vector <PlaneMeshMetaData>& MeshMetaData::getMeshMetaDataPlanes() const
 {
   return planeMeshData;
 }

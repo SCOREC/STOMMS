@@ -20,17 +20,17 @@ void Plane::setModelEntitiesFromModelFaces(const std::vector <Face>& modelFaces)
   // Step 1: Iterate over the model faces.
   for (int i = 0; i < modelFaces.size(); i++)
   {
-    Face f = modelFaces[i];
+    const Face& f = modelFaces[i];
 
     // Step 2: Iterate over the edges on the model face and save them 
     // in the set.
-    std::vector <Edge> edgesOnFace = f.getEdgesOnFace();
+    const std::vector <Edge>& edgesOnFace = f.getEdgesOnFace();
     for (int j = 0; j < edgesOnFace.size(); j++)
       edges.insert(edgesOnFace[j]);
     
     // Step 3: Iterate over the vertices on the model face and save 
     // them in the set.
-    std::vector <Vertex> verticesOnFace = f.getVerticesOnFace();
+    const std::vector <Vertex>& verticesOnFace = f.getVerticesOnFace();
     for (int j = 0; j < verticesOnFace.size(); j++)
       vertices.insert(verticesOnFace[j]);
   }

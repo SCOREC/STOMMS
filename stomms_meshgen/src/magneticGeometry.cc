@@ -40,7 +40,7 @@ std::unique_ptr <MagneticGeometry> setMagneticGeometry(const Inputs& input, cons
     std::cout << "Geometry (Reactor) Type: Tokamak \n";
     std::cout << "Magnetic Field Input Source: EQDSK\n";
     int planeNum = 0; // for tokamaks
-    WallCurve wall = physicalGeometry.getWallCurveAtPlane(planeNum);
+    const WallCurve& wall = physicalGeometry.getWallCurveAtPlane(planeNum);
     mg =  std::make_unique<MagneticGeometryEqdsk>(modelMetaData, wall, input);
   }
 

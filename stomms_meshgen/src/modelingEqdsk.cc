@@ -11,8 +11,8 @@ pGModel generateSimModel(const PlaneMetaData& planeMetaData, EqdskData& eqdskDat
   pGModel model = GM_new(1);
  
   // Step 2: Get oPoint and wall curve information for the primary model face.
-  PhysicsPoint oPoint = curvesMetaData.getOPoints().at(0);
-  WallCurve wall = curvesMetaData.getWallCurve();
+  const PhysicsPoint& oPoint = curvesMetaData.getOPoints().at(0);
+  const WallCurve& wall = curvesMetaData.getWallCurve();
 
   // Step 3: Create wallcurve. If no wall is desired, use last closed flux curve
   // as wall curve. 

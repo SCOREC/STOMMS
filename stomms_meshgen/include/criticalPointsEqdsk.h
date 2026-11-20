@@ -10,7 +10,7 @@
 */
 struct Simplex{
   Simplex(){};
-  Simplex(std::vector <Point> pts);
+  Simplex(const std::vector <Point>& pts);
   Simplex(Point pt1, Point pt2, Point pt3);  
   Point point1;
   Point point2;

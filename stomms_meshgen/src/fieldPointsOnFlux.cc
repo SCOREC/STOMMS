@@ -117,8 +117,8 @@ std::vector <std::vector<double>> setParOnClosedFluxUsingDistance(const Flux& f)
     std::vector <double> parValuesOnEdge;
 
     // Step 2: Get the model edge on flux curve and parameric bounds of the edge.
-    Edge ge = f.edgesOnFlux[i];
-    std::vector <double> parR = ge.getEdgeParRange();
+    const Edge& ge = f.edgesOnFlux[i];
+    const std::vector <double>& parR = ge.getEdgeParRange();
 
     // Step 3: Push the first parametric value.
     parValuesOnEdge.push_back(parR[0]);
@@ -187,7 +187,7 @@ std::vector <std::vector<double>> setParOnFluxUsingPoints(const Flux& f)
     std::vector <double> parValuesOnEdge;
 
     // Step 2: Get the model edge on flux curve and parameric bounds of the edge.
-    Edge edge = f.edgesOnFlux[i];
+    const Edge& edge = f.edgesOnFlux[i];
     const std::vector <double>& parR = edge.getEdgeParRange();
     pGEdge ge = edge.getSimEdge();  // get sim edge
     bool periodicEdge = edge.edgeIsPeriodic();

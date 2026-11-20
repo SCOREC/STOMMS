@@ -93,7 +93,7 @@ const pGEdge& Edge::getSimEdge() const
 }
 
 // Function to return model vertices on the Edge.
-const std::vector <Vertex>& Edge::getVerticesOnEdge()
+const std::vector <Vertex>& Edge::getVerticesOnEdge() const
 {
   return verticesOnE;
 }
@@ -105,7 +105,7 @@ const std::vector <double>& Edge::getEdgeParRange() const
 }
 
 // Function to return the periodic state of edge.
-const bool& Edge::edgeIsPeriodic()
+const bool& Edge::edgeIsPeriodic() const
 {
   return periodicEdge;
 }
@@ -146,7 +146,7 @@ void Loop::setLoop()
 }
 
 // Function to return vector of edges on a loop.
-const std::vector <Edge>& Loop::getEdgesOnLoop()
+const std::vector <Edge>& Loop::getEdgesOnLoop() const
 {
   return edgesOnL;
 }
@@ -218,19 +218,19 @@ const pGFace& Face::getSimFace() const
 }
 
 //Function to return the model vertices on the model face.
-const std::vector <Vertex>& Face::getVerticesOnFace()
+const std::vector <Vertex>& Face::getVerticesOnFace() const
 {
   return verticesOnF;
 }
 
 // Function to return the model edges on the model face.
-const std::vector <Edge>& Face::getEdgesOnFace()
+const std::vector <Edge>& Face::getEdgesOnFace() const
 {
   return edgesOnF;
 }
 
 // Function to return the model loops on the model face.
-const std::vector <Loop>& Face::getLoopsOnFace()
+const std::vector <Loop>& Face::getLoopsOnFace() const
 {
   return loopsOnF;
 }
@@ -287,25 +287,25 @@ void Model::setModelFaces()
 }
 
 // Function to return the underlying Simmetrix model (pGModel).
-const pGModel& Model::getSimModel()
+const pGModel& Model::getSimModel() const
 {
   return model;
 }
 
 // Function to return a vector of  model vertices on the model.
-const std::vector <Vertex>& Model::getModelVertices()
+const std::vector <Vertex>& Model::getModelVertices() const
 {
   return vertices;
 }
 
 // Function to return a vector of  model edges on the model.
-const std::vector <Edge>& Model::getModelEdges()
+const std::vector <Edge>& Model::getModelEdges() const
 {
   return edges;
 }
 
 // Function to return a vector of  model faces on the model.
-const std::vector <Face>& Model::getModelFaces()
+const std::vector <Face>& Model::getModelFaces() const
 {
   return faces;
 }

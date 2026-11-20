@@ -38,7 +38,7 @@ double convertNormToPsi(double normPsi, double psiAxis, double psiCoreBoundary);
  * double psiCoreBoundary (in): actual psi value at the boundary of core region.
  * returns a vector of actual psi values.
 */ 
-std::vector <double> convertNormToPsiVector(std::vector <double> normPsi, double psiAxis, double psiCoreBoundary);
+std::vector <double> convertNormToPsiVector(const std::vector <double>& normPsi, double psiAxis, double psiCoreBoundary);
 
 /*
  * Convert the psi value to normalized psi value.

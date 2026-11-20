@@ -66,7 +66,7 @@ class Edge{
     /*
      * Function to return model vertices on the Edge.
      */
-    const std::vector <Vertex>& getVerticesOnEdge();
+    const std::vector <Vertex>& getVerticesOnEdge() const;
 
     /*
      * Function to get the parametric range of the edge.
@@ -78,7 +78,7 @@ class Edge{
      * Function to check if the edge is periodic or not.
      * returns true if edge is periodic, otherwise false.
      */ 
-    const bool& edgeIsPeriodic();
+    const bool& edgeIsPeriodic() const;
 
     /**
      * Function to get the length of the model edge.
@@ -132,7 +132,7 @@ class Loop{
     /*
      * Function to return set of edges on a loop.
      */ 
-    const std::vector <Edge>& getEdgesOnLoop();
+    const std::vector <Edge>& getEdgesOnLoop() const;
   private:
     /*
      * Function to set the model loop to the the definition of Loop.
@@ -161,17 +161,17 @@ class Face{
     /*
      * Function to return the model vertices on the model face.
      */
-    const std::vector <Vertex>& getVerticesOnFace();
+    const std::vector <Vertex>& getVerticesOnFace() const;
  
     /*
      * Function to return the model edges on the model face.
      */ 
-    const std::vector <Edge>& getEdgesOnFace();
+    const std::vector <Edge>& getEdgesOnFace() const;
 
     /*
      * Function to return the model loops on the model face.
      */ 
-    const std::vector <Loop>& getLoopsOnFace();
+    const std::vector <Loop>& getLoopsOnFace() const;
   private:
     /*
      * Function to set the model face to the definition of Face.
@@ -211,22 +211,22 @@ class Model{
     /*
      * Function to return the underlying Simmetrix model (pGModel).
      */ 
-    const pGModel& getSimModel();
+    const pGModel& getSimModel() const;
 
     /*
      * Function to return a vector of  model vertices on the model.
      */ 
-    const std::vector <Vertex>& getModelVertices();
+    const std::vector <Vertex>& getModelVertices() const;
 
     /*
      * Function to return a vector of  model edges on the model.
      */ 
-    const std::vector <Edge>& getModelEdges();
+    const std::vector <Edge>& getModelEdges() const;
 
     /*
      * Function to return a vector of  model faces on the model.
      */ 
-    const std::vector <Face>& getModelFaces();
+    const std::vector <Face>& getModelFaces() const;
 
   private:
     pGModel model;  // underlying Simmetrix model

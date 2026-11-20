@@ -36,7 +36,7 @@ void ModelVmec::setPlanes()
   pGModel simModel = model.getSimModel();
 
   // Step 2: Get the planes angel data from the modelMetaData.
-  std::vector <double> planeAngles = modelMetaData.getToroidalAnglesMetaData();
+  const std::vector <double>& planeAngles = modelMetaData.getToroidalAnglesMetaData();
 
   // Step 3: Sort all the model faces and O-point vertices  according to plane number in a map.
   // In map, the key is the plane # and the element is relevant model data on the plane.
@@ -72,7 +72,7 @@ void ModelVmec::setPlanes()
 }
 
 // From the Model, sort the oPoints by planes.
-std::map<int, Vertex> ModelVmec::sortOPointsByPlanes(Model m, std::vector <double> planeAngles)
+std::map<int, Vertex> ModelVmec::sortOPointsByPlanes(const Model& m, const std::vector <double>& planeAngles)
 {
   // Step 1: Fetch the Simmetrix model (pGModel) from Model m and the vmecFlux data (vf) from 
   // the pGModel. Also read the plane information from plane meta data.
@@ -101,7 +101,7 @@ std::map<int, Vertex> ModelVmec::sortOPointsByPlanes(Model m, std::vector <doubl
 
 // From the Model, sort the model entities by planes. This results defining
 // each plane using its model entities (model faces for now).
-std::map<int,std::vector<Face>> ModelVmec::sortFacesByPlanes(Model m, std::vector <double> planeAngles) 
+std::map<int,std::vector<Face>> ModelVmec::sortFacesByPlanes(const Model& m, const std::vector <double>& planeAngles) 
 {
   // Step 1: Fetch the Simmetrix model (pGModel) from Model m and the vmecFlux data (vf) from 
   // the pGModel. Also read the plane information from plane meta data.
@@ -145,7 +145,7 @@ std::map<int,std::vector<Face>> ModelVmec::sortFacesByPlanes(Model m, std::vecto
 }
 
 // Set all the flux curves on a plane.
-std::vector <Flux> ModelVmec::setFluxCurvesOnPlanes(Model m, int planeNum, std::vector <PlaneMetaData> md)
+std::vector <Flux> ModelVmec::setFluxCurvesOnPlanes(const Model& m, int planeNum, const std::vector <PlaneMetaData>& md)
 {
   // Step 1: Fetch the Simmetrix model (pGModel) from Model m and the vmecFlux data (vf) from 
   // the pGModel. Also read the plane information from plane meta data.
@@ -201,12 +201,12 @@ std::vector <Flux> ModelVmec::setFluxCurvesOnPlanes(Model m, int planeNum, std::
 void ModelVmec::classifyModelFaces()
 {
   // Step 1: Get all the faces on the model.
-  std::vector <Face> modelFaces = model.getModelFaces();
+  const std::vector <Face>& modelFaces = model.getModelFaces();
 
   // Step 2: Iterate over the face and check if they belong to core, sol, pvt, or any other physics region.
   for (int i = 0; i < modelFaces.size(); i++)
   {
-    Face f = modelFaces[i];
+    const Face& f = modelFaces[i];
     pGFace gf = f.getSimFace();
 
     // Step 2.1: If belongs to core, set the face attribute.
@@ -222,17 +222,17 @@ void ModelVmec::setMeshVerticesOnPlanes()
   setMeshVerticesOnPlane(0);
   
   // Step 2: Get the points on plane 0 and set them on remaining planes.
-  std::vector <FluxParametricPoints> points = planes[0].getFieldPointsOnFluxCurves();
+  const std::vector <FluxParametricPoints>& points = planes[0].getFieldPointsOnFluxCurves();
   for (int i = 1; i < planes.size(); i++)
   {
     std::vector <FluxParametricPoints> fluxPointsOnPlane;
-    std::vector <Flux> fluxCurves = planes[i].fluxCurves;
+    const std::vector <Flux>& fluxCurves = planes[i].fluxCurves;
 
     // Step 2.1: Iterate over flux curves of the plane 
     for (int i = 0; i < fluxCurves.size(); i++)
     {
-      Flux f = fluxCurves[i];
-      std::vector <std::vector<double>> parValues = points[i].getParametricValuesOnFlux();
+      const Flux& f = fluxCurves[i];
+      const std::vector <std::vector<double>>& parValues = points[i].getParametricValuesOnFlux();
       FluxParametricPoints parOnFlux(f, parValues);
       fluxPointsOnPlane.push_back(parOnFlux);
     }
@@ -248,10 +248,10 @@ void ModelVmec::setMeshVerticesOnPlane(int planeIndex)
   std::vector <FluxParametricPoints> fluxPointsOnPlane;
 
   // Step 1: Iterate over the flux curves on the plane and set field points on them.
-  std::vector <Flux> fluxCurves = planes[planeIndex].fluxCurves;
+  const std::vector <Flux>& fluxCurves = planes[planeIndex].fluxCurves;
   for (int i = 0; i < fluxCurves.size(); i++)
   {
-    Flux f = fluxCurves[i];
+    const Flux& f = fluxCurves[i];
 
     // Step 1.1: Get the par values of points on the flux curve for field following.
     int pointsPlacementType = 0;
@@ -279,7 +279,7 @@ void ModelVmec::setMeshSizeOnModelFaces(int planeIndex)
   // size to the map.
   for (int i = 0; i < modelFaces.size(); i++)
   {
-    Face f = modelFaces[i];
+    const Face& f = modelFaces[i];
     meshSizes[GEN_tag(f.getSimFace())] = 0.01*meshSize;
   }
 

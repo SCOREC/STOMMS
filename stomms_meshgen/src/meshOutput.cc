@@ -109,7 +109,7 @@ std::map <std::string, CurvesGroup> curveClassification(const std::vector <Flux>
 
 // Function to get a map between physics classification (int) and list of tags of 
 // model vertices classified on those physics classes. 
-std::map <int, std::vector <int>> modelVertexClassification(Vertex oPoint, std::vector <Vertex> xPoints)
+std::map <int, std::vector <int>> modelVertexClassification(Vertex oPoint, const std::vector <Vertex>& xPoints)
 {
   std::map <int, std::vector <int>> physicsVertices;
 
@@ -169,7 +169,7 @@ std::vector <int> getModelEdgesTagsOnCurve(const Flux& curve)
   std::vector <int> edgesTags;
   for (int i = 0; i < curve.edgesOnFlux.size(); i++)
   {
-    Edge ge = curve.edgesOnFlux[i];
+    const Edge& ge = curve.edgesOnFlux[i];
     pGEdge simEdge = ge.getSimEdge();
     edgesTags.push_back(GEN_tag(simEdge));
   }
@@ -184,17 +184,17 @@ Adj getAdjacency(int inDim, const Plane& plane)
   Adj adj;
   if (inDim == 0)
   {
-    std::vector <Vertex> vertices = plane.getModelVerticesOnPlane();
+    const std::vector <Vertex>& vertices = plane.getModelVerticesOnPlane();
     adj = getVertexAdj(vertices);
   }
   if (inDim == 1)
   {
-    std::vector <Edge> edges = plane.getModelEdgesOnPlane();
+    const std::vector <Edge>& edges = plane.getModelEdgesOnPlane();
     adj = getEdgeAdj(edges);
   }
   if (inDim == 2)
   {
-    std::vector <Face> faces = plane.modelFaces;
+    const std::vector <Face>& faces = plane.modelFaces;
     adj = getFaceAdj(faces);
   }
 

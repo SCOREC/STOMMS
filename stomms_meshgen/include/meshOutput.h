@@ -70,7 +70,7 @@ std::map <int, std::vector <int>> modelFaceClassification(const std::vector <Fac
  * @param xPoints: a vector of x-point model vertices.
  * @return a map between physics id and list of tags of model entities on it.
  */
-std::map <int, std::vector <int>> modelVertexClassification(Vertex oPoint, std::vector <Vertex> xPoints);
+std::map <int, std::vector <int>> modelVertexClassification(Vertex oPoint, const std::vector <Vertex>& xPoints);
 
 /**
  * Function to arrange and index the curves as needed in XGC.
@@ -167,7 +167,7 @@ Adj getFaceAdj(const std::vector <Face>& faces);
  */
 template <typename T>
 void writeAdios2Array(adios2::IO& io, adios2::Engine& writer, 
-          std::vector <T> arrayData, int ncomp, std::string& name)
+          const std::vector <T>& arrayData, int ncomp, std::string& name)
 {
   // Step 1: Check array size and return if its empty.
   if (arrayData.size() == 0)

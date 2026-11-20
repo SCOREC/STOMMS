@@ -16,7 +16,7 @@ SimmetrixWallCurve::SimmetrixWallCurve(Flux& lastClosedFluxCurve, pGModel model)
 {
   // Step 1: Get the points and psi value on the last closed curve. 
   double psiNorm = lastClosedFluxCurve.psiNormOnFlux;
-  std::vector <Point> pointsOnCurve = lastClosedFluxCurve.fieldPoints;
+  const std::vector <Point>& pointsOnCurve = lastClosedFluxCurve.fieldPoints;
 
   // Step 2: Create SimCurve and SimEdge
   pCurve simCurve = createClosedCurve(lastClosedFluxCurve);
@@ -45,7 +45,7 @@ void SimmetrixWallCurve::updateSimEdges(std::vector <pGEdge> updatedEdgesVector)
   simEdges = updatedEdgesVector;
 }
 
-std::vector <pGEdge> SimmetrixWallCurve::getSimEdges()
+const std::vector <pGEdge>& SimmetrixWallCurve::getSimEdges() const
 {
   return simEdges;
 }
@@ -62,7 +62,7 @@ std::vector <Edge> SimmetrixWallCurve::getEdges()
   return wallEdges;
 }
 
-const std::vector <Point>& SimmetrixWallCurve::getPoints()
+const std::vector <Point>& SimmetrixWallCurve::getPoints() const
 {
   return points;
 }
@@ -136,7 +136,7 @@ pGFace insertClosedCurvesToModelFace(pGModel model, pGFace gf, std::vector <Flux
   {
     Flux& f = closedCurves[i];
     double psiNorm = f.psiNormOnFlux;
-    std::vector <Point> pointsOnCurve = f.fieldPoints;
+    const std::vector <Point>& pointsOnCurve = f.fieldPoints;
     pCurve simCurve = createClosedCurve(f);
     pGEdge ge = createClosedEdge(model, simCurve, pointsOnCurve);
     f.setSimEdgeToFlux(ge);
@@ -230,7 +230,7 @@ void insertOpenCurvesToModel(pGModel model, SimmetrixWallCurve& wall, std::vecto
   { 
     // Step 1: Create a curve from given curve points.
     Flux& f = openCurves[i];
-    std::vector <Point> pointsOnCurve = f.fieldPoints;
+    const std::vector <Point>& pointsOnCurve = f.fieldPoints;
     pCurve simCurve = createOpenCurve(pointsOnCurve);
 
     // Step 2: Create vertices at both ends (start and end).
@@ -314,7 +314,7 @@ pCurve createClosedCurve(Flux& f)
   return curve;
 }
 
-pCurve createOpenCurve(std::vector <Point> points)
+pCurve createOpenCurve(const std::vector <Point>& points)
 {
   int numPts = points.size();
   std::vector <double> pointsOnCurve;
@@ -330,14 +330,14 @@ pCurve createOpenCurve(std::vector <Point> points)
   return curve;
 }
 
-pCurve createSepLegCurve(SeparatrixLeg& leg)
+pCurve createSepLegCurve(const SeparatrixLeg& leg)
 {
-  std::vector <Point> pointsOnLeg = leg.fieldPoints;
+  const std::vector <Point>& pointsOnLeg = leg.fieldPoints;
   pCurve curve = createOpenCurve(pointsOnLeg);
   return curve;
 }
 
-std::vector <pCurve> createWallCurve(const std::vector <Point> wallPoints)
+std::vector <pCurve> createWallCurve(const std::vector <Point>& wallPoints)
 {
   std::vector <pCurve> simWallCurves;
   bool wallSplineOn = false;  // get it from input later
@@ -358,7 +358,7 @@ std::vector <pCurve> createWallCurve(const std::vector <Point> wallPoints)
   return simWallCurves;
 }
 
-pGEdge createClosedEdge(pGModel model, pCurve simCurve, std::vector <Point> curvePoints)
+pGEdge createClosedEdge(pGModel model, pCurve simCurve, const std::vector <Point>& curvePoints)
 {
   std::vector <double> xyz = {curvePoints[0].x, curvePoints[0].y, 0.0};
   pGVertex gv = GR_createVertex(GIP_outerRegion(GM_rootPart(model)), xyz.data());
@@ -381,7 +381,7 @@ std::vector <pGEdge> createSeparatrixEdges(pGModel model, SimmetrixWallCurve& wa
   double psiNorm = f.psiNormOnFlux;  // to attached to the model entities
   for (int i = 0; i < f.separatrixLegs.size(); i++)
   {
-    SeparatrixLeg leg = f.separatrixLegs[i];
+    const SeparatrixLeg& leg = f.separatrixLegs[i];
     pCurve simCurve = createSepLegCurve(leg);
     pGEdge ge;
     if (leg.numXPts == 1 && leg.xPtAtEnd)

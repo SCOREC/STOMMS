@@ -61,9 +61,9 @@ void ModelEqdsk::setPlane()
 std::vector <Flux> ModelEqdsk::setFluxCurvesOnPlane()
 {
   // Step 1: Get all three types of curves.
-  std::vector <Flux> closedCurves = curvesContainer.getCurvesClosed();
-  std::vector <Flux> seperatrices = curvesContainer.getCurvesSeparatrix();
-  std::vector <Flux> openCurves = curvesContainer.getCurvesOpen();
+  const std::vector <Flux>& closedCurves = curvesContainer.getCurvesClosed();
+  const std::vector <Flux>& seperatrices = curvesContainer.getCurvesSeparatrix();
+  const std::vector <Flux>& openCurves = curvesContainer.getCurvesOpen();
 
   // Step 2: Set these curves to return vector.
   std::vector <Flux> fluxCurves;
@@ -98,12 +98,12 @@ std::vector <Face> ModelEqdsk::setModelFacesOnPlane()
 void ModelEqdsk::finalModelFaceClassification()
 {
   // Step 1: Get all the faces on the model.
-  std::vector <Face> modelFaces = model.getModelFaces();
+  const std::vector <Face>& modelFaces = model.getModelFaces();
 
   // Step 2: Iterate over the face and check if they belong to core, sol, pvt, or any other physics region.
   for (int i = 0; i < modelFaces.size(); i++)
   {
-    Face f = modelFaces[i];
+    const Face& f = modelFaces[i];
     pGFace gf = f.getSimFace();
 
     // Step 2.1: Find faces that are on near vacuum (bounded by wall and last SOL).
@@ -141,7 +141,7 @@ void ModelEqdsk::setMeshVerticesOnPlane(int planeIndex)
   int numPoints = 0;
   for (int i = 0; i < fluxCurves.size(); i++)
   {
-    Flux f = fluxCurves[i];
+    const Flux& f = fluxCurves[i];
 
     // Step 1.1: Get the par values of points on the flux curve for field following.
     int pointsPlacementType = 1;
@@ -160,7 +160,7 @@ std::unordered_map <int, double> ModelEqdsk::setMeshSizesOnModelFaces(const std:
   // Step 1: Iterate over the model faces.
   for (int i = 0; i < modelFaces.size(); i++)
   {
-    Face f = modelFaces[i];
+    const Face& f = modelFaces[i];
     double count = 0;
     double psiNormAvg = 0.0;
 
