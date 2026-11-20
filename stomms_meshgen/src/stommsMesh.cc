@@ -5,8 +5,8 @@
 StommsMesh::StommsMesh(const MeshMetaData& m):meshMetaData(m)
 {
   // Step 1: get the Simmetrix model (pGModel) from MeshMetaData.
-  StommsModel stommsModel = meshMetaData.getStommsModel();
-  Model mdl = stommsModel.getModel();
+  const StommsModel& stommsModel = meshMetaData.getStommsModel();
+  const Model& mdl = stommsModel.getModel();
   pGModel model = mdl.getSimModel();
 
   // Step 2: Initialize the simmetrix meshing objects required for meshing
@@ -164,7 +164,7 @@ int StommsMesh::specifyMeshVertexOnModelVertex(pMesh mesh, pGVertex gv)
 void StommsMesh::specifyMeshOnFluxCurve(pMesh mesh, const Flux& f, const FluxParametricPoints& parValuesOnFlux)
 {
   // Step 1: Iterate over the model edges on the flux curve.
-  std::vector <Edge> edges = f.edgesOnFlux;
+  const std::vector <Edge>& edges = f.edgesOnFlux;
   for (int i = 0; i < edges.size(); i++)
   {
     // Step 2: Get the parametric values on each model edge, and specify vertices and edges based
@@ -178,7 +178,7 @@ void StommsMesh::specifyMeshOnFluxCurve(pMesh mesh, const Flux& f, const FluxPar
 }
 
 // To specify mesh vertices and edges on a periodic model edge.
-void StommsMesh::specifyMeshOnPeriodicModelEdge(pMesh mesh, Edge edge, const std::vector<double>& parValues)
+void StommsMesh::specifyMeshOnPeriodicModelEdge(pMesh mesh, const Edge& edge, const std::vector<double>& parValues)
 {
   int indxStart;
 
@@ -231,7 +231,7 @@ void StommsMesh::specifyMeshOnPeriodicModelEdge(pMesh mesh, Edge edge, const std
 }
 
 // To specify mesh vertices and edges on a regular (non-periodic) model edge.
-void StommsMesh::specifyMeshOnModelEdge(pMesh mesh, Edge edge, const std::vector<double>& parValues)  // non-periodic
+void StommsMesh::specifyMeshOnModelEdge(pMesh mesh, const Edge& edge, const std::vector<double>& parValues)  // non-periodic
 {
   // Step 1: Get the Simmetrix model edge.
   pGEdge ge = edge.getSimEdge();
@@ -289,7 +289,7 @@ void StommsMesh::setMeshDataOnPlanes()
   for (int i = 0; i < planes.size(); i++)
   {
     // Step 1: Get the mesh meta data on each plane.
-    PlaneMeshMetaData plane = planes[i];
+    const PlaneMeshMetaData& plane = planes[i];
 
     // Step 2: Create an object of planer mesh data (PlaneMeshData).
     PlaneMeshData p;
@@ -357,10 +357,10 @@ void PlaneMeshData::set2DPlanerDomain()
 {
   // Step 1: Set the model faces on a plane to a pPList.
   pPList gfOnDomain =  PList_new();
-  std::vector<Face> modelFaces = meshMetaDataOnP.getModelFacesOnPlane();
+  const std::vector<Face>& modelFaces = meshMetaDataOnP.getModelFacesOnPlane();
   for (int i = 0; i < modelFaces.size(); i++)
   {
-    Face f = modelFaces[i];
+    const Face& f = modelFaces[i];
     pGFace gf = f.getSimFace();
     PList_append(gfOnDomain, gf);
   } 
@@ -385,19 +385,19 @@ void PlaneMeshData::set2DPlanerMesh()
 }
 
 // Function to return domain that defines a poloidal plane.
-const pGDomain PlaneMeshData::getDomain()
+const pGDomain& PlaneMeshData::getDomain() const
 {
   return modelDomain;
 }
 
 // Function to return Simmetrix mesh defined on a plane.
-const pMesh PlaneMeshData::getMesh()
+const pMesh& PlaneMeshData::getMesh() const
 {
   return simMesh;
 }
 
 // Function to get global mesh back (contains all the poloidal planes).
-const pMesh PlaneMeshData::getGlobalMesh()
+const pMesh& PlaneMeshData::getGlobalMesh() const
 {
   return simMeshGlobal;
 }

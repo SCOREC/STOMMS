@@ -13,7 +13,7 @@
  * @param pg: Information related to phsyical geometry (wall curve for now).
  * @param vm: vmec class containing all the vmec data.
  */
-Model generateSimModelVmec(std::vector <PlaneMetaData> md, const PhysicalGeometry& pg, const VmecData& vm);
+Model generateSimModelVmec(const std::vector <PlaneMetaData>& md, const PhysicalGeometry& pg, const VmecData& vm);
 
 /**
  * Given a pGModel and wall data, add wall curves and model face to the model.
@@ -21,7 +21,7 @@ Model generateSimModelVmec(std::vector <PlaneMetaData> md, const PhysicalGeometr
  * @param pg: Information related to phsyical geometry (wall curve for now).
  * @param vm: vmec class containing all the vmec data.
  */
-void generateWallFaceVmec(pGModel model, std::vector <PlaneMetaData> md, const PhysicalGeometry& pg, const VmecData& vm);
+void generateWallFaceVmec(pGModel model, const std::vector <PlaneMetaData>& md, const PhysicalGeometry& pg, const VmecData& vm);
 
 /**
  * Given a vector of points in RZ coordinate, and an input toroidal angle phi, convert the points to Cartesian coordinates.
@@ -36,7 +36,7 @@ std::vector <Point> convertFromCylindricalToCartesian(const std::vector <Point>&
  * @param vm: an object of vmec data class.
  * @return an object of Simmetrix model pGModel.
 */
-pGModel generateCoreSimModelVmec(std::vector <PlaneMetaData> mD, const VmecData& vm);
+pGModel generateCoreSimModelVmec(const std::vector <PlaneMetaData>& mD, const VmecData& vm);
 
 /**
  * From Vmec flux data (vf), flux indices (nrho and rhos), and, poloidal planes (nzeta and zetas)

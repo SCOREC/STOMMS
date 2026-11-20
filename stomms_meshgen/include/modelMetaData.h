@@ -95,7 +95,7 @@ class ModelMetaData{
     /**
      *  Function to get toroidal angles of all the planes. Returns a vector of the angles in radians.
      */  
-    const std::vector <double>& getToroidalAnglesMetaData();
+    const std::vector <double>& getToroidalAnglesMetaData() const;
   private:
     std::vector <PlaneMetaData> planesContainer;  // vector to hold all planes meta data.
     std::vector <double> planesToroidalAngles;  // vector to hold toroidal angles of the planes.

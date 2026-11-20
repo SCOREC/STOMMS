@@ -15,17 +15,17 @@ class PlaneMeshMetaData{
     /**
      * Function to return the vector of model faces on the particular poloidal plane.
      */ 
-    const std::vector <Face>& getModelFacesOnPlane();
+    const std::vector <Face>& getModelFacesOnPlane() const;
 
     /**
      * Function to get the vector holding the mesh type for each individual model face on the plane.
      */ 
-    const std::vector <int>& getFaceMeshType();
+    const std::vector <int>& getFaceMeshType() const;
 
     /**
      * Function to get a vector of flux curves on the poloidal plane.
      */ 
-    const std::vector <Flux>& getFluxCurvesOnPlane();
+    const std::vector <Flux>& getFluxCurvesOnPlane() const;
 
     /**
      * Function to get a vector of set of the class FluxParametricPoints. This vector is
@@ -37,7 +37,7 @@ class PlaneMeshMetaData{
     /**
      * Function to get model vertex on oPoint of  the poloidal plane.
      */ 
-    const Vertex& getOPointOnPlane();
+    const Vertex& getOPointOnPlane() const;
 
     /**
      * Function to get poloidal plane number.
@@ -67,7 +67,7 @@ class PlaneMeshMetaData{
      * const std::vector <Face> geomFaces (in): input is vector of faces on which mesh type is required.
      * returns a vector of mesh type (int) for every model face in vector geomFaces.
      */  
-    std::vector <int> setFaceMeshType(const std::vector <Face> geomFaces);
+    std::vector <int> setFaceMeshType(const std::vector <Face>& geomFaces);
 };
 
 // class MeshMetaData holds all the planes containing their individual mesh meta data.
@@ -81,12 +81,12 @@ class MeshMetaData{
     /*
      * Function to return StommsModel.
      */ 
-    const StommsModel& getStommsModel();
+    const StommsModel& getStommsModel() const;
 
     /*
      * Function to get the vector of planes mesh meta data.
      */ 
-    const std::vector <PlaneMeshMetaData>& getMeshMetaDataPlanes();
+    const std::vector <PlaneMeshMetaData>& getMeshMetaDataPlanes() const;
   private:
     StommsModel stommsModel;  // StommsModel that needed to be meshed.
     std::vector <PlaneMeshMetaData> planeMeshData;  // a vector of individual planes with their mesh meta data.

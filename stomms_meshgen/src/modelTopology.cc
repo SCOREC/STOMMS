@@ -93,7 +93,7 @@ const pGEdge& Edge::getSimEdge() const
 }
 
 // Function to return model vertices on the Edge.
-const std::vector <Vertex>& Edge::getVerticesOnEdge()
+const std::vector <Vertex>& Edge::getVerticesOnEdge() const
 {
   return verticesOnE;
 }
@@ -105,7 +105,7 @@ const std::vector <double>& Edge::getEdgeParRange() const
 }
 
 // Function to return the periodic state of edge.
-const bool& Edge::edgeIsPeriodic()
+const bool& Edge::edgeIsPeriodic() const
 {
   return periodicEdge;
 }
@@ -146,7 +146,7 @@ void Loop::setLoop()
 }
 
 // Function to return vector of edges on a loop.
-const std::vector <Edge>& Loop::getEdgesOnLoop()
+const std::vector <Edge>& Loop::getEdgesOnLoop() const
 {
   return edgesOnL;
 }
@@ -218,19 +218,19 @@ const pGFace& Face::getSimFace() const
 }
 
 //Function to return the model vertices on the model face.
-const std::vector <Vertex>& Face::getVerticesOnFace()
+const std::vector <Vertex>& Face::getVerticesOnFace() const
 {
   return verticesOnF;
 }
 
 // Function to return the model edges on the model face.
-const std::vector <Edge>& Face::getEdgesOnFace()
+const std::vector <Edge>& Face::getEdgesOnFace() const
 {
   return edgesOnF;
 }
 
 // Function to return the model loops on the model face.
-const std::vector <Loop>& Face::getLoopsOnFace()
+const std::vector <Loop>& Face::getLoopsOnFace() const
 {
   return loopsOnF;
 }
@@ -287,43 +287,43 @@ void Model::setModelFaces()
 }
 
 // Function to return the underlying Simmetrix model (pGModel).
-const pGModel& Model::getSimModel()
+const pGModel& Model::getSimModel() const
 {
   return model;
 }
 
 // Function to return a vector of  model vertices on the model.
-const std::vector <Vertex>& Model::getModelVertices()
+const std::vector <Vertex>& Model::getModelVertices() const
 {
   return vertices;
 }
 
 // Function to return a vector of  model edges on the model.
-const std::vector <Edge>& Model::getModelEdges()
+const std::vector <Edge>& Model::getModelEdges() const
 {
   return edges;
 }
 
 // Function to return a vector of  model faces on the model.
-const std::vector <Face>& Model::getModelFaces()
+const std::vector <Face>& Model::getModelFaces() const
 {
   return faces;
 }
 
 // Compares the tags of model vertices.
-bool CompEntity::operator()(Vertex v1, Vertex v2) const
+bool CompEntity::operator()(const Vertex& v1, const Vertex& v2) const
 { 
   return GEN_tag(v1.getSimVertex()) < GEN_tag(v2.getSimVertex());
 }
 
 // Compares the tags of model edges.
-bool CompEntity::operator()(Edge e1, Edge e2) const
+bool CompEntity::operator()(const Edge& e1, const Edge& e2) const
 { 
   return GEN_tag(e1.getSimEdge()) < GEN_tag(e2.getSimEdge());
 }
 
 // Compares the tags of model faces.
-bool CompEntity::operator()(Face f1, Face f2) const
+bool CompEntity::operator()(const Face& f1, const Face& f2) const
 { 
   return GEN_tag(f1.getSimFace()) < GEN_tag(f2.getSimFace());
 }

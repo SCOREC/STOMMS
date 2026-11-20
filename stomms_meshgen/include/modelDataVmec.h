@@ -52,7 +52,7 @@ class ModelVmec{
    * @param planeAngles: vector containing the toroidal angles of all the planes.
    * @return a map between plane number and corresponding O-point model vertex.
    */
-  std::map<int, Vertex> sortOPointsByPlanes(Model m, std::vector <double> planeAngles); 
+  std::map<int, Vertex> sortOPointsByPlanes(const Model& m, const std::vector <double>& planeAngles); 
 
   /**
    * From the Model, sort the model faces by planes. 
@@ -60,7 +60,7 @@ class ModelVmec{
    * @param planeAngles: vector containing the toroidal angles of all the planes.
    * @return a map between plane number and a vector containing all the model faces on that plane.
    */
-  std::map<int,std::vector<Face>> sortFacesByPlanes(Model m, std::vector <double> planeAngles); 
+  std::map<int,std::vector<Face>> sortFacesByPlanes(const Model& m, const std::vector <double>& planeAngles); 
 
   /**
    * set all the flux curves on a plane.
@@ -69,7 +69,7 @@ class ModelVmec{
    * @param md: vector holding  all planes with their meta data.
    * @return a vector of flux curves (type Flux).
    */
-  std::vector<Flux> setFluxCurvesOnPlanes(Model m, int planeNum, std::vector <PlaneMetaData> md);
+  std::vector<Flux> setFluxCurvesOnPlanes(const Model& m, int planeNum, const std::vector <PlaneMetaData>& md);
 
   /**
    * For a set of planes, set the mesh vertices on the flux curves on all plane.

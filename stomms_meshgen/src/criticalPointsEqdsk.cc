@@ -11,7 +11,7 @@ Simplex::Simplex(Point pt1, Point pt2, Point pt3):point1(pt1), point2(pt2), poin
   points = {{ {point1.x, point1.y}, {point2.x, point2.y}, {point3.x, point3.y} }};
 }
 
-Simplex::Simplex(std::vector <Point> pts)
+Simplex::Simplex(const std::vector <Point>& pts)
 {
   assert (pts.size() == 3 || pts.size() == 4); // 3 for 2D, 4 for 3D
   point1 = pts[0];

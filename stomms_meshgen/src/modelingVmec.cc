@@ -9,7 +9,7 @@
 #endif
 
 // From given Vmec data and meta data, generate the model of the stellarator.
-Model generateSimModelVmec(std::vector <PlaneMetaData> md, const PhysicalGeometry& pg, const VmecData& vm)
+Model generateSimModelVmec(const std::vector <PlaneMetaData>& md, const PhysicalGeometry& pg, const VmecData& vm)
 {
   // Step 1: Create the model for core region 
   pGModel simModel = generateCoreSimModelVmec(md, vm);
@@ -29,20 +29,20 @@ Model generateSimModelVmec(std::vector <PlaneMetaData> md, const PhysicalGeometr
 
 
 // From a given plane meta data (Vmec, flux and plane info), generate the model of the core region of stellarator
-pGModel generateCoreSimModelVmec(std::vector <PlaneMetaData> md, const VmecData& vm)
+pGModel generateCoreSimModelVmec(const std::vector <PlaneMetaData>& md, const VmecData& vm)
 {
   // Step 1: Read the data from the vmec object (vm)
   double avmajr = vm.majorR;
   double avminr = vm.minorR;
   int nsurf = vm.nSurf;
   int nmode = vm.nMode;
-  std::vector <double> R = vm.R;
-  std::vector <double> Z = vm.Z;
-  std::vector <double> L = vm.L;
-  std::vector <double> iota = vm.iota;
-  std::vector <double> psi = vm.psi;
-  std::vector <double> xm = vm.xm;
-  std::vector <double> xn = vm.xn;
+  const std::vector <double>& R = vm.R;
+  const std::vector <double>& Z = vm.Z;
+  const std::vector <double>& L = vm.L;
+  const std::vector <double>& iota = vm.iota;
+  const std::vector <double>& psi = vm.psi;
+  const std::vector <double>& xm = vm.xm;
+  const std::vector <double>& xn = vm.xn;
 
   // Step 2: Create an object to hold Vmec flux data
   pVmecFlux vf = VmecFlux_create(avmajr, avminr, nsurf, nmode, R.data(), Z.data(), L.data(), iota.data(), psi.data(), xm.data(), xn.data());
@@ -51,7 +51,7 @@ pGModel generateCoreSimModelVmec(std::vector <PlaneMetaData> md, const VmecData&
   // plane meta data (md). Also, read the number of toroidal planes (nzeta) with the toroidal angles (zetas) of each poloidal plane.
   // Also, read psi values at O-point and last closed flux curve from VMEC file and use them to convert
   // normalized psi to actual psi. 
-  std::vector <double> psiNorm = md[0].getPlaneFluxValues();
+  const std::vector <double>& psiNorm = md[0].getPlaneFluxValues();
   std::vector <double> zetas;
   for (int i = 0; i  < md.size(); i++)
   {
@@ -78,7 +78,7 @@ pGModel generateCoreSimModelVmec(std::vector <PlaneMetaData> md, const VmecData&
 }
 
 // Given a pGModel and wall data, add wall curves and model face to the model.
-void generateWallFaceVmec(pGModel model, std::vector <PlaneMetaData> md, const PhysicalGeometry& pg, const VmecData& vm)
+void generateWallFaceVmec(pGModel model, const std::vector <PlaneMetaData>& md, const PhysicalGeometry& pg, const VmecData& vm)
 {
   // Step 0: If physical geometry doesn't have a wall curve, just return and don't do anything.
   if (!pg.hasWallCurves())
@@ -91,11 +91,11 @@ void generateWallFaceVmec(pGModel model, std::vector <PlaneMetaData> md, const P
     double toroidalAngle = md[i].getPlaneToroidalAngle();
 
     // Step 1.2: For each plane, create a wall curve
-    WallCurve wallCurve = pg.getWallCurveAtPlane(i);
+    const WallCurve& wallCurve = pg.getWallCurveAtPlane(i);
 
     // Step 1.3: Get points for each wall curve, and convert them to Cartesian to pass to 
     // Simmetrix API.
-    std::vector <Point> wallPoints = wallCurve.getPoints(); 
+    const std::vector <Point>& wallPoints = wallCurve.getPoints(); 
     std::vector <Point> points = convertFromCylindricalToCartesian(wallPoints, toroidalAngle);
 
     // Step 1.4: Create Simmetrix wall in terms of Simmetrix curve and edges for the given planes.
@@ -104,8 +104,8 @@ void generateWallFaceVmec(pGModel model, std::vector <PlaneMetaData> md, const P
     // Step 1.5: Get the last closed flux curve psi value. Can directly get psiVmec[vm.nSurf-1] for 
     // the last closed curve but to make sure we are using correct psiNorm from user given data and
     // not using wrong value from psiVmec. 
-    std::vector <double> psiVmec = vm.psi;  // vector of psi values from VMEC
-    std::vector <double> psiNorm = md[i].getPlaneFluxValues();  // normalized psi values
+    const std::vector <double>& psiVmec = vm.psi;  // vector of psi values from VMEC
+    const std::vector <double>& psiNorm = md[i].getPlaneFluxValues();  // normalized psi values
     double psiAxis = psiVmec[0];
     double psiLCF = psiVmec[vm.nSurf-1];
     double psi = convertNormToPsi(psiNorm[psiNorm.size()-1], psiAxis, psiLCF);

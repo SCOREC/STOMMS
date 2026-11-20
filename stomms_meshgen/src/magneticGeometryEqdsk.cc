@@ -29,7 +29,7 @@ MagneticGeometryEqdsk::MagneticGeometryEqdsk(const ModelMetaData& modelMetaData,
   xPoints[0] = xPointsVec;
 
   // Step 5: Setup psi values into types (open, closed, separatrix etc.)
-  std::vector<PlaneMetaData> planesContainer = modelMetaData.getPlanesContainer();
+  const std::vector<PlaneMetaData>& planesContainer = modelMetaData.getPlanesContainer();
   psiNormList = planesContainer[0].getPlaneFluxValues();
   classifyPsiValues(input);
   
@@ -57,7 +57,7 @@ void MagneticGeometryEqdsk::classifyPsiValues(const Inputs& in)
 
   // Step 2: Get psi for separatrix to get psi from normalized value. Also, to
   // set all psi values for separatrix.
-  std::vector <PhysicsPoint> xPts = xPoints[0];
+  const std::vector <PhysicsPoint>& xPts = xPoints[0];
   for (int i = 0; i < xPts.size(); i++)
     psiValuesSeparatrix.push_back(xPts[i].getPsi());
 

@@ -33,7 +33,7 @@ double convertNormToPsi(double normPsi, double psiAxis, double psiCoreBoundary)
 }
 
 // Convert the normalized psi values to actual psi values for the full vector. 
-std::vector <double> convertNormToPsiVector(std::vector <double> normPsi, double psiAxis, double psiCoreBoundary)
+std::vector <double> convertNormToPsiVector(const std::vector <double>& normPsi, double psiAxis, double psiCoreBoundary)
 {
   std::vector <double> psiValues;
   for (int i = 0; i < normPsi.size(); i++)

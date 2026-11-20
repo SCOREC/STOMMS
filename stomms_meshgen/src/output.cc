@@ -8,9 +8,9 @@ StommsOutput::StommsOutput(const StommsMesh& m, const GridFieldData& gridData):m
   std::cout << "============ Output Writing Starts ============\n";
 
   // Step 1: Get underlying Simmetrix Model stored in mesh meta data.
-  MeshMetaData meshMetaData = mesh.getMeshMetaData();
-  StommsModel stommsModel = meshMetaData.getStommsModel();
-  Model mdl = stommsModel.getModel();
+  const MeshMetaData& meshMetaData = mesh.getMeshMetaData();
+  const StommsModel& stommsModel = meshMetaData.getStommsModel();
+  const Model& mdl = stommsModel.getModel();
   simModel = mdl.getSimModel();
 
   // Step 2: Get Simmetrix mesh and its dimension.
@@ -45,7 +45,7 @@ StommsOutput::~StommsOutput()
   M_release(simMesh);
   for (int i = 0; i < planes.size(); i++)
   {
-    PlaneMeshData p = planes[i];
+    const PlaneMeshData& p = planes[i];
     M_release(p.getMesh());
   }
   MD_deleteMeshDataId(transformCoordinates);
@@ -62,7 +62,7 @@ void StommsOutput::writeOmegahMeshes()
   {
     for (int i = 0; i < planes.size(); i++)
     {
-      PlaneMeshData p = planes[i];
+      const PlaneMeshData& p = planes[i];
       std::cout << "          Plane # " << i << "          \n";
       auto mesh = simMesh2Omegah2D(p);
       omegahMeshes.push_back(mesh);
@@ -120,7 +120,7 @@ Omega_h::Mesh StommsOutput::simMesh2Omegah2D(const PlaneMeshData& plane)
 {
   // Step 1: Get the Simmetrix mesh enteties on each plane and construct SimMesh m
   // to feed into Omegah APIs.
-  PlaneMeshData p = plane;
+  const PlaneMeshData& p = plane;
   pMesh m = p.getMesh();
 
   // Step 2: Make sure vertex indices are consistent and starts from 0 on each plane
@@ -298,7 +298,7 @@ void StommsOutput::writePhysicsClassification(adios2::IO& io, adios2::Engine& wr
 
   // Step 2: Get a map of model faces with physics type as a key,and 
   // then write the array of model faces corresponding to that key.
-  std::vector <Face> modelFaces = geometricPlanes[planeIndex].modelFaces;
+  const std::vector <Face>& modelFaces = geometricPlanes[planeIndex].modelFaces;
   gfPhysics = modelFaceClassification(modelFaces);
   for (auto& faceMap: gfPhysics)
   {
@@ -310,14 +310,14 @@ void StommsOutput::writePhysicsClassification(adios2::IO& io, adios2::Engine& wr
   // Step 3: First index the curves as needed in XGC. and then get a map 
   // of model curves with physics type as a key,and then write the array 
   // of model curves corresponding to that key.
-  std::vector <Flux> allFluxCurves = geometricPlanes[planeIndex].fluxCurves;
+  const std::vector <Flux>& allFluxCurves = geometricPlanes[planeIndex].fluxCurves;
   curvesSortedByPsi = curveIndexing(allFluxCurves);
-  std::vector <Edge> wallEdges = geometricPlanes[planeIndex].wallEdges; 
+  const std::vector <Edge>& wallEdges = geometricPlanes[planeIndex].wallEdges; 
 
   std::map<std::string, CurvesGroup> curveTypes = curveClassification(curvesSortedByPsi, wallEdges);
   for (auto& curveMap: curveTypes)
   {
-    CurvesGroup curveGroup = curveMap.second; // closed, open, separatrix, wall
+    const CurvesGroup& curveGroup = curveMap.second; // closed, open, separatrix, wall
     std::string groupName = name + "edge/" + curveMap.first;
     std::string varName = groupName + "/fluxIds";
     writeAdios2Array(io, writer, curveGroup.flxId, 1, varName);
@@ -332,13 +332,13 @@ void StommsOutput::writePhysicsClassification(adios2::IO& io, adios2::Engine& wr
   // Step 4: Get a map of model vertices with physics type as a key,
   // and then write the model vertex corresponding to that key.
   Vertex oPoint = geometricPlanes[planeIndex].oPoint;
-  std::vector <Vertex> xPoints = geometricPlanes[planeIndex].getXPointsOnPlane();
+  const std::vector <Vertex>& xPoints = geometricPlanes[planeIndex].getXPointsOnPlane();
   gvPhysics = modelVertexClassification(oPoint, xPoints);
   for (auto& vertexMap: gvPhysics)
   {
     std::string physicsType = getVertexType(vertexMap.first);
     std::string varName = name + "vertex/criticalPoints/" + physicsType;
-    std::vector <int> vMap = vertexMap.second;
+    const std::vector <int>& vMap = vertexMap.second;
     for (int i = 0; i < vMap.size(); i++)
     {
       std::string vName = varName + "/" + std::to_string(i+1);
@@ -427,13 +427,13 @@ void StommsOutput::writeGridInformation(adios2::IO& io, adios2::Engine& writer)
 
   // Step 2: Check if the GridFieldData object has the grid information populated. If not, return.
   // If yes, start writing the data in adios2 file.
-  std::vector <double> psiField = gridFieldData.getDoubleFieldData(FieldType::Psi);
+  const std::vector <double>& psiField = gridFieldData.getDoubleFieldData(FieldType::Psi);
   if (!psiField.size())
     return;
 
   // Step 3: Read the grid points (r and z) and write them in adios2 file.
-  std::vector <double> rPoints = gridFieldData.getRPoints();
-  std::vector <double> zPoints = gridFieldData.getZPoints();
+  const std::vector <double>& rPoints = gridFieldData.getRPoints();
+  const std::vector <double>& zPoints = gridFieldData.getZPoints();
   varName = name + "gridPointsR";
   writeAdios2Array(io, writer, rPoints, 1, varName);
   varName = name + "gridPointsZ";
@@ -470,12 +470,12 @@ void StommsOutput::writeFieldArraysToGrid(adios2::IO& io, adios2::Engine& writer
   std::string varName;  // name of the variable to be written to adios2  
 
   // Step 1: Read psi array and write it to adios2 file
-  std::vector <double> psiArray = gridFieldData.getPsiArray();
+  const std::vector <double>& psiArray = gridFieldData.getPsiArray();
   varName = name + "psi";
   writeAdios2Array(io, writer, psiArray, 1, varName);
    
   // Step 2: Read poloidal current and write it to adios2 file
-  std::vector <double> currentArray = gridFieldData.getPoloidalCurrentArray();
+  const std::vector <double>& currentArray = gridFieldData.getPoloidalCurrentArray();
   varName = name + "poloidalCurrent";
   writeAdios2Array(io, writer, currentArray, 1, varName);
 }
@@ -488,15 +488,15 @@ void StommsOutput::writePhysicalDataToGrid(adios2::IO& io, adios2::Engine& write
 
   // Step 1: Write bounding box to the adios2 file
   // rMin = box[0], zMin = box[1], rMax = box[2], zMax = box[3]
-  std::vector <double> box = gridFieldData.getDomainBox();
+  const std::vector <double>& box = gridFieldData.getDomainBox();
   varName = name + "domainBox";
   writeAdios2Array(io, writer, box, 1, varName);
 
   // Step 2: Write wall curve from the eqdsk file. Might be different from 
   // the wall curve we have used in processing since it could come from 
   // external file instead of eqdsk file.
-  std::vector <double> rLimiterPoints = gridFieldData.getLimiterPointsR();
-  std::vector <double> zLimiterPoints = gridFieldData.getLimiterPointsZ();
+  const std::vector <double>& rLimiterPoints = gridFieldData.getLimiterPointsR();
+  const std::vector <double>& zLimiterPoints = gridFieldData.getLimiterPointsZ();
   varName = name + "limiterPointsR";
   writeAdios2Array(io, writer, rLimiterPoints, 1, varName);
   varName = name + "limiterPointsZ";
@@ -505,8 +505,8 @@ void StommsOutput::writePhysicalDataToGrid(adios2::IO& io, adios2::Engine& write
   // Step 3: Write seperatrix points from eqdsk file. This is the different 
   // from the separatrix curve points we traced. These are taken directly 
   // from eqdsk utility code. We might not need them in adios2 file.
-  std::vector <double> rBdryPoints = gridFieldData.getBdryPointsR();
-  std::vector <double> zBdryPoints = gridFieldData.getBdryPointsZ();
+  const std::vector <double>& rBdryPoints = gridFieldData.getBdryPointsR();
+  const std::vector <double>& zBdryPoints = gridFieldData.getBdryPointsZ();
   varName = name + "boundaryPointsR";
   writeAdios2Array(io, writer, rBdryPoints, 1, varName);
   varName = name + "boundaryPointsZ";

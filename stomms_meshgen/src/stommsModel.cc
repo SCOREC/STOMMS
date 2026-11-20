@@ -16,13 +16,13 @@ StommsModel::StommsModel(std::shared_ptr<MagneticGeometry> mg):magneticGeometry(
 }
 
 // Function to return the underlying model in StommsModel.
-const Model& StommsModel::getModel()
+const Model& StommsModel::getModel() const
 {
   return model;
 }
 
 // Function to return the vector containing all the planes with their geometric data.
-const std::vector <Plane>& StommsModel::getPlanes()
+const std::vector <Plane>& StommsModel::getPlanes() const
 {
   return planes;
 }
@@ -31,7 +31,6 @@ const std::vector <Plane>& StommsModel::getPlanes()
 FaceType getModelFacePhysicsType(const Face& face)
 {
   // Step 1: Get the face that needs to be checked.
-  Face f = face;
   pGFace gf = face.getSimFace();
 
   // Step 2: Find the face type set on the model face.

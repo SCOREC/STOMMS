@@ -129,7 +129,7 @@ std::vector <Flux> genSeparatrixCurves(const std::vector <PhysicsPoint>& xPts, E
 std::vector <Flux> genOpenFluxCurves(pGModel& model, EqdskData& eqdskData, const PhysicsPoint& oPoint, const WallCurve& wall, const PlaneMetaData& planeMetaData);
 
 // Other Helping Functions
-std::vector <Flux> getOpenCurvesOnFace(pGFace gf, std::vector <double> psiValues, EqdskData& eqdskData, const WallCurve& wall,
+std::vector <Flux> getOpenCurvesOnFace(pGFace gf, const std::vector <double>& psiValues, EqdskData& eqdskData, const WallCurve& wall,
                                        const PhysicsPoint& oPoint, const PlaneMetaData& planeMetaData);
 std::vector<double> getSpacingOnPrivateRegion(pGFace gf, const PlaneMetaData& planeMetaData);
 #endif

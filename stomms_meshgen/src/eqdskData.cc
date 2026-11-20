@@ -7,7 +7,7 @@ EqdskData::EqdskData(const Inputs& input, const PlaneMetaData& planeData, const 
 {
   // Step 1: Read properties of eqdsk file from the inputs
   setParameters(input);  // for input parameters
-  InputData inputData = input.getInputData();
+  const InputData& inputData = input.getInputData();
   fluxInputData = inputData.fd;
   planeMetaData = planeData; 
 
@@ -168,8 +168,8 @@ void EqdskData::setPsiAtChebyshevPointsOnGridData()
 {
   // Stepp 1: Set number (nR and nZ) of cells in both directions.
   // Also, change (dR and dZ) in both directions for a uniform grid.
-  std::vector <double> rPoints = eqdskGrid.getRPoints();
-  std::vector <double> zPoints = eqdskGrid.getZPoints();
+  const std::vector <double>& rPoints = eqdskGrid.getRPoints();
+  const std::vector <double>& zPoints = eqdskGrid.getZPoints();
   int nR = rPoints.size() - 1;
   int nZ = zPoints.size() - 1;
   double dR = rPoints[1] - rPoints[0];
@@ -219,8 +219,8 @@ void EqdskData::setBiCubicSplineCoefficients()
 {
   // Stepp 1: Set number (nR and nZ) of cells in both directions.
   // Also, change (dR and dZ) in both directions for a uniform grid.
-  std::vector <double> rPoints = eqdskGrid.getRPoints();
-  std::vector <double> zPoints = eqdskGrid.getZPoints();
+  const std::vector <double>& rPoints = eqdskGrid.getRPoints();
+  const std::vector <double>& zPoints = eqdskGrid.getZPoints();
   int nR = rPoints.size() - 1;
   int nZ = zPoints.size() - 1;
   double dR = rPoints[1] - rPoints[0];
