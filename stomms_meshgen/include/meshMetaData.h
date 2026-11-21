@@ -59,7 +59,7 @@ class PlaneMeshMetaData{
     Plane modelPlane;  // Plane information from StommsModel.
     std::vector <int> faceMeshType;  // 0: No mesh type specified,  1: oneElementDeepMesh, extend accordingly.
     std::vector <FluxParametricPoints> meshVerticesParametricLocation;  // parametric values of vertices      
-    double meshSizeUnstructured;    
+    double meshSizeUnstructured;
     std::unordered_map <int , double> meshSizesOnModelFace;  // map between model face tag (int) and mesh size   
 
     /*

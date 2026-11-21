@@ -71,8 +71,7 @@ std::vector <Flux> genOpenFluxCurves(pGModel& model, EqdskData& eqdskData, const
   } 
 
   // Step 3: Get the private faces and generate flux curves on them.
-  bool fluxCurvesInPrivate = true;  // Get this parameter for user
-  if (fluxCurvesInPrivate)
+  if (eqdskData.addFluxCurvesInPrivateRegion())
   {
     std::vector <pGFace> pvtFaces = getPrivateModelFaces(model);
     for (int i = 0; i < pvtFaces.size(); i++)
@@ -671,7 +670,8 @@ std::vector <Flux> getOpenCurvesOnFace(pGFace gf, const std::vector <double>& ps
         continue;
 
       Flux f = openFluxCurve.getFluxCurve();
-      // if (!validOpenCurve() add later
+      if (!validOpenCurve(f, wall.getPoints()))
+        continue;      
 
       restrictDistanceOfLastEdge(f, eqdskData);
       #pragma omp critical

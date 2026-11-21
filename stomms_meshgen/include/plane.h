@@ -52,6 +52,13 @@ class Plane{
      * @param meshSizeOnF: a map between model face tag (int) and mesh sizes.
      */
      void setMeshSizeOnModelFaces(const std::unordered_map <int, double>& meshSizeOnF);
+
+    /**
+     * Function to set the type of geometry in the private region of the plane.
+     * Type means either it has flux curves on it or not.
+     * param fluxCurveOnPrivateRegion: either on or off.
+     */ 
+    void setPrivateRegionGeometryType(bool fluxCurveOnPrivateRegionOn);
   
     /**
      * Function to get a vector of class that holds field following points info.
@@ -86,14 +93,20 @@ class Plane{
      * Function to get unstructured mesh size on each model face.
      * @return a map between model face tag (int) and mesh sizes.
      */
-    const std::unordered_map <int , double>& getMeshSizesOnModelFaces(); 
+    const std::unordered_map <int , double>& getMeshSizesOnModelFaces();
+
+    /**
+     * Function to check if the flux curves in the private region are enabled on the plane.
+     */
+    const bool& fluxCurveForPrivateRegionOn() const;  
   private:
     std::vector <FluxParametricPoints> fieldPointsOnFluxCurves;
     std::unordered_map <int, double> meshSizeOnFaces;
     std::vector <Edge> modelEdges;
     std::vector <Vertex> modelVertices;
     std::vector <Vertex> xPoints;
-    double meshSizeUnstructured; 
+    double meshSizeUnstructured;
+    bool fluxCurvesOnPrivateRegion = false; 
 };
 
 #endif

@@ -1,4 +1,5 @@
 #include "input.h"
+#include "tommsInputsSupport.h"
 
 Inputs::Inputs()
 {
@@ -36,6 +37,7 @@ void Inputs::setDefaultValues()
   intraCurveMinLengthLastEdge = 0.001;
   intraCurveSpacingPropFacMax = 1.0;
   intraCurveSpacingPropFacMin = 1.0;
+  fluxCurvesInPrivate = false;
   lastClosedPsi = 1e30;  // just a large number 
   useWall = true;  // use wall as default. When false, wall will be ignored.
 
@@ -47,6 +49,24 @@ void Inputs::setDefaultValues()
 void Inputs::setValuesFromInputFile()
 {
   inputFile = "mesh_input";
+
+  // Step 1: Check the name of the file. If it's not mesh_input, look for 
+  // xgc_mesh_in.
+  bool tommsInput = false;
+  if (!std::ifstream(inputFile).good() && std::ifstream(tomms::inputFileName).good())
+  {
+    inputFile = tomms::inputFileName;
+    tommsInput = true;
+    std::cout << "========================= Using TOMMS Legacy Input file (xgc_mesh_in) ============================\n";
+    std::cout << "WARNING: Reading TOMMS input file '" << inputFile << "'. It is deprecated; "
+              << "rename it to 'mesh_input' and use STOMMS parameter names.\n";
+
+    // TOMMS default (wall_0Xpt = 0): zero X-point domain bounded by the last closed
+    // flux curve, not the wall. Overridden if wall_0Xpt is given in the file.
+    useWall = false;
+  }
+
+  // Step 2: Check if input file can be accessed.
   std::ifstream input(inputFile);
   if (!input.is_open())
   {
@@ -54,9 +74,26 @@ void Inputs::setValuesFromInputFile()
     exit(1);	// If input file cannot be found, exit the program
   }
 
+  // Step 3: Read the input parameters, if xgc_mesh_in is given, handle it 
+  // differently (used mapping between old and new parameters).
   std::string token;
   while (input >> token)
   {
+    // Step 3.1: Skip comments ('!' or '%' to the end of the line).
+    if (token[0] == '!' || token[0] == '%')
+    {
+      std::getline(input, token);
+      continue;
+    }
+
+    // Step 3.2: Read the tomms input parameters if needed.
+    if (tommsInput)
+    {
+      if (tomms::handleLegacyParameter(token, input))
+        continue;
+      token = tomms::translateParameterName(token);
+    }
+
     if (token == "vmecFile")
     {
       input >> vmecFile;
@@ -111,12 +148,18 @@ void Inputs::setValuesFromInputFile()
       input >> intraCurveSpacingPropFacMin;
     else if (token == "lastClosedPsi")
       input >> lastClosedPsi;
+    else if (token == "fluxCurvesInPrivate")
+      input >> fluxCurvesInPrivate;
     else if (token == "useWall")
       input >> useWall;
     else if (token == "stellaratorWallFile")
       input >> stellaratorWallFile;
   }
   input.close();
+
+  // Step 4: If tomms input used, print a closing message.
+  if (tommsInput)
+  std::cout << "========================= Reading TOMMS Legacy Input file (xgc_mesh_in) - DONE ============================\n\n";
 }
 
 // A function to set values to local variables and containers for internal code use.
@@ -448,6 +491,12 @@ const double& Inputs::getLastClosedPsi() const
 const bool& Inputs::useWallCurve() const
 {
   return useWall;
+}
+
+// Function to check if flux curves in the private region are desired or not.
+const bool& Inputs::addFluxCurvesInPrivateRegion() const
+{
+  return fluxCurvesInPrivate;
 }
 
 // Function to return vmec wall file name.

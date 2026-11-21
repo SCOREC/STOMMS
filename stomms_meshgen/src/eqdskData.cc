@@ -32,15 +32,13 @@ EqdskData::EqdskData(const Inputs& input, const PlaneMetaData& planeData, const 
 void EqdskData::setintraCurveSpacingGradPsi()
 {
  // Step 1: Get the normalized psi vector from input.
- fluxValues = fluxInputData.fluxInput;
+ fluxValues = planeMetaData.getPlaneFluxValues();
 
- // Step 2: Iterate over the psi values and corresponding mesh
- // sizes (don't need mesh sizes here. Just making sure we are
- // iterating over correct container) 
- for( const auto &itr : fluxInputData.fluxMeshSize)
+ // Step 2: Iterate over the psi values
+ for (int i = 0; i < fluxValues.size(); i++)
  {
    // Step 3: Get a point from the normalized psi value.
-   double psiNorm = itr.first;
+   double psiNorm = fluxValues[i];
    double psi = convertNormToPsi(psiNorm);
    Point pt = convertPsiToPoint(psi);
 
@@ -829,6 +827,7 @@ void EqdskData::setParameters(const Inputs& in)
   intraCurveSpacingPropFacMax = in.getIntraCurveSpacingPropFacMax();
   intraCurveSpacingPropFacMin = in.getIntraCurveSpacingPropFacMin();
   useWall = in.useWallCurve();
+  fluxCurvesInPrivate = in.addFluxCurvesInPrivateRegion(); 
 }
 
 // Returns the number of poloidal planes (user input).
@@ -889,6 +888,11 @@ const bool& EqdskData::getIntraCurveSpacingSmallVariation() const
 const double& EqdskData::getIntraCurveMinLengthLastEdge() const
 {
   return intraCurveMinLengthLastEdge;
+}
+
+const bool& EqdskData::addFluxCurvesInPrivateRegion() const
+{
+  return fluxCurvesInPrivate;
 }
 
 // Function to check if model needs to be bounded by wall curve or last closed flux curve.

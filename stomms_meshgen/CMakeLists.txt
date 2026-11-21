@@ -28,6 +28,7 @@ set(STELLMESH_SRCS
 
   # Inputs
   src/input.cc
+  src/tommsInputsSupport.cc
 
   # EQDSK
   src/criticalPointsEqdsk.cc 

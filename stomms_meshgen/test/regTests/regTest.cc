@@ -169,7 +169,7 @@ std::array<int,6> getEntityValidationData(const std::string& testCase)
   if (checkFileName(testCase, "C-gts_circ.eqd"))
     data = std::array<int,6>{21, 20, 20, 3412, 9981, 6570};
   if (checkFileName(testCase, "ITER-10MA.geqdsk-xgca"))
-    data = std::array<int,6>{524, 659, 336, 272345, 816003, 543659};
+    data = std::array<int,6>{522, 656, 335, 272345, 816003, 543659};
   if (checkFileName(testCase, "KSTAR-g018451.002790_kin_1"))
     data = std::array<int,6>{317, 406, 203, 214788, 643006, 428219};
   if (checkFileName(testCase, "LTX-1504291255_47400.eqdsk"))
@@ -177,11 +177,11 @@ std::array<int,6> getEntityValidationData(const std::string& testCase)
   if (checkFileName(testCase, "LTX-1504291255_47400_xgc1"))
     data = std::array<int,6>{278, 277, 86, 33440, 99684, 66245};
   if (checkFileName(testCase, "LTX-1504291255_47400_xgca"))
-    data = std::array<int,6>{260, 271, 56, 15797, 46901, 31105};
+    data = std::array<int,6>{260, 271, 56, 15799, 46905, 31107};
   if (checkFileName(testCase, "MASTU-g_p45152_t0.80000"))
     data = std::array<int,6>{322, 426, 126, 10425, 30677, 20253};
   if (checkFileName(testCase, "NSTX-g132588.00650"))
-     data = std::array<int,6>{149, 179, 89, 129637, 387833, 258197};
+     data = std::array<int,6>{149, 179, 89, 131349, 392982, 261634};
 
   // Stellarator Cases
   if (checkFileName(testCase, "W7-X"))
