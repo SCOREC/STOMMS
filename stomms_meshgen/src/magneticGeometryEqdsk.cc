@@ -83,7 +83,7 @@ void MagneticGeometryEqdsk::classifyPsiValues(const Inputs& in)
     {
       for (int j = 1; j < psiValuesSeparatrix.size(); j++)
       {
-        if (fabs(psi - psiValuesSeparatrix[j]))
+        if (fabs(psi - psiValuesSeparatrix[j]) < 1e-8)
         {
           psiSep = true;
           break;

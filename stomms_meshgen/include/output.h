@@ -2,6 +2,7 @@
 #define OUTPUT_H
 
 #include "meshOutput.h"
+#include "tommsOutput.h"
 #include "stommsVersion.h"  //  for project version and details
 
 class StommsOutput{

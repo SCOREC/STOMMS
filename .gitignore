@@ -41,5 +41,21 @@ install
 *.bp
 *.log
 
+# TOMMS Output files (showed up during testing so putting here just in case)
+*.vtk
+*.node
+*.ele
+*.flx.aif
+*nodes.txt
+*elements.txt
+*.nex
+*.smb
+*.dmg
+*wallcurve.txt
+*allcvs.txt
+*curves.txt
+*startpoints.txt
+
+
 # Documentation
 pyEnv

@@ -37,6 +37,13 @@ StommsOutput::StommsOutput(const StommsMesh& m, const GridFieldData& gridData):m
   // Step 7: Read adios2 file for verification of data.
   // Don't need it unless we are debugging.
   // readAdiosFile();
+  
+  // Step 8: If tokamak write tomms output files. For now (testing), 
+  // just using numPlane = 1 to check it its a tokamak mesh. In future,
+  // either take in a flag and check the reactor type.
+  if (geometricPlanes.size() == 1)
+    TommsOutput tommsOutput(mesh); 
+  
 }
 
 // Destructor
