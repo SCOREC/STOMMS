@@ -29,6 +29,8 @@ TommsOutput::TommsOutput(const StommsMesh& mesh):stommsMesh(mesh)
   // Step 5: Write element file
   writeElementsFile();
 
+  // Step 6: Write flux file
+  writeFluxFile();
 }
 
 TommsOutput::~TommsOutput()
@@ -37,6 +39,10 @@ TommsOutput::~TommsOutput()
   for (pVertex vertex : nodes)
     EN_deleteData(vertex, wallId);
   MD_deleteMeshDataId(wallId);
+
+  // Step 2: Close the flux file.
+  if (fluxFile != nullptr)
+    fclose(fluxFile);
 
   // Step 2: Delete the node numbering map.
   MeshNex_delete(nex);
@@ -227,6 +233,148 @@ void TommsOutput::writeElementsFile()
   fclose(fp);
 }
 
+// Function to write flux curves information to the file.
+void TommsOutput::writeFluxFile()
+{
+  // Step 1: Open the flux file.
+  fluxFile = fopen("flux.txt", "w");
+
+  // Step 2: Write line 1 (number of Xpoint) and line 2 (mesh vertices
+  // classified on the Xpoints model vertex).
+  writeXpointsToFluxFile();
+
+  // Step 3: Write number of flux curves in each physics region on line 3.
+  writeFluxNumbersInRegionsToFile();
+}
+
+// Function to write xPoints information to the flux file. It writes two pieces.
+// 1- Number of Xpoints. 2- Indices of mesh vertices classified on the xPoints 
+// model vertices.
+void TommsOutput::writeXpointsToFluxFile()
+{
+  // Step 1: Get the vector of xPoints on the poloidal plane.
+  const std::vector <Vertex>& xPoints = geometricPlanes[0].getXPointsOnPlane();
+
+  // Step 2: Write number of xPoints to the line 1 of flux file.
+  int numXPoints = xPoints.size();
+  fprintf(fluxFile,"%d\n", numXPoints);
+
+  // Step 3: Iterate over the xpoints and write mesh vertex (ordered numbered of vertex) to the file.
+  for (int i = 0; i < numXPoints; i++)
+  {
+    pGVertex simVertex = xPoints[i].getSimVertex();
+    pVertex meshVertex = M_classifiedVertex(simMesh, simVertex);
+    int index = MeshNex_node(nex, meshVertex, 0);
+    fprintf(fluxFile,"%d ", index);
+  }
+  
+  // Step 4: If number of xpoints are 1, make sure to add a -1 for second xpoints.
+  // If xpoints are 0, add place holder -1 for both. Its a place holder (hard coded). 
+  // I don't like this way but to match XGC logic, I need to do this.
+  if (numXPoints == 0)
+    fprintf(fluxFile,"%d %d\n", -1, -1);
+  else if (numXPoints == 1)
+    fprintf(fluxFile,"%d\n", -1);
+  else
+    fprintf(fluxFile,"\n");
+}
+
+// Function to write number of flux curves in each region to the flux file.
+void TommsOutput::writeFluxNumbersInRegionsToFile()
+{
+  // Step 1: Update the ordering of the flux curves. See the description
+  // of function updateFluxOrdering() to see why we need this step.
+  updateFluxOrdering();
+
+  // Step 2: Get number of flux curves in each region. If number is zero
+  // in any region, simply set -1 for the region.
+  int nCore = core.size() + 1;  // add 1 for magnetic axis
+  int nSol = (sol.size() == 0) ? -1: sol.size();
+  int nPvt0 = (pvt0.size() == 0) ? -1: pvt0.size();
+  int nPvt1 = (pvt1.size() == 0) ? -1: pvt1.size();
+
+  // Step 3: Write the number of flux cruves to the file.
+  fprintf(fluxFile,"%d %d %d %d\n", nCore, nSol, nPvt0, nPvt1);
+}
+
+// Function to update the ordering of the flux curves in sorted flux curves vector. 
+// Also, update the vector sol, pvt0, and pvt1.
+// See header file (tommsOutput.h) to read why we need this step.
+void TommsOutput::updateFluxOrdering()
+{
+  // Step 1: Set the known starting point of each types of curves in the vector and  
+  // then clear the sol, and private region vectors. Core will stay same so keep it.
+  int solStart = core.size();  // where core curves end
+  int pvt0Start = solStart + sol.size();  // where core + sol curves end
+  int pvt1Start = pvt0Start + pvt0.size(); 
+  sol.clear();
+  pvt0.clear();
+  pvt1.clear();
+
+  // Step 2: Get separatrix psi values of all the xPoints. Just to be consistent 
+  // with old xgc normal (same as TOMMS), only use first two xpoints.
+  const std::vector <Vertex>& xPoints = geometricPlanes[0].getXPointsOnPlane();
+  int numXPoints = xPoints.size();
+
+  // Step 2.1: For every xPoint vertex, get its simmetrix vertex and read the psi
+  // valuea attribute, attach to it.
+  std::vector <double> xPointsPsi;
+  for (int i = 0; i < numXPoints; i++)
+  {
+    pGVertex gv = xPoints[i].getSimVertex();
+    double psiNorm = -1.0;
+    GEN_nativeDoubleAttribute(gv, "PsiNorm", &psiNorm);
+    xPointsPsi.push_back(psiNorm);
+  }
+
+  // Step 2.2: Set values of psi to first two separatrices only.
+  double psiSep0 = (numXPoints >= 1) ? xPointsPsi[0]: DBL_MAX;
+  double psiSep1 = (numXPoints >= 2) ? xPointsPsi[1]: DBL_MAX;
+
+  // Step 3: Iterate over the sol and pvt region curves in the sorted list.
+  // It has core curves at the start, so skip them and start where sol starts.
+  std::map <std::pair <double, int>, int> solCurves;
+  for (int i = solStart; i < sortedFluxCurves.size(); i++)
+  {
+    // Step 3.1: Get the curve and it's psi value so we can do comparison of this
+    // value with separatrix psi values.
+    const Flux& curve = sortedFluxCurves[i];
+    double psi = curve.psiNormOnFlux;
+
+    // Step 3.2: Check the curves in the private region, and use the psi filter to decide if 
+    // they truly belong to the private region or to SOL. If it's in outer private region, 
+    // and psi less than outer separatrix, keep them in pvt1 (it will remove any values greater 
+    // than psiSep1). Similarly, only keep curves in private region 0 if it's psi norm is less 
+    // than 1.00 (psi of inner separatrix). 
+    if (i >= pvt1Start && psi <= psiSep1)
+      pvt1.push_back(curve);
+    else if (i >= pvt0Start && i < pvt1Start && psi <= psiSep0)
+      pvt0.push_back(curve);
+    else
+    { // Keeping them in this map to sort any newly added curve.
+      int tag = GEN_tag(curve.edgesOnFlux[0].getSimEdge());
+      solCurves[{psi, tag}] = i;
+    }
+  }
+
+  // Step 4: We already have private regions sorted. Just push back 
+  // solCurves to sol region for using it later.
+  for (const auto& fluxCurve : solCurves)
+    sol.push_back(sortedFluxCurves[fluxCurve.second]);
+
+  // Step 5: Clear and update the sorted curves list.
+  sortedFluxCurves.clear();
+  sortedFluxCurves.insert(sortedFluxCurves.end(), core.begin(), core.end());
+  sortedFluxCurves.insert(sortedFluxCurves.end(), sol.begin(), sol.end());
+  sortedFluxCurves.insert(sortedFluxCurves.end(), pvt0.begin(), pvt0.end());
+  sortedFluxCurves.insert(sortedFluxCurves.end(), pvt1.begin(), pvt1.end());
+
+   for (int i = 0; i < sol.size(); i++)
+    if (sol[i].curveType == CurveType::Separatrix)
+      std::cout << i << " psi=" << sol[i].psiNormOnFlux << " edges=" << sol[i].edgesOnFlux.size() << "\n";
+
+}
+
 // Function to set model curves to the specific physics region. It is sorting
 // curves according to psi values in each physics region.
 void TommsOutput::setFluxCurvesOnPhysicsRegions()
@@ -308,6 +456,8 @@ void TommsOutput::addCurvesToRegion(const std::vector <int>& faceTags, int priva
     // Step 2.3: Iterate over the model edges of each model face (gf), and find the 
     // edge in the edges-curve map. If not found, skip it. If found, get the psi
     // value and save the edge psi-id pair against flux id in the map.
+    int faceType = -1;
+    GEN_nativeIntAttribute(gf, "PhysicsRegion", &faceType);
     pPList edges = GF_edges(gf);
     for (int j = 0; j < PList_size(edges); j++)
     {
@@ -315,8 +465,16 @@ void TommsOutput::addCurvesToRegion(const std::vector <int>& faceTags, int priva
       auto it = edgesToCurveMap.find(ge);
       if (it == edgesToCurveMap.end())
         continue;  // wall edge
+     
+      // Step 2.3.1: Since first separatrix will appaer as adjacent edge of a core region face,
+      // make sure to skip it from the core.
+      int curveType = -1;
+      GEN_nativeIntAttribute(ge, "CurveType", &curveType);
+      if (faceType == static_cast<int>(FaceType::Core) && curveType == static_cast<int>(CurveType::Separatrix))
+        continue;
 
-      // Step 2.3.1: If found, get the psi value and save pair (psi-tag) with flux id in the map.
+
+      // Step 2.3.2: If found, get the psi value and save pair (psi-tag) with flux id in the map.
       double psi = fluxCurves[it->second].psiNormOnFlux;
       curvesInRegion[{psi, GEN_tag(ge)}] = it->second;
     }

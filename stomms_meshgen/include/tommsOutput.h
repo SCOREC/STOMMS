@@ -36,6 +36,10 @@ class TommsOutput{
     int nodeIndx = 1;  // ordering starts at 1 (and not 0 as in simmetrix meshes).
     std::vector <pVertex> nodes;  // a vector of all sorted and ordered nodes.
 
+    // Flux file. Since it will be needed at quite a few places, I am adding
+    // it here.
+    FILE* fluxFile;
+
     /**
      * High level function to write the mesh data to the nodes file.
      */ 
@@ -81,6 +85,27 @@ class TommsOutput{
     void writeElementsFile();
 
     /**
+     *  Function to write flux curves information to the file. It includes physics information
+     *  such as number of xpoints, separatrices indices etc.
+     *  Check last paragraph of this link for the details:
+     *  https://github.com/SCOREC/Fusion_Public/wiki/File-Format-of-XGC-Mesh-Files for 
+     */
+    void writeFluxFile();
+
+    /**
+     * Function to write xPoints information to the flux file. It writes two pieces.
+     * 1- Number of Xpoints.
+     * 2- Indices of mesh vertices classified on the xPoints model vertices.
+     */ 
+    void writeXpointsToFluxFile();
+
+    /**
+     * Function to write number of flux curves in each region to the flux file.
+     * If number of curves in that region == 0, just write -1 to file for that region.
+     */ 
+    void writeFluxNumbersInRegionsToFile();
+
+    /**
      * Function to set model curves to the specific physics region. It sorts curves according to 
      * psi values in each physics region and set them in a vector specific to that physics region.
      */ 
@@ -95,6 +120,19 @@ class TommsOutput{
      */ 
     void addCurvesToRegion(const std::vector <int>& faceTags, int privateId, std::vector <Flux>& curves); 
 
+    /**
+     * Function to update the ordering of the flux curves in sorted flux curves vector. Also, update
+     * the vector sol, pvt0, and pvt1.
+     * REASON: In earlier sorting for nodes numbering, flux were ordered according to the two things.
+     * First was the region it is classified on (topologically) and secondly by psi value within each region. 
+     * But for flux file, TOMMS does things differently. It makes sure to deal curves in terms of physics. 
+     * For example, a curve with psi value > 1.0 (psi Norm of first xpoint), shouldn't be in private region 0.
+     * Now technically getting such flux curve is possible depending on the geometry of the private region. Now
+     * in this sorting, we remove any flux curve with psiNorm > 1.0 from private region 0 and a similar treatement
+     * for flux curves in private region 1 and move such curves to sol region.
+     * I don't like this different ordering at two places but have to do it to match old TOMMS logic. 
+     */ 
+    void updateFluxOrdering();
     /**
      * Function to check if a mesh vertex is classified on the wall curve or not.
      * @param v: mesh vertex to be checked.
