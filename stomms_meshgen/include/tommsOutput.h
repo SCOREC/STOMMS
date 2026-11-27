@@ -31,6 +31,9 @@ class TommsOutput{
     std::vector <Flux> sortedFluxCurves;   // sorted flux curves on the poloidal plane
     std::map <pGEdge, int> edgesToCurveMap;  // edges-flux Id relationship map
     std::vector <bool> curveUsed;  // a vector needed in sorting of flux curves
+    std::map <int, std::vector<int>> fluxCurvesToMeshVerticesMap;
+    int indexSep0 = -1;
+    int indexSep1 = -1;
  
     // Node Ordering
     int nodeIndx = 1;  // ordering starts at 1 (and not 0 as in simmetrix meshes).
@@ -104,7 +107,16 @@ class TommsOutput{
      * If number of curves in that region == 0, just write -1 to file for that region.
      */ 
     void writeFluxNumbersInRegionsToFile();
-
+    void writeSepIndicesToFile();
+    void writeMagneticAxisToMap();
+    void writeFluxEdgeToMap(const int& fluxIndex, const pGEdge& ge, bool reverseOrder, bool skipFirstVertex, bool skipLastVertex);
+    void writeFluxEdgeToMapOrdered(const int& fluxIndex, const pGEdge& ge, bool skipFirstVertex, bool skipLastVertex);
+    void writeFluxEdgeToMapReversed(const int& fluxIndex, const pGEdge& ge, bool skipFirstVertex, bool skipLastVertex);
+    void writeNonSepFluxCurves(const int& fluxIndex);
+    void writeSepFluxCurves(const int& fluxIndex);
+    void writeInnerSep(const int& fluxIndex);
+    void writeOuterSep(const int& fluxIndex);
+    void writeCurvesToFile();
     /**
      * Function to set model curves to the specific physics region. It sorts curves according to 
      * psi values in each physics region and set them in a vector specific to that physics region.
@@ -153,6 +165,8 @@ class TommsOutput{
      * @return true if model edge ge is classified on the wall curve, else fale.
      */ 
     bool isOnWall(pGEdge ge);
+
+    bool sameXPoint(const Flux& flux1, const Flux& flux2);
 };
 
 

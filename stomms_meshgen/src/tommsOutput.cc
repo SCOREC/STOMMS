@@ -245,6 +245,13 @@ void TommsOutput::writeFluxFile()
 
   // Step 3: Write number of flux curves in each physics region on line 3.
   writeFluxNumbersInRegionsToFile();
+
+  // Step 4: Write the indices of separatrix curves to the file.
+  writeSepIndicesToFile();
+
+  // Step 5: Write number of vertices on each flux curve on line 5, and then 
+  // indices of vertices on each curve on a single line (Line 6 .. 6+nFluxCurve-1).
+  writeCurvesToFile();
 }
 
 // Function to write xPoints information to the flux file. It writes two pieces.
@@ -297,82 +304,160 @@ void TommsOutput::writeFluxNumbersInRegionsToFile()
   fprintf(fluxFile,"%d %d %d %d\n", nCore, nSol, nPvt0, nPvt1);
 }
 
-// Function to update the ordering of the flux curves in sorted flux curves vector. 
-// Also, update the vector sol, pvt0, and pvt1.
-// See header file (tommsOutput.h) to read why we need this step.
-void TommsOutput::updateFluxOrdering()
+void TommsOutput::writeSepIndicesToFile()
 {
-  // Step 1: Set the known starting point of each types of curves in the vector and  
-  // then clear the sol, and private region vectors. Core will stay same so keep it.
-  int solStart = core.size();  // where core curves end
-  int pvt0Start = solStart + sol.size();  // where core + sol curves end
-  int pvt1Start = pvt0Start + pvt0.size(); 
-  sol.clear();
-  pvt0.clear();
-  pvt1.clear();
+  // Step 1: Write indices of the separatrix curves to the file.
+  // Line 4 of the file.
+  fprintf(fluxFile,"%d %d\n", indexSep0, indexSep1);
 
-  // Step 2: Get separatrix psi values of all the xPoints. Just to be consistent 
-  // with old xgc normal (same as TOMMS), only use first two xpoints.
-  const std::vector <Vertex>& xPoints = geometricPlanes[0].getXPointsOnPlane();
-  int numXPoints = xPoints.size();
+}
 
-  // Step 2.1: For every xPoint vertex, get its simmetrix vertex and read the psi
-  // valuea attribute, attach to it.
-  std::vector <double> xPointsPsi;
-  for (int i = 0; i < numXPoints; i++)
+void TommsOutput::writeCurvesToFile()
+{
+  // Step 1: Set axis the map.
+  writeMagneticAxisToMap();
+
+  // Step 2: Write flux curves to the map (ignore separatrix curves for now).
+  for (int i = 0; i < sortedFluxCurves.size(); i++)
   {
-    pGVertex gv = xPoints[i].getSimVertex();
-    double psiNorm = -1.0;
-    GEN_nativeDoubleAttribute(gv, "PsiNorm", &psiNorm);
-    xPointsPsi.push_back(psiNorm);
+    const Flux& flux = sortedFluxCurves[i];
+    if (flux.curveType == CurveType::Closed || flux.curveType == CurveType::Open)
+      writeNonSepFluxCurves(i);  
   }
 
-  // Step 2.2: Set values of psi to first two separatrices only.
-  double psiSep0 = (numXPoints >= 1) ? xPointsPsi[0]: DBL_MAX;
-  double psiSep1 = (numXPoints >= 2) ? xPointsPsi[1]: DBL_MAX;
-
-  // Step 3: Iterate over the sol and pvt region curves in the sorted list.
-  // It has core curves at the start, so skip them and start where sol starts.
-  std::map <std::pair <double, int>, int> solCurves;
-  for (int i = solStart; i < sortedFluxCurves.size(); i++)
+  // Step 3: Write number of vertices on each flux curve in line 5.
+  for (const auto& verticesOnFlux: fluxCurvesToMeshVerticesMap)
   {
-    // Step 3.1: Get the curve and it's psi value so we can do comparison of this
-    // value with separatrix psi values.
-    const Flux& curve = sortedFluxCurves[i];
-    double psi = curve.psiNormOnFlux;
+    int numVertices = verticesOnFlux.second.size();
+    fprintf(fluxFile, "%d ", numVertices);
+  }
+  fprintf(fluxFile, "\n");
 
-    // Step 3.2: Check the curves in the private region, and use the psi filter to decide if 
-    // they truly belong to the private region or to SOL. If it's in outer private region, 
-    // and psi less than outer separatrix, keep them in pvt1 (it will remove any values greater 
-    // than psiSep1). Similarly, only keep curves in private region 0 if it's psi norm is less 
-    // than 1.00 (psi of inner separatrix). 
-    if (i >= pvt1Start && psi <= psiSep1)
-      pvt1.push_back(curve);
-    else if (i >= pvt0Start && i < pvt1Start && psi <= psiSep0)
-      pvt0.push_back(curve);
-    else
-    { // Keeping them in this map to sort any newly added curve.
-      int tag = GEN_tag(curve.edgesOnFlux[0].getSimEdge());
-      solCurves[{psi, tag}] = i;
-    }
+  // Step 4: Write vertices on each flux curve on next lines.
+  for (const auto& verticesOnFlux: fluxCurvesToMeshVerticesMap)
+  {
+    const std::vector <int>& vertices = verticesOnFlux.second;
+    for (int i = 0; i < vertices.size(); i++)
+      fprintf(fluxFile, "%d ", vertices[i]);
+    fprintf(fluxFile, "\n");
+  }
+}
+
+void TommsOutput::writeNonSepFluxCurves(const int& fluxIndex)
+{
+  const Flux& flux = sortedFluxCurves[fluxIndex];
+  const std::vector <Edge>& edgesOnCurve = flux.edgesOnFlux;
+  int numEdges = edgesOnCurve.size();
+
+  bool reverseOrder = false;
+  bool skipLastVertex = false;
+  for (int i = 0; i < numEdges; i++)  
+  {
+    pGEdge ge = edgesOnCurve[i].getSimEdge();
+    bool skipFirstVertex = true;
+    if (i == 0 && flux.curveType == CurveType::Open)
+      skipFirstVertex = false;
+    writeFluxEdgeToMap(fluxIndex+1, ge, reverseOrder, skipFirstVertex, skipLastVertex);
+  }
+}
+
+void TommsOutput::writeSepFluxCurves(const int& fluxIndex)
+{
+  
+
+}
+
+void TommsOutput::writeMagneticAxisToMap()
+{
+  // Step 1: Get the oPoint and its index from nex file.
+  Vertex axis = geometricPlanes[0].oPoint;
+  pGVertex axisSimVertex = axis.getSimVertex();
+  pVertex meshVertex = M_classifiedVertex(simMesh, axisSimVertex);
+  int meshVertexIndex = MeshNex_node(nex, meshVertex, 0);
+
+  int curveIndex = 0;
+  std::vector <int> verticesOnAxis = {meshVertexIndex};  // one vertex on this axis.
+  fluxCurvesToMeshVerticesMap[curveIndex] = verticesOnAxis;
+}
+
+void TommsOutput::writeFluxEdgeToMap(const int& fluxIndex, const pGEdge& ge, bool reverseOrder, bool skipFirstVertex, bool skipLastVertex)
+{
+  if (!reverseOrder)
+    writeFluxEdgeToMapOrdered(fluxIndex, ge, skipFirstVertex, skipLastVertex);
+  else if(reverseOrder)
+    writeFluxEdgeToMapReversed(fluxIndex, ge, skipFirstVertex, skipLastVertex);
+}
+
+void TommsOutput::writeFluxEdgeToMapOrdered(const int& fluxIndex, const pGEdge& ge, bool skipFirstVertex, bool skipLastVertex)
+{
+  // Step 1: If skip first vertex is false, add first vertex of the edge to the map. If true, skip it.
+  if (!skipFirstVertex)
+  {
+    const pGVertex& gv = GE_vertex(ge, 0);
+    pVertex meshVertex = M_classifiedVertex(simMesh, gv);
+    int meshVertexIndex = MeshNex_node(nex, meshVertex, 0);
+    fluxCurvesToMeshVerticesMap[fluxIndex].push_back(meshVertexIndex); 
   }
 
-  // Step 4: We already have private regions sorted. Just push back 
-  // solCurves to sol region for using it later.
-  for (const auto& fluxCurve : solCurves)
-    sol.push_back(sortedFluxCurves[fluxCurve.second]);
+  // Step 2: Add inner vertices on the edge (except end points) to the map.
+  VIter vertexIter = M_classifiedVertexIter( simMesh, ge, 0 );
+  while (pVertex meshVertex = VIter_next(vertexIter))
+  {
+    int meshVertexIndex = MeshNex_node(nex, meshVertex, 0);
+    fluxCurvesToMeshVerticesMap[fluxIndex].push_back(meshVertexIndex);
+  }
+  VIter_delete(vertexIter);
 
-  // Step 5: Clear and update the sorted curves list.
-  sortedFluxCurves.clear();
-  sortedFluxCurves.insert(sortedFluxCurves.end(), core.begin(), core.end());
-  sortedFluxCurves.insert(sortedFluxCurves.end(), sol.begin(), sol.end());
-  sortedFluxCurves.insert(sortedFluxCurves.end(), pvt0.begin(), pvt0.end());
-  sortedFluxCurves.insert(sortedFluxCurves.end(), pvt1.begin(), pvt1.end());
+  // Step 3: If skip last vertex is false, add last vertex of the edge to the map. If true, skip it.  
+  if (!skipLastVertex)
+  {
+    const pGVertex& gv = GE_vertex(ge, 1);
+    pVertex meshVertex = M_classifiedVertex(simMesh, gv);
+    int meshVertexIndex = MeshNex_node(nex, meshVertex, 0);
+    fluxCurvesToMeshVerticesMap[fluxIndex].push_back(meshVertexIndex); 
+  }
+}
 
-   for (int i = 0; i < sol.size(); i++)
-    if (sol[i].curveType == CurveType::Separatrix)
-      std::cout << i << " psi=" << sol[i].psiNormOnFlux << " edges=" << sol[i].edgesOnFlux.size() << "\n";
+void TommsOutput::writeFluxEdgeToMapReversed(const int& fluxIndex, const pGEdge& ge, bool skipFirstVertex, bool skipLastVertex)
+{
+  std::vector <int> tempVector;  // temporary vector for reverse ordering.
+  
+  // Step 1: If skip last vertex is false, add first vertex of the edge to the map. If true, skip it.
+  // In this case (reverse), it will be the first vertex on the edge.
+  if (!skipLastVertex)
+  {
+    const pGVertex& gv = GE_vertex(ge, 0);
+    pVertex meshVertex = M_classifiedVertex(simMesh, gv);
+    int meshVertexIndex = MeshNex_node(nex, meshVertex, 0);
+    tempVector.push_back(meshVertexIndex);
+  }
 
+  // Step 2: Add inner vertices on the edge (except end points) to the map.
+  VIter vertexIter = M_classifiedVertexIter( simMesh, ge, 0 );
+  while (pVertex meshVertex = VIter_next(vertexIter))
+  {
+    int meshVertexIndex = MeshNex_node(nex, meshVertex, 0);
+    tempVector.push_back(meshVertexIndex);
+  }
+  VIter_delete(vertexIter);
+
+  // Step 3: If skip first vertex is false, add last vertex of the edge to the map. If true, skip it.
+  // In this case (reverse), the first vertex is actually the last vertex of the edge.  
+  if (!skipFirstVertex)
+  {
+    const pGVertex& gv = GE_vertex(ge, 1);
+    pVertex meshVertex = M_classifiedVertex(simMesh, gv);
+    int meshVertexIndex = MeshNex_node(nex, meshVertex, 0);
+    tempVector.push_back(meshVertexIndex);
+  }
+  
+  // Step 4: The elements in the tempVector are in regular order. To reverse it, starting
+  // pushing elements to the map from the end of the vector. Once pushed, remove them.
+  while (tempVector.size())
+  {
+    fluxCurvesToMeshVerticesMap[fluxIndex].push_back(tempVector.back());
+    tempVector.pop_back();
+  }
 }
 
 // Function to set model curves to the specific physics region. It is sorting
@@ -551,5 +636,16 @@ bool TommsOutput::isOnWall(pGEdge ge)
     if (curveType == static_cast <int>(CurveType::Wall))
       return true;
   }
+  return false;
+}
+
+bool TommsOutput::sameXPoint(const Flux& flux1, const Flux& flux2)
+{
+  const Point& pt1 = flux1.xPoint.getPoint();
+  const Point& pt2 = flux2.xPoint.getPoint();
+
+  if (pt1.x == pt2.x && pt1.y == pt2.y)
+    return true;
+
   return false;
 }
